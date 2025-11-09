@@ -3,9 +3,6 @@ const nextConfig = {
   basePath: '/admin',
   reactStrictMode: true,
   transpilePackages: ['@aah/ui', '@aah/database', '@aah/auth'],
-  experimental: {
-    serverActions: true,
-  },
   async rewrites() {
     return {
       beforeFiles: [
