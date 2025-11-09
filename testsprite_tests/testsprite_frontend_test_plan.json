@@ -1,0 +1,610 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication via Clerk",
+    "description": "Verify that users can authenticate successfully via Clerk and receive a valid JWT token accepted by all microservices.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page on apps/main."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid user credentials and submit the login form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that login is successful and a JWT token is received."
+      },
+      {
+        "type": "action",
+        "description": "Use the JWT token to access protected endpoints on Advising, Compliance, AI, and Integration services."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate that JWT tokens are accepted by all microservices and the user is authorized."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access a protected endpoint without authentication."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied with an appropriate 401 Unauthorized response."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Confirm that role-based access control (RBAC) restricts user actions and views according to their roles.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a student-athlete user."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to access academic coordinator or admin-only features."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access is denied or UI elements for unauthorized features are hidden."
+      },
+      {
+        "type": "action",
+        "description": "Login as an academic coordinator."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access to eligibility checks, violation alerts, and reporting features."
+      },
+      {
+        "type": "action",
+        "description": "Login as faculty user and attempt to submit progress reports and absence notifications."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify actions are permitted only for authorized roles."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Student Dashboard Display",
+    "description": "Verify that student-athletes can view a personalized dashboard showing academic progress, eligibility status, and schedules.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a student-athlete."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard loads with up-to-date academic progress metrics."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify NCAA eligibility status is displayed and accurate."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify student course and athletic schedules are visible without conflicts."
+      },
+      {
+        "type": "action",
+        "description": "Simulate a data update causing eligibility warning."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard immediately reflects alert or warning status."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Advising Service Course Scheduling and Conflict Detection",
+    "description": "Test the Advising Service's ability to generate optimal course schedules using CSP solver and detect conflicts with athletic commitments.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as an academic advisor."
+      },
+      {
+        "type": "action",
+        "description": "Input a student-athlete's academic requirements and athletic schedule constraints."
+      },
+      {
+        "type": "action",
+        "description": "Request the Advising Service to generate an optimal course schedule."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that generated schedule has no class conflicts or conflicts with athletic events."
+      },
+      {
+        "type": "action",
+        "description": "Manually add a class that conflicts with athletic commitments."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that the service detects and flags the conflict."
+      },
+      {
+        "type": "action",
+        "description": "Test CSP solver with edge cases such as maximum credit load and overlapping constraints."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the scheduling either succeeds with a valid plan or provides meaningful error messages."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Compliance Service NCAA Eligibility Rules Validation",
+    "description": "Validate that the Compliance Service enforces Level 1 (initial) and Level 2 (continuing) NCAA eligibility requirements correctly including audit log generation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger Compliance Service validation for new student-athlete initial eligibility."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify correct application of NCAA initial eligibility rules with accurate pass/fail outcomes."
+      },
+      {
+        "type": "action",
+        "description": "Trigger continuing eligibility checks for a current student-athlete."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify continuing eligibility rules are applied and status is updated accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Submit invalid or incomplete data for eligibility check."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the service responds with validation errors and does not crash."
+      },
+      {
+        "type": "action",
+        "description": "Review audit logs after compliance checks."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit logs include timestamps, user IDs, actions performed, and compliance results."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Monitoring Service Academic Performance Tracking and Alerts",
+    "description": "Test Monitoring Service's ability to track academic performance, generate progress reports, and push real-time alerts via WebSocket for at-risk students.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Input academic performance data for student-athletes with varying thresholds."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Monitoring Service calculates progress reports correctly."
+      },
+      {
+        "type": "action",
+        "description": "Induce academic risk conditions (e.g., GPA drop below threshold)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify real-time alerts are broadcasted via WebSocket and received by subscribed clients."
+      },
+      {
+        "type": "action",
+        "description": "Test WebSocket connection drops and reconnection handling."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify alert delivery reliability after reconnection."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Support Service Tutoring Session Booking Workflow",
+    "description": "Validate the booking workflow for tutoring sessions including real-time availability checks and notification dispatch.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a student-athlete and browse available tutoring sessions."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to book a tutoring session that is available."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking confirmation is received and session availability is updated."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to book a tutoring session that is full or unavailable."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify booking is rejected gracefully with an informative message."
+      },
+      {
+        "type": "action",
+        "description": "Verify notification dispatch to tutors and students upon booking."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm notifications are sent and contain accurate session details."
+      },
+      {
+        "type": "action",
+        "description": "Cancel a booked tutoring session."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify cancellation is processed and notifications sent."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "AI Service Conversational Chatbot Streaming and Response Latency",
+    "description": "Verify AI Service’s streaming conversational responses deliver within required latency and maintain accuracy over NCAA rules and campus knowledge.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Connect to AI Service chatbot interface and send a typical query."
+      },
+      {
+        "type": "assertion",
+        "description": "Measure latency for first token streaming; confirm it is under 500ms."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm total response completion time is between 2-5 seconds depending on query complexity."
+      },
+      {
+        "type": "action",
+        "description": "Send queries referencing NCAA rules and institutional policies."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify responses are accurate, relevant, and cite rules where appropriate."
+      },
+      {
+        "type": "action",
+        "description": "Test prompt injection attempts and malformed inputs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify prompt injection prevention mechanisms block or sanitize malicious input."
+      },
+      {
+        "type": "action",
+        "description": "Test PII filtering by sending queries containing sensitive information."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify PII is not leaked in responses and is properly filtered."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Integration Service External System Connectivity and Data Exchange",
+    "description": "Validate seamless integration with university LMS, SIS, email systems, and vendor portals through import/export and API calls.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Submit a faculty progress report via the Integration Service."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify report is correctly accepted and forwarded to respective university systems."
+      },
+      {
+        "type": "action",
+        "description": "Import NCAA portal eligibility files via vendor API."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm file is parsed, data is ingested, and audit logs are created."
+      },
+      {
+        "type": "action",
+        "description": "Send a travel letter request and verify dispatch."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify external systems receive accurate data and acknowledgments."
+      },
+      {
+        "type": "action",
+        "description": "Simulate network failures or invalid responses from external systems."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Integration Service handles errors gracefully and retries appropriately."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Rate Limiting and Throttling Enforcement",
+    "description": "Ensure rate limiting is enforced according to role-based tiers and excessive requests are rejected with proper standard headers.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform continuous API requests as a student-athlete user until limit is reached."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify requests beyond the limit receive 429 Too Many Requests responses."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify standard rate limiting headers (Retry-After) are present in responses."
+      },
+      {
+        "type": "action",
+        "description": "Repeat test with an academic coordinator role which has a higher rate limit."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm rate limiting respects role tier differences."
+      },
+      {
+        "type": "action",
+        "description": "Attempt burst requests from a single client IP."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify rate limiting is applied and logs capture relevant request info."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Centralized Environment Variables Validation",
+    "description": "Validate that environment variables are correctly validated at startup with type-safe schemas and runtime error reporting.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Start each microservice with a complete and valid set of environment variables."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify services start successfully without errors."
+      },
+      {
+        "type": "action",
+        "description": "Start each microservice missing required environment variables."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that startup fails with clear, descriptive error messages identifying missing or invalid variables."
+      },
+      {
+        "type": "action",
+        "description": "Provide invalid environment variable types (e.g., string instead of number)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify that type validation catches and reports errors at startup."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Automated Compliance Reporting and NCAA Portal File Export",
+    "description": "Verify automated generation of compliance reports and successful export of files to NCAA portals or vendor APIs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Generate compliance reports after eligibility checks."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reports are accurate, complete, and timestamped."
+      },
+      {
+        "type": "action",
+        "description": "Export reports/files to NCAA portal via API or file upload."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify exports succeed with correct format and acknowledgments received."
+      },
+      {
+        "type": "action",
+        "description": "Simulate portal upload failures."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify retry logic is triggered and errors are logged."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "End-to-End Workflow from Scheduling to AI Interaction",
+    "description": "Test an end-to-end user flow involving course scheduling, eligibility checks, tutoring booking, and AI assistant interaction with full user access control.",
+    "category": "integration",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as student-athlete and request course schedule via Advising Service."
+      },
+      {
+        "type": "action",
+        "description": "Trigger Compliance Service eligibility validation on courses selected."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify eligibility pass/fail results shown to user."
+      },
+      {
+        "type": "action",
+        "description": "Book a tutoring session through Support Service."
+      },
+      {
+        "type": "action",
+        "description": "Interact with AI Service chatbot for academic advising queries."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all services respond correctly, respecting user roles and data integrity."
+      },
+      {
+        "type": "action",
+        "description": "Logout and verify access to protected resources is revoked."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure unauthorized access is blocked."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Security Features Validation – Encryption, Audit Logs, and Human-in-the-loop AI",
+    "description": "Validate encryption at rest and in transit, FERPA-aligned audit logging, prompt injection prevention, PII filtering, and human-in-the-loop AI workflows.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Inspect network traffic during API calls for encryption via TLS."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all communication is encrypted in transit."
+      },
+      {
+        "type": "action",
+        "description": "Access data storage locations and verify encryption at rest."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm sensitive data is encrypted properly."
+      },
+      {
+        "type": "action",
+        "description": "Trigger actions in Compliance and AI services and review audit logs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify audit logs include FERPA-compliant fields without exposing PII."
+      },
+      {
+        "type": "action",
+        "description": "Perform AI prompts including attempts at injection and sensitive data inclusion."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm prompt injection is prevented and PII is filtered from outputs."
+      },
+      {
+        "type": "action",
+        "description": "Simulate human-in-the-loop workflow requiring approval on AI decisions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify workflow halts, notifies human reviewer, and proceeds only after approval."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Performance and Scalability Stress Testing",
+    "description": "Test API response times and system behavior under high load with target 5,000 concurrent users supporting autoscaling.",
+    "category": "performance",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate 5,000 concurrent users accessing core endpoints (authentication, scheduling, compliance, AI interactions)."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify average API response time remains below 200ms under load."
+      },
+      {
+        "type": "assertion",
+        "description": "Monitor system autoscaling triggers and ensure no service downtime or failures."
+      },
+      {
+        "type": "action",
+        "description": "Introduce peak traffic bursts and gradual ramp-up."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm system stability, error handling, and graceful degradation."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Comprehensive Testing Coverage Verification",
+    "description": "Ensure unit, integration, and end-to-end tests achieve at least 80% code coverage across all microservices and apps.",
+    "category": "quality",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Run Jest unit tests for all backend services."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify coverage reports meet or exceed 80% threshold."
+      },
+      {
+        "type": "action",
+        "description": "Execute integration tests covering service-to-service communication."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all integration tests pass and coverage is sufficient."
+      },
+      {
+        "type": "action",
+        "description": "Run Playwright or Cypress end-to-end tests on Next.js applications."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate workflows including login, protected pages, scheduling, tutoring booking, and AI interactions function correctly."
+      }
+    ]
+  }
+]

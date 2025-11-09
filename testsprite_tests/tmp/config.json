@@ -1,0 +1,17 @@
+{
+  "status": "init",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3000/",
+  "executionArgs": {
+    "projectName": "athletic-academics-hub",
+    "projectPath": "/home/username01/IdeaProjects01/academic-athletics-saas",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-4dwkp1OWxerb-USPyFS7u-q3tr1RR1f8jo9btSfXOsX6SJwfnmVv55MyWVmPBPEzEWmnV_VcnuD-WpxGEh8Qk0lbWfsRsgxCjfNc6fEA41L3yAT4PhuTZqo-zoUvtdJd1FQ"
+    }
+  },
+  "proxy": "http://6fd2d90d-e384-4f47-aa4d-1997e48ea529:NvSbqLB3h8qRvA7f6eSF4IkXZUlwwtVc@tun.testsprite.com:8080",
+  "serverPort": 44081
+}

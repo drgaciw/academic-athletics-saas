@@ -5,13 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "tsx src/cli.ts",
+    "dev": "echo 'AI Evals CLI - Use: npm run eval, npm run compare, or npm run report'",
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "type-check": "tsc --noEmit",
     "test": "jest",
-    "eval": "tsx src/cli.ts eval",
-    "compare": "tsx src/cli.ts compare",
-    "report": "tsx src/cli.ts report"
+    "eval": "tsx cli.ts eval",
+    "compare": "tsx cli.ts compare",
+    "report": "tsx cli.ts report"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",

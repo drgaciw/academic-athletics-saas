@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "project": "Athletic Academics Hub",
+    "date": "2025-11-04",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "Athletic Academics Hub (AAH) is an NCAA Division I academic support SaaS platform designed to streamline and digitalize academic advising, tutoring, compliance monitoring, and AI-powered intelligent assistance for student-athletes, academic staff, coaches, and faculty.",
+  "core_goals": [
+    "Provide comprehensive academic advising and counseling tailored to NCAA Division I student-athletes.",
+    "Automate NCAA compliance eligibility checks for initial and continuing requirements.",
+    "Enable proactive academic monitoring and early intervention through analytics and alerts.",
+    "Deliver AI-powered conversational and intelligent advising assistants for 24/7 support.",
+    "Integrate seamlessly with university systems such as LMS, SIS, calendars, and communication tools.",
+    "Ensure data security, FERPA compliance, and auditability across all services.",
+    "Support scalable microservices architecture with independent deployments and robust CI/CD.",
+    "Offer user-friendly web and mobile experiences with role-based access and personalized dashboards."
+  ],
+  "key_features": [
+    "Microservices architecture based on Next.js and Hono with a Turborepo monorepo structure.",
+    "User Service managing authentication, RBAC, and user profiles integrated with Clerk.",
+    "Advising Service providing course scheduling via constraint satisfaction problem solver and conflict detection.",
+    "Compliance Service implementing a rules engine for NCAA Division I initial and continuing eligibility requirements with audit logs.",
+    "Monitoring Service for academic performance tracking, progress reports, and real-time alerts.",
+    "Support Service handling tutoring session booking, study hall tracking, and peer mentoring.",
+    "Integration Service coordinating travel letters, faculty liaison, and external system integrations (LMS, SIS, email).",
+    "AI Service offering conversational AI with streaming responses, RAG pipelines over NCAA rules and institutional knowledge, predictive analytics, and autonomous agentic workflows.",
+    "Centralized environment variable validation with type-safe schemas and runtime checks using Zod.",
+    "Robust middleware with authentication, authorization, rate limiting, correlation ID tracing, error handling, and structured logging.",
+    "Automated compliance reporting, alert generation, and NCAA portal file import/export mechanisms.",
+    "Streaming APIs and WebSocket integrations for real-time AI interactions and monitoring notifications.",
+    "Comprehensive testing strategy including Jest unit and integration tests, Playwright/Cypress E2E tests, and API contract tests.",
+    "Security features including encryption, prompt injection prevention, PII filtering, FERPA-aligned audit logs, and human-in-the-loop AI workflows."
+  ],
+  "user_flow_summary": [
+    "User authenticates once via Clerk and receives a JWT token valid across all microservices.",
+    "Student-athlete accesses personalized dashboard showing academic progress, eligibility status, and schedules.",
+    "Student interacts with AI assistant chatbot for instant answers and personalized recommendations.",
+    "Academic coordinator runs automated NCAA eligibility checks; violations generate alerts for intervention.",
+    "Advisor uses Advising Service to generate optimal course schedules considering athletic commitments.",
+    "Faculty submits progress reports and absence notifications via Integration Service.",
+    "Tutoring sessions are booked through Support Service with real-time availability and notifications.",
+    "Monitoring Service aggregates data and pushes real-time alerts via WebSocket for at-risk students.",
+    "Compliance Service audit logs all actions, supports NCAA reporting, and integrates with external portals via file exports or vendor APIs.",
+    "Administrators update NCAA rule configurations, triggering dynamic validation logic updates without downtime."
+  ],
+  "validation_criteria": [
+    "All microservices deploy independently on Vercel without downtime or cross-service failures.",
+    "JWT authentication tokens issued by User Service are accepted and validated by all microservices.",
+    "Compliance Service validates Level 1 (initial) and Level 2 (continuing) NCAA eligibility rules accurately per official guidelines.",
+    "AI Service delivers streaming conversational responses with latency under 500ms for first token and full replies within 2-5 seconds depending on query complexity.",
+    "Rate limiting enforcement respects role-based tiers and gracefully rejects excessive requests with standard headers.",
+    "Centralized environment variable schemas catch missing or invalid config at startup with clear error messages.",
+    "End-to-end workflows from scheduling, compliance checks, tutoring booking, to AI interactions function smoothly with user access control.",
+    "Security audits confirm encryption at rest and in transit, prompt injection prevention, and proper PII handling.",
+    "Comprehensive unit, integration, and E2E tests achieve at least 80% coverage across all services.",
+    "Performance benchmarks meet sub-200ms average API response time and support at least 5,000 concurrent users with autoscaling."
+  ],
+  "code_summary": {
+    "projectName": "athletic-academics-hub",
+    "monorepo": true,
+    "packageManager": "pnpm",
+    "techStacks": {
+      "frontend": [
+        {
+          "app": "apps/main",
+          "framework": "nextjs",
+          "port": 3000
+        },
+        {
+          "app": "apps/student",
+          "framework": "nextjs",
+          "port": 3001
+        },
+        {
+          "app": "apps/admin",
+          "framework": "nextjs",
+          "port": 3002
+        }
+      ],
+      "backend": [
+        {
+          "service": "services/advising",
+          "runtime": "node",
+          "framework": "hono",
+          "language": "typescript"
+        },
+        {
+          "service": "services/ai",
+          "runtime": "node",
+          "framework": "hono",
+          "language": "typescript"
+        },
+        {
+          "service": "services/compliance",
+          "runtime": "node",
+          "framework": "hono",
+          "language": "typescript"
+        },
+        {
+          "service": "services/integration",
+          "runtime": "node",
+          "framework": "hono",
+          "language": "typescript"
+        }
+      ],
+      "shared": [
+        "packages/ai",
+        "packages/ai-evals",
+        "packages/api-utils",
+        "packages/auth"
+      ]
+    },
+    "testing": {
+      "runner": "jest (services)",
+      "typeCheck": "tsc --noEmit",
+      "lint": "eslint/next lint",
+      "suggested": [
+        "playwright/cypress for E2E on Next.js apps",
+        "supertest for Hono APIs",
+        "contract tests between apps and services"
+      ]
+    },
+    "auth": {
+      "provider": "@clerk/nextjs",
+      "presentIn": [
+        "apps/main",
+        "apps/student",
+        "apps/admin"
+      ],
+      "loginLikelyRequired": true
+    },
+    "devCommands": {
+      "root": "pnpm dev",
+      "apps": {
+        "main": "pnpm --filter main dev",
+        "student": "pnpm --filter student dev",
+        "admin": "pnpm --filter admin dev"
+      },
+      "services": {
+        "advising": "pnpm --filter @aah/service-advising dev",
+        "ai": "pnpm --filter @aah/service-ai dev",
+        "compliance": "pnpm --filter @aah/service-compliance dev",
+        "integration": "pnpm --filter @aah/service-integration dev"
+      }
+    },
+    "notableDeps": {
+      "frontend": [
+        "@tanstack/react-query",
+        "zustand",
+        "tailwindcss",
+        "zod"
+      ],
+      "backend": [
+        "hono",
+        "zod",
+        "jsonwebtoken",
+        "googleapis",
+        "resend"
+      ]
+    },
+    "ciTargets": [
+      "build",
+      "lint",
+      "type-check",
+      "test"
+    ],
+    "recommendations": [
+      "Use data-testid attributes for stable selectors in Next.js pages",
+      "Add basic jest unit tests for core service handlers in Hono routes",
+      "Add a Playwright smoke suite targeting /, /login, and a protected page for each app",
+      "Mock external APIs in service tests (googleapis, resend, axios calls)"
+    ]
+  }
+}

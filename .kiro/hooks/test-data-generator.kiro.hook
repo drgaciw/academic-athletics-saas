@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Test Data Generator",
+  "description": "Generates realistic test data fixtures for services",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Generate comprehensive test data fixtures:\n\n1. Analyze service type definitions in apps/main/lib/types/services/\n2. Create realistic test data for each service:\n   - Valid data (happy path)\n   - Edge cases (boundary values)\n   - Invalid data (error scenarios)\n   - Complex nested objects\n3. Generate fixtures in apps/main/lib/services/__tests__/fixtures/\n4. Create factory functions for easy test data creation\n5. Include:\n   - Student profiles (various sports, majors, years)\n   - Course schedules (conflicts, valid, invalid)\n   - Compliance records (eligible, at-risk, ineligible)\n   - NCAA rules and requirements\n   - Progress reports and interventions\n6. Export fixtures for reuse across tests\n\nMake data realistic and representative of actual use cases."
+  }
+}

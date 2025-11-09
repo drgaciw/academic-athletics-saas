@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Test Coverage Checker",
+  "description": "Manual trigger to check test coverage and identify gaps",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run a comprehensive test coverage analysis:\n\n1. Execute: npm test:coverage in apps/main\n2. Analyze the coverage report\n3. Identify files with <70% coverage\n4. List specific uncovered lines and branches\n5. Suggest additional test cases for low-coverage areas\n6. Prioritize critical paths (services, API routes, business logic)\n\nProvide a concise summary with actionable recommendations."
+  }
+}

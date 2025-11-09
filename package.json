@@ -1,6 +1,7 @@
 {
   "name": "athletic-academics-hub",
   "version": "2.0.0",
+  "description": "NCAA Division I academic support platform for student-athletes",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -9,28 +10,57 @@
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "dev:main": "turbo run dev --filter=main",
-    "dev:student": "turbo run dev --filter=student",
-    "dev:admin": "turbo run dev --filter=admin",
-    "dev:docs": "turbo run dev --filter=docs",
+    "dev:main": "turbo run dev --filter=@aah/main",
+    "dev:student": "turbo run dev --filter=@aah/student",
+    "dev:admin": "turbo run dev --filter=@aah/admin",
+    "dev:services": "turbo run dev --filter='@aah/service-*'",
     "build": "turbo run build",
-    "build:main": "turbo run build --filter=main...",
-    "build:student": "turbo run build --filter=student...",
-    "build:admin": "turbo run build --filter=admin...",
-    "build:docs": "turbo run build --filter=docs...",
+    "build:main": "turbo run build --filter=@aah/main...",
+    "build:student": "turbo run build --filter=@aah/student...",
+    "build:admin": "turbo run build --filter=@aah/admin...",
+    "build:services": "turbo run build --filter='@aah/service-*'",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "test": "turbo run test",
+    "test:watch": "turbo run test -- --watch",
+    "test:coverage": "turbo run test -- --coverage",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "db:generate": "cd packages/database && pnpm run db:generate",
+    "db:push": "cd packages/database && pnpm run db:push",
+    "db:migrate": "cd packages/database && pnpm run db:migrate",
+    "db:studio": "cd packages/database && pnpm run db:studio",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "clean:turbo": "rm -rf .turbo",
+    "clean:all": "pnpm run clean && pnpm run clean:turbo",
+    "postinstall": "pnpm run db:generate"
   },
   "devDependencies": {
-    "turbo": "latest",
-    "typescript": "^5.3.0"
+    "turbo": "^2.6.0",
+    "typescript": "^5.6.3",
+    "prettier": "^3.3.3",
+    "@types/node": "^22.8.6"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/athletic-academics-hub"
+  },
+  "keywords": [
+    "ncaa",
+    "student-athletes",
+    "academic-support",
+    "compliance",
+    "nextjs",
+    "turborepo",
+    "microservices"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 }

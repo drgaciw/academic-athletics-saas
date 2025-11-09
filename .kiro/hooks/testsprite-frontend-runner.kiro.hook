@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "TestSprite Frontend Test Runner",
+  "description": "Runs TestSprite frontend tests for authentication and UI workflows",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run TestSprite frontend tests:\n\n1. Check TestSprite configuration:\n   - Verify .env has required variables (TESTSPRITE_API_KEY, etc.)\n   - Check testsprite_tests/config/test_data.json\n2. Bootstrap TestSprite if needed:\n   - Determine local port from project config\n   - Initialize TestSprite with correct parameters\n3. Run frontend tests:\n   - Authentication tests (Clerk integration)\n   - Navigation and routing tests\n   - Form validation tests\n   - UI component tests\n4. Analyze results:\n   - Test pass/fail status\n   - Screenshots of failures\n   - Performance metrics\n   - Accessibility issues\n5. Generate report:\n   - Summary of test results\n   - Failed test details with screenshots\n   - Recommendations for fixes\n\nFocus on Clerk authentication and critical user flows."
+  }
+}

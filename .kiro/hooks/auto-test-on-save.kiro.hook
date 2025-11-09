@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Auto Test on Service Save",
+  "description": "Automatically runs tests for the corresponding service when a service file is saved",
+  "version": "1",
+  "when": {
+    "type": "onFileSave",
+    "filePattern": "apps/main/lib/services/**/*.ts",
+    "excludePattern": "**/*.test.ts"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A service file was just saved. Please:\n\n1. Identify which service was modified (advising, compliance, monitoring, support, user, ai, or integration)\n2. Run the corresponding test file using: npm test -- <test-file-name>\n3. If tests fail, analyze the errors and suggest fixes\n4. If tests pass, confirm success with a brief summary\n5. Check test coverage for the modified file\n\nBe concise - just run the tests and report results."
+  }
+}

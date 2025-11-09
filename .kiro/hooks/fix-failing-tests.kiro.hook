@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Fix Failing Tests",
+  "description": "Analyzes test failures and automatically fixes common issues",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze and fix failing tests:\n\n1. Run: npm test in apps/main\n2. Identify all failing tests\n3. Categorize failures:\n   - Type errors (missing types, wrong signatures)\n   - Mock issues (incorrect mocks, missing implementations)\n   - Assertion errors (wrong expectations)\n   - Runtime errors (undefined values, null references)\n4. Fix each category systematically:\n   - Update type definitions if needed\n   - Correct mock implementations\n   - Adjust assertions to match actual behavior\n   - Add null checks or default values\n5. Re-run tests after each fix\n6. Provide summary of fixes applied\n\nFocus on making tests pass while maintaining test quality."
+  }
+}

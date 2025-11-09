@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Integration Test Runner",
+  "description": "Runs integration tests across multiple services",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run integration tests for service interactions:\n\n1. Start with service health checks\n2. Test common workflows:\n   - Student enrollment → Compliance check → Schedule generation\n   - Progress report → Risk prediction → Intervention creation\n   - Course recommendation → Conflict detection → Schedule validation\n   - Tutoring booking → Calendar sync → Faculty notification\n3. Test service-to-service communication:\n   - AI Service calling Compliance Service\n   - Advising Service calling Integration Service\n   - Monitoring Service calling Support Service\n4. Verify data consistency across services\n5. Test error propagation and recovery\n6. Measure end-to-end response times\n7. Report:\n   - Which workflows passed/failed\n   - Performance metrics\n   - Integration issues found\n\nFocus on realistic user journeys."
+  }
+}

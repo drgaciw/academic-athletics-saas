@@ -1,0 +1,64 @@
+{
+  "projectName": "athletic-academics-hub",
+  "monorepo": true,
+  "packageManager": "pnpm",
+  "techStacks": {
+    "frontend": [
+      { "app": "apps/main", "framework": "nextjs", "port": 3000 },
+      { "app": "apps/student", "framework": "nextjs", "port": 3001 },
+      { "app": "apps/admin", "framework": "nextjs", "port": 3002 }
+    ],
+    "backend": [
+      { "service": "services/advising", "runtime": "node", "framework": "hono", "language": "typescript" },
+      { "service": "services/ai", "runtime": "node", "framework": "hono", "language": "typescript" },
+      { "service": "services/compliance", "runtime": "node", "framework": "hono", "language": "typescript" },
+      { "service": "services/integration", "runtime": "node", "framework": "hono", "language": "typescript" }
+    ],
+    "shared": [
+      "packages/ai",
+      "packages/ai-evals",
+      "packages/api-utils",
+      "packages/auth"
+    ]
+  },
+  "testing": {
+    "runner": "jest (services)",
+    "typeCheck": "tsc --noEmit",
+    "lint": "eslint/next lint",
+    "suggested": [
+      "playwright/cypress for E2E on Next.js apps",
+      "supertest for Hono APIs",
+      "contract tests between apps and services"
+    ]
+  },
+  "auth": {
+    "provider": "@clerk/nextjs",
+    "presentIn": ["apps/main", "apps/student", "apps/admin"],
+    "loginLikelyRequired": true
+  },
+  "devCommands": {
+    "root": "pnpm dev",
+    "apps": {
+      "main": "pnpm --filter main dev",
+      "student": "pnpm --filter student dev",
+      "admin": "pnpm --filter admin dev"
+    },
+    "services": {
+      "advising": "pnpm --filter @aah/service-advising dev",
+      "ai": "pnpm --filter @aah/service-ai dev",
+      "compliance": "pnpm --filter @aah/service-compliance dev",
+      "integration": "pnpm --filter @aah/service-integration dev"
+    }
+  },
+  "notableDeps": {
+    "frontend": ["@tanstack/react-query", "zustand", "tailwindcss", "zod"],
+    "backend": ["hono", "zod", "jsonwebtoken", "googleapis", "resend"]
+  },
+  "ciTargets": ["build", "lint", "type-check", "test"],
+  "recommendations": [
+    "Use data-testid attributes for stable selectors in Next.js pages",
+    "Add basic jest unit tests for core service handlers in Hono routes",
+    "Add a Playwright smoke suite targeting /, /login, and a protected page for each app",
+    "Mock external APIs in service tests (googleapis, resend, axios calls)"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Test Performance Monitor",
+  "description": "Monitors test execution time and identifies slow tests",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze test performance:\n\n1. Run full test suite with timing: npm test -- --verbose\n2. Identify slow tests (>1000ms)\n3. Analyze why tests are slow:\n   - Unnecessary async operations\n   - Missing mock implementations\n   - Large data processing\n   - Network timeouts\n   - Database operations\n4. Optimize slow tests:\n   - Add proper mocks\n   - Reduce test data size\n   - Parallelize independent tests\n   - Remove unnecessary waits\n5. Set performance budgets:\n   - Unit tests: <100ms\n   - Integration tests: <500ms\n   - E2E tests: <2000ms\n6. Report:\n   - Slowest tests with timings\n   - Optimizations applied\n   - Performance improvements\n\nKeep tests fast for better developer experience."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Mock Service Validator",
+  "description": "Validates that mocks match actual service implementations",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Validate test mocks against actual implementations:\n\n1. For each service test file:\n   - Compare mock implementations with actual service methods\n   - Check mock return types match actual return types\n   - Verify mock parameters match actual parameters\n   - Ensure mock behavior is realistic\n2. Identify discrepancies:\n   - Missing methods in mocks\n   - Wrong return types\n   - Incorrect parameter signatures\n   - Unrealistic mock data\n3. Update mocks to match reality:\n   - Add missing methods\n   - Fix type signatures\n   - Update mock responses\n   - Add realistic error scenarios\n4. Test that updated mocks work correctly\n5. Report:\n   - Mocks that were out of sync\n   - Updates applied\n   - Remaining issues\n\nEnsure mocks accurately represent real service behavior."
+  }
+}

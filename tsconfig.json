@@ -26,7 +26,12 @@
       "@aah/ai": ["./packages/ai/index.ts"],
       "@aah/ai/*": ["./packages/ai/*"],
       "@aah/config": ["./packages/config/index.js"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "workflow"
+      }
+    ]
   },
   "exclude": [
     "node_modules",

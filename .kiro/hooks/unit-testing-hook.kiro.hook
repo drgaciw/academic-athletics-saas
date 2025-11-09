@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Unit Testing Generator",
+  "description": "Automatically generates or updates unit tests when TypeScript/JavaScript source files are modified in services, packages, or apps",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A source file has been modified. Review the changes and:\n\n1. Analyze the modified file to understand its functionality, exports, and dependencies\n2. Check if corresponding test files exist (*.test.ts or *.spec.ts in __tests__ directory or adjacent)\n3. If tests exist, update them to cover new/modified functionality\n4. If tests don't exist, create comprehensive unit tests following these guidelines:\n   - Use Jest as the testing framework\n   - Place tests in __tests__ directory or adjacent to source with .test.ts suffix\n   - Cover all exported functions, classes, and methods\n   - Include edge cases, error handling, and boundary conditions\n   - Mock external dependencies appropriately\n   - Follow AAA pattern (Arrange, Act, Assert)\n   - Ensure tests are isolated and deterministic\n5. For AI/LLM code, include tests for prompt handling, response validation, and error scenarios\n6. For API routes, test request/response handling, validation, and error cases\n7. For React components, use React Testing Library patterns\n8. Aim for >80% code coverage on critical paths\n\nGenerate or update the test files with clear, maintainable test cases."
+  }
+}

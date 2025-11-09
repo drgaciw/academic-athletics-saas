@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Update Test Types",
+  "description": "Synchronizes test files with actual service type definitions",
+  "version": "1",
+  "when": {
+    "type": "onFileSave",
+    "filePattern": "apps/main/lib/types/services/**/*.ts"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A service type definition was modified. Update corresponding tests:\n\n1. Identify which service types changed\n2. Find all test files that use these types\n3. Update test data to match new type signatures:\n   - Add required properties\n   - Remove deprecated properties\n   - Update property names\n   - Fix enum values\n4. Update assertions to match new response types\n5. Run affected tests to verify changes\n6. Report which tests were updated\n\nBe precise - only update what's necessary to match the new types."
+  }
+}

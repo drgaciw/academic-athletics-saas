@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "user service authentication and rbac validation",
+    "description": "Test the User Service API endpoints to verify authentication via Clerk, JWT token issuance, and role-based access control enforcement across all microservices."
+  },
+  {
+    "id": "TC002",
+    "title": "advising service course scheduling and conflict detection",
+    "description": "Validate the Advising Service API for generating optimal course schedules using the constraint satisfaction solver and detecting scheduling conflicts considering athletic commitments."
+  },
+  {
+    "id": "TC003",
+    "title": "compliance service ncaa eligibility rules enforcement",
+    "description": "Verify the Compliance Service API correctly implements NCAA Division I initial and continuing eligibility rules, including audit logging and automated compliance reporting."
+  },
+  {
+    "id": "TC004",
+    "title": "monitoring service academic performance tracking and alerts",
+    "description": "Test the Monitoring Service API for aggregating academic performance data, generating progress reports, and pushing real-time alerts via WebSocket for at-risk students."
+  },
+  {
+    "id": "TC005",
+    "title": "support service tutoring session booking and notifications",
+    "description": "Validate the Support Service API endpoints for booking tutoring sessions, tracking study hall attendance, and sending real-time notifications to users."
+  },
+  {
+    "id": "TC006",
+    "title": "integration service external system coordination",
+    "description": "Test the Integration Service API for managing travel letters, faculty liaison communications, and integrations with external systems such as LMS, SIS, and email."
+  },
+  {
+    "id": "TC007",
+    "title": "ai service conversational ai streaming and rag pipelines",
+    "description": "Verify the AI Service API delivers streaming conversational responses with low latency, supports retrieval-augmented generation pipelines over NCAA rules and institutional knowledge, and handles autonomous agentic workflows."
+  },
+  {
+    "id": "TC008",
+    "title": "environment variable validation and error handling",
+    "description": "Test centralized environment variable validation using Zod schemas to ensure missing or invalid configurations are caught at startup with clear error messages."
+  },
+  {
+    "id": "TC009",
+    "title": "middleware authentication authorization and rate limiting",
+    "description": "Validate middleware functionality across all services including authentication, authorization, role-based rate limiting, correlation ID tracing, error handling, and structured logging."
+  },
+  {
+    "id": "TC010",
+    "title": "security features encryption and pii handling",
+    "description": "Test security features including encryption at rest and in transit, prompt injection prevention, PII filtering, FERPA-aligned audit logs, and human-in-the-loop AI workflows."
+  }
+]

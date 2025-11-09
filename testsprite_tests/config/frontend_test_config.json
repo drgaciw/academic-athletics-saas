@@ -1,0 +1,77 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "timeout": 30000,
+  "retries": 2,
+  "browsers": [
+    {
+      "name": "chromium",
+      "headless": true,
+      "slowMo": 0
+    }
+  ],
+  "viewports": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "name": "desktop"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "name": "tablet"
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "name": "mobile"
+    }
+  ],
+  "authentication": {
+    "clerkPublishableKey": "${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}",
+    "signInUrl": "/sign-in",
+    "signUpUrl": "/sign-up"
+  },
+  "screenshots": {
+    "onFailure": true,
+    "onSuccess": false,
+    "path": "testsprite_tests/reports/screenshots"
+  },
+  "videos": {
+    "enabled": true,
+    "path": "testsprite_tests/reports/videos"
+  },
+  "logging": {
+    "browserConsole": true,
+    "networkTraffic": true,
+    "path": "testsprite_tests/reports/logs"
+  },
+  "performance": {
+    "measureMetrics": true,
+    "thresholds": {
+      "pageLoadTime": 2000,
+      "apiResponseTime": 200,
+      "firstContentfulPaint": 1500,
+      "largestContentfulPaint": 2500,
+      "timeToInteractive": 3500
+    }
+  },
+  "accessibility": {
+    "enabled": true,
+    "standard": "WCAG21AA",
+    "rules": {
+      "colorContrast": true,
+      "ariaLabels": true,
+      "keyboardNavigation": true,
+      "focusIndicators": true
+    }
+  },
+  "testData": "testsprite_tests/config/test_data.json",
+  "parallelExecution": {
+    "enabled": true,
+    "maxWorkers": 4
+  },
+  "reporting": {
+    "formats": ["html", "json", "junit"],
+    "outputPath": "testsprite_tests/reports"
+  }
+}

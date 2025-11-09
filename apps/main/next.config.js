@@ -1,10 +1,9 @@
+import { withWorkflow } from 'workflow/next'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@aah/ui', '@aah/database', '@aah/auth', '@aah/ai'],
-  experimental: {
-    serverActions: true,
-  },
   async rewrites() {
     return [
       // Student Portal zone rewrites
@@ -34,8 +33,8 @@ const nextConfig = {
         source: '/docs/:path*',
         destination: `${process.env.DOCS_APP_URL || 'http://localhost:3003'}/docs/:path*`,
       },
-    ];
+    ]
   },
 }
 
-module.exports = nextConfig
+export default withWorkflow(nextConfig)

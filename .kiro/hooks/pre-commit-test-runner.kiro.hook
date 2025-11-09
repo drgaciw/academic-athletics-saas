@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Pre-Commit Test Runner",
+  "description": "Runs tests on staged files before commit",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run pre-commit test validation:\n\n1. Check git status to identify staged files\n2. If service files are staged:\n   - Run tests for those specific services\n   - Check for TypeScript errors with: npm run type-check\n   - Run linter with: npm run lint\n3. If test files are staged:\n   - Run only those specific tests\n4. Report results:\n   - ✅ All checks passed - safe to commit\n   - ❌ Issues found - list what needs fixing\n5. If issues found, offer to fix them automatically\n\nBe fast - only run tests for changed files."
+  }
+}

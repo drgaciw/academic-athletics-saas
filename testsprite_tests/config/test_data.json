@@ -1,0 +1,396 @@
+{
+  "users": {
+    "student_athlete": {
+      "email": "student.athlete@test.aah.edu",
+      "password": "TestPass123!",
+      "role": "student_athlete",
+      "firstName": "John",
+      "lastName": "Athlete",
+      "profile": {
+        "gpa": 3.2,
+        "credits": 45,
+        "sport": "Basketball",
+        "year": "Sophomore",
+        "major": "Business Administration",
+        "eligibilityStatus": "eligible"
+      }
+    },
+    "academic_coordinator": {
+      "email": "coordinator@test.aah.edu",
+      "password": "TestPass123!",
+      "role": "academic_coordinator",
+      "firstName": "Sarah",
+      "lastName": "Coordinator",
+      "profile": {
+        "department": "Academic Support",
+        "title": "Academic Coordinator"
+      }
+    },
+    "admin": {
+      "email": "admin@test.aah.edu",
+      "password": "TestPass123!",
+      "role": "admin",
+      "firstName": "Admin",
+      "lastName": "User",
+      "profile": {
+        "department": "Administration",
+        "title": "System Administrator"
+      }
+    },
+    "faculty": {
+      "email": "faculty@test.aah.edu",
+      "password": "TestPass123!",
+      "role": "faculty",
+      "firstName": "Dr. Jane",
+      "lastName": "Professor",
+      "profile": {
+        "department": "Mathematics",
+        "title": "Associate Professor"
+      }
+    },
+    "tutor": {
+      "email": "tutor@test.aah.edu",
+      "password": "TestPass123!",
+      "role": "tutor",
+      "firstName": "Mike",
+      "lastName": "Tutor",
+      "profile": {
+        "subjects": ["Mathematics", "Physics"],
+        "availability": "MWF 2-5pm"
+      }
+    }
+  },
+  "courses": [
+    {
+      "id": "MATH101",
+      "code": "MATH 101",
+      "name": "Calculus I",
+      "credits": 3,
+      "schedule": {
+        "days": ["Monday", "Wednesday", "Friday"],
+        "startTime": "09:00",
+        "endTime": "10:00",
+        "location": "Science Building 201"
+      },
+      "instructor": "Dr. Jane Professor",
+      "prerequisites": [],
+      "capacity": 30,
+      "enrolled": 25
+    },
+    {
+      "id": "ENG102",
+      "code": "ENG 102",
+      "name": "English Composition",
+      "credits": 3,
+      "schedule": {
+        "days": ["Tuesday", "Thursday"],
+        "startTime": "11:00",
+        "endTime": "12:30",
+        "location": "Liberal Arts 105"
+      },
+      "instructor": "Prof. Smith",
+      "prerequisites": [],
+      "capacity": 25,
+      "enrolled": 20
+    },
+    {
+      "id": "BUS201",
+      "code": "BUS 201",
+      "name": "Introduction to Business",
+      "credits": 3,
+      "schedule": {
+        "days": ["Monday", "Wednesday"],
+        "startTime": "14:00",
+        "endTime": "15:30",
+        "location": "Business Building 301"
+      },
+      "instructor": "Dr. Johnson",
+      "prerequisites": [],
+      "capacity": 35,
+      "enrolled": 30
+    },
+    {
+      "id": "PHYS101",
+      "code": "PHYS 101",
+      "name": "Physics I",
+      "credits": 4,
+      "schedule": {
+        "days": ["Tuesday", "Thursday"],
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "location": "Science Building 105"
+      },
+      "instructor": "Dr. Williams",
+      "prerequisites": ["MATH101"],
+      "capacity": 30,
+      "enrolled": 28
+    }
+  ],
+  "athleticEvents": [
+    {
+      "id": "GAME001",
+      "type": "game",
+      "sport": "Basketball",
+      "opponent": "State University",
+      "date": "2025-11-15",
+      "startTime": "19:00",
+      "endTime": "21:00",
+      "location": "Home Arena",
+      "travelRequired": false
+    },
+    {
+      "id": "PRACTICE001",
+      "type": "practice",
+      "sport": "Basketball",
+      "date": "2025-11-10",
+      "startTime": "15:00",
+      "endTime": "17:00",
+      "location": "Practice Facility",
+      "mandatory": true
+    },
+    {
+      "id": "AWAY001",
+      "type": "away_game",
+      "sport": "Basketball",
+      "opponent": "Tech University",
+      "date": "2025-11-20",
+      "departureTime": "08:00",
+      "returnTime": "23:00",
+      "location": "Tech Arena",
+      "travelRequired": true
+    }
+  ],
+  "complianceScenarios": [
+    {
+      "id": "ELIGIBLE001",
+      "studentId": "student_athlete",
+      "status": "eligible",
+      "gpa": 3.2,
+      "credits": 45,
+      "progressTowardDegree": 75,
+      "requirements": {
+        "minimumGPA": 2.0,
+        "minimumCredits": 24,
+        "progressPercentage": 40
+      },
+      "violations": []
+    },
+    {
+      "id": "WARNING001",
+      "studentId": "student_athlete_2",
+      "status": "warning",
+      "gpa": 2.3,
+      "credits": 42,
+      "progressTowardDegree": 65,
+      "requirements": {
+        "minimumGPA": 2.0,
+        "minimumCredits": 24,
+        "progressPercentage": 40
+      },
+      "violations": [
+        {
+          "type": "gpa_warning",
+          "message": "GPA approaching minimum threshold",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "id": "INELIGIBLE001",
+      "studentId": "student_athlete_3",
+      "status": "ineligible",
+      "gpa": 1.8,
+      "credits": 38,
+      "progressTowardDegree": 55,
+      "requirements": {
+        "minimumGPA": 2.0,
+        "minimumCredits": 24,
+        "progressPercentage": 40
+      },
+      "violations": [
+        {
+          "type": "gpa_violation",
+          "message": "GPA below minimum requirement",
+          "severity": "critical"
+        }
+      ]
+    }
+  ],
+  "tutoringSessions": [
+    {
+      "id": "TUT001",
+      "subject": "Mathematics",
+      "tutor": "Mike Tutor",
+      "date": "2025-11-12",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "location": "Learning Center Room 201",
+      "capacity": 5,
+      "enrolled": 3,
+      "status": "available"
+    },
+    {
+      "id": "TUT002",
+      "subject": "Physics",
+      "tutor": "Mike Tutor",
+      "date": "2025-11-13",
+      "startTime": "15:00",
+      "endTime": "16:00",
+      "location": "Learning Center Room 202",
+      "capacity": 5,
+      "enrolled": 5,
+      "status": "full"
+    },
+    {
+      "id": "TUT003",
+      "subject": "English",
+      "tutor": "Sarah Tutor",
+      "date": "2025-11-14",
+      "startTime": "16:00",
+      "endTime": "17:00",
+      "location": "Learning Center Room 203",
+      "capacity": 4,
+      "enrolled": 2,
+      "status": "available"
+    }
+  ],
+  "studyHallSessions": [
+    {
+      "id": "SH001",
+      "date": "2025-11-11",
+      "startTime": "18:00",
+      "endTime": "20:00",
+      "location": "Library Study Room A",
+      "capacity": 20,
+      "enrolled": 15,
+      "supervisor": "Sarah Coordinator",
+      "mandatory": true
+    },
+    {
+      "id": "SH002",
+      "date": "2025-11-12",
+      "startTime": "18:00",
+      "endTime": "20:00",
+      "location": "Library Study Room B",
+      "capacity": 20,
+      "enrolled": 12,
+      "supervisor": "John Supervisor",
+      "mandatory": false
+    }
+  ],
+  "workshops": [
+    {
+      "id": "WS001",
+      "title": "Time Management Skills",
+      "description": "Learn effective time management strategies for student-athletes",
+      "date": "2025-11-18",
+      "startTime": "17:00",
+      "endTime": "18:30",
+      "location": "Student Center Room 301",
+      "capacity": 30,
+      "enrolled": 22,
+      "presenter": "Dr. Life Skills",
+      "category": "life_skills"
+    },
+    {
+      "id": "WS002",
+      "title": "Career Development",
+      "description": "Preparing for life after athletics",
+      "date": "2025-11-25",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "location": "Career Center",
+      "capacity": 25,
+      "enrolled": 18,
+      "presenter": "Career Counselor",
+      "category": "career"
+    }
+  ],
+  "aiConversations": [
+    {
+      "id": "CONV001",
+      "userId": "student_athlete",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the NCAA eligibility requirements for Division I?"
+        },
+        {
+          "role": "assistant",
+          "content": "NCAA Division I eligibility requirements include maintaining a minimum 2.0 GPA, completing at least 40% of degree requirements by the end of the second year, and passing at least 24 semester hours per academic year. For initial eligibility, you must complete 16 core courses with a minimum GPA of 2.3 and meet SAT/ACT score requirements."
+        }
+      ]
+    },
+    {
+      "id": "CONV002",
+      "userId": "student_athlete",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I schedule a tutoring session?"
+        },
+        {
+          "role": "assistant",
+          "content": "To schedule a tutoring session, go to the Support Services section in your dashboard, select 'Tutoring', browse available sessions by subject and time, and click 'Book Session' for your preferred slot. You'll receive a confirmation email with session details."
+        }
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": "NOTIF001",
+      "type": "eligibility_warning",
+      "priority": "high",
+      "title": "GPA Warning",
+      "message": "Your GPA is approaching the minimum eligibility threshold. Please schedule a meeting with your academic coordinator.",
+      "timestamp": "2025-11-09T10:00:00Z",
+      "read": false
+    },
+    {
+      "id": "NOTIF002",
+      "type": "session_reminder",
+      "priority": "medium",
+      "title": "Tutoring Session Reminder",
+      "message": "You have a tutoring session scheduled for tomorrow at 2:00 PM in Learning Center Room 201.",
+      "timestamp": "2025-11-09T14:00:00Z",
+      "read": false
+    },
+    {
+      "id": "NOTIF003",
+      "type": "schedule_conflict",
+      "priority": "high",
+      "title": "Schedule Conflict Detected",
+      "message": "Your MATH 101 class conflicts with basketball practice on Wednesday. Please contact your advisor.",
+      "timestamp": "2025-11-09T09:00:00Z",
+      "read": true
+    }
+  ],
+  "scheduleConflicts": [
+    {
+      "id": "CONFLICT001",
+      "type": "course_athletic",
+      "course": "MATH101",
+      "athleticEvent": "PRACTICE001",
+      "conflictTime": {
+        "day": "Monday",
+        "startTime": "15:00",
+        "endTime": "17:00"
+      },
+      "severity": "high",
+      "resolution": "pending"
+    },
+    {
+      "id": "CONFLICT002",
+      "type": "course_course",
+      "course1": "BUS201",
+      "course2": "PHYS101",
+      "conflictTime": {
+        "day": "Tuesday",
+        "startTime": "14:00",
+        "endTime": "15:30"
+      },
+      "severity": "critical",
+      "resolution": "required"
+    }
+  ]
+}
