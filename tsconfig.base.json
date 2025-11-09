@@ -1,21 +1,28 @@
 {
-  "extends": "../config/tsconfig/base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Base TypeScript Config",
   "compilerOptions": {
-    "outDir": "./dist",
-    "module": "ESNext",
     "target": "ES2022",
     "lib": ["ES2022"],
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["node", "jest"],
+    "resolveJsonModule": true,
+    "allowJs": false,
     "strict": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["src/**/*", "cli.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }
