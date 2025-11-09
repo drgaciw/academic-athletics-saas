@@ -1,4 +1,4 @@
-const baseConfig = require('@aah/config/tailwind/base');
+const baseConfig = require('../../packages/config/tailwind/base');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
