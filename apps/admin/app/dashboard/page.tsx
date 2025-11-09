@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 async function getAdminAnalytics() {
   // Get total students
   const totalStudents = await prisma.user.count({
-    where: { role: 'student' },
+    where: { role: 'STUDENT' },
   });
 
   // Get eligible students
