@@ -1,6 +1,10 @@
 import { auth } from '@clerk/nextjs';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { redirect } from 'next/navigation';
+import { TutoringSection } from '@/components/tutoring-section';
+import { StudyHallSection } from '@/components/study-hall-section';
+import { WorkshopsSection } from '@/components/workshops-section';
+import { MentorCard } from '@/components/mentor-card';
 
 export default async function ResourcesPage() {
   const { userId } = auth();
@@ -10,63 +14,65 @@ export default async function ResourcesPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Resources</h1>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-4 md:p-6 space-y-8">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Resources</h1>
+          <p className="text-muted-foreground">
+            Access tutoring, study halls, workshops, and mentoring support
+          </p>
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Tutoring Card */}
+        {/* Mentor Card */}
+        <MentorCard />
+
+        {/* Tutoring Services */}
+        <TutoringSection />
+
+        {/* Study Hall */}
+        <StudyHallSection />
+
+        {/* Workshops */}
+        <WorkshopsSection />
+
+        {/* Resource Library */}
         <Card>
           <CardHeader>
-            <CardTitle>Tutoring Services</CardTitle>
-            <CardDescription>Get academic support from peer tutors</CardDescription>
+            <CardTitle>Resource Library</CardTitle>
+            <CardDescription>
+              Access study materials, guides, and helpful documents
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Schedule one-on-one or group tutoring sessions for your courses.
-            </p>
-            <Button>Book Tutoring Session</Button>
-          </CardContent>
-        </Card>
-
-        {/* Study Hall Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Study Hall</CardTitle>
-            <CardDescription>Structured study time with supervision</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Join study hall sessions to complete coursework in a focused environment.
-            </p>
-            <Button variant="secondary">View Study Hall Schedule</Button>
-          </CardContent>
-        </Card>
-
-        {/* Life Skills Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Life Skills Workshops</CardTitle>
-            <CardDescription>Personal and professional development</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Attend workshops on time management, career planning, and more.
-            </p>
-            <Button variant="outline">Browse Workshops</Button>
-          </CardContent>
-        </Card>
-
-        {/* Academic Advising Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Academic Advising</CardTitle>
-            <CardDescription>Course planning and degree progress</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">
-              Meet with an academic advisor to plan your course schedule.
-            </p>
-            <Button variant="outline">Schedule Advising</Button>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                <div>
+                  <h4 className="font-medium">NCAA Eligibility Guide</h4>
+                  <p className="text-sm text-gray-500">PDF • 2.4 MB</p>
+                </div>
+                <Button variant="ghost" size="sm">
+                  Download
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                <div>
+                  <h4 className="font-medium">Time Management Workshop</h4>
+                  <p className="text-sm text-gray-500">Video • 45 min</p>
+                </div>
+                <Button variant="ghost" size="sm">
+                  Watch
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                <div>
+                  <h4 className="font-medium">Study Skills Handbook</h4>
+                  <p className="text-sm text-gray-500">PDF • 1.8 MB</p>
+                </div>
+                <Button variant="ghost" size="sm">
+                  Download
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

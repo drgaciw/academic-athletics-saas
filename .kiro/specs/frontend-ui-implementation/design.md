@@ -1309,3 +1309,230 @@ All color combinations meet WCAG 2.1 Level AA requirements:
 --error: #dc2626;          // Red 600 on white = 5.90:1 ✓
 ```
 
+
+## Security & FERPA Compliance
+
+### Data Privacy Patterns
+
+**1. No PII in URLs**
+```typescript
+// Bad
+/admin/students/123?name=John+Doe&gpa=3.45
+
+// Good
+/admin/students/123
+// Fetch sensitive data server-side only
+```
+
+**2. Client-Side Encryption**
+```typescript
+// Secure storage utility
+import { encrypt, decrypt } from '@/lib/crypto'
+
+export const secureStorage = {
+  setItem(key: string, value: any) {
+    const encrypted = encrypt(JSON.stringify(value))
+    localStorage.setItem(key, encrypted)
+  },
+  
+  getItem(key: string) {
+    const encrypted = localStorage.getItem(key)
+    if (!encrypted) return null
+    
+    const decrypted = decrypt(encrypted)
+    return JSON.parse(decrypted)
+  },
+  
+  removeItem(key: string) {
+    localStorage.removeItem(key)
+  },
+}
+```
+
+**3. Field Redaction**
+```typescript
+export function RedactedField({ value, canView }: {
+  value: string
+  canView: boolean
+}) {
+  if (!canView) {
+    return <span className="text-muted-foreground">••••••••</span>
+  }
+  return <span>{value}</span>
+}
+
+// Usage
+<RedactedField
+  value={student.ssn}
+  canView={hasPermission('view:ssn')}
+/>
+```
+
+### Consent Management
+
+**Data Sharing Consent Dialog**:
+```typescript
+export function ConsentDialog({ onAccept, onDecline }) {
+  const [agreed, setAgreed] = useState(false)
+  
+  return (
+    <Dialog>
+      <DialogHeader>
+        <DialogTitle>Share Academic Data?</DialogTitle>
+      </DialogHeader>
+      <DialogContent>
+        <p>You are about to share your academic transcript with Coach Smith.</p>
+        <p>This will include:</p>
+        <ul className="list-disc ml-6 my-4">
+          <li>Current GPA</li>
+          <li>Course schedule</li>
+          <li>Eligibility status</li>
+        </ul>
+        <Checkbox
+          id="consent"
+          checked={agreed}
+          onCheckedChange={setAgreed}
+          label="I consent to sharing this information"
+        />
+      </DialogContent>
+      <DialogFooter>
+        <Button variant="outline" onClick={onDecline}>Decline</Button>
+        <Button onClick={onAccept} disabled={!agreed}>Accept</Button>
+      </DialogFooter>
+    </Dialog>
+  )
+}
+```
+
+### Audit Trail UI
+
+**Access Log Component**:
+```typescript
+export function AccessLog({ studentId }) {
+  const { data: logs } = useQuery({
+    queryKey: ['access-logs', studentId],
+    queryFn: () => fetch(`/api/audit/access-logs/${studentId}`).then(r => r.json()),
+  })
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Access History</CardTitle>
+        <CardDescription>
+          FERPA-compliant audit trail of who accessed this student's record
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date/Time</TableHead>
+              <TableHead>User</TableHead>
+              <TableHead>Action</TableHead>
+              <TableHead>Field</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {logs?.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell>{formatDate(log.timestamp)}</TableCell>
+                <TableCell>{log.userName}</TableCell>
+                <TableCell><Badge>{log.action}</Badge></TableCell>
+                <TableCell>{log.field || '—'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+### Session Timeout
+
+**Session Timeout Warning**:
+```typescript
+export function SessionTimeout({ timeoutMinutes = 30 }) {
+  const [showWarning, setShowWarning] = useState(false)
+  const [countdown, setCountdown] = useState(60)
+  const router = useRouter()
+  
+  useEffect(() => {
+    const warningTime = (timeoutMinutes - 1) * 60 * 1000
+    const timeoutTime = timeoutMinutes * 60 * 1000
+    
+    const warningTimer = setTimeout(() => setShowWarning(true), warningTime)
+    const timeoutTimer = setTimeout(() => {
+      router.push('/sign-out?reason=timeout')
+    }, timeoutTime)
+    
+    const resetTimers = () => {
+      clearTimeout(warningTimer)
+      clearTimeout(timeoutTimer)
+      setShowWarning(false)
+    }
+    
+    window.addEventListener('mousemove', resetTimers)
+    window.addEventListener('keypress', resetTimers)
+    
+    return () => {
+      clearTimeout(warningTimer)
+      clearTimeout(timeoutTimer)
+      window.removeEventListener('mousemove', resetTimers)
+      window.removeEventListener('keypress', resetTimers)
+    }
+  }, [timeoutMinutes, router])
+  
+  if (!showWarning) return null
+  
+  return (
+    <Alert variant="warning" className="fixed bottom-4 right-4 max-w-md">
+      <AlertTitle>Session Expiring Soon</AlertTitle>
+      <AlertDescription>
+        Your session will expire in {countdown} seconds due to inactivity.
+      </AlertDescription>
+    </Alert>
+  )
+}
+```
+
+## Implementation Roadmap
+
+### Phase 1: Foundation (Weeks 1-4)
+- Setup design system with Shadcn/UI
+- Create design tokens and Tailwind config
+- Build atomic components (Button, Input, Badge, etc.)
+- Setup TanStack Query and Zustand
+- Configure authentication with Clerk
+
+### Phase 2: Student Zone (Weeks 5-8)
+- Build Student Dashboard page
+- Implement Schedule page with calendar
+- Create Resources page with booking
+- Develop AI Chat Widget with streaming
+- Mobile optimizations and PWA setup
+
+### Phase 3: Admin Zone Core (Weeks 9-12)
+- Build Admin Dashboard with metrics
+- Implement Student Management table
+- Create Student Detail page (6 tabs)
+- Setup real-time alert system
+
+### Phase 4: Admin Zone Advanced (Weeks 13-15)
+- Build Alert Management page
+- Implement AI Evaluation Dashboard
+- Add reporting and analytics
+
+### Phase 5: Coach & Faculty Zones (Weeks 16-17)
+- Build Coach Dashboard and Team Management
+- Create Faculty Dashboard
+- Implement Absence Management
+
+### Phase 6: Polish & Testing (Weeks 18-20)
+- Accessibility audit and fixes
+- Performance optimization
+- Comprehensive testing (unit, integration, E2E)
+- Security review and FERPA compliance validation
+- Production deployment
+
