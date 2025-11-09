@@ -1,5 +1,5 @@
 {
-  "extends": "@aah/config/tsconfig/base.json",
+  "extends": "../../packages/config/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "module": "ESNext",
