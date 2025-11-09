@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 async function getStudents() {
   const students = await prisma.user.findMany({
-    where: { role: 'student' },
+    where: { role: 'STUDENT' },
     include: {
       complianceRecords: {
         orderBy: { createdAt: 'desc' },
