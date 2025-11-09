@@ -1,0 +1,27 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Tests
+**/*.test.ts
+**/__tests__/
+coverage/
+
+# Examples (keep for documentation)
+# examples/
+
+# Documentation source
+*.md
+!README.md
+
+# Config files
+tsconfig.json
+tsup.config.ts
+jest.config.js
+.eslintrc.js
+
+# Development
+.git/
+.github/
+node_modules/

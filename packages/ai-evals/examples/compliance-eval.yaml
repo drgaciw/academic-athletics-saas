@@ -1,0 +1,59 @@
+# NCAA Compliance Evaluation Configuration
+# This configuration is optimized for testing compliance checking accuracy
+
+name: NCAA Compliance Evaluation
+description: Evaluate NCAA compliance checking accuracy with high precision requirements
+version: 1.0.0
+environment: development
+
+# Models to test
+models:
+  - provider: openai
+    modelId: gpt-4-turbo-preview
+    temperature: 0.0
+    maxTokens: 2000
+
+  - provider: anthropic
+    modelId: claude-3-opus-20240229
+    temperature: 0.0
+    maxTokens: 2000
+
+# Runner configuration
+runner:
+  timeout: 30000        # 30 seconds per test
+  retries: 3            # Retry failed tests up to 3 times
+  concurrency: 5        # Run 5 tests in parallel
+
+# Scorer configuration - use exact match for compliance
+scorer:
+  strategy: exact
+  threshold: 1.0        # Require 100% match for compliance decisions
+
+# Dataset selection
+datasets:
+  include:
+    - compliance-eligibility
+    - compliance-gpa
+    - compliance-progress
+  tags:
+    - ncaa
+    - eligibility
+
+# Output configuration
+output:
+  format: table
+  verbose: true
+  showFailuresOnly: false
+  outputFile: ./results/compliance-eval-{timestamp}.json
+  includeMetadata: true
+
+# Baseline comparison
+baseline:
+  enabled: true
+  regressionThreshold: 0.05  # Fail if accuracy drops by more than 5%
+  failOnRegression: true
+
+# API keys (can also use environment variables)
+# apiKeys:
+#   openai: sk-...
+#   anthropic: sk-ant-...

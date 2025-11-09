@@ -1,0 +1,1562 @@
+{
+  "id": "advising-course-recommendations",
+  "name": "Academic Advising Course Recommendations",
+  "description": "Test cases for course recommendation system covering scheduling conflicts, prerequisite chains, degree requirements, and NCAA eligibility constraints",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "adv-001",
+      "input": {
+        "studentId": "SA-ADV-001",
+        "major": "Business Administration",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 2,
+        "completedCourses": ["ECON101", "MATH110", "ENGL101", "HIST105", "ACCT101", "MGMT201"],
+        "currentCredits": 48,
+        "cumulativeGPA": 3.2,
+        "athleticSchedule": {
+          "sport": "Basketball",
+          "practices": ["MWF 2:00PM-5:00PM", "TTh 3:00PM-5:00PM"],
+          "games": ["Sat 1:00PM", "Wed 7:00PM"],
+          "travelDates": ["2026-02-14", "2026-02-21", "2026-03-07"]
+        },
+        "preferences": {
+          "preferredDays": ["TTh"],
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "ECON201",
+            "courseName": "Intermediate Microeconomics",
+            "credits": 3,
+            "schedule": "TTh 9:30AM-10:45AM",
+            "priority": "high",
+            "reason": "Required core course for major, prerequisite (ECON101) satisfied, fits athletic schedule",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ACCT201",
+            "courseName": "Managerial Accounting",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Required core course for major, prerequisite (ACCT101) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "STAT210",
+            "courseName": "Business Statistics",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Required for major, prerequisite (MATH110) satisfied, complements ECON201",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MKTG301",
+            "courseName": "Marketing Principles",
+            "credits": 3,
+            "schedule": "MW 9:30AM-10:45AM",
+            "priority": "medium",
+            "reason": "Major elective, no prerequisites required, good variety in schedule",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 12,
+        "warnings": [],
+        "notes": [
+          "This schedule gives you 12 credits, meeting NCAA full-time requirement",
+          "All classes end by 12:15 PM, avoiding practice conflicts",
+          "Taking 4 courses keeps you on track for 40% degree progress by year 2 end"
+        ]
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "standard-scheduling",
+        "tags": ["scheduling", "prerequisites", "athletics", "business"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-002",
+      "input": {
+        "studentId": "SA-ADV-002",
+        "major": "Computer Science",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 1,
+        "completedCourses": ["CS101", "MATH151"],
+        "currentCredits": 15,
+        "cumulativeGPA": 3.5,
+        "athleticSchedule": {
+          "sport": "Soccer",
+          "practices": ["MTWThF 3:00PM-6:00PM"],
+          "games": ["Sat 2:00PM", "Tue 7:00PM"],
+          "travelDates": ["2025-09-15", "2025-10-03", "2025-10-17"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "CS201",
+            "courseName": "Data Structures",
+            "credits": 4,
+            "schedule": "MWF 10:00AM-11:00AM + Lab W 1:00PM-2:50PM",
+            "priority": "critical",
+            "reason": "Core CS course, prerequisite for most upper-level courses, CS101 completed",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "minor",
+                "description": "Lab conflicts with early practice on Wednesday - coach approval may be needed"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MATH152",
+            "courseName": "Calculus II",
+            "credits": 4,
+            "schedule": "TTh 9:00AM-10:50AM",
+            "priority": "high",
+            "reason": "Required for CS major, prerequisite (MATH151) satisfied, needed for CS300+",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ENGL102",
+            "courseName": "Composition II",
+            "credits": 3,
+            "schedule": "MW 8:00AM-9:15AM",
+            "priority": "medium",
+            "reason": "General education requirement, small class size available",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "PHYS201",
+            "courseName": "Physics I",
+            "credits": 4,
+            "schedule": "TTh 11:00AM-12:50PM",
+            "priority": "medium",
+            "reason": "Required for CS degree, MATH151 prerequisite satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "schedule-conflict",
+            "severity": "medium",
+            "message": "CS201 lab may conflict with Wednesday practice start time - coordinate with coach"
+          },
+          {
+            "type": "workload",
+            "severity": "low",
+            "message": "15 credits with 2 labs is challenging - ensure good time management"
+          }
+        ],
+        "notes": [
+          "CS201 is critical for progression - take despite minor schedule conflict",
+          "Consider meeting with coach about Wednesday lab conflict",
+          "Schedule includes mix of CS, math, and gen-ed for balanced workload"
+        ]
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "schedule-conflict",
+        "tags": ["scheduling", "conflict", "STEM", "prerequisites"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-003",
+      "input": {
+        "studentId": "SA-ADV-003",
+        "major": "Biology",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 2,
+        "completedCourses": ["BIO101", "CHEM101", "CHEM102", "MATH140", "ENGL101", "HIST101"],
+        "currentCredits": 45,
+        "cumulativeGPA": 2.4,
+        "athleticSchedule": {
+          "sport": "Track and Field",
+          "practices": ["MTWThF 3:30PM-6:00PM"],
+          "games": ["Sat all-day"],
+          "travelDates": ["2026-02-20", "2026-03-13", "2026-04-10"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": true,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "BIO201",
+            "courseName": "Cell Biology",
+            "credits": 4,
+            "schedule": "MW 10:00AM-11:50AM + Lab M 1:00PM-3:00PM",
+            "priority": "critical",
+            "reason": "Required core course, prerequisite for upper-level biology courses",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "major",
+                "description": "Monday lab conflicts directly with practice (1:00-3:00 PM)"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "CHEM201",
+            "courseName": "Organic Chemistry I",
+            "credits": 4,
+            "schedule": "TTh 10:00AM-11:50AM + Lab T 1:00PM-3:50PM",
+            "priority": "high",
+            "reason": "Required for biology major and pre-health track",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "major",
+                "description": "Tuesday lab conflicts with practice (1:00-3:50 PM)"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MATH240",
+            "courseName": "Statistics",
+            "credits": 3,
+            "schedule": "MW 12:00PM-1:15PM",
+            "priority": "medium",
+            "reason": "Required for biology major, no lab conflict",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 11,
+        "warnings": [
+          {
+            "type": "critical-conflict",
+            "severity": "high",
+            "message": "Both BIO201 and CHEM201 labs conflict with practice - URGENT: coordinate with coach and explore alternative lab sections"
+          },
+          {
+            "type": "credit-shortage",
+            "severity": "high",
+            "message": "Only 11 credits recommended due to conflicts - need 12 minimum for NCAA eligibility. Must find additional 1-3 credit course or resolve lab conflicts"
+          },
+          {
+            "type": "academic-alert",
+            "severity": "medium",
+            "message": "GPA of 2.4 is close to NCAA 2.0 minimum - consider academic support resources"
+          }
+        ],
+        "notes": [
+          "URGENT: Both critical courses have unavoidable lab conflicts",
+          "Options: 1) Get coach approval for late practice arrival on lab days, 2) Find alternative lab sections, 3) Take one course now and one in summer/fall",
+          "You MUST enroll in at least 12 credits - consider adding an online course or evening course",
+          "Connect with academic support for GPA improvement strategies"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "critical-conflict",
+        "tags": ["scheduling", "conflict", "STEM", "lab-courses", "eligibility-risk"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "adv-004",
+      "input": {
+        "studentId": "SA-ADV-004",
+        "major": "Business Administration",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 3,
+        "completedCourses": ["ECON101", "ECON201", "ACCT101", "ACCT201", "MGMT201", "MGMT301", "MKTG301", "FIN301", "STAT210", "MATH110", "ENGL101", "ENGL102"],
+        "currentCredits": 78,
+        "cumulativeGPA": 3.0,
+        "athleticSchedule": {
+          "sport": "Football",
+          "practices": ["MTWThF 2:00PM-6:00PM"],
+          "games": ["Sat 12:00PM"],
+          "travelDates": ["2025-09-13", "2025-10-18", "2025-11-08", "2025-11-22"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "FIN401",
+            "courseName": "Corporate Finance",
+            "credits": 3,
+            "schedule": "TTh 9:00AM-10:15AM",
+            "priority": "high",
+            "reason": "Required for major, prerequisite (FIN301) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MGMT402",
+            "courseName": "Strategic Management",
+            "credits": 3,
+            "schedule": "MW 10:30AM-11:45AM",
+            "priority": "high",
+            "reason": "Required capstone course, all prerequisites satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MKTG410",
+            "courseName": "Consumer Behavior",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Major elective, prerequisite (MKTG301) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BUS450",
+            "courseName": "Business Ethics",
+            "credits": 3,
+            "schedule": "MW 9:00AM-10:15AM",
+            "priority": "medium",
+            "reason": "Required for degree, no prerequisites",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "COMM301",
+            "courseName": "Business Communication",
+            "credits": 3,
+            "schedule": "Online asynchronous",
+            "priority": "low",
+            "reason": "General elective, flexible for travel schedule",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "degree-progress",
+            "severity": "medium",
+            "message": "Currently at 65% degree completion - need to reach 80% by end of year 4 (24 more credits over 2 semesters)"
+          }
+        ],
+        "notes": [
+          "Strong course load focuses on major requirements for senior year",
+          "All classes scheduled before 2 PM to avoid practice conflicts",
+          "Online course provides flexibility during heavy travel schedule",
+          "On track for degree completion by end of year 4",
+          "Consider 15-16 credits in spring to maintain 80% progress goal"
+        ]
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "upper-level-planning",
+        "tags": ["scheduling", "senior", "degree-completion", "business"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-005",
+      "input": {
+        "studentId": "SA-ADV-005",
+        "major": "Psychology",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 1,
+        "completedCourses": ["PSYCH101", "ENGL101", "MATH105"],
+        "currentCredits": 22,
+        "cumulativeGPA": 2.1,
+        "athleticSchedule": {
+          "sport": "Volleyball",
+          "practices": ["MTWThF 4:00PM-7:00PM"],
+          "games": ["Fri 7:00PM", "Sun 2:00PM"],
+          "travelDates": ["2026-02-06", "2026-03-13", "2026-04-03"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "PSYCH201",
+            "courseName": "Research Methods",
+            "credits": 3,
+            "schedule": "MW 1:00PM-2:15PM",
+            "priority": "critical",
+            "reason": "Required prerequisite for all upper-level psychology courses, must take early",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "PSYCH210",
+            "courseName": "Developmental Psychology",
+            "credits": 3,
+            "schedule": "TTh 9:30AM-10:45AM",
+            "priority": "high",
+            "reason": "Core psychology requirement, PSYCH101 prerequisite satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "STAT200",
+            "courseName": "Introduction to Statistics",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Required for psychology major, prerequisite for PSYCH201 lab component",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BIO110",
+            "courseName": "Human Biology",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Science requirement for psychology major",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ENGL102",
+            "courseName": "Composition II",
+            "credits": 3,
+            "schedule": "MW 9:30AM-10:45AM",
+            "priority": "medium",
+            "reason": "General education requirement, prerequisite (ENGL101) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "academic-alert",
+            "severity": "critical",
+            "message": "GPA of 2.1 is dangerously close to NCAA 2.0 minimum - academic intervention recommended"
+          },
+          {
+            "type": "workload-concern",
+            "severity": "medium",
+            "message": "15 credits may be challenging given low GPA - consider 12-13 credits with academic support"
+          }
+        ],
+        "notes": [
+          "CRITICAL: GPA is only 0.1 above NCAA minimum - prioritize academic support",
+          "PSYCH201 is essential for major progression - cannot delay",
+          "Consider reducing to 12 credits if struggling - eligibility requires 2.0+ GPA",
+          "Mandatory: schedule weekly tutoring sessions for all courses",
+          "Connect with academic advisor about study skills and time management",
+          "Monitor grades closely throughout semester"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "academic-crisis",
+        "tags": ["scheduling", "low-gpa", "intervention", "eligibility-risk"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "adv-006",
+      "input": {
+        "studentId": "SA-ADV-006",
+        "major": "Engineering",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 2,
+        "completedCourses": ["ENGR101", "MATH151", "MATH152", "PHYS201", "CHEM101", "ENGL101"],
+        "currentCredits": 42,
+        "cumulativeGPA": 2.8,
+        "athleticSchedule": {
+          "sport": "Swimming",
+          "practices": ["MTWThF 5:30AM-7:30AM", "MTWThF 3:00PM-5:00PM"],
+          "games": ["Sat 9:00AM"],
+          "travelDates": ["2025-10-11", "2025-11-15", "2025-12-06"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "ENGR201",
+            "courseName": "Circuits and Systems",
+            "credits": 4,
+            "schedule": "MWF 9:00AM-10:00AM + Lab W 1:00PM-3:50PM",
+            "priority": "critical",
+            "reason": "Core engineering course, prerequisite for 300-level courses",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MATH251",
+            "courseName": "Multivariable Calculus",
+            "credits": 4,
+            "schedule": "TTh 9:30AM-11:20AM",
+            "priority": "critical",
+            "reason": "Required for engineering, prerequisite (MATH152) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "PHYS202",
+            "courseName": "Physics II",
+            "credits": 4,
+            "schedule": "MWF 11:00AM-12:00PM + Lab F 1:00PM-3:50PM",
+            "priority": "high",
+            "reason": "Required sequence course, PHYS201 prerequisite satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "CS150",
+            "courseName": "Programming for Engineers",
+            "credits": 3,
+            "schedule": "TTh 1:00PM-2:15PM",
+            "priority": "high",
+            "reason": "Required for engineering major, fits between practices",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "workload",
+            "severity": "high",
+            "message": "15 credits with 2 lab courses is very heavy for engineering - time management critical"
+          },
+          {
+            "type": "athletic-schedule",
+            "severity": "medium",
+            "message": "Two-a-day practices (5:30-7:30 AM and 3-5 PM) leave limited study time - plan accordingly"
+          }
+        ],
+        "notes": [
+          "Schedule optimized for 8 AM-3 PM window between practices",
+          "All labs end before afternoon practice at 3 PM",
+          "Heavy courseload (15 credits, 2 labs) - ensure excellent time management",
+          "Consider forming study groups for engineering courses",
+          "Use evening hours (after 5 PM practice) for homework and study",
+          "Weekend study time will be essential for success"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "demanding-schedule",
+        "tags": ["scheduling", "STEM", "engineering", "heavy-workload", "two-a-days"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-007",
+      "input": {
+        "studentId": "SA-ADV-007",
+        "major": "Communications",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 3,
+        "completedCourses": ["COMM101", "COMM201", "COMM210", "JOUR101", "MKTG301", "ENGL101", "ENGL102", "PSYCH101", "HIST101", "MATH105"],
+        "currentCredits": 72,
+        "cumulativeGPA": 3.4,
+        "athleticSchedule": {
+          "sport": "Baseball",
+          "practices": ["MTWThF 2:00PM-5:00PM"],
+          "games": ["Tue 6:00PM", "Fri 6:00PM", "Sat 1:00PM", "Sun 12:00PM"],
+          "travelDates": ["2026-02-13", "2026-02-20", "2026-03-06", "2026-03-20", "2026-04-10"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "COMM301",
+            "courseName": "Media Theory",
+            "credits": 3,
+            "schedule": "MW 9:00AM-10:15AM",
+            "priority": "high",
+            "reason": "Required for communications major",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "COMM350",
+            "courseName": "Digital Media Production",
+            "credits": 3,
+            "schedule": "TTh 10:30AM-11:45AM",
+            "priority": "high",
+            "reason": "Required major course with hands-on component",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "JOUR301",
+            "courseName": "Sports Journalism",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Major elective, leverages athletic experience",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BUS310",
+            "courseName": "Social Media Marketing",
+            "credits": 3,
+            "schedule": "Online asynchronous",
+            "priority": "medium",
+            "reason": "Valuable elective, flexible for heavy travel schedule",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 12,
+        "warnings": [
+          {
+            "type": "travel-impact",
+            "severity": "medium",
+            "message": "5 travel dates this semester - coordinate with professors early about makeup work"
+          },
+          {
+            "type": "degree-progress",
+            "severity": "low",
+            "message": "At 60% degree completion - on track for graduation but ensure continued progress"
+          }
+        ],
+        "notes": [
+          "All in-person classes before 2 PM to avoid practice conflicts",
+          "Online course provides flexibility during travel-heavy baseball season",
+          "12 credits is strategic - maintains eligibility while managing heavy game schedule",
+          "Get absence letters for all travel dates at start of semester",
+          "Strong GPA (3.4) - maintain academic performance despite travel",
+          "Sports journalism course aligns well with your athletic background"
+        ]
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "travel-heavy-sport",
+        "tags": ["scheduling", "travel", "baseball", "communications"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-008",
+      "input": {
+        "studentId": "SA-ADV-008",
+        "major": "Kinesiology",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 4,
+        "completedCourses": ["KIN101", "KIN201", "KIN301", "KIN310", "KIN320", "BIO101", "BIO201", "CHEM101", "PHYS101", "PSYCH101", "STAT200", "ENGL101", "ENGL102"],
+        "currentCredits": 96,
+        "cumulativeGPA": 3.1,
+        "athleticSchedule": {
+          "sport": "Tennis",
+          "practices": ["MTWThF 3:00PM-5:30PM"],
+          "games": ["Fri 2:00PM", "Sat 10:00AM"],
+          "travelDates": ["2025-09-20", "2025-10-11", "2025-11-01"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "KIN401",
+            "courseName": "Exercise Physiology",
+            "credits": 4,
+            "schedule": "MW 9:00AM-10:50AM + Lab M 1:00PM-2:50PM",
+            "priority": "critical",
+            "reason": "Required capstone course, prerequisite for graduation",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "minor",
+                "description": "Monday lab ends at 2:50 PM, practice starts 3:00 PM - may need to arrive slightly late"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "KIN410",
+            "courseName": "Biomechanics",
+            "credits": 3,
+            "schedule": "TTh 10:00AM-11:15AM",
+            "priority": "critical",
+            "reason": "Required for degree, final major course",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "KIN450",
+            "courseName": "Internship in Kinesiology",
+            "credits": 3,
+            "schedule": "Arranged (flexible)",
+            "priority": "high",
+            "reason": "Degree requirement, can schedule around athletics",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "HLTH301",
+            "courseName": "Nutrition for Athletes",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Elective, directly applicable to tennis career",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 13,
+        "warnings": [
+          {
+            "type": "graduation-requirement",
+            "severity": "medium",
+            "message": "Need 24 credits this year to graduate - plan for at least 12 credits in spring too"
+          },
+          {
+            "type": "degree-progress",
+            "severity": "low",
+            "message": "At 80% completion - on track for graduation but no room for course failures"
+          }
+        ],
+        "notes": [
+          "Final year - all courses critical for graduation",
+          "13 credits this semester, need 11+ in spring to reach 120 total",
+          "Minor conflict with Monday lab - talk to coach about 10-minute late arrival",
+          "Internship provides real-world experience and flexible scheduling",
+          "All coursework directly relevant to kinesiology career or graduate school",
+          "Maintain 2.0+ GPA to ensure eligibility through graduation"
+        ]
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "senior-graduation",
+        "tags": ["scheduling", "senior", "graduation", "kinesiology"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-009",
+      "input": {
+        "studentId": "SA-ADV-009",
+        "major": "Political Science",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 2,
+        "completedCourses": ["POLI101", "POLI201", "HIST101", "HIST102", "ECON101", "ENGL101", "ENGL102", "PHIL101"],
+        "currentCredits": 48,
+        "cumulativeGPA": 3.6,
+        "athleticSchedule": {
+          "sport": "Lacrosse",
+          "practices": ["MTWThF 3:00PM-6:00PM"],
+          "games": ["Wed 7:00PM", "Sat 1:00PM"],
+          "travelDates": ["2026-02-28", "2026-03-14", "2026-03-28", "2026-04-11"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3,
+          "interests": ["international-relations", "law"]
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "POLI301",
+            "courseName": "International Relations",
+            "credits": 3,
+            "schedule": "TTh 9:30AM-10:45AM",
+            "priority": "high",
+            "reason": "Core course for political science, aligns with stated interest in international relations",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "POLI310",
+            "courseName": "Constitutional Law",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Core course, excellent preparation for law school (stated interest)",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "POLI250",
+            "courseName": "Research Methods in Political Science",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Required methodology course, prerequisite for 400-level seminars",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ECON201",
+            "courseName": "Intermediate Microeconomics",
+            "credits": 3,
+            "schedule": "MW 9:30AM-10:45AM",
+            "priority": "medium",
+            "reason": "Complements political science major, prerequisite (ECON101) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "SPAN201",
+            "courseName": "Intermediate Spanish",
+            "credits": 3,
+            "schedule": "MWF 1:00PM-1:50PM",
+            "priority": "low",
+            "reason": "Foreign language requirement, valuable for international relations career",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "minor",
+                "description": "Class ends 1:50 PM, may occasionally conflict with early practice adjustments"
+              }
+            ],
+            "prerequisitesSatisfied": false
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "prerequisite",
+            "severity": "low",
+            "message": "SPAN201 requires SPAN101 or placement test - verify eligibility"
+          }
+        ],
+        "notes": [
+          "Excellent GPA (3.6) - taking challenging courseload appropriate",
+          "Schedule aligned with law school preparation and international relations interests",
+          "All core classes before 3 PM, no conflicts with practice",
+          "Spanish course has minor late-afternoon timing but manageable",
+          "Strong foundation for senior thesis and graduate school applications",
+          "Consider honors program given high GPA"
+        ]
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "career-aligned",
+        "tags": ["scheduling", "political-science", "pre-law", "career-prep"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-010",
+      "input": {
+        "studentId": "SA-ADV-010",
+        "major": "Undeclared",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 1,
+        "completedCourses": ["ENGL101", "MATH105"],
+        "currentCredits": 14,
+        "cumulativeGPA": 2.6,
+        "athleticSchedule": {
+          "sport": "Wrestling",
+          "practices": ["MTWThF 3:00PM-6:00PM"],
+          "games": ["Sat varies"],
+          "travelDates": ["2025-11-15", "2025-12-06"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "EXPL101",
+            "courseName": "Career Exploration",
+            "credits": 1,
+            "schedule": "W 12:00PM-1:00PM",
+            "priority": "critical",
+            "reason": "Required for undeclared students, helps determine major",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ENGL102",
+            "courseName": "Composition II",
+            "credits": 3,
+            "schedule": "MW 9:00AM-10:15AM",
+            "priority": "high",
+            "reason": "General education requirement, prerequisite (ENGL101) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "HIST101",
+            "courseName": "World History I",
+            "credits": 3,
+            "schedule": "TTh 9:30AM-10:45AM",
+            "priority": "high",
+            "reason": "General education requirement, broadly applicable",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "PSYCH101",
+            "courseName": "Introduction to Psychology",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "General education, useful for many majors, no prerequisites",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "COMM101",
+            "courseName": "Public Speaking",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "General education, develops valuable skills for any career",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BIO101",
+            "courseName": "Introduction to Biology",
+            "credits": 3,
+            "schedule": "MWF 10:00AM-10:50AM",
+            "priority": "low",
+            "reason": "Science requirement option, keeps STEM majors open",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 13,
+        "warnings": [
+          {
+            "type": "major-declaration",
+            "severity": "high",
+            "message": "Must declare major by end of sophomore year - take EXPL101 and meet with advisor"
+          },
+          {
+            "type": "credit-planning",
+            "severity": "medium",
+            "message": "Currently at 14 credits total - need to maintain 24+ credits per year for eligibility"
+          }
+        ],
+        "notes": [
+          "CRITICAL: Must declare major soon - EXPL101 is mandatory",
+          "Schedule focuses on general education to keep all major options open",
+          "13 credits provides exploration time while maintaining eligibility",
+          "Consider taking 15-16 credits in spring once major is chosen",
+          "All courses fulfill general ed requirements for any major",
+          "Meet with academic advisor by mid-semester to discuss major options",
+          "GPA of 2.6 is safe but aim higher to expand major options"
+        ]
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "undeclared-exploration",
+        "tags": ["scheduling", "undeclared", "exploration", "general-education"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-011",
+      "input": {
+        "studentId": "SA-ADV-011",
+        "major": "Nursing",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 3,
+        "completedCourses": ["NURS201", "NURS202", "BIO101", "BIO201", "CHEM101", "ANAT201", "PHYS101", "PSYCH101", "ENGL101"],
+        "currentCredits": 68,
+        "cumulativeGPA": 3.3,
+        "athleticSchedule": {
+          "sport": "Softball",
+          "practices": ["MTWThF 2:00PM-5:00PM"],
+          "games": ["Tue 5:00PM", "Thu 5:00PM", "Sat 12:00PM", "Sun 1:00PM"],
+          "travelDates": ["2026-02-20", "2026-03-06", "2026-03-27", "2026-04-10", "2026-04-24"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "NURS301",
+            "courseName": "Medical-Surgical Nursing I",
+            "credits": 5,
+            "schedule": "MW 8:00AM-10:50AM + Clinical Th 6:00AM-2:00PM",
+            "priority": "critical",
+            "reason": "Required nursing sequence course, must take in order",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "critical",
+                "description": "Thursday clinical (6 AM-2 PM) directly conflicts with Thursday practice (2-5 PM) and games (5 PM)"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "NURS310",
+            "courseName": "Pharmacology",
+            "credits": 3,
+            "schedule": "TTh 9:00AM-10:15AM",
+            "priority": "critical",
+            "reason": "Required for nursing major, co-requisite with NURS301",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "NURS320",
+            "courseName": "Pathophysiology",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Required nursing course, foundation for clinical practice",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 11,
+        "warnings": [
+          {
+            "type": "critical-conflict",
+            "severity": "critical",
+            "message": "NURS301 clinical hours (required) directly conflict with Thursday practice and games - URGENT conversation with nursing program and coach required"
+          },
+          {
+            "type": "program-requirements",
+            "severity": "critical",
+            "message": "Nursing clinical hours are non-negotiable and cannot be rescheduled - may need to choose between nursing major and softball"
+          },
+          {
+            "type": "credit-shortage",
+            "severity": "high",
+            "message": "Only 11 credits due to conflicts - need 12 minimum for eligibility. Cannot add courses due to clinical time commitment"
+          }
+        ],
+        "notes": [
+          "URGENT CRITICAL ISSUE: Nursing clinical requirements fundamentally incompatible with softball schedule",
+          "Thursday clinical is 8-hour immersive experience (6 AM-2 PM), cannot be changed",
+          "Clinical ends at 2 PM when practice starts, plus Thursday games at 5 PM create impossible situation",
+          "Options to discuss with advisor: 1) Medical hardship/scheduling exception from NCAA/coach, 2) Take semester/year off from softball, 3) Change major, 4) Delay nursing sequence to off-season",
+          "Nursing programs have strict sequencing - missing NURS301 delays graduation by full year",
+          "This is a critical decision point - schedule meeting with academic advisor, nursing program director, athletic director, and coach immediately",
+          "Some student-athletes have successfully completed nursing but required significant schedule accommodations"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "program-conflict",
+        "tags": ["scheduling", "nursing", "clinical", "impossible-conflict", "critical"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "adv-012",
+      "input": {
+        "studentId": "SA-ADV-012",
+        "major": "Mathematics",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 2,
+        "completedCourses": ["MATH151", "MATH152", "MATH251", "CS101", "PHYS201", "ENGL101"],
+        "currentCredits": 45,
+        "cumulativeGPA": 3.8,
+        "athleticSchedule": {
+          "sport": "Cross Country",
+          "practices": ["MTWThF 3:30PM-5:30PM"],
+          "games": ["Sat 9:00AM"],
+          "travelDates": ["2025-09-13", "2025-10-04", "2025-10-25", "2025-11-15"]
+        },
+        "preferences": {
+          "preferredDays": ["MWF"],
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "MATH301",
+            "courseName": "Linear Algebra",
+            "credits": 3,
+            "schedule": "MWF 10:00AM-10:50AM",
+            "priority": "critical",
+            "reason": "Required core course, prerequisite for most upper-level math courses",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MATH310",
+            "courseName": "Differential Equations",
+            "credits": 3,
+            "schedule": "TTh 9:30AM-10:45AM",
+            "priority": "high",
+            "reason": "Required for math major, MATH152 and MATH251 prerequisites satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MATH320",
+            "courseName": "Introduction to Proofs",
+            "credits": 3,
+            "schedule": "MWF 11:00AM-11:50AM",
+            "priority": "critical",
+            "reason": "Essential for upper-level math courses, teaches mathematical reasoning",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "CS201",
+            "courseName": "Data Structures",
+            "credits": 4,
+            "schedule": "MWF 1:00PM-1:50PM + Lab W 2:00PM-3:15PM",
+            "priority": "medium",
+            "reason": "Valuable complement to math major, CS101 prerequisite satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "STAT310",
+            "courseName": "Probability Theory",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "Math elective, strong foundation for graduate school",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 16,
+        "warnings": [
+          {
+            "type": "heavy-workload",
+            "severity": "medium",
+            "message": "16 credits with 5 math-intensive courses is very challenging - excellent time management required"
+          }
+        ],
+        "notes": [
+          "Schedule follows your MWF preference for major courses",
+          "All classes end by 3:15 PM, perfect fit for 3:30 PM practice",
+          "16 credits is ambitious but manageable given your 3.8 GPA",
+          "MATH301 and MATH320 are foundational - both critical for junior/senior year",
+          "CS201 adds valuable computational skills for math career/grad school",
+          "Consider dropping STAT310 or CS201 if workload becomes overwhelming",
+          "Schedule positions you well for graduate school in mathematics"
+        ]
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "high-achiever",
+        "tags": ["scheduling", "mathematics", "STEM", "high-gpa", "grad-prep"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "adv-013",
+      "input": {
+        "studentId": "SA-ADV-013",
+        "major": "Exercise Science",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 4,
+        "completedCourses": ["EXSC101", "EXSC201", "EXSC301", "EXSC310", "BIO101", "BIO201", "CHEM101", "ANAT201", "PHYS201", "PSYCH101", "NUTR201", "ENGL101", "ENGL102", "MATH105"],
+        "currentCredits": 102,
+        "cumulativeGPA": 2.9,
+        "athleticSchedule": {
+          "sport": "Gymnastics",
+          "practices": ["MTWThF 1:00PM-5:00PM"],
+          "games": ["Fri 7:00PM", "Sat 2:00PM"],
+          "travelDates": ["2026-02-06", "2026-02-27", "2026-03-20", "2026-04-03"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "EXSC401",
+            "courseName": "Exercise Prescription",
+            "credits": 3,
+            "schedule": "TTh 9:00AM-10:15AM",
+            "priority": "critical",
+            "reason": "Required capstone course for graduation",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "EXSC490",
+            "courseName": "Senior Internship",
+            "credits": 6,
+            "schedule": "Arranged (150 hours total)",
+            "priority": "critical",
+            "reason": "Required for graduation, can schedule around athletics",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "HLTH350",
+            "courseName": "Sports Injury Prevention",
+            "credits": 3,
+            "schedule": "MW 9:00AM-10:15AM",
+            "priority": "high",
+            "reason": "Degree requirement, directly applicable to gymnastics",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 12,
+        "warnings": [
+          {
+            "type": "graduation-requirement",
+            "severity": "critical",
+            "message": "Need 18 credits to reach 120 for graduation - plan additional 6 credits or summer courses"
+          },
+          {
+            "type": "internship-logistics",
+            "severity": "high",
+            "message": "150-hour internship requirement - start early, coordinate with athletic schedule, complete by mid-April"
+          }
+        ],
+        "notes": [
+          "CRITICAL: Only have 102 credits, need 120 to graduate - missing 18 credits",
+          "Current recommendation: 12 credits - need 6 more credits to graduate on time",
+          "Options: 1) Add 2 more 3-credit courses this semester (18 total), 2) Take 6 credits in summer, 3) Request 5th year",
+          "Internship (6 credits) is flexible but requires 150 hours - plan carefully around practice/competition",
+          "Recommend starting internship in January, completing by early April before conference championships",
+          "GPA of 2.9 is safe for eligibility but below typical grad school requirements",
+          "All coursework directly relevant to exercise science career",
+          "Schedule meeting with advisor IMMEDIATELY to address credit shortage"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "graduation-crisis",
+        "tags": ["scheduling", "senior", "credit-shortage", "graduation-risk", "internship"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "adv-014",
+      "input": {
+        "studentId": "SA-ADV-014",
+        "major": "Music Performance",
+        "academicYear": "2025-2026",
+        "semester": "fall",
+        "yearInProgram": 2,
+        "completedCourses": ["MUS101", "MUS111", "MUS121", "MUS201", "MUS211", "ENGL101", "HIST101"],
+        "currentCredits": 42,
+        "cumulativeGPA": 3.5,
+        "athleticSchedule": {
+          "sport": "Soccer",
+          "practices": ["MTWThF 3:00PM-6:00PM"],
+          "games": ["Wed 7:00PM", "Sat 1:00PM"],
+          "travelDates": ["2025-09-20", "2025-10-11", "2025-10-25", "2025-11-08"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 3
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "MUS221",
+            "courseName": "Music Theory III",
+            "credits": 3,
+            "schedule": "MWF 9:00AM-9:50AM",
+            "priority": "critical",
+            "reason": "Required sequential course for music major",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MUS231",
+            "courseName": "Aural Skills III",
+            "credits": 2,
+            "schedule": "TTh 9:00AM-9:50AM",
+            "priority": "critical",
+            "reason": "Required co-requisite with MUS221",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MUS311",
+            "courseName": "Applied Lessons (Instrument)",
+            "credits": 2,
+            "schedule": "Arranged (weekly 1-hour lessons)",
+            "priority": "critical",
+            "reason": "Required every semester for performance major",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MUS350",
+            "courseName": "Chamber Ensemble",
+            "credits": 1,
+            "schedule": "T 5:00PM-6:30PM",
+            "priority": "high",
+            "reason": "Performance requirement for major",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "moderate",
+                "description": "Rehearsal at 5 PM on Tuesday may conflict with end of practice (3-6 PM)"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MUS375",
+            "courseName": "University Orchestra",
+            "credits": 1,
+            "schedule": "MW 6:30PM-9:00PM",
+            "priority": "high",
+            "reason": "Large ensemble requirement for major",
+            "conflicts": [
+              {
+                "type": "athletic-conflict",
+                "severity": "moderate",
+                "description": "Evening rehearsals on Monday and Wednesday after practice - long days (9 AM-9 PM)"
+              }
+            ],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "ENGL102",
+            "courseName": "Composition II",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "medium",
+            "reason": "General education requirement",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 12,
+        "warnings": [
+          {
+            "type": "performance-requirements",
+            "severity": "high",
+            "message": "Music performance major requires ensemble participation which often conflicts with athletics - coordinate early"
+          },
+          {
+            "type": "rehearsal-conflicts",
+            "severity": "high",
+            "message": "Ensemble rehearsals (5 PM and 6:30-9 PM) create very long days combined with athletics - discuss with both coaches and music faculty"
+          },
+          {
+            "type": "practice-time",
+            "severity": "medium",
+            "message": "Music performance requires 2+ hours daily individual practice beyond ensemble time - time management critical"
+          }
+        ],
+        "notes": [
+          "Music performance is one of the most challenging majors for student-athletes due to ensemble requirements",
+          "Ensembles meet in late afternoon/evening when most practices occur",
+          "You'll have days with activities from 9 AM through 9 PM (class + practice + rehearsal)",
+          "Need to coordinate with soccer coach about: 1) Tuesday 5 PM chamber ensemble, 2) Mon/Wed 6:30 PM orchestra",
+          "Some student-athletes get athletic excuses for occasional ensemble absences, but performance majors require consistent attendance",
+          "Individual practice time (2+ hours/day) must fit around classes, practice, and ensembles",
+          "Consider: 1) Taking semester off from soccer, 2) Changing major, 3) Seeking accommodation from both programs",
+          "This is manageable but requires exceptional time management and support from both programs"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "performance-major-conflict",
+        "tags": ["scheduling", "music", "performance", "ensemble-conflict", "demanding"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "adv-015",
+      "input": {
+        "studentId": "SA-ADV-015",
+        "major": "Business Administration",
+        "academicYear": "2025-2026",
+        "semester": "spring",
+        "yearInProgram": 3,
+        "completedCourses": ["ECON101", "ECON201", "ACCT101", "ACCT201", "MGMT201", "STAT210", "MATH110", "ENGL101", "ENGL102", "MKTG301"],
+        "currentCredits": 75,
+        "cumulativeGPA": 3.2,
+        "athleticSchedule": {
+          "sport": "Basketball",
+          "practices": ["MTWThF 2:00PM-5:00PM"],
+          "games": ["Tue 7:00PM", "Sat 2:00PM"],
+          "travelDates": ["2026-01-23", "2026-02-06", "2026-02-13", "2026-02-20", "2026-02-27", "2026-03-06", "2026-03-13"]
+        },
+        "preferences": {
+          "preferredDays": null,
+          "avoidMornings": false,
+          "maxCoursesPerDay": 2
+        },
+        "specialCircumstances": {
+          "changedMajor": true,
+          "previousMajor": "Engineering",
+          "creditsNotCounting": 15
+        }
+      },
+      "expected": {
+        "recommendations": [
+          {
+            "courseId": "FIN301",
+            "courseName": "Corporate Finance",
+            "credits": 3,
+            "schedule": "TTh 9:00AM-10:15AM",
+            "priority": "critical",
+            "reason": "Required core business course, not yet completed",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MGMT301",
+            "courseName": "Organizational Behavior",
+            "credits": 3,
+            "schedule": "MW 11:00AM-12:15PM",
+            "priority": "critical",
+            "reason": "Required for major, prerequisite (MGMT201) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BUS310",
+            "courseName": "Business Law",
+            "credits": 3,
+            "schedule": "TTh 11:00AM-12:15PM",
+            "priority": "high",
+            "reason": "Required business core course",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "MKTG310",
+            "courseName": "Digital Marketing",
+            "credits": 3,
+            "schedule": "MW 9:30AM-10:45AM",
+            "priority": "medium",
+            "reason": "Major elective, prerequisite (MKTG301) satisfied",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          },
+          {
+            "courseId": "BUS400",
+            "courseName": "Business Analytics",
+            "credits": 3,
+            "schedule": "Online asynchronous",
+            "priority": "medium",
+            "reason": "Elective, flexible for heavy travel schedule",
+            "conflicts": [],
+            "prerequisitesSatisfied": true
+          }
+        ],
+        "totalRecommendedCredits": 15,
+        "warnings": [
+          {
+            "type": "major-change-impact",
+            "severity": "critical",
+            "message": "15 engineering credits don't count toward business degree - at risk of not reaching 80% degree progress by year 4 end"
+          },
+          {
+            "type": "degree-progress",
+            "severity": "critical",
+            "message": "Only 60 credits count toward business degree (75 total - 15 engineering). Need 96 credits for 80% of 120. Must earn 36 credits in next 3 semesters (12/semester minimum)"
+          },
+          {
+            "type": "fifth-year-likely",
+            "severity": "high",
+            "message": "May need 5th year or summer courses to graduate - discuss with advisor immediately"
+          },
+          {
+            "type": "heavy-travel",
+            "severity": "medium",
+            "message": "7 travel dates this semester during basketball season - online course helps maintain flexibility"
+          }
+        ],
+        "notes": [
+          "CRITICAL: Major change from engineering to business puts you behind on degree progress",
+          "Only 60 of your 75 credits count toward business degree (15 engineering credits wasted for NCAA purposes)",
+          "NCAA requires 80% degree completion after year 4 = 96 credits toward business degree",
+          "Currently at 60, need 36 more credits over next 3 semesters = exactly 12/semester (no margin for error)",
+          "If you drop below 12 credits in any semester, you'll miss the 80% requirement and lose eligibility",
+          "Strongly consider: 1) Summer courses (6-9 credits), 2) Winter intersession, 3) 5th year waiver from NCAA",
+          "Must take 15 credits THIS semester and next fall to stay on track",
+          "Schedule meeting with academic advisor, compliance office, and coach THIS WEEK",
+          "Online course helps manage 7 travel weekends during basketball season"
+        ]
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "major-change-crisis",
+        "tags": ["scheduling", "major-change", "degree-progress", "eligibility-risk", "critical"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    }
+  ]
+}

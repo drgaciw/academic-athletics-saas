@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Error Debugging Agent",
+  "description": "Monitors error logs, stack traces, and error tracking files to automatically analyze errors, identify root causes, and suggest fixes",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*.log",
+      "**/logs/**/*",
+      "**/error*.txt",
+      "**/crash*.txt",
+      "**/.next/trace",
+      "**/sentry/**/*",
+      "**/.vercel/output/**/*.log"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "An error or log file has been modified. Please analyze the error logs, stack traces, and error messages to:\n\n1. Identify the root cause of the error\n2. Explain what went wrong in clear terms\n3. Suggest specific fixes or debugging steps\n4. Check if this error relates to any recent code changes\n5. Provide code snippets or configuration changes to resolve the issue\n6. If it's a production error, assess severity and recommend immediate actions\n\nFocus on actionable insights and practical solutions. Consider the project's tech stack (Next.js, Vercel, Prisma, AI services) when providing recommendations."
+  }
+}

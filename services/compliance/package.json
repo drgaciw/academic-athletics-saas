@@ -1,0 +1,36 @@
+{
+  "name": "@aah/service-compliance",
+  "version": "2.0.0",
+  "private": true,
+  "description": "NCAA Division I compliance service for eligibility tracking and rule enforcement",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "type-check": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@aah/database": "workspace:*",
+    "@aah/auth": "workspace:*",
+    "@aah/api-utils": "workspace:*",
+    "@aah/config": "workspace:*",
+    "zod": "^3.22.4",
+    "date-fns": "^3.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "@types/node": "^20.10.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0"
+  },
+  "keywords": ["ncaa", "compliance", "eligibility", "division-i"],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

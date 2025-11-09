@@ -1,0 +1,435 @@
+{
+  "id": "rag-retrieval-basic",
+  "name": "RAG Retrieval - Basic Scenarios",
+  "description": "Basic RAG (Retrieval Augmented Generation) test cases for knowledge base retrieval and answer generation",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "exact-match-1",
+      "name": "Exact Match - Direct Policy Question",
+      "input": "What is the minimum GPA requirement for NCAA Division I eligibility?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.4.3.1",
+            "title": "NCAA Division I Manual - Bylaw 14.4.3.1",
+            "relevanceScore": 0.95
+          }
+        ],
+        "answer": "The minimum cumulative GPA requirement for NCAA Division I continuing eligibility is 1.8",
+        "containsKeywords": ["1.8", "GPA", "cumulative", "eligibility"],
+        "citesSource": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 2,
+      "tags": ["exact-match", "policy", "ncaa"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "semantic-match-1",
+      "name": "Semantic Match - Paraphrased Question",
+      "input": "How many classes do I have to pass to keep playing?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.1.8",
+            "title": "Full-Time Enrollment Requirements",
+            "relevanceScore": 0.85
+          },
+          {
+            "docId": "ncaa-bylaw-14.4.3",
+            "title": "Progress Toward Degree Requirements",
+            "relevanceScore": 0.82
+          }
+        ],
+        "answer": "You must be enrolled in at least 12 credit hours (full-time) and pass a percentage of your degree requirements each year",
+        "containsKeywords": ["12", "credit hours", "full-time", "pass", "degree"],
+        "citesSource": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 3,
+      "tags": ["semantic-match", "paraphrase", "policy"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "multi-doc-synthesis-1",
+      "name": "Multi-Document Synthesis",
+      "input": "What are all the requirements for initial eligibility?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.3",
+            "title": "Initial Eligibility Requirements",
+            "relevanceScore": 0.92
+          },
+          {
+            "docId": "ncaa-bylaw-14.3.1.1",
+            "title": "Core Course Requirements",
+            "relevanceScore": 0.88
+          },
+          {
+            "docId": "ncaa-bylaw-14.3.1.2",
+            "title": "GPA and Test Score Requirements",
+            "relevanceScore": 0.86
+          }
+        ],
+        "answer": "Initial eligibility requires: (1) 16 core courses, (2) minimum 2.3 GPA in core courses, (3) qualifying test score, (4) 10/7 rule compliance",
+        "containsKeywords": ["16 core courses", "2.3 GPA", "test score", "10/7 rule"],
+        "citesSource": true,
+        "synthesizesMultipleDocs": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 4,
+      "tags": ["multi-doc", "synthesis", "comprehensive"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "no-relevant-docs-1",
+      "name": "No Relevant Documents",
+      "input": "What's the best pizza place near campus?",
+      "expected": {
+        "retrieved": false,
+        "relevantDocs": [],
+        "answer": "I don't have information about restaurants or dining options. I can help with academic and athletic support questions.",
+        "acknowledgesLimitation": true,
+        "offersAlternative": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 2,
+      "tags": ["no-match", "out-of-scope"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "ambiguous-query-1",
+      "name": "Ambiguous Query - Needs Clarification",
+      "input": "What are the requirements?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "multiple",
+            "relevanceScore": 0.60
+          }
+        ],
+        "answer": "There are several types of requirements. Are you asking about eligibility requirements, graduation requirements, or course prerequisites?",
+        "asksForClarification": true,
+        "providesOptions": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 3,
+      "tags": ["ambiguous", "clarification"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "temporal-query-1",
+      "name": "Temporal Query - Current Year Rules",
+      "input": "What are the 2024-2025 eligibility requirements?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-manual-2024",
+            "title": "NCAA Division I Manual 2024-2025",
+            "relevanceScore": 0.90,
+            "year": "2024-2025"
+          }
+        ],
+        "answer": "For the 2024-2025 academic year, eligibility requirements include...",
+        "containsKeywords": ["2024-2025", "eligibility"],
+        "citesSource": true,
+        "temporallyAccurate": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 4,
+      "tags": ["temporal", "versioning", "current"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "comparison-query-1",
+      "name": "Comparison Query",
+      "input": "What's the difference between initial and continuing eligibility?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.3",
+            "title": "Initial Eligibility",
+            "relevanceScore": 0.88
+          },
+          {
+            "docId": "ncaa-bylaw-14.4",
+            "title": "Continuing Eligibility",
+            "relevanceScore": 0.88
+          }
+        ],
+        "answer": "Initial eligibility applies to first-year students and requires 16 core courses and 2.3 GPA. Continuing eligibility applies to returning students and requires 1.8 GPA and progress toward degree.",
+        "containsKeywords": ["initial", "continuing", "first-year", "returning", "difference"],
+        "citesSource": true,
+        "providesComparison": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 4,
+      "tags": ["comparison", "multi-doc", "analysis"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "procedural-query-1",
+      "name": "Procedural Query - How To",
+      "input": "How do I check my eligibility status?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "student-handbook-eligibility",
+            "title": "Checking Eligibility Status",
+            "relevanceScore": 0.85
+          }
+        ],
+        "answer": "To check your eligibility status: (1) Log into the student portal, (2) Navigate to Athletics section, (3) View Eligibility Dashboard, or (4) Contact your academic coordinator",
+        "containsKeywords": ["check", "portal", "dashboard", "contact"],
+        "citesSource": true,
+        "providesSteps": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 3,
+      "tags": ["procedural", "how-to", "steps"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "definition-query-1",
+      "name": "Definition Query",
+      "input": "What is progress toward degree?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.4.3",
+            "title": "Progress Toward Degree Requirements",
+            "relevanceScore": 0.92
+          }
+        ],
+        "answer": "Progress toward degree is the percentage of degree requirements completed. NCAA requires 40% by end of sophomore year, 60% by end of junior year, and 80% by end of senior year.",
+        "containsKeywords": ["progress", "degree", "percentage", "40%", "60%", "80%"],
+        "citesSource": true,
+        "providesDefinition": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 2,
+      "tags": ["definition", "explanation"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "edge-case-1",
+      "name": "Edge Case - Transfer Student",
+      "input": "Do transfer students have different eligibility requirements?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.5",
+            "title": "Transfer Student Eligibility",
+            "relevanceScore": 0.90
+          }
+        ],
+        "answer": "Yes, transfer students must meet specific requirements including minimum 2.0 GPA, 24 transferable credits, and good academic standing at previous institution.",
+        "containsKeywords": ["transfer", "2.0 GPA", "24 credits", "good standing"],
+        "citesSource": true,
+        "addressesEdgeCase": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 4,
+      "tags": ["edge-case", "transfer", "special-circumstances"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "recall-at-k-1",
+      "name": "Recall@5 - Top 5 Documents",
+      "input": "Tell me about NCAA academic requirements",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          { "docId": "ncaa-bylaw-14.3", "relevanceScore": 0.88, "relevant": true },
+          { "docId": "ncaa-bylaw-14.4", "relevanceScore": 0.85, "relevant": true },
+          { "docId": "ncaa-bylaw-14.1", "relevanceScore": 0.82, "relevant": true },
+          { "docId": "ncaa-bylaw-14.2", "relevanceScore": 0.78, "relevant": true },
+          { "docId": "student-handbook", "relevanceScore": 0.70, "relevant": false }
+        ],
+        "recallAt5": 0.80,
+        "precisionAt5": 0.80
+      },
+      "category": "rag-retrieval",
+      "difficulty": 3,
+      "tags": ["recall", "precision", "ranking"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "context-window-1",
+      "name": "Context Window - Long Document",
+      "input": "Summarize all the eligibility requirements from the NCAA manual",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-manual-section-14",
+            "title": "NCAA Manual - Section 14 (Eligibility)",
+            "relevanceScore": 0.92,
+            "length": "long"
+          }
+        ],
+        "answer": "NCAA eligibility requirements include: Initial eligibility (16 core courses, 2.3 GPA), Continuing eligibility (1.8 GPA, progress toward degree), Full-time enrollment (12 credits), Five-year rule, and Transfer requirements.",
+        "containsKeywords": ["initial", "continuing", "full-time", "five-year", "transfer"],
+        "citesSource": true,
+        "summarizesLongDoc": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 5,
+      "tags": ["summarization", "long-document", "context-window"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "factual-consistency-1",
+      "name": "Factual Consistency Check",
+      "input": "What GPA do I need for initial eligibility?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.3.1.2",
+            "title": "Initial Eligibility GPA Requirements",
+            "relevanceScore": 0.95
+          }
+        ],
+        "answer": "You need a minimum 2.3 GPA in your 16 core courses for initial eligibility.",
+        "containsKeywords": ["2.3", "GPA", "core courses", "initial eligibility"],
+        "citesSource": true,
+        "factuallyConsistent": true,
+        "noHallucination": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 3,
+      "tags": ["factual-consistency", "accuracy", "hallucination-check"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "multi-hop-reasoning-1",
+      "name": "Multi-Hop Reasoning",
+      "input": "If I have a 2.5 GPA and 45 credits, can I play next season?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.4.3.1",
+            "title": "Continuing Eligibility GPA",
+            "relevanceScore": 0.88
+          },
+          {
+            "docId": "ncaa-bylaw-14.4.3.2",
+            "title": "Credit Hour Requirements",
+            "relevanceScore": 0.85
+          }
+        ],
+        "answer": "Based on your 2.5 GPA (above 1.8 minimum) and 45 credits, you likely meet continuing eligibility requirements. However, I'd need to know your year and degree progress percentage to confirm.",
+        "containsKeywords": ["2.5", "1.8", "45 credits", "year", "degree progress"],
+        "citesSource": true,
+        "requiresMultiHopReasoning": true,
+        "asksForAdditionalInfo": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 5,
+      "tags": ["multi-hop", "reasoning", "complex"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "source-attribution-1",
+      "name": "Source Attribution",
+      "input": "Where can I find the official GPA requirements?",
+      "expected": {
+        "retrieved": true,
+        "relevantDocs": [
+          {
+            "docId": "ncaa-bylaw-14.4.3.1",
+            "title": "NCAA Division I Manual - Bylaw 14.4.3.1",
+            "relevanceScore": 0.92
+          }
+        ],
+        "answer": "The official GPA requirements are in the NCAA Division I Manual, Bylaw 14.4.3.1. You can access the full manual at ncaa.org or through your academic coordinator.",
+        "containsKeywords": ["NCAA Division I Manual", "Bylaw 14.4.3.1", "ncaa.org"],
+        "citesSource": true,
+        "providesSourceLocation": true
+      },
+      "category": "rag-retrieval",
+      "difficulty": 2,
+      "tags": ["source-attribution", "citation"],
+      "metadata": {
+        "source": "RAG evaluation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    }
+  ],
+  "metadata": {
+    "createdAt": "2025-11-08T00:00:00Z",
+    "updatedAt": "2025-11-08T00:00:00Z",
+    "author": "AI Team",
+    "tags": ["rag", "retrieval", "knowledge-base", "qa", "semantic-search"]
+  }
+}

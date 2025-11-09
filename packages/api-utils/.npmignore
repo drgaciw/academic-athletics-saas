@@ -1,0 +1,31 @@
+# Source files
+src/
+
+# Documentation (keep only README)
+EXAMPLES.md
+MIGRATION_GUIDE.md
+PACKAGE_SUMMARY.md
+QUICKSTART.md
+CHANGELOG.md
+
+# Development files
+tsconfig.json
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+**/*.test.ts
+**/*.spec.ts
+coverage/
+
+# Build artifacts that should be ignored
+*.tsbuildinfo

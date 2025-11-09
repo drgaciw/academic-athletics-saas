@@ -1,0 +1,951 @@
+{
+  "id": "compliance-eligibility-checks",
+  "name": "NCAA Compliance Eligibility Checks",
+  "description": "Test cases for NCAA Division I eligibility validation covering initial and continuing eligibility requirements",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "comp-001",
+      "input": {
+        "studentId": "SA-TEST-001",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 3.2,
+          "coreCourses": 16,
+          "satScore": 1050,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "gpa", "core-courses", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-002",
+      "input": {
+        "studentId": "SA-TEST-002",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.2,
+          "coreCourses": 16,
+          "satScore": 980,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "minimum-gpa",
+            "severity": "critical",
+            "message": "Core GPA of 2.2 is below the minimum requirement of 2.3"
+          }
+        ],
+        "recommendations": [
+          "Retake core courses to improve GPA to at least 2.3",
+          "Consider academic support programs to improve performance"
+        ],
+        "details": {
+          "gpaRequirementMet": false,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "gpa", "failing", "boundary"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-003",
+      "input": {
+        "studentId": "SA-TEST-003",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.3,
+          "coreCourses": 16,
+          "satScore": 900,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "sliding-scale",
+            "severity": "critical",
+            "message": "SAT score of 900 does not meet the sliding scale requirement for a 2.3 GPA (minimum 1010 required)"
+          }
+        ],
+        "recommendations": [
+          "Retake SAT/ACT to achieve qualifying score",
+          "Improve core GPA to lower the required test score threshold"
+        ],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": false,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "sliding-scale", "test-scores", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-004",
+      "input": {
+        "studentId": "SA-TEST-004",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 3.5,
+          "coreCourses": 16,
+          "satScore": null,
+          "actScore": 18,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 9,
+          "englishMathScienceBeforeSeniorYear": 6
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "ten-seven-rule",
+            "severity": "critical",
+            "message": "Only 9 core courses completed before senior year (10 required)"
+          },
+          {
+            "rule": "ten-seven-rule-english-math-science",
+            "severity": "critical",
+            "message": "Only 6 English/Math/Science courses completed before senior year (7 required)"
+          }
+        ],
+        "recommendations": [
+          "Cannot retroactively complete courses before senior year",
+          "Student may be eligible for academic redshirt if other requirements are met"
+        ],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": false
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "ten-seven-rule", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-005",
+      "input": {
+        "studentId": "SA-TEST-005",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.8,
+          "coreCourses": 14,
+          "satScore": 1100,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 2,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 6,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "core-courses-total",
+            "severity": "critical",
+            "message": "Only 14 core courses completed (16 required)"
+          },
+          {
+            "rule": "core-courses-math",
+            "severity": "critical",
+            "message": "Only 2 math courses completed (3 required)"
+          }
+        ],
+        "recommendations": [
+          "Complete 2 additional core courses including 1 math course",
+          "Ensure all core courses are NCAA-approved"
+        ],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": false,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "core-courses", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-006",
+      "input": {
+        "studentId": "SA-TEST-006",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 1,
+        "data": {
+          "semesterCreditsCompleted": 25,
+          "cumulativeCreditsEarned": 25,
+          "cumulativeGPA": 3.0,
+          "progressTowardDegree": 0.20,
+          "creditsEarnedPreviousYear": 25,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-1", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-007",
+      "input": {
+        "studentId": "SA-TEST-007",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 1,
+        "data": {
+          "semesterCreditsCompleted": 22,
+          "cumulativeCreditsEarned": 22,
+          "cumulativeGPA": 2.5,
+          "progressTowardDegree": 0.18,
+          "creditsEarnedPreviousYear": 22,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "24-18-rule",
+            "severity": "critical",
+            "message": "Only 22 semester credits completed (24 required)"
+          }
+        ],
+        "recommendations": [
+          "Enroll in additional courses to meet 24-credit minimum",
+          "Consider summer coursework to catch up"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": false,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "24-18-rule", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-008",
+      "input": {
+        "studentId": "SA-TEST-008",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 2,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 54,
+          "cumulativeGPA": 2.8,
+          "progressTowardDegree": 0.35,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "40-60-80-rule",
+            "severity": "critical",
+            "message": "Only 35% progress toward degree (40% required after year 2)"
+          }
+        ],
+        "recommendations": [
+          "Complete additional degree-applicable courses",
+          "Meet with academic advisor to create catch-up plan",
+          "Consider degree progress audit"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": false,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "progress-toward-degree", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-009",
+      "input": {
+        "studentId": "SA-TEST-009",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 3,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 90,
+          "cumulativeGPA": 3.1,
+          "progressTowardDegree": 0.75,
+          "creditsEarnedPreviousYear": 20,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-3", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-010",
+      "input": {
+        "studentId": "SA-TEST-010",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 4,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 115,
+          "cumulativeGPA": 2.9,
+          "progressTowardDegree": 0.78,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "40-60-80-rule",
+            "severity": "critical",
+            "message": "Only 78% progress toward degree (80% required after year 4)"
+          }
+        ],
+        "recommendations": [
+          "Complete degree-applicable courses immediately",
+          "Review degree audit to identify remaining requirements",
+          "May need 5th year waiver if cannot reach 80%"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": false,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-4", "progress-toward-degree", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-011",
+      "input": {
+        "studentId": "SA-TEST-011",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 2,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 48,
+          "cumulativeGPA": 1.95,
+          "progressTowardDegree": 0.40,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "minimum-gpa",
+            "severity": "critical",
+            "message": "Cumulative GPA of 1.95 is below the minimum requirement of 2.0"
+          }
+        ],
+        "recommendations": [
+          "Improve academic performance immediately",
+          "Utilize academic support services and tutoring",
+          "Consider reduced course load with approval to focus on grades"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": false,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "gpa", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-012",
+      "input": {
+        "studentId": "SA-TEST-012",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.3,
+          "coreCourses": 16,
+          "satScore": 1010,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "sliding-scale", "boundary", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "comp-013",
+      "input": {
+        "studentId": "SA-TEST-013",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 1,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 24,
+          "cumulativeGPA": 2.6,
+          "progressTowardDegree": 0.20,
+          "creditsEarnedPreviousYear": 16,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "24-18-rule-previous-year",
+            "severity": "critical",
+            "message": "Only 16 credits earned in previous academic year (18 required)"
+          }
+        ],
+        "recommendations": [
+          "Complete summer courses to make up credit deficiency",
+          "Maintain full-time enrollment going forward"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": false,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "24-18-rule", "edge-case"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "comp-014",
+      "input": {
+        "studentId": "SA-TEST-014",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 3,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 85,
+          "cumulativeGPA": 2.7,
+          "progressTowardDegree": 0.59,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "40-60-80-rule",
+            "severity": "critical",
+            "message": "Only 59% progress toward degree (60% required after year 3)"
+          }
+        ],
+        "recommendations": [
+          "Complete degree-applicable courses this semester",
+          "Review degree plan with academic advisor",
+          "Ensure all credits count toward degree requirements"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": false,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-3", "progress-toward-degree", "boundary"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "comp-015",
+      "input": {
+        "studentId": "SA-TEST-015",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 3.55,
+          "coreCourses": 16,
+          "satScore": 400,
+          "actScore": null,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "sliding-scale", "high-gpa", "edge-case"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "comp-016",
+      "input": {
+        "studentId": "SA-TEST-016",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 2,
+        "data": {
+          "semesterCreditsCompleted": 30,
+          "cumulativeCreditsEarned": 60,
+          "cumulativeGPA": 3.4,
+          "progressTowardDegree": 0.50,
+          "creditsEarnedPreviousYear": 24,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [
+          "Excellent academic progress - on track for early graduation"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-2", "excellent", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-017",
+      "input": {
+        "studentId": "SA-TEST-017",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 1,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 24,
+          "cumulativeGPA": 2.8,
+          "progressTowardDegree": 0.20,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": false
+        }
+      },
+      "expected": {
+        "eligible": false,
+        "status": "ineligible",
+        "issues": [
+          {
+            "rule": "full-time-enrollment",
+            "severity": "critical",
+            "message": "Student is not enrolled full-time (12+ credits per semester)"
+          }
+        ],
+        "recommendations": [
+          "Enroll in additional courses to meet full-time requirement",
+          "Obtain waiver for part-time enrollment if medically necessary"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": false
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "enrollment", "failing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-018",
+      "input": {
+        "studentId": "SA-TEST-018",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.6,
+          "coreCourses": 16,
+          "satScore": null,
+          "actScore": 21,
+          "englishCourses": 4,
+          "mathCourses": 4,
+          "scienceCourses": 3,
+          "additionalCoreCourses": 5,
+          "coreCoursesBeforeSeniorYear": 11,
+          "englishMathScienceBeforeSeniorYear": 8
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "act", "extra-courses", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-019",
+      "input": {
+        "studentId": "SA-TEST-019",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 4,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 120,
+          "cumulativeGPA": 3.2,
+          "progressTowardDegree": 1.0,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [
+          "Student has completed degree requirements - verify graduation timeline"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-4", "completed-degree", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-020",
+      "input": {
+        "studentId": "SA-TEST-020",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 3,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 78,
+          "cumulativeGPA": 2.3,
+          "progressTowardDegree": 0.65,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true,
+          "transferCredits": 12
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [
+          "Ensure transfer credits are properly evaluated and count toward degree"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-3", "transfer", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "comp-021",
+      "input": {
+        "studentId": "SA-TEST-021",
+        "eligibilityType": "initial",
+        "academicYear": "2025-2026",
+        "data": {
+          "coreGPA": 2.5,
+          "coreCourses": 16,
+          "satScore": 1000,
+          "actScore": 20,
+          "englishCourses": 4,
+          "mathCourses": 3,
+          "scienceCourses": 2,
+          "additionalCoreCourses": 7,
+          "coreCoursesBeforeSeniorYear": 10,
+          "englishMathScienceBeforeSeniorYear": 7
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [],
+        "details": {
+          "gpaRequirementMet": true,
+          "coreCourseRequirementMet": true,
+          "testScoreRequirementMet": true,
+          "tenSevenRuleMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "initial-eligibility",
+        "tags": ["ncaa", "eligibility", "both-tests", "sliding-scale", "passing"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "comp-022",
+      "input": {
+        "studentId": "SA-TEST-022",
+        "eligibilityType": "continuing",
+        "academicYear": "2025-2026",
+        "yearInProgram": 2,
+        "data": {
+          "semesterCreditsCompleted": 24,
+          "cumulativeCreditsEarned": 50,
+          "cumulativeGPA": 2.5,
+          "progressTowardDegree": 0.40,
+          "creditsEarnedPreviousYear": 18,
+          "fullTimeEnrollment": true,
+          "repeatCourses": 6
+        }
+      },
+      "expected": {
+        "eligible": true,
+        "status": "eligible",
+        "issues": [],
+        "recommendations": [
+          "Monitor repeat course policy - only one repeat per course typically counts",
+          "Verify all repeated courses count toward degree progress percentage"
+        ],
+        "details": {
+          "twentyFourEighteenRuleMet": true,
+          "progressTowardDegreeMet": true,
+          "gpaRequirementMet": true,
+          "fullTimeEnrollmentMet": true
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "continuing-eligibility",
+        "tags": ["ncaa", "eligibility", "continuing", "year-2", "repeat-courses", "edge-case"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Gitignore Coverage Check",
+  "description": "Reviews .gitignore changes to ensure sensitive files and build artifacts are properly excluded",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".gitignore"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The .gitignore file has been updated. Review to ensure: 1) All sensitive files (.env, credentials, keys) are excluded, 2) Build artifacts and dependencies (node_modules, .next, dist) are ignored, 3) IDE and OS-specific files are covered, 4) No overly broad patterns that might exclude important files."
+  }
+}

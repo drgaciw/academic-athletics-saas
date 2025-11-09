@@ -1,0 +1,69 @@
+# Conversational AI Evaluation Configuration
+# This configuration uses LLM-as-judge for quality assessment
+
+name: Conversational AI Evaluation
+description: Evaluate chat response quality, accuracy, and tone
+version: 1.0.0
+environment: development
+
+# Single model for conversational testing
+models:
+  - provider: openai
+    modelId: gpt-4-turbo-preview
+    temperature: 0.7      # Higher temperature for natural responses
+    maxTokens: 1000
+
+# Runner configuration
+runner:
+  timeout: 30000
+  retries: 3
+  concurrency: 3          # Lower concurrency for LLM-as-judge scoring
+
+# LLM-as-judge scorer
+scorer:
+  strategy: llm-judge
+  threshold: 0.7
+  judgeModelId: gpt-4-turbo-preview
+  judgePrompt: |
+    Evaluate the AI assistant's response on the following criteria:
+
+    1. Accuracy (0.0-1.0): Does it correctly answer the question?
+    2. Helpfulness (0.0-1.0): Is it helpful and actionable?
+    3. Tone (0.0-1.0): Is it professional, supportive, and appropriate?
+    4. Citations (0.0-1.0): Does it cite sources when making factual claims?
+
+    Provide scores for each criterion and an overall score (average).
+    Explain your reasoning briefly.
+
+    Format your response as JSON:
+    {
+      "accuracy": 0.0-1.0,
+      "helpfulness": 0.0-1.0,
+      "tone": 0.0-1.0,
+      "citations": 0.0-1.0,
+      "overall": 0.0-1.0,
+      "reasoning": "Brief explanation"
+    }
+
+# Dataset selection
+datasets:
+  include:
+    - chat-general
+    - chat-policy
+    - chat-edge-cases
+  categories:
+    - conversational
+
+# Output configuration
+output:
+  format: markdown
+  verbose: true
+  showFailuresOnly: false
+  outputFile: ./results/conversational-eval-{timestamp}.md
+  includeMetadata: true
+
+# Baseline comparison
+baseline:
+  enabled: true
+  regressionThreshold: 0.1   # More lenient for conversational AI
+  failOnRegression: false     # Don't fail CI, just warn

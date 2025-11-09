@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Claude Cookbook Agent Review",
+  "description": "Monitors AI service and agent-related code files and automatically reviews them against best practices from the Anthropic Claude Cookbooks coding section, providing suggestions for improvements in prompt engineering, tool use, agentic workflows, and implementation patterns",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "services/ai/**/*.ts",
+      "services/ai/**/*.tsx",
+      "packages/ai/**/*.ts",
+      "packages/ai/**/*.tsx",
+      "apps/web/app/**/ai/**/*.ts",
+      "apps/web/app/**/ai/**/*.tsx",
+      "apps/web/lib/ai/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the modified AI/agent code files against best practices from https://github.com/anthropics/claude-cookbooks/tree/main/coding. Specifically check for:\n\n1. **Prompt Engineering**: Are prompts clear, specific, and well-structured? Do they use XML tags for structured data? Are examples provided when needed?\n\n2. **Tool Use & Function Calling**: Are tools properly defined with clear descriptions? Is error handling robust? Are tool results validated?\n\n3. **Agentic Workflows**: For multi-step tasks, is the agent design appropriate? Are there proper planning, execution, and reflection phases?\n\n4. **Context Management**: Is context efficiently managed? Are long conversations properly summarized? Is RAG implemented effectively?\n\n5. **Error Handling & Safety**: Are there guardrails against prompt injection? Is PII properly filtered? Are errors gracefully handled?\n\n6. **Performance**: Are API calls optimized? Is caching used appropriately? Are streaming responses implemented where beneficial?\n\nProvide specific, actionable recommendations for improvements based on the cookbook patterns. Reference specific cookbook examples when relevant."
+  }
+}

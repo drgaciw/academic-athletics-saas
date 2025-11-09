@@ -1,0 +1,48 @@
+{
+  "name": "Model Comparison",
+  "description": "Compare performance, latency, and cost of multiple models",
+  "version": "1.0.0",
+  "environment": "development",
+  "models": [
+    {
+      "provider": "openai",
+      "modelId": "gpt-4-turbo-preview",
+      "temperature": 0.0
+    },
+    {
+      "provider": "openai",
+      "modelId": "gpt-3.5-turbo",
+      "temperature": 0.0
+    },
+    {
+      "provider": "anthropic",
+      "modelId": "claude-3-opus-20240229",
+      "temperature": 0.0
+    },
+    {
+      "provider": "anthropic",
+      "modelId": "claude-3-sonnet-20240229",
+      "temperature": 0.0
+    }
+  ],
+  "runner": {
+    "timeout": 30000,
+    "retries": 3,
+    "concurrency": 10
+  },
+  "scorer": {
+    "strategy": "exact",
+    "threshold": 0.9
+  },
+  "datasets": {},
+  "output": {
+    "format": "table",
+    "verbose": false,
+    "showFailuresOnly": false,
+    "outputFile": "./results/model-comparison-{timestamp}.json",
+    "includeMetadata": true
+  },
+  "baseline": {
+    "enabled": false
+  }
+}

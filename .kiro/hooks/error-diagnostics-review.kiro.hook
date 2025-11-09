@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Error Diagnostics Agent Review",
+  "description": "Monitors changes to error diagnostics plugin files and triggers agent creation review based on the GitHub repository structure",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "plugins/error-diagnostics/**/*",
+      "services/*/src/**/*.ts",
+      "apps/web/lib/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the error diagnostics plugin structure from https://github.com/wshobson/agents/tree/main/plugins/error-diagnostics and create an agent that can:\n1. Analyze error patterns in the codebase\n2. Provide diagnostic recommendations\n3. Suggest fixes based on error types\n4. Integrate with the AI Service microservice\n5. Follow the project's technical stack (Next.js, Prisma, Vercel AI SDK)\n6. Maintain NCAA compliance and FERPA requirements for error logging\n\nConsider the monorepo structure and ensure the agent can work across services (user, advising, compliance, monitoring, support, integration, ai). The agent should leverage the existing AI infrastructure (OpenAI, Anthropic via Vercel AI SDK) and integrate with Langfuse/Helicone for observability."
+  }
+}

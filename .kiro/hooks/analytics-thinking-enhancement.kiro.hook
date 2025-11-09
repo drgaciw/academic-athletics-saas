@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Analytics Extended Thinking",
+  "description": "Monitors analytics, monitoring, and prediction-related files to ensure risk assessment and intervention recommendations use extended thinking for explainable AI decisions",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "services/monitoring/**/*.ts",
+      "services/ai/**/prediction*.ts",
+      "services/ai/**/analytics*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the modified analytics and monitoring files for integration of extended thinking patterns. Analyze:\n\n1. **Risk Prediction**: Student-athlete academic risk scoring, early intervention triggers, performance trend analysis\n2. **Intervention Recommendations**: Personalized support suggestions, resource allocation, priority ranking\n3. **Performance Analytics**: Team academic metrics, compliance trend analysis, program effectiveness\n\nRecommend extended thinking implementations for:\n- Explainable risk scores (show reasoning behind predictions)\n- Multi-factor intervention decisions (tutoring, study halls, advising)\n- Complex pattern recognition in academic performance data\n- Transparent recommendation systems for staff\n\nEnsure suggestions include:\n- How to structure prompts for analytical reasoning\n- Methods to extract and store reasoning traces in AIAuditLog\n- UI patterns to display explanations to academic staff\n- Balance between response time and reasoning depth\n- Integration with existing Langfuse/Helicone monitoring\n\nReference Claude cookbook examples for analytical and predictive tasks."
+  }
+}

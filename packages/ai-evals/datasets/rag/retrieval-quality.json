@@ -1,0 +1,866 @@
+{
+  "id": "rag-retrieval-quality",
+  "name": "RAG Retrieval Quality Evaluation",
+  "description": "Test cases for evaluating retrieval-augmented generation (RAG) pipeline performance, measuring document retrieval quality and answer accuracy for student-athlete knowledge base queries",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "rag-001",
+      "input": {
+        "query": "What are the GPA requirements for freshman NCAA eligibility?",
+        "context": {
+          "userId": "user-rag-001",
+          "role": "student-athlete",
+          "sessionId": "session-001"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-14.3.1",
+            "title": "NCAA Division I Initial Eligibility Standards",
+            "relevanceScore": 0.95,
+            "rank": 1,
+            "reason": "Directly addresses freshman eligibility GPA requirements"
+          },
+          {
+            "documentId": "ncaa-sliding-scale",
+            "title": "NCAA Sliding Scale for GPA and Test Scores",
+            "relevanceScore": 0.88,
+            "rank": 2,
+            "reason": "Explains how GPA requirements vary with test scores"
+          },
+          {
+            "documentId": "ncaa-core-courses",
+            "title": "NCAA Core Course Requirements",
+            "relevanceScore": 0.82,
+            "rank": 3,
+            "reason": "Explains which courses count toward core GPA calculation"
+          }
+        ],
+        "answer": "NCAA Division I requires incoming freshmen to have a minimum 2.3 GPA in 16 core courses to be eligible. However, the exact GPA requirement depends on your standardized test scores through the sliding scale. Students with higher GPAs (up to 3.55) can qualify with lower test scores, and vice versa.",
+        "citations": ["ncaa-bylaw-14.3.1", "ncaa-sliding-scale"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.98
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "direct-factual",
+        "tags": ["rag", "retrieval", "ncaa", "eligibility", "gpa"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "rag-002",
+      "input": {
+        "query": "How do I schedule a tutoring session?",
+        "context": {
+          "userId": "user-rag-002",
+          "role": "student-athlete",
+          "sessionId": "session-002"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "tutoring-services-guide",
+            "title": "Academic Support Services: Tutoring Guide",
+            "relevanceScore": 0.96,
+            "rank": 1,
+            "reason": "Primary document explaining tutoring scheduling process"
+          },
+          {
+            "documentId": "student-portal-tutorial",
+            "title": "Student Portal: How to Book Academic Support",
+            "relevanceScore": 0.89,
+            "rank": 2,
+            "reason": "Step-by-step instructions for using booking system"
+          },
+          {
+            "documentId": "support-services-overview",
+            "title": "Academic Support Services Overview",
+            "relevanceScore": 0.81,
+            "rank": 3,
+            "reason": "General overview of all support services including tutoring"
+          }
+        ],
+        "answer": "You can schedule a tutoring session through the Student Portal. Log in, navigate to 'Academic Support,' select 'Tutoring,' choose your subject and preferred time, and book an available slot. You can also call the Academic Support office at (555) 123-4567 or email support@university.edu for assistance.",
+        "citations": ["tutoring-services-guide", "student-portal-tutorial"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.97
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "procedural",
+        "tags": ["rag", "retrieval", "tutoring", "scheduling", "support-services"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-003",
+      "input": {
+        "query": "What happens if I change my major? Will it affect my eligibility?",
+        "context": {
+          "userId": "user-rag-003",
+          "role": "student-athlete",
+          "sessionId": "session-003"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-14.4.3.2",
+            "title": "NCAA Progress Toward Degree Requirements",
+            "relevanceScore": 0.91,
+            "rank": 1,
+            "reason": "Explains how degree progress is calculated and major change impacts"
+          },
+          {
+            "documentId": "major-change-policy",
+            "title": "University Policy: Changing Your Major",
+            "relevanceScore": 0.86,
+            "rank": 2,
+            "reason": "Covers academic policies for major changes"
+          },
+          {
+            "documentId": "eligibility-faq-degree-progress",
+            "title": "Eligibility FAQ: Degree Progress and Major Changes",
+            "relevanceScore": 0.84,
+            "rank": 3,
+            "reason": "Common questions about major changes and eligibility"
+          },
+          {
+            "documentId": "advising-guide-major-selection",
+            "title": "Academic Advising Guide: Choosing and Changing Majors",
+            "relevanceScore": 0.78,
+            "rank": 4,
+            "reason": "General guidance on major selection process"
+          }
+        ],
+        "answer": "Changing your major can affect your eligibility, particularly regarding the 40-60-80 degree progress rule. Only courses that count toward your NEW major count toward degree progress percentages. However, all credits still count toward the 24-18 credit hour rule if they were degree-applicable when taken. You must meet with your academic advisor and compliance office before changing majors to understand the eligibility impact.",
+        "citations": ["ncaa-bylaw-14.4.3.2", "eligibility-faq-degree-progress"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 0.67,
+          "mrr": 1.0,
+          "ndcg": 0.93
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "multi-document",
+        "tags": ["rag", "retrieval", "major-change", "eligibility", "complex"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-004",
+      "input": {
+        "query": "Can I take online courses during the season?",
+        "context": {
+          "userId": "user-rag-004",
+          "role": "student-athlete",
+          "sessionId": "session-004"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-14.4.3.1.6",
+            "title": "NCAA Regulations: Online and Distance Education",
+            "relevanceScore": 0.94,
+            "rank": 1,
+            "reason": "Official NCAA rules on online course eligibility"
+          },
+          {
+            "documentId": "online-course-approval-process",
+            "title": "Online Course Approval Process for Student-Athletes",
+            "relevanceScore": 0.89,
+            "rank": 2,
+            "reason": "Step-by-step approval process for taking online courses"
+          },
+          {
+            "documentId": "academic-flexibility-guide",
+            "title": "Academic Flexibility Options for Athletes",
+            "relevanceScore": 0.82,
+            "rank": 3,
+            "reason": "Overview of flexible learning options including online courses"
+          }
+        ],
+        "answer": "Yes, you can take online courses during the season and they count toward eligibility requirements. The courses must be offered by your institution or an approved provider, count toward your degree, and you still need to maintain 12+ credits per term. Get approval from your academic advisor before enrolling to ensure the courses meet NCAA requirements.",
+        "citations": ["ncaa-bylaw-14.4.3.1.6", "online-course-approval-process"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.96
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "policy-question",
+        "tags": ["rag", "retrieval", "online-courses", "eligibility", "flexibility"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-005",
+      "input": {
+        "query": "sliding scale test scores eligibility freshman",
+        "context": {
+          "userId": "user-rag-005",
+          "role": "student-athlete",
+          "sessionId": "session-005"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-sliding-scale",
+            "title": "NCAA Sliding Scale for GPA and Test Scores",
+            "relevanceScore": 0.98,
+            "rank": 1,
+            "reason": "Exact match for sliding scale query"
+          },
+          {
+            "documentId": "ncaa-bylaw-14.3.1",
+            "title": "NCAA Division I Initial Eligibility Standards",
+            "relevanceScore": 0.92,
+            "rank": 2,
+            "reason": "Covers initial eligibility including test score requirements"
+          },
+          {
+            "documentId": "initial-eligibility-calculator",
+            "title": "Initial Eligibility Calculator Guide",
+            "relevanceScore": 0.85,
+            "rank": 3,
+            "reason": "Tool for calculating eligibility with different GPA/test score combinations"
+          }
+        ],
+        "answer": "The NCAA sliding scale allows different combinations of GPA and test scores for freshman eligibility. Higher GPAs (up to 3.55) allow lower test scores, and higher test scores allow lower GPAs (down to 2.3). For example, a 2.3 GPA requires a 1010 SAT or 86 ACT sum score, while a 3.55 GPA requires only 400 SAT or 37 ACT sum score.",
+        "citations": ["ncaa-sliding-scale", "ncaa-bylaw-14.3.1"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.99
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "keyword-search",
+        "tags": ["rag", "retrieval", "sliding-scale", "test-scores", "eligibility"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "rag-006",
+      "input": {
+        "query": "What support is available if I'm struggling academically?",
+        "context": {
+          "userId": "user-rag-006",
+          "role": "student-athlete",
+          "sessionId": "session-006"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "academic-support-services-overview",
+            "title": "Comprehensive Academic Support Services for Student-Athletes",
+            "relevanceScore": 0.93,
+            "rank": 1,
+            "reason": "Complete overview of support services for struggling students"
+          },
+          {
+            "documentId": "tutoring-services-guide",
+            "title": "Academic Support Services: Tutoring Guide",
+            "relevanceScore": 0.88,
+            "rank": 2,
+            "reason": "Detailed tutoring options and scheduling"
+          },
+          {
+            "documentId": "study-skills-workshop",
+            "title": "Study Skills and Time Management Workshops",
+            "relevanceScore": 0.86,
+            "rank": 3,
+            "reason": "Workshops to improve academic skills"
+          },
+          {
+            "documentId": "academic-mentoring-program",
+            "title": "Academic Mentoring Program for Student-Athletes",
+            "relevanceScore": 0.84,
+            "rank": 4,
+            "reason": "Long-term mentoring support"
+          },
+          {
+            "documentId": "intervention-services",
+            "title": "Early Alert and Academic Intervention Services",
+            "relevanceScore": 0.82,
+            "rank": 5,
+            "reason": "Proactive intervention for at-risk students"
+          }
+        ],
+        "answer": "Extensive support is available including: 1) Free one-on-one tutoring in all subjects, 2) Structured study halls with tutors available, 3) Academic mentoring for long-term support, 4) Study skills and time management workshops, 5) Supplemental instruction for difficult courses, and 6) Academic advisors who can help create a success plan. All services are free and designed specifically for student-athletes. Contact the Academic Support office to get started.",
+        "citations": ["academic-support-services-overview", "tutoring-services-guide", "academic-mentoring-program"],
+        "retrievalQuality": {
+          "recallAt3": 0.60,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 0.67,
+          "mrr": 1.0,
+          "ndcg": 0.91
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "broad-query",
+        "tags": ["rag", "retrieval", "support-services", "academic-help", "broad"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-007",
+      "input": {
+        "query": "40 60 80 rule degree progress percentage requirements",
+        "context": {
+          "userId": "user-rag-007",
+          "role": "student-athlete",
+          "sessionId": "session-007"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-14.4.3.2",
+            "title": "NCAA Progress Toward Degree Requirements (40-60-80 Rule)",
+            "relevanceScore": 0.99,
+            "rank": 1,
+            "reason": "Primary document defining 40-60-80 rule"
+          },
+          {
+            "documentId": "degree-progress-calculator",
+            "title": "Degree Progress Calculator and Tracking Guide",
+            "relevanceScore": 0.87,
+            "rank": 2,
+            "reason": "Tool for tracking progress toward degree percentages"
+          },
+          {
+            "documentId": "continuing-eligibility-guide",
+            "title": "Continuing Eligibility Requirements for Student-Athletes",
+            "relevanceScore": 0.85,
+            "rank": 3,
+            "reason": "Overview of all continuing eligibility requirements including 40-60-80"
+          }
+        ],
+        "answer": "The 40-60-80 rule requires student-athletes to complete specific percentages of their degree requirements: 40% by the end of second year, 60% by the end of third year, and 80% by the end of fourth year. This ensures you're making steady progress toward graduation, not just taking random classes. Only courses that count toward your declared major count toward these percentages.",
+        "citations": ["ncaa-bylaw-14.4.3.2", "degree-progress-calculator"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.98
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "specific-rule",
+        "tags": ["rag", "retrieval", "40-60-80", "degree-progress", "continuing-eligibility"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "rag-008",
+      "input": {
+        "query": "Can my coach make me skip class for practice?",
+        "context": {
+          "userId": "user-rag-008",
+          "role": "student-athlete",
+          "sessionId": "session-008"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-17.1.5",
+            "title": "NCAA Regulations: Class Attendance and Athletic Activities",
+            "relevanceScore": 0.96,
+            "rank": 1,
+            "reason": "Official NCAA rule prohibiting missing class for practice"
+          },
+          {
+            "documentId": "student-athlete-rights-responsibilities",
+            "title": "Student-Athlete Rights and Responsibilities",
+            "relevanceScore": 0.91,
+            "rank": 2,
+            "reason": "Outlines student rights regarding academics vs athletics"
+          },
+          {
+            "documentId": "reporting-violations-guide",
+            "title": "How to Report NCAA Compliance Violations",
+            "relevanceScore": 0.87,
+            "rank": 3,
+            "reason": "Process for reporting improper coaching behavior"
+          },
+          {
+            "documentId": "class-attendance-policy",
+            "title": "University Class Attendance Policy for Student-Athletes",
+            "relevanceScore": 0.82,
+            "rank": 4,
+            "reason": "University policy protecting class attendance"
+          }
+        ],
+        "answer": "No, NCAA rules strictly prohibit coaches from requiring you to miss class for practice or any athletically-related activity except competition and travel. Your education must come first. If this is happening, you should report it immediately to your Faculty Athletic Representative, Athletic Director, or Compliance Office. This is a serious NCAA violation, and you have protections against retaliation.",
+        "citations": ["ncaa-bylaw-17.1.5", "student-athlete-rights-responsibilities", "reporting-violations-guide"],
+        "retrievalQuality": {
+          "recallAt3": 0.75,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.94
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "sensitive-compliance",
+        "tags": ["rag", "retrieval", "compliance", "violation", "student-rights", "sensitive"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "rag-009",
+      "input": {
+        "query": "transfer student credits eligibility",
+        "context": {
+          "userId": "user-rag-009",
+          "role": "student-athlete",
+          "sessionId": "session-009"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-bylaw-14.5.4",
+            "title": "NCAA Transfer Eligibility Requirements",
+            "relevanceScore": 0.94,
+            "rank": 1,
+            "reason": "Primary NCAA transfer eligibility rules"
+          },
+          {
+            "documentId": "transfer-credit-evaluation",
+            "title": "Transfer Credit Evaluation Process",
+            "relevanceScore": 0.89,
+            "rank": 2,
+            "reason": "How transfer credits are evaluated and applied"
+          },
+          {
+            "documentId": "transfer-eligibility-faq",
+            "title": "Transfer Student-Athlete Eligibility FAQ",
+            "relevanceScore": 0.86,
+            "rank": 3,
+            "reason": "Common transfer eligibility questions"
+          },
+          {
+            "documentId": "degree-progress-transfer-students",
+            "title": "Degree Progress Calculation for Transfer Students",
+            "relevanceScore": 0.83,
+            "rank": 4,
+            "reason": "How transfer credits count toward 40-60-80 rule"
+          }
+        ],
+        "answer": "Transfer credits count toward your credit hour requirements (24-18 rule) if they're accepted by your new institution and were degree-applicable at your previous school. However, transfer grades typically don't count toward your GPA at the new school, though NCAA may consider cumulative GPA from all institutions for eligibility. For the 40-60-80 degree progress rule, only credits that apply to your current degree program count. Work with both the Registrar's Office and Compliance Office to understand exactly how your transfer credits affect eligibility.",
+        "citations": ["ncaa-bylaw-14.5.4", "transfer-credit-evaluation", "degree-progress-transfer-students"],
+        "retrievalQuality": {
+          "recallAt3": 0.75,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.95
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "complex-multi-document",
+        "tags": ["rag", "retrieval", "transfer", "credits", "eligibility", "complex"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-010",
+      "input": {
+        "query": "What is FERPA?",
+        "context": {
+          "userId": "user-rag-010",
+          "role": "student-athlete",
+          "sessionId": "session-010"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ferpa-overview",
+            "title": "FERPA: Family Educational Rights and Privacy Act Overview",
+            "relevanceScore": 0.97,
+            "rank": 1,
+            "reason": "Comprehensive FERPA overview"
+          },
+          {
+            "documentId": "ferpa-student-athlete-guide",
+            "title": "FERPA Privacy Rights for Student-Athletes",
+            "relevanceScore": 0.91,
+            "rank": 2,
+            "reason": "FERPA specifically for student-athletes"
+          },
+          {
+            "documentId": "privacy-policies",
+            "title": "University Privacy Policies and Student Rights",
+            "relevanceScore": 0.78,
+            "rank": 3,
+            "reason": "General privacy policies including FERPA"
+          }
+        ],
+        "answer": "FERPA (Family Educational Rights and Privacy Act) is a federal law that protects the privacy of your educational records. It controls who can access your grades, transcripts, and academic information. Generally, the university cannot share your academic information with anyone (including your parents, coaches, or team staff) without your written consent, unless you've signed a FERPA waiver. You have the right to review your educational records and request corrections if needed.",
+        "citations": ["ferpa-overview", "ferpa-student-athlete-guide"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.97
+        }
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "definition",
+        "tags": ["rag", "retrieval", "ferpa", "privacy", "definition"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "rag-011",
+      "input": {
+        "query": "I need help with chemistry can you recommend a good tutor",
+        "context": {
+          "userId": "user-rag-011",
+          "role": "student-athlete",
+          "sessionId": "session-011"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "tutoring-services-guide",
+            "title": "Academic Support Services: Tutoring Guide",
+            "relevanceScore": 0.92,
+            "rank": 1,
+            "reason": "Primary tutoring resource"
+          },
+          {
+            "documentId": "tutor-directory-sciences",
+            "title": "Science Tutoring Directory",
+            "relevanceScore": 0.89,
+            "rank": 2,
+            "reason": "List of available science tutors including chemistry"
+          },
+          {
+            "documentId": "chemistry-support-resources",
+            "title": "Chemistry Academic Support Resources",
+            "relevanceScore": 0.87,
+            "rank": 3,
+            "reason": "Chemistry-specific support options"
+          },
+          {
+            "documentId": "student-portal-tutorial",
+            "title": "Student Portal: How to Book Academic Support",
+            "relevanceScore": 0.81,
+            "rank": 4,
+            "reason": "How to book tutoring sessions online"
+          }
+        ],
+        "answer": "We have excellent chemistry tutors available! You can browse available chemistry tutors and book sessions through the Student Portal under 'Academic Support' > 'Tutoring' > 'Chemistry'. All tutoring is free for student-athletes. If you need help booking or want a recommendation for a specific chemistry course, contact the Academic Support office at (555) 123-4567 or support@university.edu.",
+        "citations": ["tutoring-services-guide", "tutor-directory-sciences", "student-portal-tutorial"],
+        "retrievalQuality": {
+          "recallAt3": 0.75,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.94
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "subject-specific-help",
+        "tags": ["rag", "retrieval", "tutoring", "chemistry", "subject-specific"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-012",
+      "input": {
+        "query": "redshirt season eligibility impact",
+        "context": {
+          "userId": "user-rag-012",
+          "role": "student-athlete",
+          "sessionId": "session-012"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-redshirt-rules",
+            "title": "NCAA Redshirt Eligibility Rules",
+            "relevanceScore": 0.96,
+            "rank": 1,
+            "reason": "Comprehensive redshirt eligibility rules"
+          },
+          {
+            "documentId": "academic-redshirt-requirements",
+            "title": "Academic Redshirt Requirements and Implications",
+            "relevanceScore": 0.90,
+            "rank": 2,
+            "reason": "Academic redshirt specific information"
+          },
+          {
+            "documentId": "eligibility-clock-management",
+            "title": "Managing Your Five-Year Eligibility Clock",
+            "relevanceScore": 0.85,
+            "rank": 3,
+            "reason": "How redshirt impacts 5-year eligibility clock"
+          }
+        ],
+        "answer": "A redshirt season allows you to practice with the team but not compete, preserving a year of athletic eligibility. You still use one year of your five-year eligibility clock, but you keep all four years of competition. Academically, you must still maintain full-time enrollment (12+ credits), make satisfactory progress (24-18 rule), and meet all academic eligibility requirements during a redshirt year. An academic redshirt is different - it's for freshmen who didn't meet initial eligibility standards and can't practice or compete their first year.",
+        "citations": ["ncaa-redshirt-rules", "academic-redshirt-requirements", "eligibility-clock-management"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.98
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "complex-policy",
+        "tags": ["rag", "retrieval", "redshirt", "eligibility", "complex"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "rag-013",
+      "input": {
+        "query": "summer courses count toward eligibility requirements?",
+        "context": {
+          "userId": "user-rag-013",
+          "role": "student-athlete",
+          "sessionId": "session-013"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "ncaa-summer-term-rules",
+            "title": "NCAA Rules for Summer Term Coursework",
+            "relevanceScore": 0.95,
+            "rank": 1,
+            "reason": "Official NCAA summer course eligibility rules"
+          },
+          {
+            "documentId": "summer-session-planning",
+            "title": "Summer Session Planning Guide for Student-Athletes",
+            "relevanceScore": 0.88,
+            "rank": 2,
+            "reason": "Practical guide for summer course planning"
+          },
+          {
+            "documentId": "degree-progress-summer-credits",
+            "title": "How Summer Credits Count Toward Degree Progress",
+            "relevanceScore": 0.84,
+            "rank": 3,
+            "reason": "Summer credit application to 40-60-80 rule"
+          }
+        ],
+        "answer": "Yes, summer courses count toward eligibility requirements. Credits earned in summer count toward your cumulative total and the 40-60-80 degree progress rule if they're degree-applicable. However, for the 24-credit requirement before each season, only credits from the previous academic year (fall/spring) count - summer credits don't count toward the 24. Summer is a great opportunity to catch up on credits or boost your GPA. Get approval from your academic advisor before enrolling.",
+        "citations": ["ncaa-summer-term-rules", "degree-progress-summer-credits"],
+        "retrievalQuality": {
+          "recallAt3": 1.0,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.96
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "nuanced-policy",
+        "tags": ["rag", "retrieval", "summer-courses", "eligibility", "credits"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-014",
+      "input": {
+        "query": "How can I improve my study habits?",
+        "context": {
+          "userId": "user-rag-014",
+          "role": "student-athlete",
+          "sessionId": "session-014"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "study-skills-workshop",
+            "title": "Study Skills and Time Management Workshops",
+            "relevanceScore": 0.91,
+            "rank": 1,
+            "reason": "Primary resource for study skills improvement"
+          },
+          {
+            "documentId": "effective-study-strategies-guide",
+            "title": "Effective Study Strategies for Student-Athletes",
+            "relevanceScore": 0.89,
+            "rank": 2,
+            "reason": "Comprehensive study strategies guide"
+          },
+          {
+            "documentId": "time-management-balancing-athletics",
+            "title": "Time Management: Balancing Athletics and Academics",
+            "relevanceScore": 0.86,
+            "rank": 3,
+            "reason": "Time management specifically for student-athletes"
+          },
+          {
+            "documentId": "academic-mentoring-program",
+            "title": "Academic Mentoring Program for Student-Athletes",
+            "relevanceScore": 0.81,
+            "rank": 4,
+            "reason": "Mentoring for personalized study skills support"
+          },
+          {
+            "documentId": "learning-styles-assessment",
+            "title": "Learning Styles Assessment and Resources",
+            "relevanceScore": 0.78,
+            "rank": 5,
+            "reason": "Understanding your learning style for better studying"
+          }
+        ],
+        "answer": "We offer free study skills workshops covering time management, note-taking, test preparation, and balancing athletics with academics. You can also work one-on-one with an academic mentor who will help you develop personalized study strategies. Consider taking a learning styles assessment to understand how you learn best. Many student-athletes benefit from our study hall program where you can study with tutors available. Contact Academic Support to schedule a workshop or mentor.",
+        "citations": ["study-skills-workshop", "effective-study-strategies-guide", "academic-mentoring-program"],
+        "retrievalQuality": {
+          "recallAt3": 0.60,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.92
+        }
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "general-academic-support",
+        "tags": ["rag", "retrieval", "study-skills", "academic-support", "self-improvement"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "production"
+      }
+    },
+    {
+      "id": "rag-015",
+      "input": {
+        "query": "withdrawal from course eligibility impact drop class",
+        "context": {
+          "userId": "user-rag-015",
+          "role": "student-athlete",
+          "sessionId": "session-015"
+        }
+      },
+      "expected": {
+        "retrievedDocuments": [
+          {
+            "documentId": "course-withdrawal-policy-athletes",
+            "title": "Course Withdrawal Policy for Student-Athletes",
+            "relevanceScore": 0.95,
+            "rank": 1,
+            "reason": "Specific policy on withdrawals and eligibility impact"
+          },
+          {
+            "documentId": "ncaa-credit-requirements-withdrawal",
+            "title": "NCAA Credit Requirements: How Withdrawals Affect Eligibility",
+            "relevanceScore": 0.91,
+            "rank": 2,
+            "reason": "NCAA rules on withdrawn courses and eligibility"
+          },
+          {
+            "documentId": "academic-advisor-consultation-withdrawal",
+            "title": "Consulting Your Advisor Before Withdrawing from Courses",
+            "relevanceScore": 0.84,
+            "rank": 3,
+            "reason": "Process for withdrawal approval"
+          },
+          {
+            "documentId": "degree-progress-withdrawn-courses",
+            "title": "How Withdrawn Courses Affect Degree Progress",
+            "relevanceScore": 0.82,
+            "rank": 4,
+            "reason": "Impact of withdrawals on 40-60-80 rule"
+          }
+        ],
+        "answer": "Withdrawing from a course can affect your eligibility in several ways: 1) It may drop you below the 12-credit full-time minimum, 2) Withdrawn credits don't count toward your 24-credit or 18-credit requirements, 3) They don't count toward degree progress (40-60-80 rule). You MUST get approval from your academic advisor AND compliance office before withdrawing from any course. Strategically timed withdrawals can sometimes help protect your GPA, but they must be carefully planned to maintain eligibility.",
+        "citations": ["course-withdrawal-policy-athletes", "ncaa-credit-requirements-withdrawal", "academic-advisor-consultation-withdrawal"],
+        "retrievalQuality": {
+          "recallAt3": 0.75,
+          "recallAt5": 1.0,
+          "recallAt10": 1.0,
+          "precisionAt3": 1.0,
+          "mrr": 1.0,
+          "ndcg": 0.95
+        }
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "critical-policy",
+        "tags": ["rag", "retrieval", "withdrawal", "eligibility", "critical", "approval-required"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    }
+  ]
+}

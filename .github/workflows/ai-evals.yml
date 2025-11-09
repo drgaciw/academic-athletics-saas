@@ -1,0 +1,567 @@
+name: AI Evaluations
+
+on:
+  pull_request:
+    paths:
+      - 'packages/ai/**'
+      - 'services/ai/**'
+      - 'packages/ai-evals/**'
+      - '.github/workflows/ai-evals.yml'
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Force run all evals regardless of changes'
+        required: false
+        default: 'false'
+        type: boolean
+      baseline_id:
+        description: 'Optional baseline run ID for comparison'
+        required: false
+        type: string
+
+# Prevent multiple concurrent runs on the same PR
+concurrency:
+  group: ai-evals-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # Job 1: Detect changes and determine what to run
+  detect-changes:
+    name: Detect AI Code Changes
+    runs-on: ubuntu-latest
+    outputs:
+      run_compliance: ${{ steps.filter.outputs.compliance }}
+      run_advising: ${{ steps.filter.outputs.advising }}
+      run_conversational: ${{ steps.filter.outputs.conversational }}
+      run_risk_prediction: ${{ steps.filter.outputs.risk_prediction }}
+      run_rag: ${{ steps.filter.outputs.rag }}
+      run_safety: ${{ steps.filter.outputs.safety }}
+      run_all: ${{ steps.filter.outputs.all || github.event.inputs.force_run == 'true' }}
+      should_run_evals: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for path changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            all:
+              - 'packages/ai/**'
+              - 'services/ai/**'
+              - 'packages/ai-evals/**'
+            compliance:
+              - 'packages/ai/agents/compliance-agent.ts'
+              - 'services/ai/src/services/complianceAgent.ts'
+              - 'services/ai/src/routes/compliance.ts'
+              - 'packages/ai-evals/datasets/compliance/**'
+            advising:
+              - 'packages/ai/agents/advising-agent.ts'
+              - 'services/ai/src/services/advisingAgent.ts'
+              - 'services/ai/src/routes/advising.ts'
+              - 'packages/ai-evals/datasets/advising/**'
+            conversational:
+              - 'packages/ai/lib/chat.ts'
+              - 'services/ai/src/services/chatService.ts'
+              - 'services/ai/src/routes/chat.ts'
+              - 'packages/ai-evals/datasets/conversational/**'
+            risk_prediction:
+              - 'services/ai/src/services/predictiveAnalytics.ts'
+              - 'services/ai/src/routes/predict.ts'
+              - 'packages/ai-evals/datasets/risk-prediction/**'
+            rag:
+              - 'packages/ai/lib/rag.ts'
+              - 'services/ai/src/services/ragPipeline.ts'
+              - 'services/ai/src/routes/knowledge.ts'
+              - 'packages/ai-evals/datasets/rag/**'
+            safety:
+              - 'packages/ai/lib/safety.ts'
+              - 'packages/ai-evals/datasets/safety/**'
+
+      - name: Check if evals should run
+        id: check
+        run: |
+          if [[ "${{ steps.filter.outputs.all }}" == "true" ]] || [[ "${{ github.event.inputs.force_run }}" == "true" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Display change detection results
+        run: |
+          echo "## AI Code Change Detection" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Changed |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Compliance | ${{ steps.filter.outputs.compliance == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Advising | ${{ steps.filter.outputs.advising == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Conversational | ${{ steps.filter.outputs.conversational == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Risk Prediction | ${{ steps.filter.outputs.risk_prediction == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| RAG Pipeline | ${{ steps.filter.outputs.rag == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Safety | ${{ steps.filter.outputs.safety == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Evals:** ${{ steps.check.outputs.should_run == 'true' && '✅ Yes' || '❌ No' }}" >> $GITHUB_STEP_SUMMARY
+
+  # Job 2: Run AI evaluations
+  run-evals:
+    name: Run AI Evaluations
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run_evals == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        eval_suite:
+          - name: compliance
+            enabled: ${{ needs.detect-changes.outputs.run_compliance == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+          - name: advising
+            enabled: ${{ needs.detect-changes.outputs.run_advising == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+          - name: conversational
+            enabled: ${{ needs.detect-changes.outputs.run_conversational == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+          - name: risk-prediction
+            enabled: ${{ needs.detect-changes.outputs.run_risk_prediction == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+          - name: rag
+            enabled: ${{ needs.detect-changes.outputs.run_rag == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+          - name: safety
+            enabled: ${{ needs.detect-changes.outputs.run_safety == 'true' || needs.detect-changes.outputs.run_all == 'true' }}
+
+    steps:
+      - name: Skip if not enabled
+        if: matrix.eval_suite.enabled != 'true'
+        run: |
+          echo "Skipping ${{ matrix.eval_suite.name }} - no relevant changes detected"
+          exit 0
+
+      - name: Checkout code
+        if: matrix.eval_suite.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: matrix.eval_suite.enabled == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        if: matrix.eval_suite.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Restore dependency cache
+        if: matrix.eval_suite.enabled == 'true'
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            .pnpm-store
+            packages/*/node_modules
+            services/*/node_modules
+            apps/*/node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        if: matrix.eval_suite.enabled == 'true' && steps.cache-deps.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        if: matrix.eval_suite.enabled == 'true'
+        run: |
+          pnpm --filter @aah/database build
+          pnpm --filter @aah/ai build
+          pnpm --filter @aah/ai-evals build
+
+      - name: Run evaluations - ${{ matrix.eval_suite.name }}
+        if: matrix.eval_suite.enabled == 'true'
+        id: run-eval
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: ${{ secrets.EVAL_DATABASE_URL }}
+          NODE_ENV: test
+        run: |
+          cd packages/ai-evals
+
+          # Create output directory
+          mkdir -p eval-results
+
+          # Run eval with baseline comparison if provided
+          if [[ -n "${{ github.event.inputs.baseline_id }}" ]]; then
+            pnpm eval run \
+              --dataset ${{ matrix.eval_suite.name }} \
+              --baseline ${{ github.event.inputs.baseline_id }} \
+              --output eval-results/${{ matrix.eval_suite.name }}-results.json \
+              --format json \
+              --verbose
+          else
+            pnpm eval run \
+              --dataset ${{ matrix.eval_suite.name }} \
+              --output eval-results/${{ matrix.eval_suite.name }}-results.json \
+              --format json \
+              --verbose
+          fi
+        continue-on-error: true
+
+      - name: Parse eval results
+        if: matrix.eval_suite.enabled == 'true'
+        id: parse-results
+        run: |
+          cd packages/ai-evals
+
+          # Check if results file exists
+          if [[ ! -f "eval-results/${{ matrix.eval_suite.name }}-results.json" ]]; then
+            echo "status=error" >> $GITHUB_OUTPUT
+            echo "error_message=Results file not found" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Parse results using jq
+          RESULTS_FILE="eval-results/${{ matrix.eval_suite.name }}-results.json"
+
+          # Extract metrics
+          TOTAL=$(jq -r '.summary.totalTests // 0' "$RESULTS_FILE")
+          PASSED=$(jq -r '.summary.passed // 0' "$RESULTS_FILE")
+          FAILED=$(jq -r '.summary.failed // 0' "$RESULTS_FILE")
+          ACCURACY=$(jq -r '.summary.accuracy // 0' "$RESULTS_FILE")
+          AVG_LATENCY=$(jq -r '.summary.avgLatency // 0' "$RESULTS_FILE")
+          TOTAL_COST=$(jq -r '.summary.totalCost // 0' "$RESULTS_FILE")
+
+          # Check for regressions
+          REGRESSIONS=$(jq -r '.regressions // [] | length' "$RESULTS_FILE")
+          CRITICAL_REGRESSIONS=$(jq -r '[.regressions[] | select(.severity == "critical")] | length' "$RESULTS_FILE")
+
+          # Set outputs
+          echo "total_tests=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+          echo "avg_latency=$AVG_LATENCY" >> $GITHUB_OUTPUT
+          echo "total_cost=$TOTAL_COST" >> $GITHUB_OUTPUT
+          echo "regressions=$REGRESSIONS" >> $GITHUB_OUTPUT
+          echo "critical_regressions=$CRITICAL_REGRESSIONS" >> $GITHUB_OUTPUT
+
+          # Determine status
+          if [[ $CRITICAL_REGRESSIONS -gt 0 ]]; then
+            echo "status=critical_regression" >> $GITHUB_OUTPUT
+          elif [[ $REGRESSIONS -gt 0 ]]; then
+            echo "status=regression" >> $GITHUB_OUTPUT
+          elif [[ $FAILED -gt 0 ]]; then
+            echo "status=failures" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload eval results
+        if: matrix.eval_suite.enabled == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ matrix.eval_suite.name }}
+          path: packages/ai-evals/eval-results/
+          retention-days: 30
+
+      - name: Generate markdown report
+        if: matrix.eval_suite.enabled == 'true'
+        id: generate-report
+        run: |
+          cd packages/ai-evals
+
+          # Generate markdown report
+          pnpm eval report \
+            --input eval-results/${{ matrix.eval_suite.name }}-results.json \
+            --format markdown \
+            --output eval-results/${{ matrix.eval_suite.name }}-report.md
+
+      - name: Upload markdown report
+        if: matrix.eval_suite.enabled == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report-${{ matrix.eval_suite.name }}
+          path: packages/ai-evals/eval-results/${{ matrix.eval_suite.name }}-report.md
+          retention-days: 30
+
+      - name: Add job summary
+        if: matrix.eval_suite.enabled == 'true' && always()
+        run: |
+          echo "## ${{ matrix.eval_suite.name }} Evaluation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ steps.parse-results.outputs.status }}" == "error" ]]; then
+            echo "❌ **Status:** Error - ${{ steps.parse-results.outputs.error_message }}" >> $GITHUB_STEP_SUMMARY
+          else
+            # Status badge
+            if [[ "${{ steps.parse-results.outputs.status }}" == "success" ]]; then
+              echo "✅ **Status:** All tests passed" >> $GITHUB_STEP_SUMMARY
+            elif [[ "${{ steps.parse-results.outputs.status }}" == "critical_regression" ]]; then
+              echo "🚨 **Status:** Critical regressions detected" >> $GITHUB_STEP_SUMMARY
+            elif [[ "${{ steps.parse-results.outputs.status }}" == "regression" ]]; then
+              echo "⚠️ **Status:** Regressions detected" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Status:** Some tests failed" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Metrics" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | ${{ steps.parse-results.outputs.total_tests }} |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | ${{ steps.parse-results.outputs.passed }} ✅ |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | ${{ steps.parse-results.outputs.failed }} ❌ |" >> $GITHUB_STEP_SUMMARY
+            echo "| Accuracy | ${{ steps.parse-results.outputs.accuracy }} |" >> $GITHUB_STEP_SUMMARY
+            echo "| Avg Latency | ${{ steps.parse-results.outputs.avg_latency }}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Cost | \$${{ steps.parse-results.outputs.total_cost }} |" >> $GITHUB_STEP_SUMMARY
+
+            if [[ "${{ steps.parse-results.outputs.regressions }}" != "0" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Regressions" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "- Total Regressions: ${{ steps.parse-results.outputs.regressions }}" >> $GITHUB_STEP_SUMMARY
+              echo "- Critical Regressions: ${{ steps.parse-results.outputs.critical_regressions }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📄 [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for deployment blocking conditions
+        if: matrix.eval_suite.enabled == 'true'
+        id: check-blocking
+        run: |
+          # Check if regression override label is present
+          OVERRIDE_LABEL="${{ contains(github.event.pull_request.labels.*.name, 'regression-override') }}"
+          CRITICAL_REGRESSIONS="${{ steps.parse-results.outputs.critical_regressions }}"
+
+          if [[ "$CRITICAL_REGRESSIONS" != "0" ]] && [[ "$OVERRIDE_LABEL" != "true" ]]; then
+            echo "should_block=true" >> $GITHUB_OUTPUT
+            echo "❌ Deployment should be blocked due to critical regressions" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "should_block=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fail job if critical regressions detected
+        if: matrix.eval_suite.enabled == 'true' && steps.check-blocking.outputs.should_block == 'true'
+        run: |
+          echo "::error::Critical regressions detected in ${{ matrix.eval_suite.name }} evals"
+          echo "::error::Add 'regression-override' label to override this check (requires approval)"
+          exit 1
+
+  # Job 3: Aggregate results and post PR comment
+  post-pr-comment:
+    name: Post PR Comment
+    needs: [detect-changes, run-evals]
+    if: always() && github.event_name == 'pull_request' && needs.detect-changes.outputs.should_run_evals == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download all eval results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: eval-results-*
+          path: eval-results
+
+      - name: Aggregate results
+        id: aggregate
+        run: |
+          # Initialize counters
+          TOTAL_TESTS=0
+          TOTAL_PASSED=0
+          TOTAL_FAILED=0
+          TOTAL_REGRESSIONS=0
+          TOTAL_CRITICAL=0
+          TOTAL_COST=0
+
+          # Process each result file
+          for suite_dir in eval-results/eval-results-*/; do
+            if [[ -f "${suite_dir}"*-results.json ]]; then
+              RESULTS_FILE="${suite_dir}"*-results.json
+
+              TESTS=$(jq -r '.summary.totalTests // 0' "$RESULTS_FILE")
+              PASSED=$(jq -r '.summary.passed // 0' "$RESULTS_FILE")
+              FAILED=$(jq -r '.summary.failed // 0' "$RESULTS_FILE")
+              REGRESSIONS=$(jq -r '.regressions // [] | length' "$RESULTS_FILE")
+              CRITICAL=$(jq -r '[.regressions[] | select(.severity == "critical")] | length' "$RESULTS_FILE")
+              COST=$(jq -r '.summary.totalCost // 0' "$RESULTS_FILE")
+
+              TOTAL_TESTS=$((TOTAL_TESTS + TESTS))
+              TOTAL_PASSED=$((TOTAL_PASSED + PASSED))
+              TOTAL_FAILED=$((TOTAL_FAILED + FAILED))
+              TOTAL_REGRESSIONS=$((TOTAL_REGRESSIONS + REGRESSIONS))
+              TOTAL_CRITICAL=$((TOTAL_CRITICAL + CRITICAL))
+              TOTAL_COST=$(echo "$TOTAL_COST + $COST" | bc)
+            fi
+          done
+
+          echo "total_tests=$TOTAL_TESTS" >> $GITHUB_OUTPUT
+          echo "total_passed=$TOTAL_PASSED" >> $GITHUB_OUTPUT
+          echo "total_failed=$TOTAL_FAILED" >> $GITHUB_OUTPUT
+          echo "total_regressions=$TOTAL_REGRESSIONS" >> $GITHUB_OUTPUT
+          echo "total_critical=$TOTAL_CRITICAL" >> $GITHUB_OUTPUT
+          echo "total_cost=$TOTAL_COST" >> $GITHUB_OUTPUT
+
+          # Calculate accuracy
+          if [[ $TOTAL_TESTS -gt 0 ]]; then
+            ACCURACY=$(echo "scale=2; $TOTAL_PASSED * 100 / $TOTAL_TESTS" | bc)
+          else
+            ACCURACY=0
+          fi
+          echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+
+      - name: Generate PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const totalTests = parseInt('${{ steps.aggregate.outputs.total_tests }}');
+            const totalPassed = parseInt('${{ steps.aggregate.outputs.total_passed }}');
+            const totalFailed = parseInt('${{ steps.aggregate.outputs.total_failed }}');
+            const totalRegressions = parseInt('${{ steps.aggregate.outputs.total_regressions }}');
+            const totalCritical = parseInt('${{ steps.aggregate.outputs.total_critical }}');
+            const accuracy = parseFloat('${{ steps.aggregate.outputs.accuracy }}');
+            const totalCost = parseFloat('${{ steps.aggregate.outputs.total_cost }}');
+
+            // Determine overall status
+            let statusEmoji = '✅';
+            let statusText = 'All evaluations passed';
+
+            if (totalCritical > 0) {
+              statusEmoji = '🚨';
+              statusText = 'Critical regressions detected';
+            } else if (totalRegressions > 0) {
+              statusEmoji = '⚠️';
+              statusText = 'Regressions detected';
+            } else if (totalFailed > 0) {
+              statusEmoji = '❌';
+              statusText = 'Some tests failed';
+            }
+
+            // Build comment body
+            const comment = `## ${statusEmoji} AI Evaluation Results
+
+            ${statusText}
+
+            ### Summary
+
+            | Metric | Value |
+            |--------|-------|
+            | Total Tests | ${totalTests} |
+            | Passed | ${totalPassed} ✅ |
+            | Failed | ${totalFailed} ❌ |
+            | Accuracy | ${accuracy}% |
+            | Total Cost | $${totalCost.toFixed(4)} |
+
+            ${totalRegressions > 0 ? `
+            ### ⚠️ Regressions Detected
+
+            - **Total Regressions:** ${totalRegressions}
+            - **Critical Regressions:** ${totalCritical}
+
+            ${totalCritical > 0 ? `
+            > **⚠️ Warning:** Critical regressions will block deployment unless overridden.
+            > Add the \`regression-override\` label to this PR to override (requires approval).
+            ` : ''}
+            ` : ''}
+
+            ### 📊 Detailed Reports
+
+            View detailed evaluation reports in the [workflow run artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts).
+
+            ---
+
+            <sub>🤖 This comment is automatically generated by the AI Evals workflow</sub>`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('AI Evaluation Results')
+            );
+
+            // Create or update comment
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment,
+              });
+            }
+
+  # Job 4: Final status check
+  ai-evals-status:
+    name: AI Evals Status Check
+    needs: [detect-changes, run-evals]
+    if: always() && needs.detect-changes.outputs.should_run_evals == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check overall status
+        run: |
+          # Check if any eval jobs failed
+          if [[ "${{ needs.run-evals.result }}" == "failure" ]]; then
+            # Check for override label
+            OVERRIDE_LABEL="${{ contains(github.event.pull_request.labels.*.name, 'regression-override') }}"
+
+            if [[ "$OVERRIDE_LABEL" == "true" ]]; then
+              echo "⚠️ Evals failed but regression-override label is present"
+              echo "::warning::AI evaluations failed but override is in effect"
+              exit 0
+            else
+              echo "❌ AI evaluations failed - deployment blocked"
+              echo "::error::AI evaluations failed. Add 'regression-override' label to override (requires approval)"
+              exit 1
+            fi
+          elif [[ "${{ needs.run-evals.result }}" == "success" ]]; then
+            echo "✅ All AI evaluations passed"
+            exit 0
+          else
+            echo "⚠️ AI evaluations skipped or cancelled"
+            exit 0
+          fi
+
+      - name: Update job summary
+        if: always()
+        run: |
+          echo "## Final Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.run-evals.result }}" == "success" ]]; then
+            echo "✅ **All AI evaluations passed**" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ needs.run-evals.result }}" == "failure" ]]; then
+            if [[ "${{ contains(github.event.pull_request.labels.*.name, 'regression-override') }}" == "true" ]]; then
+              echo "⚠️ **Evals failed but override is active**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **AI evaluations failed - deployment blocked**" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ **Evals skipped or cancelled**" >> $GITHUB_STEP_SUMMARY
+          fi

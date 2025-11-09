@@ -1,0 +1,356 @@
+{
+  "id": "risk-prediction-basic",
+  "name": "Risk Prediction - Basic Scenarios",
+  "description": "Basic risk prediction test cases for identifying at-risk student-athletes",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "low-risk-1",
+      "name": "Low Risk - High Performer",
+      "input": "Predict risk for student with 3.8 GPA, 95% attendance, no alerts, strong study habits",
+      "expected": {
+        "riskLevel": "LOW",
+        "riskScore": 0.15,
+        "factors": [
+          { "factor": "gpa", "value": 3.8, "impact": "positive" },
+          { "factor": "attendance", "value": 0.95, "impact": "positive" },
+          { "factor": "alerts", "value": 0, "impact": "positive" }
+        ],
+        "recommendations": ["Continue current academic plan", "Consider peer mentoring role"]
+      },
+      "category": "risk-prediction",
+      "difficulty": 2,
+      "tags": ["low-risk", "high-performer"],
+      "context": {
+        "studentId": "test-student-001",
+        "year": "junior",
+        "sport": "Soccer"
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "medium-risk-1",
+      "name": "Medium Risk - Declining GPA",
+      "input": "Predict risk for student with 2.5 GPA (down from 3.0), 85% attendance, 2 alerts this semester",
+      "expected": {
+        "riskLevel": "MEDIUM",
+        "riskScore": 0.55,
+        "factors": [
+          { "factor": "gpa", "value": 2.5, "impact": "neutral", "trend": "declining" },
+          { "factor": "attendance", "value": 0.85, "impact": "neutral" },
+          { "factor": "alerts", "value": 2, "impact": "negative" }
+        ],
+        "recommendations": [
+          "Schedule academic advisor meeting",
+          "Increase tutoring sessions",
+          "Monitor attendance closely"
+        ]
+      },
+      "category": "risk-prediction",
+      "difficulty": 3,
+      "tags": ["medium-risk", "declining-performance"],
+      "context": {
+        "studentId": "test-student-002",
+        "year": "sophomore",
+        "sport": "Basketball",
+        "previousGPA": 3.0
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "high-risk-1",
+      "name": "High Risk - Multiple Factors",
+      "input": "Predict risk for student with 1.9 GPA, 70% attendance, 5 alerts, missed 3 tutoring sessions",
+      "expected": {
+        "riskLevel": "HIGH",
+        "riskScore": 0.82,
+        "factors": [
+          { "factor": "gpa", "value": 1.9, "impact": "negative" },
+          { "factor": "attendance", "value": 0.70, "impact": "negative" },
+          { "factor": "alerts", "value": 5, "impact": "negative" },
+          { "factor": "tutoring_attendance", "value": 0.40, "impact": "negative" }
+        ],
+        "recommendations": [
+          "Immediate intervention plan required",
+          "Daily check-ins with academic coordinator",
+          "Mandatory tutoring sessions",
+          "Consider reduced course load"
+        ],
+        "urgency": "immediate"
+      },
+      "category": "risk-prediction",
+      "difficulty": 4,
+      "tags": ["high-risk", "intervention-needed"],
+      "context": {
+        "studentId": "test-student-003",
+        "year": "freshman",
+        "sport": "Football"
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "critical-risk-1",
+      "name": "Critical Risk - Eligibility Threat",
+      "input": "Predict risk for student with 1.7 GPA, 55% attendance, 8 alerts, failing 2 courses",
+      "expected": {
+        "riskLevel": "CRITICAL",
+        "riskScore": 0.95,
+        "factors": [
+          { "factor": "gpa", "value": 1.7, "impact": "critical" },
+          { "factor": "attendance", "value": 0.55, "impact": "critical" },
+          { "factor": "alerts", "value": 8, "impact": "critical" },
+          { "factor": "failing_courses", "value": 2, "impact": "critical" }
+        ],
+        "recommendations": [
+          "Emergency intervention meeting",
+          "Eligibility at risk - immediate action required",
+          "Consider medical/personal hardship evaluation",
+          "Coordinate with coaching staff"
+        ],
+        "urgency": "critical",
+        "eligibilityThreat": true
+      },
+      "category": "risk-prediction",
+      "difficulty": 5,
+      "tags": ["critical-risk", "eligibility-threat"],
+      "context": {
+        "studentId": "test-student-004",
+        "year": "sophomore",
+        "sport": "Track"
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "improving-trend-1",
+      "name": "Medium Risk - Improving Trend",
+      "input": "Predict risk for student with 2.3 GPA (up from 2.0), 88% attendance (up from 75%), 1 alert",
+      "expected": {
+        "riskLevel": "MEDIUM",
+        "riskScore": 0.45,
+        "factors": [
+          { "factor": "gpa", "value": 2.3, "impact": "neutral", "trend": "improving" },
+          { "factor": "attendance", "value": 0.88, "impact": "positive", "trend": "improving" },
+          { "factor": "alerts", "value": 1, "impact": "neutral" }
+        ],
+        "recommendations": [
+          "Continue current intervention plan",
+          "Positive reinforcement for improvement",
+          "Maintain tutoring schedule"
+        ],
+        "trend": "improving"
+      },
+      "category": "risk-prediction",
+      "difficulty": 3,
+      "tags": ["medium-risk", "improving-trend"],
+      "context": {
+        "studentId": "test-student-005",
+        "year": "junior",
+        "sport": "Volleyball",
+        "previousGPA": 2.0,
+        "previousAttendance": 0.75
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "seasonal-pattern-1",
+      "name": "Medium Risk - In-Season Performance Drop",
+      "input": "Predict risk for student with 2.8 GPA during off-season, 2.2 GPA during season, 80% attendance",
+      "expected": {
+        "riskLevel": "MEDIUM",
+        "riskScore": 0.60,
+        "factors": [
+          { "factor": "gpa", "value": 2.2, "impact": "negative" },
+          { "factor": "seasonal_pattern", "value": true, "impact": "negative" },
+          { "factor": "attendance", "value": 0.80, "impact": "neutral" }
+        ],
+        "recommendations": [
+          "Adjust study schedule for in-season demands",
+          "Increase academic support during season",
+          "Time management coaching"
+        ],
+        "pattern": "seasonal_decline"
+      },
+      "category": "risk-prediction",
+      "difficulty": 4,
+      "tags": ["medium-risk", "seasonal-pattern"],
+      "context": {
+        "studentId": "test-student-006",
+        "year": "sophomore",
+        "sport": "Baseball",
+        "offSeasonGPA": 2.8,
+        "inSeasonGPA": 2.2
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "transfer-adjustment-1",
+      "name": "Medium Risk - Transfer Student Adjustment",
+      "input": "Predict risk for transfer student with 2.6 GPA, 82% attendance, first semester at new school",
+      "expected": {
+        "riskLevel": "MEDIUM",
+        "riskScore": 0.50,
+        "factors": [
+          { "factor": "gpa", "value": 2.6, "impact": "neutral" },
+          { "factor": "attendance", "value": 0.82, "impact": "neutral" },
+          { "factor": "transfer_adjustment", "value": true, "impact": "negative" }
+        ],
+        "recommendations": [
+          "Provide transfer student support resources",
+          "Peer mentor assignment",
+          "Regular check-ins during adjustment period"
+        ],
+        "adjustmentPeriod": true
+      },
+      "category": "risk-prediction",
+      "difficulty": 3,
+      "tags": ["medium-risk", "transfer-student"],
+      "context": {
+        "studentId": "test-student-007",
+        "year": "junior",
+        "sport": "Swimming",
+        "transferFrom": "Community College",
+        "semestersAtSchool": 1
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "injury-impact-1",
+      "name": "High Risk - Post-Injury Struggles",
+      "input": "Predict risk for student with 2.1 GPA, 65% attendance, recovering from season-ending injury",
+      "expected": {
+        "riskLevel": "HIGH",
+        "riskScore": 0.75,
+        "factors": [
+          { "factor": "gpa", "value": 2.1, "impact": "negative" },
+          { "factor": "attendance", "value": 0.65, "impact": "negative" },
+          { "factor": "injury_recovery", "value": true, "impact": "negative" }
+        ],
+        "recommendations": [
+          "Mental health support referral",
+          "Flexible attendance policies during recovery",
+          "Academic support during rehabilitation",
+          "Coordinate with athletic training staff"
+        ],
+        "specialCircumstances": "injury_recovery"
+      },
+      "category": "risk-prediction",
+      "difficulty": 4,
+      "tags": ["high-risk", "injury", "special-circumstances"],
+      "context": {
+        "studentId": "test-student-008",
+        "year": "senior",
+        "sport": "Tennis",
+        "injuryDate": "2024-10-15",
+        "expectedReturn": "2025-02-01"
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "early-warning-1",
+      "name": "Low Risk - Early Warning Signs",
+      "input": "Predict risk for student with 3.2 GPA, 90% attendance, but 3 missed study hall sessions recently",
+      "expected": {
+        "riskLevel": "LOW",
+        "riskScore": 0.30,
+        "factors": [
+          { "factor": "gpa", "value": 3.2, "impact": "positive" },
+          { "factor": "attendance", "value": 0.90, "impact": "positive" },
+          { "factor": "study_hall_attendance", "value": 0.70, "impact": "negative", "trend": "declining" }
+        ],
+        "recommendations": [
+          "Monitor study hall attendance",
+          "Check in about recent changes",
+          "Preventive intervention if pattern continues"
+        ],
+        "earlyWarning": true
+      },
+      "category": "risk-prediction",
+      "difficulty": 3,
+      "tags": ["low-risk", "early-warning"],
+      "context": {
+        "studentId": "test-student-009",
+        "year": "freshman",
+        "sport": "Golf"
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "multi-factor-analysis-1",
+      "name": "Complex Risk - Multiple Competing Factors",
+      "input": "Predict risk for student with 2.7 GPA, 92% attendance, 0 alerts, but difficult major (Engineering) and heavy course load",
+      "expected": {
+        "riskLevel": "MEDIUM",
+        "riskScore": 0.48,
+        "factors": [
+          { "factor": "gpa", "value": 2.7, "impact": "neutral" },
+          { "factor": "attendance", "value": 0.92, "impact": "positive" },
+          { "factor": "alerts", "value": 0, "impact": "positive" },
+          { "factor": "major_difficulty", "value": "high", "impact": "negative" },
+          { "factor": "course_load", "value": 17, "impact": "negative" }
+        ],
+        "recommendations": [
+          "Monitor workload sustainability",
+          "Consider reducing course load if GPA declines",
+          "Provide major-specific tutoring resources"
+        ]
+      },
+      "category": "risk-prediction",
+      "difficulty": 5,
+      "tags": ["medium-risk", "complex", "multi-factor"],
+      "context": {
+        "studentId": "test-student-010",
+        "year": "sophomore",
+        "sport": "Lacrosse",
+        "major": "Mechanical Engineering",
+        "creditHours": 17
+      },
+      "metadata": {
+        "source": "Risk assessment scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    }
+  ],
+  "metadata": {
+    "createdAt": "2025-11-08T00:00:00Z",
+    "updatedAt": "2025-11-08T00:00:00Z",
+    "author": "AI Team",
+    "tags": ["risk-prediction", "intervention", "student-success", "analytics"]
+  }
+}

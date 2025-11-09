@@ -1,0 +1,1015 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+// ============================================================================
+// USER AND AUTHENTICATION MODELS
+// ============================================================================
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  role      UserRole
+  firstName String?
+  lastName  String?
+  aiOptIn   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  studentProfile            StudentProfile?
+  conversations             Conversation[]
+  predictions               StudentPrediction[]
+  auditLogs                 AIAuditLog[]
+  aiFeedback                AIFeedback[]
+  agentMemories             AgentMemory[]
+  createdAlerts             Alert[]                @relation("CreatedByUser")
+  assignedAlerts            Alert[]                @relation("AssignedToUser")
+  interventionPlans         InterventionPlan[]
+  progressReportsReviewed   ProgressReport[]       @relation("ReviewedByUser")
+  progressReportsSubmitted  ProgressReport[]       @relation("SubmittedByUser")
+  tutoringSessionsAsTutor   TutoringSession[]      @relation("TutorUser")
+  tutoringSessionsAsStudent TutoringSession[]      @relation("StudentUser")
+  studyHallAttendance       StudyHallAttendance[]
+  workshopRegistrations     WorkshopRegistration[]
+  mentorMatchesAsMentor     MentorMatch[]          @relation("MentorUser")
+  mentorMatchesAsMentee     MentorMatch[]          @relation("MenteeUser")
+  emailLogs                 EmailLog[]
+  calendarEvents            CalendarEvent[]
+
+  @@index([clerkId])
+  @@index([email])
+  @@index([role])
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  COACH
+  FACULTY
+  STAFF
+}
+
+model StudentProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentId         String    @unique
+  sport             String
+  team              String?
+  gpa               Float?
+  creditHours       Int       @default(0)
+  eligibilityStatus String    @default("PENDING")
+  athleticSchedule  Json?
+  academicStanding  String?   @default("GOOD_STANDING")
+  enrollmentStatus  String    @default("FULL_TIME")
+  expectedGradDate  DateTime?
+  major             String?
+  minor             String?
+  advisor           String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  complianceRecords    ComplianceRecord[]
+  complianceViolations ComplianceViolation[]
+  schedules            Schedule[]
+  scheduleConflicts    ScheduleConflict[]
+  degreeProgress       DegreeProgress[]
+  performanceMetrics   PerformanceMetric[]
+  progressReports      ProgressReport[]
+  alerts               Alert[]
+  interventionPlans    InterventionPlan[]
+  travelLetters        TravelLetter[]
+  absenceNotifications AbsenceNotification[]
+  predictiveRiskScores PredictiveRiskScore[]
+
+  @@index([studentId])
+  @@index([sport])
+  @@index([eligibilityStatus])
+  @@index([academicStanding])
+}
+
+// ============================================================================
+// COMPLIANCE MODELS
+// ============================================================================
+
+model ComplianceRecord {
+  id              String         @id @default(cuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  termGpa         Float
+  cumulativeGpa   Float
+  creditHours     Int
+  progressPercent Float
+  isEligible      Boolean
+  violations      Json?
+  ruleVersion     String
+  term            String
+  academicYear    String
+  notes           String?        @db.Text
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([term, academicYear])
+  @@index([isEligible])
+  @@index([createdAt])
+}
+
+model ComplianceRule {
+  id             String    @id @default(cuid())
+  ruleCode       String    @unique
+  category       String
+  title          String
+  description    String    @db.Text
+  ruleType       String // INITIAL_ELIGIBILITY, CONTINUING_ELIGIBILITY, PROGRESS_TOWARD_DEGREE
+  version        String
+  effectiveDate  DateTime
+  expirationDate DateTime?
+  isActive       Boolean   @default(true)
+  criteria       Json
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  violations ComplianceViolation[]
+
+  @@index([ruleCode])
+  @@index([category])
+  @@index([ruleType])
+  @@index([isActive])
+  @@index([effectiveDate])
+}
+
+model ComplianceViolation {
+  id            String         @id @default(cuid())
+  studentId     String
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  ruleId        String
+  rule          ComplianceRule @relation(fields: [ruleId], references: [id])
+  severity      String // CRITICAL, HIGH, MEDIUM, LOW
+  violationType String
+  description   String         @db.Text
+  detectedAt    DateTime       @default(now())
+  resolvedAt    DateTime?
+  status        String         @default("ACTIVE") // ACTIVE, RESOLVED, WAIVED
+  resolution    String?        @db.Text
+  resolvedBy    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([ruleId])
+  @@index([severity])
+  @@index([status])
+  @@index([detectedAt])
+}
+
+// ============================================================================
+// ADVISING MODELS
+// ============================================================================
+
+model Course {
+  id            String   @id @default(cuid())
+  courseCode    String   @unique
+  courseName    String
+  department    String
+  credits       Int
+  description   String?  @db.Text
+  prerequisites Json?
+  corequisites  Json?
+  isActive      Boolean  @default(true)
+  level         String? // FRESHMAN, SOPHOMORE, JUNIOR, SENIOR, GRADUATE
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  sections              CourseSection[]
+  degreeRequirements    DegreeRequirement[]
+  degreeProgressCourses DegreeProgress[]
+
+  @@index([courseCode])
+  @@index([department])
+  @@index([level])
+}
+
+model CourseSection {
+  id             String   @id @default(cuid())
+  courseId       String
+  course         Course   @relation(fields: [courseId], references: [id])
+  sectionNumber  String
+  term           String
+  academicYear   String
+  instructor     String?
+  days           String[] // ["MONDAY", "WEDNESDAY", "FRIDAY"]
+  startTime      String
+  endTime        String
+  location       String?
+  capacity       Int
+  enrolled       Int      @default(0)
+  isOpen         Boolean  @default(true)
+  meetingPattern String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  schedules Schedule[]
+
+  @@unique([courseId, sectionNumber, term, academicYear])
+  @@index([courseId])
+  @@index([term, academicYear])
+  @@index([instructor])
+  @@index([isOpen])
+}
+
+model Schedule {
+  id           String         @id @default(cuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term         String
+  academicYear String
+  status       String         @default("DRAFT") // DRAFT, PENDING, APPROVED, ENROLLED
+  totalCredits Int            @default(0)
+  approvedBy   String?
+  approvedAt   DateTime?
+  notes        String?        @db.Text
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relations
+  sections  CourseSection[]
+  conflicts ScheduleConflict[]
+
+  @@index([studentId])
+  @@index([term, academicYear])
+  @@index([status])
+}
+
+model ScheduleConflict {
+  id              String         @id @default(cuid())
+  scheduleId      String
+  schedule        Schedule       @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  conflictType    String // TIME_CONFLICT, ATHLETIC_CONFLICT, PREREQUISITE_MISSING, CAPACITY_FULL
+  severity        String // CRITICAL, HIGH, MEDIUM, LOW
+  description     String         @db.Text
+  affectedCourses Json
+  detectedAt      DateTime       @default(now())
+  resolvedAt      DateTime?
+  status          String         @default("UNRESOLVED") // UNRESOLVED, ACKNOWLEDGED, RESOLVED
+  resolution      String?        @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([scheduleId])
+  @@index([studentId])
+  @@index([conflictType])
+  @@index([status])
+}
+
+model DegreeRequirement {
+  id              String   @id @default(cuid())
+  degreeProgram   String
+  category        String // CORE, MAJOR, MINOR, ELECTIVE, GENERAL_EDUCATION
+  courseId        String?
+  course          Course?  @relation(fields: [courseId], references: [id])
+  requirementType String // SPECIFIC_COURSE, CATEGORY, CREDIT_HOURS, GPA
+  credits         Int?
+  description     String   @db.Text
+  alternatives    Json? // Alternative courses that satisfy requirement
+  isRequired      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([degreeProgram])
+  @@index([category])
+}
+
+model DegreeProgress {
+  id                   String         @id @default(cuid())
+  studentId            String
+  student              StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  degreeProgram        String
+  courseId             String
+  course               Course         @relation(fields: [courseId], references: [id])
+  term                 String
+  academicYear         String
+  grade                String?
+  credits              Int
+  status               String // IN_PROGRESS, COMPLETED, FAILED, WITHDRAWN
+  satisfiesRequirement String? // Which requirement this course satisfies
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([degreeProgram])
+  @@index([status])
+  @@index([term, academicYear])
+}
+
+// ============================================================================
+// MONITORING MODELS
+// ============================================================================
+
+model PerformanceMetric {
+  id           String         @id @default(cuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  metricType   String // GPA, ATTENDANCE, CREDIT_HOURS, STUDY_HOURS
+  value        Float
+  term         String
+  academicYear String
+  benchmark    Float?
+  status       String? // ABOVE_TARGET, ON_TARGET, BELOW_TARGET, AT_RISK
+  notes        String?        @db.Text
+  recordedAt   DateTime       @default(now())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([metricType])
+  @@index([term, academicYear])
+  @@index([status])
+}
+
+model ProgressReport {
+  id              String         @id @default(cuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId        String
+  courseName      String
+  instructor      String
+  term            String
+  academicYear    String
+  currentGrade    String?
+  attendance      String? // EXCELLENT, GOOD, FAIR, POOR
+  effort          String? // EXCELLENT, GOOD, FAIR, POOR
+  comments        String?        @db.Text
+  concerns        String[]
+  recommendations String?        @db.Text
+  submittedBy     String
+  submitter       User           @relation("SubmittedByUser", fields: [submittedBy], references: [id])
+  submittedAt     DateTime       @default(now())
+  reviewedBy      String?
+  reviewer        User?          @relation("ReviewedByUser", fields: [reviewedBy], references: [id])
+  reviewedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([courseId])
+  @@index([term, academicYear])
+  @@index([submittedAt])
+}
+
+model Alert {
+  id             String         @id @default(cuid())
+  studentId      String
+  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  alertType      String // ACADEMIC, ELIGIBILITY, ATTENDANCE, BEHAVIORAL
+  severity       AlertSeverity
+  title          String
+  message        String         @db.Text
+  metadata       Json?
+  status         String         @default("ACTIVE") // ACTIVE, ACKNOWLEDGED, RESOLVED, DISMISSED
+  priority       Int            @default(3)
+  triggeredBy    String? // System or user ID
+  createdBy      String?
+  creator        User?          @relation("CreatedByUser", fields: [createdBy], references: [id])
+  assignedTo     String?
+  assignee       User?          @relation("AssignedToUser", fields: [assignedTo], references: [id])
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  resolution     String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum AlertSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model InterventionPlan {
+  id            String         @id @default(cuid())
+  studentId     String
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  planType      String // ACADEMIC, BEHAVIORAL, ELIGIBILITY, COMPREHENSIVE
+  title         String
+  description   String         @db.Text
+  goals         Json
+  strategies    Json
+  timeline      Json
+  assignedTo    String
+  assignee      User           @relation(fields: [assignedTo], references: [id])
+  status        String         @default("DRAFT") // DRAFT, ACTIVE, COMPLETED, CANCELLED
+  startDate     DateTime
+  endDate       DateTime?
+  outcomes      String?        @db.Text
+  effectiveness String? // VERY_EFFECTIVE, EFFECTIVE, SOMEWHAT_EFFECTIVE, NOT_EFFECTIVE
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([planType])
+  @@index([status])
+  @@index([startDate])
+}
+
+// ============================================================================
+// SUPPORT MODELS
+// ============================================================================
+
+model Tutor {
+  id            String   @id @default(cuid())
+  userId        String?
+  firstName     String
+  lastName      String
+  email         String   @unique
+  phone         String?
+  subjects      String[]
+  availability  Json
+  hourlyRate    Float?
+  rating        Float?   @default(0)
+  totalSessions Int      @default(0)
+  isActive      Boolean  @default(true)
+  bio           String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  sessions TutoringSession[]
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model TutoringSession {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     User     @relation("StudentUser", fields: [studentId], references: [id])
+  tutorId     String
+  tutor       Tutor    @relation(fields: [tutorId], references: [id])
+  userId      String?
+  userTutor   User?    @relation("TutorUser", fields: [userId], references: [id])
+  subject     String
+  courseCode  String?
+  scheduledAt DateTime
+  duration    Int // minutes
+  location    String?
+  meetingType String   @default("IN_PERSON") // IN_PERSON, VIRTUAL, HYBRID
+  status      String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
+  attended    Boolean?
+  notes       String?  @db.Text
+  rating      Int?
+  feedback    String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model StudyHallAttendance {
+  id           String    @id @default(cuid())
+  studentId    String
+  student      User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  checkInTime  DateTime
+  checkOutTime DateTime?
+  duration     Int? // minutes
+  location     String
+  activity     String? // STUDYING, TUTORING, HOMEWORK, TEST_PREP
+  notes        String?   @db.Text
+  verified     Boolean   @default(false)
+  verifiedBy   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([studentId])
+  @@index([checkInTime])
+  @@index([location])
+}
+
+model Workshop {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  category    String // TIME_MANAGEMENT, STUDY_SKILLS, CAREER_PREP, MENTAL_HEALTH, FINANCIAL_LITERACY
+  instructor  String
+  scheduledAt DateTime
+  duration    Int // minutes
+  location    String?
+  meetingType String   @default("IN_PERSON") // IN_PERSON, VIRTUAL, HYBRID
+  capacity    Int
+  enrolled    Int      @default(0)
+  isActive    Boolean  @default(true)
+  materials   Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  registrations WorkshopRegistration[]
+
+  @@index([category])
+  @@index([scheduledAt])
+  @@index([isActive])
+}
+
+model WorkshopRegistration {
+  id           String   @id @default(cuid())
+  workshopId   String
+  workshop     Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  studentId    String
+  student      User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status       String   @default("REGISTERED") // REGISTERED, ATTENDED, NO_SHOW, CANCELLED
+  attended     Boolean  @default(false)
+  rating       Int?
+  feedback     String?  @db.Text
+  registeredAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([workshopId, studentId])
+  @@index([workshopId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model MentorMatch {
+  id            String    @id @default(cuid())
+  mentorId      String
+  mentor        User      @relation("MentorUser", fields: [mentorId], references: [id])
+  menteeId      String
+  mentee        User      @relation("MenteeUser", fields: [menteeId], references: [id])
+  status        String    @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, TERMINATED
+  matchedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  frequency     String? // WEEKLY, BI_WEEKLY, MONTHLY
+  focusAreas    String[]
+  goals         Json?
+  notes         String?   @db.Text
+  effectiveness String? // VERY_EFFECTIVE, EFFECTIVE, SOMEWHAT_EFFECTIVE, NOT_EFFECTIVE
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([mentorId])
+  @@index([menteeId])
+  @@index([status])
+}
+
+// ============================================================================
+// INTEGRATION MODELS
+// ============================================================================
+
+model TravelLetter {
+  id             String         @id @default(cuid())
+  studentId      String
+  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  sport          String
+  eventName      String
+  eventLocation  String
+  departureDate  DateTime
+  returnDate     DateTime
+  courses        Json
+  instructors    Json
+  generatedAt    DateTime       @default(now())
+  sentAt         DateTime?
+  deliveryMethod String? // EMAIL, DOWNLOAD, BOTH
+  status         String         @default("GENERATED") // GENERATED, SENT, DELIVERED
+  fileUrl        String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([departureDate])
+  @@index([status])
+}
+
+model AbsenceNotification {
+  id              String         @id @default(cuid())
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseCode      String
+  instructor      String
+  instructorEmail String
+  absenceDate     DateTime
+  reason          String         @db.Text
+  notifiedAt      DateTime       @default(now())
+  acknowledged    Boolean        @default(false)
+  acknowledgedAt  DateTime?
+  response        String?        @db.Text
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([studentId])
+  @@index([absenceDate])
+  @@index([acknowledged])
+}
+
+model EmailLog {
+  id            String    @id @default(cuid())
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  recipient     String
+  subject       String
+  body          String    @db.Text
+  emailType     String // TRAVEL_LETTER, ABSENCE_NOTIFICATION, ALERT, REPORT, GENERAL
+  status        String    @default("QUEUED") // QUEUED, SENT, DELIVERED, FAILED, BOUNCED
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  failureReason String?   @db.Text
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([recipient])
+  @@index([emailType])
+  @@index([status])
+  @@index([sentAt])
+}
+
+model CalendarEvent {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?  @db.Text
+  eventType      String // CLASS, ATHLETIC, TUTORING, WORKSHOP, MEETING, PERSONAL
+  startTime      DateTime
+  endTime        DateTime
+  location       String?
+  isAllDay       Boolean  @default(false)
+  isRecurring    Boolean  @default(false)
+  recurrenceRule String?
+  externalId     String? // ID from external calendar system
+  externalSource String? // GOOGLE, OUTLOOK, APPLE
+  syncStatus     String   @default("SYNCED") // SYNCED, PENDING, FAILED
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([startTime])
+  @@index([externalId])
+}
+
+// ============================================================================
+// AI MODELS
+// ============================================================================
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  status    String   @default("active") // active, archived, deleted
+  context   Json? // Additional context metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  messages Message[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // user, assistant, system, function
+  content        String       @db.Text
+  tokenCount     Int?
+  modelUsed      String?
+  functionCall   Json?
+  metadata       Json?
+  timestamp      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([timestamp])
+}
+
+model VectorEmbedding {
+  id          String                      @id @default(cuid())
+  contentType String
+  contentHash String                      @unique
+  embedding   Unsupported("vector(1536)")
+  metadata    Json
+  source      String? // Document, course, policy, etc.
+  createdAt   DateTime                    @default(now())
+
+  @@index([contentType])
+  @@index([contentHash])
+}
+
+model KnowledgeDocument {
+  id           String   @id @default(cuid())
+  title        String
+  content      String   @db.Text
+  documentType String // NCAA_RULE, POLICY, COURSE_CATALOG, FAQ, GUIDELINE
+  category     String?
+  tags         String[]
+  vectorized   Boolean  @default(false)
+  chunkCount   Int      @default(0)
+  isActive     Boolean  @default(true)
+  version      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([documentType])
+  @@index([category])
+  @@index([vectorized])
+  @@index([isActive])
+}
+
+model AIFeedback {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String?
+  messageId      String?
+  feedbackType   String // HELPFUL, NOT_HELPFUL, INACCURATE, INAPPROPRIATE
+  rating         Int? // 1-5
+  comment        String?  @db.Text
+  category       String? // ACCURACY, RELEVANCE, TONE, COMPLETENESS
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
+  @@index([feedbackType])
+  @@index([createdAt])
+}
+
+model PredictiveRiskScore {
+  id              String           @id @default(cuid())
+  studentId       String
+  student         StudentProfile   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  modelId         String?
+  model           PredictionModel? @relation(fields: [modelId], references: [id])
+  riskScore       Float // 0-100
+  riskLevel       String // LOW, MEDIUM, HIGH, CRITICAL
+  confidence      Float // 0-1
+  factors         Json // Contributing risk factors
+  recommendations Json? // Suggested interventions
+  generatedAt     DateTime         @default(now())
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  notes           String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([studentId])
+  @@index([riskLevel])
+  @@index([generatedAt])
+}
+
+model AIAuditLog {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actionType        String // CHAT, RECOMMENDATION, PREDICTION, ANALYSIS, AGENT_EXECUTION, TOOL_INVOCATION
+  agentType         String? // advising, compliance, intervention, administrative, general
+  conversationId    String?
+  taskId            String? // Reference to AgentTask
+  toolName          String? // For tool invocations
+  toolParameters    Json? // Tool input parameters
+  toolResult        Json? // Tool output result
+  inputSummary      String?  @db.Text
+  outputSummary     String?  @db.Text
+  modelUsed         String
+  tokenCount        Int
+  latencyMs         Int
+  accuracyRating    Float?
+  cost              Float?
+  success           Boolean  @default(true)
+  errorMessage      String?  @db.Text
+  errorCode         String?
+  userRole          String? // Role at time of action
+  ipAddress         String?
+  userAgent         String?
+  metadata          Json?
+  timestamp         DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([actionType])
+  @@index([agentType])
+  @@index([modelUsed])
+  @@index([conversationId])
+  @@index([taskId])
+  @@index([toolName])
+  @@index([success])
+  @@index([timestamp])
+}
+
+model PredictionModel {
+  id                String   @id @default(cuid())
+  modelType         String // RISK_ASSESSMENT, GPA_PREDICTION, RETENTION_PREDICTION
+  version           String
+  trainingDate      DateTime
+  accuracyMetrics   Json
+  featureImportance Json
+  active            Boolean  @default(false)
+  description       String?  @db.Text
+  parameters        Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  predictions StudentPrediction[]
+  riskScores  PredictiveRiskScore[]
+
+  @@index([modelType])
+  @@index([active])
+}
+
+model StudentPrediction {
+  id             String          @id @default(cuid())
+  studentId      String
+  student        User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  modelId        String
+  model          PredictionModel @relation(fields: [modelId], references: [id])
+  predictionType String // ACADEMIC, ELIGIBILITY, RETENTION
+  riskScore      Float
+  confidence     Float
+  factors        Json
+  generatedAt    DateTime        @default(now())
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  accuracy       Float? // Actual outcome vs prediction
+
+  @@index([studentId])
+  @@index([modelId])
+  @@index([predictionType])
+  @@index([generatedAt])
+}
+
+model AgentTask {
+  id           String    @id @default(cuid())
+  agentType    String // ADVISING, COMPLIANCE, REPORTING, ANALYSIS
+  status       String    @default("pending") // pending, in_progress, completed, failed
+  priority     Int       @default(3)
+  inputParams  Json
+  outputResult Json?
+  error        String?   @db.Text
+  retryCount   Int       @default(0)
+  createdAt    DateTime  @default(now())
+  startedAt    DateTime?
+  completedAt  DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@index([agentType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AgentMemory {
+  id         String                      @id @default(cuid())
+  userId     String
+  user       User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memoryType String // short_term, long_term, working
+  content    String                      @db.Text
+  embedding  Unsupported("vector(1536)")?
+  metadata   Json // Additional context (agentType, conversationId, importance, etc.)
+  confidence Float?                      @default(1.0) // Confidence in the memory (0-1)
+  importance Float?                      @default(0.5) // Importance score (0-1)
+  accessCount Int                        @default(0) // How many times this memory was accessed
+  lastAccessed DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime                    @default(now())
+  updatedAt  DateTime                    @updatedAt
+
+  @@index([userId, memoryType])
+  @@index([userId, expiresAt])
+  @@index([memoryType])
+  @@index([importance])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// AI EVALUATION FRAMEWORK MODELS
+// ============================================================================
+
+model EvalRun {
+  id             String   @id @default(cuid())
+  datasetId      String
+  datasetVersion String
+  datasetName    String?
+  modelId        String
+  modelConfig    Json // Temperature, maxTokens, etc.
+  runnerType     String // COMPLIANCE, ADVISING, CONVERSATIONAL, RISK_PREDICTION, RAG
+  scorerConfig   Json // Scoring strategy configuration
+  startTime      DateTime
+  endTime        DateTime?
+  durationMs     Int? // Total duration in milliseconds
+  status         String // running, completed, failed, cancelled
+  error          String?  @db.Text
+  metadata       Json? // Additional context (CI/CD info, trigger, etc.)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  results EvalResult[]
+  metrics EvalMetrics?
+
+  @@index([datasetId])
+  @@index([modelId])
+  @@index([runnerType])
+  @@index([status])
+  @@index([startTime])
+  @@index([createdAt])
+}
+
+model EvalResult {
+  id            String   @id @default(cuid())
+  runId         String
+  run           EvalRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  testCaseId    String
+  input         Json
+  expected      Json
+  actual        Json
+  passed        Boolean
+  score         Float // 0.0 to 1.0
+  confidence    Float? // Optional confidence score
+  explanation   String?  @db.Text // Explanation of score (especially for LLM-as-judge)
+  latencyMs     Int // Execution time in milliseconds
+  tokenUsage    Json // { prompt: number, completion: number, total: number }
+  cost          Float // Cost in dollars
+  metadata      Json? // Additional metadata (retries, warnings, etc.)
+  createdAt     DateTime @default(now())
+
+  @@index([runId])
+  @@index([testCaseId])
+  @@index([passed])
+  @@index([score])
+  @@index([createdAt])
+}
+
+model EvalMetrics {
+  id               String   @id @default(cuid())
+  runId            String   @unique
+  run              EvalRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  totalTests       Int
+  passedTests      Int
+  failedTests      Int
+  accuracy         Float // passedTests / totalTests
+  passRate         Float // Same as accuracy, kept for clarity
+  avgScore         Float // Average score across all tests
+  avgLatencyMs     Float // Average latency in milliseconds
+  totalCost        Float // Total cost in dollars
+  totalTokens      Int // Total tokens used
+  categoryBreakdown Json? // Metrics broken down by category/difficulty
+  failuresByType   Json? // Count of failures by category
+  scoreDistribution Json? // Distribution of scores (e.g., buckets)
+  createdAt        DateTime @default(now())
+
+  @@index([runId])
+  @@index([accuracy])
+  @@index([avgScore])
+  @@index([createdAt])
+}
+
+model EvalBaseline {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  runId       String
+  datasetId   String
+  modelId     String
+  isActive    Boolean  @default(false)
+  tags        String[] // For categorization (e.g., ["production", "v1.0"])
+  metadata    Json? // Additional context
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([datasetId])
+  @@index([modelId])
+  @@index([isActive])
+  @@index([createdAt])
+}

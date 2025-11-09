@@ -1,0 +1,10 @@
+{
+  "extends": "@aah/config/tsconfig/react-library.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "jsx": "react-jsx"
+  },
+  "include": ["."],
+  "exclude": ["dist", "node_modules"]
+}

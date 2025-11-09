@@ -1,0 +1,351 @@
+# AI Evaluations Configuration Example
+# Copy this file to ai-evals.config.yaml and customize for your needs
+
+# Configuration metadata
+name: "AI Evaluations - Production Config"
+version: "1.0.0"
+description: "Configuration for production AI evaluation runs"
+environment: "production"  # development | staging | production | ci
+
+# Dataset configuration
+datasets:
+  # Include specific datasets (omit to run all)
+  include:
+    - compliance
+    - advising
+    - conversational
+    - risk-prediction
+    - rag
+    - safety
+
+  # Exclude specific datasets (takes precedence over include)
+  exclude: []
+
+  # Dataset-specific configuration
+  configs:
+    compliance:
+      # Filter by category
+      categories:
+        - gpa-check
+        - credit-hours
+        - progress-toward-degree
+      # Filter by difficulty
+      difficulty: all  # all | easy | medium | hard
+      # Sample size (null = all tests)
+      sampleSize: null
+
+    conversational:
+      categories:
+        - policy-questions
+        - general-queries
+        - edge-cases
+      sampleSize: null
+
+# Model configuration
+models:
+  # OpenAI models
+  - provider: openai
+    modelId: gpt-4-turbo
+    config:
+      temperature: 0.0
+      maxTokens: 2048
+      topP: 1.0
+    enabled: true
+
+  - provider: openai
+    modelId: gpt-4-turbo-preview
+    config:
+      temperature: 0.0
+      maxTokens: 2048
+    enabled: false  # Disabled by default
+
+  # Anthropic models
+  - provider: anthropic
+    modelId: claude-3-opus-20240229
+    config:
+      temperature: 0.0
+      maxTokens: 2048
+    enabled: true
+
+  - provider: anthropic
+    modelId: claude-3-sonnet-20240229
+    config:
+      temperature: 0.0
+      maxTokens: 2048
+    enabled: false
+
+  - provider: anthropic
+    modelId: claude-3-haiku-20240307
+    config:
+      temperature: 0.0
+      maxTokens: 2048
+    enabled: false
+
+# Runner configuration
+runner:
+  # Execution settings
+  parallel: true
+  concurrency: 5  # Max parallel test cases
+  timeout: 30000  # Timeout per test case (ms)
+  retries: 2      # Retry failed tests
+
+  # Rate limiting
+  rateLimit:
+    enabled: true
+    requestsPerMinute: 60
+    requestsPerHour: 3000
+
+  # Caching (using Vercel AI Gateway)
+  cache:
+    enabled: true
+    ttl: 86400  # Cache TTL in seconds (24 hours)
+
+# Scorer configuration
+scorer:
+  # Default scorer strategy
+  defaultStrategy: exact  # exact | semantic | llm-judge | custom
+
+  # Exact match scorer config
+  exactMatch:
+    deepCompare: true
+    ignoreFields: []
+
+  # Semantic similarity scorer config
+  semanticSimilarity:
+    threshold: 0.85  # Minimum similarity score
+    model: text-embedding-3-large
+    dimensions: 1536
+
+  # LLM-as-judge scorer config
+  llmJudge:
+    model: gpt-4-turbo
+    rubric:
+      accuracy: 0.4    # Weight for accuracy
+      helpfulness: 0.3 # Weight for helpfulness
+      tone: 0.2        # Weight for tone
+      completeness: 0.1 # Weight for completeness
+    threshold: 0.7    # Minimum passing score
+
+  # Custom scorers by dataset
+  customScorers:
+    risk-prediction:
+      strategy: precision-recall
+      config:
+        threshold: 0.5
+    rag:
+      strategy: recall-at-k
+      config:
+        k: 5
+
+# Baseline comparison configuration
+baseline:
+  enabled: true
+  baselineId: null  # Set to specific run ID or null for latest production baseline
+
+  # Regression detection thresholds
+  regressions:
+    # Accuracy thresholds
+    accuracy:
+      critical: -0.05   # -5% or more is critical
+      major: -0.03      # -3% to -5% is major
+      minor: -0.01      # -1% to -3% is minor
+
+    # Latency thresholds (ms increase)
+    latency:
+      critical: 2000    # +2s or more
+      major: 1000       # +1s to +2s
+      minor: 500        # +500ms to +1s
+
+    # Cost thresholds (dollar increase)
+    cost:
+      critical: 0.10    # +$0.10 or more per run
+      major: 0.05       # +$0.05 to +$0.10
+      minor: 0.02       # +$0.02 to +$0.05
+
+# Safety and compliance configuration
+safety:
+  # PII detection
+  piiDetection:
+    enabled: true
+    strictMode: true  # Zero tolerance for PII leakage
+    patterns:
+      - ssn
+      - email
+      - phone
+      - address
+      - studentId
+
+  # FERPA compliance checks
+  ferpaCompliance:
+    enabled: true
+    checkDatasets: true  # Verify no real student data in tests
+    auditLog: true       # Log all dataset access
+
+  # Adversarial testing
+  adversarialTesting:
+    enabled: true
+    includeDatasets:
+      - prompt-injection
+      - data-exfiltration
+      - jailbreak
+
+# Output configuration
+output:
+  # Output format
+  format: json  # json | table | markdown | html | csv
+
+  # Output file path (null = stdout)
+  outputFile: null
+
+  # Verbosity
+  verbose: false
+  debug: false
+
+  # Include detailed results
+  includeDetails: true
+  includeFailuresOnly: false
+
+  # Report generation
+  generateReport: true
+  reportFormat: markdown  # markdown | html | pdf
+
+# Database configuration
+database:
+  # Persist results to database
+  persistResults: true
+
+  # Auto-set baseline after successful runs
+  autoBaseline:
+    enabled: false
+    conditions:
+      minAccuracy: 0.95
+      maxRegressions: 0
+      environment: production
+
+# Notifications configuration
+notifications:
+  enabled: false  # Disabled in CI (uses PR comments instead)
+
+  # Slack notifications
+  slack:
+    enabled: false
+    webhookUrl: null
+    channels:
+      success: "#ai-engineering"
+      failure: "#ai-alerts"
+      regressions: "#ai-alerts"
+
+  # Email notifications
+  email:
+    enabled: false
+    recipients: []
+
+  # Webhook notifications
+  webhook:
+    enabled: false
+    url: null
+    headers: {}
+
+# Cost tracking
+costTracking:
+  enabled: true
+
+  # Budget limits
+  budget:
+    perRun: 1.00      # Max $1.00 per run
+    perDay: 10.00     # Max $10.00 per day
+    perMonth: 200.00  # Max $200.00 per month
+
+  # Alert thresholds
+  alerts:
+    enabled: true
+    thresholds:
+      - 0.50  # Alert at 50% of budget
+      - 0.75  # Alert at 75% of budget
+      - 0.90  # Alert at 90% of budget
+
+# Performance optimization
+performance:
+  # Connection pooling
+  database:
+    poolSize: 10
+    poolMin: 2
+    poolMax: 20
+
+  # Memory limits
+  memory:
+    maxHeap: 4096  # MB
+    maxWorkers: 4
+
+  # Streaming
+  streaming:
+    enabled: true
+    chunkSize: 100  # Process results in chunks
+
+# Monitoring and observability
+monitoring:
+  # Vercel Analytics
+  analytics:
+    enabled: true
+    trackEvents: true
+
+  # Langfuse integration (if using)
+  langfuse:
+    enabled: false
+    publicKey: null
+    secretKey: null
+    host: null
+
+  # Custom metrics
+  customMetrics:
+    enabled: true
+    includeLatency: true
+    includeCost: true
+    includeAccuracy: true
+
+# Feature flags
+features:
+  # Experimental features
+  experimental:
+    parallelScoring: true
+    dynamicThresholds: false
+    autoDatasetGeneration: false
+
+  # Beta features
+  beta:
+    multimodalEvals: false
+    realtimeEvals: false
+
+# CI/CD specific configuration
+ci:
+  # Fail on regressions
+  failOnRegression:
+    critical: true   # Always fail on critical regressions
+    major: false     # Don't fail on major (allow override)
+    minor: false     # Don't fail on minor
+
+  # Timeout configuration
+  timeout:
+    perTest: 30000   # 30 seconds per test
+    perSuite: 600000 # 10 minutes per suite
+    total: 1800000   # 30 minutes total
+
+  # Artifact configuration
+  artifacts:
+    uploadResults: true
+    uploadReports: true
+    retention: 30  # days
+
+# Metadata
+metadata:
+  # Tags for filtering and organization
+  tags:
+    - production
+    - nightly
+    - regression-testing
+
+  # Custom metadata
+  custom:
+    team: ai-engineering
+    owner: tech-lead@example.com
+    project: athletic-academics-hub

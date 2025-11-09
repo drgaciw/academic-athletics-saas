@@ -1,0 +1,36 @@
+{
+  "name": "athletic-academics-hub",
+  "version": "2.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:main": "turbo run dev --filter=main",
+    "dev:student": "turbo run dev --filter=student",
+    "dev:admin": "turbo run dev --filter=admin",
+    "dev:docs": "turbo run dev --filter=docs",
+    "build": "turbo run build",
+    "build:main": "turbo run build --filter=main...",
+    "build:student": "turbo run build --filter=student...",
+    "build:admin": "turbo run build --filter=admin...",
+    "build:docs": "turbo run build --filter=docs...",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

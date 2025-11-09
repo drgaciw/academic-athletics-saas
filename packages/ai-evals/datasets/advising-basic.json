@@ -1,0 +1,504 @@
+{
+  "id": "advising-basic",
+  "name": "Academic Advising - Basic Scenarios",
+  "description": "Basic academic advising test cases covering course scheduling, prerequisites, and degree progress",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "schedule-no-conflicts-1",
+      "name": "Schedule Generation - No Conflicts",
+      "input": "Generate a schedule for MATH 101, ENG 102, HIST 201, and BIO 101 with no time conflicts",
+      "expected": {
+        "success": true,
+        "coursesScheduled": 4,
+        "conflicts": [],
+        "creditHours": 12,
+        "validSchedule": true
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["scheduling", "no-conflicts"],
+      "context": {
+        "studentId": "test-student-001",
+        "semester": "fall-2025",
+        "availableSections": {
+          "MATH101": [
+            { "section": "001", "days": "MWF", "time": "09:00-09:50" },
+            { "section": "002", "days": "TR", "time": "10:30-11:45" }
+          ],
+          "ENG102": [
+            { "section": "001", "days": "MWF", "time": "11:00-11:50" },
+            { "section": "002", "days": "TR", "time": "13:00-14:15" }
+          ],
+          "HIST201": [
+            { "section": "001", "days": "MWF", "time": "14:00-14:50" }
+          ],
+          "BIO101": [
+            { "section": "001", "days": "TR", "time": "09:00-10:15" }
+          ]
+        }
+      },
+      "metadata": {
+        "source": "Scheduling scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "schedule-with-conflicts-1",
+      "name": "Schedule Generation - Time Conflicts",
+      "input": "Generate a schedule for CHEM 101 and PHYS 101 when both only have sections at the same time",
+      "expected": {
+        "success": false,
+        "coursesScheduled": 1,
+        "conflicts": [
+          {
+            "type": "time_conflict",
+            "courses": ["CHEM101", "PHYS101"],
+            "reason": "Both courses only available MWF 10:00-10:50"
+          }
+        ],
+        "suggestions": ["Take PHYS 101 in spring semester", "Check for online sections"]
+      },
+      "category": "advising",
+      "difficulty": 3,
+      "tags": ["scheduling", "conflicts", "time-conflict"],
+      "context": {
+        "studentId": "test-student-002",
+        "semester": "fall-2025",
+        "availableSections": {
+          "CHEM101": [
+            { "section": "001", "days": "MWF", "time": "10:00-10:50" }
+          ],
+          "PHYS101": [
+            { "section": "001", "days": "MWF", "time": "10:00-10:50" }
+          ]
+        }
+      },
+      "metadata": {
+        "source": "Conflict scenarios",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "prerequisite-check-pass-1",
+      "name": "Prerequisite Check - Pass",
+      "input": "Can I take MATH 201 if I completed MATH 101 with a B?",
+      "expected": {
+        "canEnroll": true,
+        "prerequisitesMet": true,
+        "requirements": [
+          { "course": "MATH101", "grade": "C", "met": true }
+        ]
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["prerequisites", "validation"],
+      "context": {
+        "studentId": "test-student-003",
+        "completedCourses": [
+          { "course": "MATH101", "grade": "B", "semester": "spring-2024" }
+        ],
+        "targetCourse": "MATH201",
+        "prerequisites": ["MATH101 with grade C or better"]
+      },
+      "metadata": {
+        "source": "Prerequisite validation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "prerequisite-check-fail-1",
+      "name": "Prerequisite Check - Fail",
+      "input": "Can I take CHEM 202 if I haven't taken CHEM 101?",
+      "expected": {
+        "canEnroll": false,
+        "prerequisitesMet": false,
+        "requirements": [
+          { "course": "CHEM101", "grade": "C", "met": false }
+        ],
+        "message": "You must complete CHEM 101 with a grade of C or better before enrolling in CHEM 202"
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["prerequisites", "validation", "failure"],
+      "context": {
+        "studentId": "test-student-004",
+        "completedCourses": [],
+        "targetCourse": "CHEM202",
+        "prerequisites": ["CHEM101 with grade C or better"]
+      },
+      "metadata": {
+        "source": "Prerequisite validation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "degree-progress-1",
+      "name": "Degree Progress - On Track",
+      "input": "Calculate degree progress for a sophomore with 30 credits completed",
+      "expected": {
+        "percentComplete": 25,
+        "creditsCompleted": 30,
+        "creditsRequired": 120,
+        "creditsRemaining": 90,
+        "onTrack": true,
+        "expectedGraduation": "spring-2027"
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["degree-progress", "tracking"],
+      "context": {
+        "studentId": "test-student-005",
+        "year": "sophomore",
+        "major": "Computer Science",
+        "startDate": "fall-2023"
+      },
+      "metadata": {
+        "source": "Degree progress tracking",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "degree-progress-2",
+      "name": "Degree Progress - Behind",
+      "input": "Calculate degree progress for a junior with 50 credits completed",
+      "expected": {
+        "percentComplete": 41.67,
+        "creditsCompleted": 50,
+        "creditsRequired": 120,
+        "creditsRemaining": 70,
+        "onTrack": false,
+        "expectedGraduation": "fall-2027",
+        "warning": "Behind expected pace, need 60 credits by end of sophomore year"
+      },
+      "category": "advising",
+      "difficulty": 3,
+      "tags": ["degree-progress", "tracking", "warning"],
+      "context": {
+        "studentId": "test-student-006",
+        "year": "junior",
+        "major": "Biology",
+        "startDate": "fall-2022"
+      },
+      "metadata": {
+        "source": "Degree progress tracking",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "athletic-conflict-1",
+      "name": "Athletic Schedule Conflict",
+      "input": "Check for conflicts between ECON 301 (TR 14:00-15:15) and basketball practice (TR 14:00-16:00)",
+      "expected": {
+        "hasConflict": true,
+        "conflictType": "athletic_schedule",
+        "conflictDetails": {
+          "course": "ECON301",
+          "courseTime": "TR 14:00-15:15",
+          "athleticActivity": "Basketball Practice",
+          "athleticTime": "TR 14:00-16:00",
+          "overlap": "75 minutes"
+        },
+        "suggestions": [
+          "Take ECON 301 section 002 (MWF 10:00-10:50)",
+          "Request practice schedule adjustment",
+          "Consider online section"
+        ]
+      },
+      "category": "advising",
+      "difficulty": 4,
+      "tags": ["scheduling", "athletic-conflict", "conflicts"],
+      "context": {
+        "studentId": "test-student-007",
+        "sport": "Basketball",
+        "athleticSchedule": [
+          { "activity": "Practice", "days": "TR", "time": "14:00-16:00" },
+          { "activity": "Practice", "days": "MWF", "time": "15:00-17:00" }
+        ]
+      },
+      "metadata": {
+        "source": "Athletic scheduling",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "credit-hour-limit-1",
+      "name": "Credit Hour Limit - Exceeded",
+      "input": "Can I enroll in 21 credit hours this semester?",
+      "expected": {
+        "canEnroll": false,
+        "creditHours": 21,
+        "limit": 18,
+        "exceeded": 3,
+        "requiresApproval": true,
+        "message": "21 credit hours exceeds the 18-hour limit. You need advisor approval for overload."
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["credit-hours", "limits", "overload"],
+      "context": {
+        "studentId": "test-student-008",
+        "currentGPA": 3.5,
+        "semester": "fall-2025"
+      },
+      "metadata": {
+        "source": "Credit hour policies",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "course-recommendation-1",
+      "name": "Course Recommendation - Major Requirements",
+      "input": "What courses should I take next semester to stay on track for my Computer Science degree?",
+      "expected": {
+        "recommendations": [
+          {
+            "course": "CS201",
+            "reason": "Required core course for major",
+            "priority": "high"
+          },
+          {
+            "course": "MATH210",
+            "reason": "Required math prerequisite for upper-level CS courses",
+            "priority": "high"
+          },
+          {
+            "course": "ENG201",
+            "reason": "General education requirement",
+            "priority": "medium"
+          }
+        ],
+        "totalCredits": 12,
+        "meetsRequirements": true
+      },
+      "category": "advising",
+      "difficulty": 4,
+      "tags": ["recommendations", "major-requirements", "planning"],
+      "context": {
+        "studentId": "test-student-009",
+        "major": "Computer Science",
+        "year": "sophomore",
+        "completedCourses": ["CS101", "MATH101", "ENG101", "HIST101"],
+        "remainingRequirements": {
+          "major": ["CS201", "CS202", "CS301", "CS302"],
+          "math": ["MATH210", "MATH220"],
+          "genEd": ["ENG201", "SCI101"]
+        }
+      },
+      "metadata": {
+        "source": "Course planning",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "corequisite-check-1",
+      "name": "Corequisite Check - Pass",
+      "input": "Can I take CHEM 101 and CHEM 101L (lab) together?",
+      "expected": {
+        "canEnroll": true,
+        "corequisitesMet": true,
+        "requirements": [
+          {
+            "course": "CHEM101L",
+            "corequisite": "CHEM101",
+            "enrolled": true
+          }
+        ]
+      },
+      "category": "advising",
+      "difficulty": 2,
+      "tags": ["corequisites", "validation", "lab"],
+      "context": {
+        "studentId": "test-student-010",
+        "enrolledCourses": ["CHEM101", "CHEM101L"]
+      },
+      "metadata": {
+        "source": "Corequisite validation",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "section-capacity-1",
+      "name": "Section Capacity - Full",
+      "input": "Can I enroll in PSYC 101 section 001?",
+      "expected": {
+        "canEnroll": false,
+        "reason": "section_full",
+        "capacity": 30,
+        "enrolled": 30,
+        "waitlistAvailable": true,
+        "alternatives": [
+          {
+            "section": "002",
+            "days": "TR",
+            "time": "11:00-12:15",
+            "seatsAvailable": 5
+          }
+        ]
+      },
+      "category": "advising",
+      "difficulty": 3,
+      "tags": ["enrollment", "capacity", "waitlist"],
+      "context": {
+        "studentId": "test-student-011",
+        "targetSection": {
+          "course": "PSYC101",
+          "section": "001",
+          "capacity": 30,
+          "enrolled": 30
+        }
+      },
+      "metadata": {
+        "source": "Enrollment management",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "graduation-requirements-1",
+      "name": "Graduation Requirements Check",
+      "input": "What do I still need to complete to graduate?",
+      "expected": {
+        "canGraduate": false,
+        "remainingRequirements": {
+          "majorCourses": ["CS401", "CS402"],
+          "genEd": ["ART101"],
+          "electives": 6,
+          "totalCredits": 15
+        },
+        "estimatedCompletion": "spring-2026"
+      },
+      "category": "advising",
+      "difficulty": 4,
+      "tags": ["graduation", "requirements", "degree-audit"],
+      "context": {
+        "studentId": "test-student-012",
+        "major": "Computer Science",
+        "year": "senior",
+        "creditsCompleted": 105,
+        "creditsRequired": 120
+      },
+      "metadata": {
+        "source": "Degree audit",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "schedule-optimization-1",
+      "name": "Schedule Optimization - Minimize Gaps",
+      "input": "Create a schedule with minimal time gaps between classes",
+      "expected": {
+        "success": true,
+        "schedule": [
+          { "course": "MATH201", "days": "MWF", "time": "09:00-09:50" },
+          { "course": "CS201", "days": "MWF", "time": "10:00-10:50" },
+          { "course": "ENG201", "days": "MWF", "time": "11:00-11:50" },
+          { "course": "PHYS101", "days": "TR", "time": "09:00-10:15" }
+        ],
+        "maxGap": 10,
+        "totalGapTime": 20,
+        "optimized": true
+      },
+      "category": "advising",
+      "difficulty": 4,
+      "tags": ["scheduling", "optimization", "preferences"],
+      "context": {
+        "studentId": "test-student-013",
+        "preferences": {
+          "minimizeGaps": true,
+          "avoidEarlyMorning": false,
+          "avoidLateEvening": true
+        }
+      },
+      "metadata": {
+        "source": "Schedule optimization",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "double-major-planning-1",
+      "name": "Double Major Planning",
+      "input": "Plan a schedule for a student pursuing double major in CS and Math",
+      "expected": {
+        "feasible": true,
+        "totalCredits": 150,
+        "estimatedCompletion": "spring-2027",
+        "overlappingCourses": ["MATH210", "MATH220", "STAT301"],
+        "additionalSemesters": 1,
+        "recommendations": [
+          "Take overlapping courses to reduce total credits",
+          "Consider summer sessions",
+          "Plan for 15-16 credits per semester"
+        ]
+      },
+      "category": "advising",
+      "difficulty": 5,
+      "tags": ["double-major", "planning", "complex"],
+      "context": {
+        "studentId": "test-student-014",
+        "majors": ["Computer Science", "Mathematics"],
+        "year": "sophomore",
+        "creditsCompleted": 30
+      },
+      "metadata": {
+        "source": "Complex degree planning",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "study-abroad-planning-1",
+      "name": "Study Abroad Course Planning",
+      "input": "Which courses can I take abroad that will count toward my degree?",
+      "expected": {
+        "eligibleCourses": [
+          {
+            "course": "International Business",
+            "equivalentTo": "BUS301",
+            "credits": 3,
+            "requirement": "major_elective"
+          },
+          {
+            "course": "Spanish Literature",
+            "equivalentTo": "SPAN301",
+            "credits": 3,
+            "requirement": "general_education"
+          }
+        ],
+        "totalCredits": 6,
+        "approvalRequired": true
+      },
+      "category": "advising",
+      "difficulty": 4,
+      "tags": ["study-abroad", "transfer-credits", "planning"],
+      "context": {
+        "studentId": "test-student-015",
+        "major": "Business",
+        "studyAbroadProgram": "Spain - Fall 2025"
+      },
+      "metadata": {
+        "source": "Study abroad planning",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    }
+  ],
+  "metadata": {
+    "createdAt": "2025-11-08T00:00:00Z",
+    "updatedAt": "2025-11-08T00:00:00Z",
+    "author": "AI Team",
+    "tags": ["advising", "scheduling", "prerequisites", "degree-progress", "planning"]
+  }
+}

@@ -1,0 +1,277 @@
+# CODEOWNERS - Define code ownership and required reviewers
+#
+# Each line is a file pattern followed by one or more owners.
+# Order is important; the last matching pattern takes precedence.
+#
+# Syntax:
+#   pattern @owner
+#   pattern @org/team
+#   pattern user@example.com
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ==============================================================================
+# DEFAULT OWNERS
+# ==============================================================================
+
+# Default reviewers for all files
+* @your-org/engineering
+
+# ==============================================================================
+# CORE INFRASTRUCTURE
+# ==============================================================================
+
+# GitHub workflows and CI/CD configuration
+/.github/workflows/ @your-org/devops @your-org/tech-leads
+/.github/actions/ @your-org/devops
+.github/dependabot.yml @your-org/devops
+
+# Monorepo configuration
+/package.json @your-org/tech-leads
+/pnpm-workspace.yaml @your-org/tech-leads
+/turbo.json @your-org/tech-leads
+
+# Environment and deployment configuration
+/.env.example @your-org/devops @your-org/tech-leads
+/vercel.json @your-org/devops
+/DEPLOYMENT.md @your-org/devops
+
+# ==============================================================================
+# AI SYSTEM & EVALUATIONS
+# ==============================================================================
+
+# AI evaluation framework - requires AI team and tech lead approval
+/packages/ai-evals/** @your-org/ai-team @your-org/tech-leads
+
+# AI evaluation datasets - critical for quality assurance
+/packages/ai-evals/datasets/** @your-org/ai-team @your-org/data-science
+
+# AI evaluation workflow - requires devops and AI team
+/.github/workflows/ai-evals.yml @your-org/devops @your-org/ai-team @your-org/tech-leads
+
+# AI core package - foundational AI utilities
+/packages/ai/** @your-org/ai-team @your-org/tech-leads
+
+# AI agents - specialized AI implementations
+/packages/ai/agents/** @your-org/ai-team
+
+# AI safety and compliance
+/packages/ai/lib/safety.ts @your-org/ai-team @your-org/security
+/packages/ai-evals/src/safety/** @your-org/ai-team @your-org/security
+
+# AI service - microservice implementation
+/services/ai/** @your-org/ai-team
+
+# AI prompt templates - critical for model behavior
+/packages/ai/lib/prompt-templates.ts @your-org/ai-team
+/services/ai/src/prompts/ @your-org/ai-team
+
+# ==============================================================================
+# REGRESSION OVERRIDE APPROVALS
+# ==============================================================================
+
+# Special ownership pattern for regression overrides
+# When a PR has 'regression-override' label, these owners must approve
+# This is enforced through branch protection rules
+
+# All AI-related code requiring override approval
+/packages/ai/** @your-org/regression-approvers @your-org/tech-leads
+/services/ai/** @your-org/regression-approvers @your-org/tech-leads
+/packages/ai-evals/** @your-org/regression-approvers @your-org/tech-leads
+
+# ==============================================================================
+# COMPLIANCE & NCAA
+# ==============================================================================
+
+# NCAA compliance service - requires compliance specialist review
+/services/compliance/** @your-org/compliance-team @your-org/ai-team
+
+# Compliance rules and configurations
+/services/compliance/src/services/ruleConfig.ts @your-org/compliance-team
+/services/compliance/src/services/ruleEngine.ts @your-org/compliance-team @your-org/ai-team
+
+# Eligibility checking logic
+/services/compliance/src/services/initialEligibility.ts @your-org/compliance-team
+/services/compliance/src/services/continuingEligibility.ts @your-org/compliance-team
+
+# ==============================================================================
+# STUDENT SERVICES
+# ==============================================================================
+
+# Advising service - academic advising algorithms
+/services/advising/** @your-org/advising-team @your-org/ai-team
+
+# CSP solver - critical scheduling algorithm
+/services/advising/src/algorithms/cspSolver.ts @your-org/advising-team @your-org/tech-leads
+
+# Support services - tutoring, study halls, workshops
+/services/support/** @your-org/support-team
+
+# Monitoring service - student tracking and interventions
+/services/monitoring/** @your-org/monitoring-team @your-org/ai-team
+
+# ==============================================================================
+# USER MANAGEMENT & AUTHENTICATION
+# ==============================================================================
+
+# User service - profile and RBAC management
+/services/user/** @your-org/backend-team
+
+# Authentication package - security critical
+/packages/auth/** @your-org/security @your-org/backend-team
+
+# RBAC implementation - role-based access control
+/packages/auth/middleware/rbac.ts @your-org/security
+/services/user/src/services/rbacService.ts @your-org/security
+
+# ==============================================================================
+# DATABASE & DATA
+# ==============================================================================
+
+# Database package - schema and migrations
+/packages/database/** @your-org/database-team @your-org/backend-team
+
+# Prisma schema - requires careful review
+/packages/database/prisma/schema.prisma @your-org/database-team @your-org/tech-leads
+
+# Database migrations - production impact
+/packages/database/prisma/migrations/ @your-org/database-team @your-org/tech-leads
+
+# ==============================================================================
+# FRONTEND APPLICATIONS
+# ==============================================================================
+
+# Main application - API gateway and routes
+/apps/main/** @your-org/frontend-team @your-org/backend-team
+
+# API routes - backend integration
+/apps/main/app/api/** @your-org/backend-team
+
+# Student portal
+/apps/student/** @your-org/frontend-team
+
+# UI components package
+/packages/ui/** @your-org/frontend-team @your-org/design-team
+
+# ==============================================================================
+# SECURITY & COMPLIANCE
+# ==============================================================================
+
+# Security-related files require security team approval
+**/*security*.ts @your-org/security
+**/*auth*.ts @your-org/security
+**/*rbac*.ts @your-org/security
+
+# Environment variable examples - may contain sensitive patterns
+**/.env.example @your-org/security @your-org/devops
+
+# Middleware - authentication and authorization
+/apps/*/middleware.ts @your-org/security @your-org/backend-team
+/packages/*/middleware/ @your-org/security
+
+# ==============================================================================
+# INTEGRATIONS
+# ==============================================================================
+
+# Integration service - external system connections
+/services/integration/** @your-org/integrations-team
+
+# LMS integration - Canvas, Blackboard, etc.
+/services/integration/src/services/lmsConnector.ts @your-org/integrations-team @your-org/backend-team
+
+# SIS integration - student information system
+/services/integration/src/services/sisConnector.ts @your-org/integrations-team @your-org/backend-team
+
+# Email service - communication templates
+/services/integration/src/services/emailService.ts @your-org/integrations-team @your-org/communications
+
+# ==============================================================================
+# DOCUMENTATION
+# ==============================================================================
+
+# Architecture documentation
+/docs/tech-spec.md @your-org/tech-leads
+/docs/prd.md @your-org/product-team @your-org/tech-leads
+
+# API documentation
+**/API.md @your-org/backend-team
+**/README.md @your-org/engineering
+
+# Implementation guides
+**/*IMPLEMENTATION*.md @your-org/tech-leads
+
+# Kiro specs and steering documents
+/.kiro/specs/** @your-org/tech-leads @your-org/product-team
+/.kiro/steering/** @your-org/tech-leads @your-org/product-team
+
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+# TypeScript configuration
+/tsconfig.json @your-org/tech-leads
+/packages/config/tsconfig/** @your-org/tech-leads
+
+# ESLint configuration
+/packages/config/eslint/** @your-org/tech-leads
+
+# Tailwind configuration
+/packages/config/tailwind/** @your-org/frontend-team
+
+# ==============================================================================
+# SPECIAL CASES
+# ==============================================================================
+
+# Package.json files - dependency management
+**/package.json @your-org/tech-leads
+
+# License and legal
+/LICENSE @your-org/legal
+/CODE_OF_CONDUCT.md @your-org/legal
+
+# Security policy
+/SECURITY.md @your-org/security
+
+# Contributing guidelines
+/CONTRIBUTING.md @your-org/tech-leads
+
+# ==============================================================================
+# TEAM DEFINITIONS (for reference)
+# ==============================================================================
+#
+# Create these teams in your GitHub organization:
+#
+# @your-org/engineering - All engineers (default reviewers)
+# @your-org/tech-leads - Technical leadership team
+# @your-org/devops - DevOps and infrastructure team
+# @your-org/ai-team - AI/ML engineering team
+# @your-org/regression-approvers - Authorized to approve regression overrides
+#   Members: Senior engineers, tech leads, AI specialists
+#   Responsibility: Review and approve intentional AI regressions
+# @your-org/compliance-team - NCAA compliance specialists
+# @your-org/advising-team - Academic advising team
+# @your-org/support-team - Student support services team
+# @your-org/monitoring-team - Student monitoring and analytics team
+# @your-org/security - Security team
+# @your-org/database-team - Database administrators
+# @your-org/frontend-team - Frontend engineers
+# @your-org/backend-team - Backend engineers
+# @your-org/integrations-team - Integration specialists
+# @your-org/data-science - Data science team
+# @your-org/design-team - Design team
+# @your-org/product-team - Product management
+# @your-org/communications - Communications team
+# @your-org/legal - Legal team
+#
+# ==============================================================================
+# SETUP INSTRUCTIONS
+# ==============================================================================
+#
+# 1. Copy this file to .github/CODEOWNERS (remove .example extension)
+# 2. Replace @your-org with your actual GitHub organization name
+# 3. Create teams in GitHub organization (Settings → Teams)
+# 4. Add team members with appropriate permissions
+# 5. Enable "Require review from Code Owners" in branch protection rules
+# 6. Test by creating a PR that modifies files owned by different teams
+#
+# ==============================================================================

@@ -1,0 +1,29 @@
+{
+  "name": "@aah/auth",
+  "version": "2.0.0",
+  "description": "Shared authentication and authorization package for AAH microservices",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./middleware/auth": "./middleware/auth.ts",
+    "./middleware/rbac": "./middleware/rbac.ts",
+    "./middleware/nextjs": "./middleware/nextjs.ts",
+    "./types": "./types/index.ts",
+    "./utils": "./utils/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clerk/backend": "^1.0.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "hono": "^4.0.0"
+  }
+}

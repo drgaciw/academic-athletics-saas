@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "name": "Full Stack Orchestration",
+  "description": "Monitors documentation and configuration files to orchestrate coordinated updates across the full stack (frontend, backend, database, AI services) ensuring consistency across the monorepo architecture",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "docs/prd.md",
+      "docs/tech-spec.md",
+      "turbo.json",
+      ".env",
+      "prisma/schema.prisma",
+      "apps/*/package.json",
+      "services/*/package.json",
+      "packages/*/package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the changes to documentation or configuration files and orchestrate necessary updates across the full stack. Analyze the impact on:\n\n1. **Frontend (apps/web)**: UI components, pages, state management, API clients\n2. **Backend Services**: Microservices in /services (user, advising, compliance, monitoring, support, integration, ai)\n3. **Database**: Prisma schema updates, migrations, model changes\n4. **Shared Packages**: UI components, auth, AI utilities, config\n5. **Infrastructure**: Vercel configuration, environment variables, build pipeline\n\nFor each affected area:\n- Identify required code changes to maintain consistency\n- Suggest new files or modifications needed\n- Ensure type safety across the monorepo\n- Maintain NCAA compliance and FERPA requirements\n- Update tests and documentation as needed\n\nProvide a coordinated implementation plan that respects the Turborepo structure and ensures all services remain in sync."
+  }
+}

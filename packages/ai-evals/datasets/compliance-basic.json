@@ -1,0 +1,635 @@
+{
+  "id": "compliance-basic",
+  "name": "NCAA Compliance - Basic Eligibility",
+  "description": "Basic NCAA Division I eligibility checks covering initial and continuing eligibility requirements",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "initial-eligibility-pass-1",
+      "name": "Initial Eligibility - High GPA Pass",
+      "input": "Check initial eligibility for a student with 3.5 GPA, 16 core courses completed, and SAT score of 1200",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "INITIAL",
+        "requirements": {
+          "gpa": { "met": true, "value": 3.5, "required": 2.3 },
+          "coreCourses": { "met": true, "value": 16, "required": 16 },
+          "testScore": { "met": true, "value": 1200, "required": 1010 }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 2,
+      "tags": ["initial-eligibility", "gpa", "core-courses", "test-scores"],
+      "context": {
+        "studentId": "test-student-001",
+        "academicYear": "2024-2025",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.3",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "initial-eligibility-fail-gpa",
+      "name": "Initial Eligibility - Low GPA Fail",
+      "input": "Check initial eligibility for a student with 2.0 GPA, 16 core courses, and SAT score of 1100",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "INITIAL",
+        "requirements": {
+          "gpa": { "met": false, "value": 2.0, "required": 2.3 },
+          "coreCourses": { "met": true, "value": 16, "required": 16 },
+          "testScore": { "met": true, "value": 1100, "required": 1010 }
+        },
+        "violations": ["GPA below 2.3 minimum for initial eligibility"]
+      },
+      "category": "compliance",
+      "difficulty": 2,
+      "tags": ["initial-eligibility", "gpa", "violation"],
+      "context": {
+        "studentId": "test-student-002",
+        "academicYear": "2024-2025",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.3",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "initial-eligibility-fail-core-courses",
+      "name": "Initial Eligibility - Insufficient Core Courses",
+      "input": "Check initial eligibility for a student with 3.2 GPA, 14 core courses, and SAT score of 1150",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "INITIAL",
+        "requirements": {
+          "gpa": { "met": true, "value": 3.2, "required": 2.3 },
+          "coreCourses": { "met": false, "value": 14, "required": 16 },
+          "testScore": { "met": true, "value": 1150, "required": 1010 }
+        },
+        "violations": ["Only 14 of 16 required core courses completed"]
+      },
+      "category": "compliance",
+      "difficulty": 2,
+      "tags": ["initial-eligibility", "core-courses", "violation"],
+      "context": {
+        "studentId": "test-student-003",
+        "academicYear": "2024-2025",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.3",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "continuing-eligibility-pass-1",
+      "name": "Continuing Eligibility - Sophomore Pass",
+      "input": "Check continuing eligibility for a sophomore with 2.5 cumulative GPA, 24 credits earned, and 40% degree completion",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "gpa": { "met": true, "value": 2.5, "required": 1.8 },
+          "credits": { "met": true, "value": 24, "required": 24 },
+          "degreeProgress": { "met": true, "value": 40, "required": 40 }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "gpa", "credits", "degree-progress"],
+      "context": {
+        "studentId": "test-student-004",
+        "academicYear": "2024-2025",
+        "year": "sophomore",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "continuing-eligibility-fail-gpa",
+      "name": "Continuing Eligibility - Low GPA Fail",
+      "input": "Check continuing eligibility for a junior with 1.7 cumulative GPA, 48 credits earned, and 60% degree completion",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "gpa": { "met": false, "value": 1.7, "required": 1.8 },
+          "credits": { "met": true, "value": 48, "required": 48 },
+          "degreeProgress": { "met": true, "value": 60, "required": 60 }
+        },
+        "violations": ["Cumulative GPA of 1.7 is below 1.8 minimum"]
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "gpa", "violation"],
+      "context": {
+        "studentId": "test-student-005",
+        "academicYear": "2024-2025",
+        "year": "junior",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "continuing-eligibility-fail-credits",
+      "name": "Continuing Eligibility - Insufficient Credits",
+      "input": "Check continuing eligibility for a senior with 2.8 GPA, 60 credits earned, and 75% degree completion",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "gpa": { "met": true, "value": 2.8, "required": 1.8 },
+          "credits": { "met": false, "value": 60, "required": 72 },
+          "degreeProgress": { "met": false, "value": 75, "required": 80 }
+        },
+        "violations": [
+          "Only 60 of 72 required credits earned",
+          "Only 75% of degree completed, need 80%"
+        ]
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "credits", "degree-progress", "violation"],
+      "context": {
+        "studentId": "test-student-006",
+        "academicYear": "2024-2025",
+        "year": "senior",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "10-7-rule-pass",
+      "name": "10/7 Rule - Pass",
+      "input": "Check 10/7 rule compliance for a student with 10 core courses before junior year and 7 in English/Math/Science",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "INITIAL",
+        "requirements": {
+          "tenSevenRule": {
+            "met": true,
+            "tenCourses": { "met": true, "value": 10, "required": 10 },
+            "sevenCourses": { "met": true, "value": 7, "required": 7 }
+          }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 4,
+      "tags": ["initial-eligibility", "10-7-rule", "core-courses"],
+      "context": {
+        "studentId": "test-student-007",
+        "academicYear": "2024-2025",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.3.1.1",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "10-7-rule-fail",
+      "name": "10/7 Rule - Fail",
+      "input": "Check 10/7 rule compliance for a student with 9 core courses before junior year and 6 in English/Math/Science",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "INITIAL",
+        "requirements": {
+          "tenSevenRule": {
+            "met": false,
+            "tenCourses": { "met": false, "value": 9, "required": 10 },
+            "sevenCourses": { "met": false, "value": 6, "required": 7 }
+          }
+        },
+        "violations": [
+          "Only 9 of 10 required core courses before junior year",
+          "Only 6 of 7 required courses in English/Math/Science"
+        ]
+      },
+      "category": "compliance",
+      "difficulty": 4,
+      "tags": ["initial-eligibility", "10-7-rule", "violation"],
+      "context": {
+        "studentId": "test-student-008",
+        "academicYear": "2024-2025",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.3.1.1",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "full-time-enrollment-pass",
+      "name": "Full-Time Enrollment - Pass",
+      "input": "Check full-time enrollment for a student enrolled in 12 credit hours this semester",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "fullTimeEnrollment": { "met": true, "value": 12, "required": 12 }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 2,
+      "tags": ["continuing-eligibility", "enrollment", "credits"],
+      "context": {
+        "studentId": "test-student-009",
+        "academicYear": "2024-2025",
+        "semester": "fall",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.1.8",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "full-time-enrollment-fail",
+      "name": "Full-Time Enrollment - Fail",
+      "input": "Check full-time enrollment for a student enrolled in 9 credit hours this semester",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "fullTimeEnrollment": { "met": false, "value": 9, "required": 12 }
+        },
+        "violations": ["Only 9 of 12 required credit hours for full-time enrollment"]
+      },
+      "category": "compliance",
+      "difficulty": 2,
+      "tags": ["continuing-eligibility", "enrollment", "violation"],
+      "context": {
+        "studentId": "test-student-010",
+        "academicYear": "2024-2025",
+        "semester": "fall",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.1.8",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "progress-toward-degree-pass",
+      "name": "Progress Toward Degree - Junior Pass",
+      "input": "Check progress toward degree for a junior with 60% degree completion and declared major",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "degreeProgress": { "met": true, "value": 60, "required": 60 },
+          "declaredMajor": { "met": true, "value": true, "required": true }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "degree-progress", "major"],
+      "context": {
+        "studentId": "test-student-011",
+        "academicYear": "2024-2025",
+        "year": "junior",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4.3",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "progress-toward-degree-fail",
+      "name": "Progress Toward Degree - Senior Fail",
+      "input": "Check progress toward degree for a senior with 75% degree completion",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "degreeProgress": { "met": false, "value": 75, "required": 80 }
+        },
+        "violations": ["Only 75% of degree completed, need 80% for senior year"]
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "degree-progress", "violation"],
+      "context": {
+        "studentId": "test-student-012",
+        "academicYear": "2024-2025",
+        "year": "senior",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4.3",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "transfer-student-pass",
+      "name": "Transfer Student - Pass",
+      "input": "Check eligibility for a transfer student with 2.5 GPA, 30 transferable credits, and good academic standing",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "TRANSFER",
+        "requirements": {
+          "gpa": { "met": true, "value": 2.5, "required": 2.0 },
+          "transferCredits": { "met": true, "value": 30, "required": 24 },
+          "academicStanding": { "met": true, "value": "good", "required": "good" }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 4,
+      "tags": ["transfer", "gpa", "credits", "academic-standing"],
+      "context": {
+        "studentId": "test-student-013",
+        "academicYear": "2024-2025",
+        "transferFrom": "Community College",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.5",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "transfer-student-fail",
+      "name": "Transfer Student - Fail",
+      "input": "Check eligibility for a transfer student with 1.9 GPA, 20 transferable credits, and academic probation",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "TRANSFER",
+        "requirements": {
+          "gpa": { "met": false, "value": 1.9, "required": 2.0 },
+          "transferCredits": { "met": false, "value": 20, "required": 24 },
+          "academicStanding": { "met": false, "value": "probation", "required": "good" }
+        },
+        "violations": [
+          "GPA of 1.9 is below 2.0 minimum for transfers",
+          "Only 20 of 24 required transferable credits",
+          "Not in good academic standing (on probation)"
+        ]
+      },
+      "category": "compliance",
+      "difficulty": 4,
+      "tags": ["transfer", "gpa", "credits", "violation"],
+      "context": {
+        "studentId": "test-student-014",
+        "academicYear": "2024-2025",
+        "transferFrom": "Community College",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.5",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "five-year-rule-pass",
+      "name": "Five-Year Rule - Pass",
+      "input": "Check five-year rule for a student in their 4th year since high school graduation",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "fiveYearRule": { "met": true, "value": 4, "required": 5 }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "five-year-rule"],
+      "context": {
+        "studentId": "test-student-015",
+        "academicYear": "2024-2025",
+        "highSchoolGraduation": "2021-06-01",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.2",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "five-year-rule-fail",
+      "name": "Five-Year Rule - Fail",
+      "input": "Check five-year rule for a student in their 6th year since high school graduation",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "fiveYearRule": { "met": false, "value": 6, "required": 5 }
+        },
+        "violations": ["Exceeded five-year eligibility period (currently in year 6)"]
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["continuing-eligibility", "five-year-rule", "violation"],
+      "context": {
+        "studentId": "test-student-016",
+        "academicYear": "2024-2025",
+        "highSchoolGraduation": "2019-06-01",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.2",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "academic-misconduct-fail",
+      "name": "Academic Misconduct - Ineligible",
+      "input": "Check eligibility for a student with academic misconduct violation (plagiarism) this semester",
+      "expected": {
+        "eligible": false,
+        "status": "INELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "academicIntegrity": { "met": false, "value": "violation", "required": "good" }
+        },
+        "violations": ["Academic misconduct violation (plagiarism) - ineligible pending resolution"]
+      },
+      "category": "compliance",
+      "difficulty": 4,
+      "tags": ["continuing-eligibility", "academic-misconduct", "violation"],
+      "context": {
+        "studentId": "test-student-017",
+        "academicYear": "2024-2025",
+        "violationType": "plagiarism",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.11",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "redshirt-eligibility-pass",
+      "name": "Redshirt Eligibility - Pass",
+      "input": "Check redshirt eligibility for a freshman who has not competed in any games this season",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "REDSHIRT",
+        "requirements": {
+          "gamesPlayed": { "met": true, "value": 0, "required": 0 },
+          "seasonOfCompetition": { "met": true, "value": 0, "required": 0 }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["redshirt", "eligibility", "competition"],
+      "context": {
+        "studentId": "test-student-018",
+        "academicYear": "2024-2025",
+        "year": "freshman",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.2.4",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "medical-hardship-waiver",
+      "name": "Medical Hardship Waiver - Eligible",
+      "input": "Check medical hardship waiver eligibility for a student who competed in 3 games before season-ending injury",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "MEDICAL_HARDSHIP",
+        "requirements": {
+          "gamesPlayed": { "met": true, "value": 3, "required": 4 },
+          "injuryTiming": { "met": true, "value": "first-half", "required": "first-half" },
+          "medicalDocumentation": { "met": true, "value": true, "required": true }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 5,
+      "tags": ["medical-hardship", "waiver", "injury"],
+      "context": {
+        "studentId": "test-student-019",
+        "academicYear": "2024-2025",
+        "injuryDate": "2024-09-15",
+        "totalGamesInSeason": 12,
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.2.4.2",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "summer-enrollment-pass",
+      "name": "Summer Enrollment - Pass",
+      "input": "Check summer enrollment eligibility for a student taking 6 credits to meet degree progress requirements",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "SUMMER",
+        "requirements": {
+          "summerCredits": { "met": true, "value": 6, "required": 6 },
+          "degreeApplicable": { "met": true, "value": true, "required": true }
+        }
+      },
+      "category": "compliance",
+      "difficulty": 3,
+      "tags": ["summer", "enrollment", "credits", "degree-progress"],
+      "context": {
+        "studentId": "test-student-020",
+        "academicYear": "2024-2025",
+        "term": "summer",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Bylaw 14.4.3.5",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    },
+    {
+      "id": "complex-scenario-1",
+      "name": "Complex Scenario - Multiple Requirements",
+      "input": "Check eligibility for a junior transfer student with 2.3 GPA, 45 credits, 55% degree completion, and declared major",
+      "expected": {
+        "eligible": true,
+        "status": "ELIGIBLE",
+        "type": "CONTINUING",
+        "requirements": {
+          "gpa": { "met": true, "value": 2.3, "required": 1.8 },
+          "credits": { "met": false, "value": 45, "required": 48 },
+          "degreeProgress": { "met": false, "value": 55, "required": 60 },
+          "declaredMajor": { "met": true, "value": true, "required": true }
+        },
+        "warnings": [
+          "Credits slightly below requirement (45/48)",
+          "Degree progress slightly below requirement (55%/60%)"
+        ],
+        "notes": "Student may need to take additional courses to meet requirements by end of term"
+      },
+      "category": "compliance",
+      "difficulty": 5,
+      "tags": ["continuing-eligibility", "transfer", "complex", "warnings"],
+      "context": {
+        "studentId": "test-student-021",
+        "academicYear": "2024-2025",
+        "year": "junior",
+        "transferFrom": "State University",
+        "division": "I"
+      },
+      "metadata": {
+        "source": "NCAA Division I Manual 2024 - Multiple Bylaws",
+        "createdAt": "2025-11-08T00:00:00Z",
+        "author": "AI Team"
+      }
+    }
+  ],
+  "metadata": {
+    "createdAt": "2025-11-08T00:00:00Z",
+    "updatedAt": "2025-11-08T00:00:00Z",
+    "author": "AI Team",
+    "tags": ["compliance", "ncaa", "division-i", "eligibility", "initial", "continuing"]
+  }
+}

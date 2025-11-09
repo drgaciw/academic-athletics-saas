@@ -1,0 +1,1110 @@
+{
+  "id": "risk-prediction-historical-outcomes",
+  "name": "Risk Prediction Historical Outcomes",
+  "description": "Test cases for risk prediction model using synthetic historical data to evaluate accuracy of academic risk scoring for student-athletes",
+  "version": "1.0.0",
+  "testCases": [
+    {
+      "id": "risk-001",
+      "input": {
+        "studentId": "SA-RISK-001",
+        "sport": "Football",
+        "yearInProgram": 1,
+        "semester": "fall-2024",
+        "academicData": {
+          "currentGPA": 2.1,
+          "semesterCredits": 12,
+          "attendanceRate": 0.72,
+          "assignmentCompletionRate": 0.65,
+          "midtermAverage": 68,
+          "courseDifficulty": "medium",
+          "majorDeclared": false
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.98,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 4
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 2,
+          "studyHallHours": 8,
+          "advisorMeetings": 1,
+          "missedAppointments": 3
+        },
+        "historicalTrends": {
+          "gpaChange": -0.3,
+          "previousSemesterGPA": 2.4,
+          "highSchoolGPA": 2.8
+        }
+      },
+      "expected": {
+        "riskLevel": "high",
+        "riskScore": 0.78,
+        "predictedOutcome": "likely-to-struggle",
+        "confidence": 0.82,
+        "keyFactors": [
+          {
+            "factor": "low-gpa",
+            "importance": 0.35,
+            "direction": "negative",
+            "description": "GPA of 2.1 is close to NCAA minimum and declining"
+          },
+          {
+            "factor": "poor-attendance",
+            "importance": 0.25,
+            "direction": "negative",
+            "description": "Class attendance at 72% indicates disengagement"
+          },
+          {
+            "factor": "low-assignment-completion",
+            "importance": 0.20,
+            "direction": "negative",
+            "description": "Only 65% of assignments completed"
+          },
+          {
+            "factor": "declining-trend",
+            "importance": 0.15,
+            "direction": "negative",
+            "description": "GPA dropped 0.3 points from previous semester"
+          },
+          {
+            "factor": "missed-support",
+            "importance": 0.10,
+            "direction": "negative",
+            "description": "3 missed appointments suggests lack of engagement"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "critical",
+            "action": "immediate-intervention",
+            "description": "Schedule mandatory weekly check-ins with academic advisor"
+          },
+          {
+            "priority": "critical",
+            "action": "increase-tutoring",
+            "description": "Require minimum 4 tutoring sessions per week"
+          },
+          {
+            "priority": "high",
+            "action": "attendance-monitoring",
+            "description": "Implement daily attendance tracking and follow-up"
+          },
+          {
+            "priority": "high",
+            "action": "study-skills",
+            "description": "Enroll in study skills workshop"
+          },
+          {
+            "priority": "medium",
+            "action": "mentor-assignment",
+            "description": "Assign peer mentor for accountability"
+          }
+        ],
+        "actualOutcome": "failed-2-courses"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "high-risk-accurate",
+        "tags": ["risk-prediction", "high-risk", "freshman", "declining"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-002",
+      "input": {
+        "studentId": "SA-RISK-002",
+        "sport": "Basketball",
+        "yearInProgram": 2,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 3.4,
+          "semesterCredits": 15,
+          "attendanceRate": 0.95,
+          "assignmentCompletionRate": 0.92,
+          "midtermAverage": 87,
+          "courseDifficulty": "high",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.96,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 6
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 3,
+          "studyHallHours": 12,
+          "advisorMeetings": 2,
+          "missedAppointments": 0
+        },
+        "historicalTrends": {
+          "gpaChange": 0.1,
+          "previousSemesterGPA": 3.3,
+          "highSchoolGPA": 3.6
+        }
+      },
+      "expected": {
+        "riskLevel": "low",
+        "riskScore": 0.12,
+        "predictedOutcome": "likely-to-succeed",
+        "confidence": 0.91,
+        "keyFactors": [
+          {
+            "factor": "high-gpa",
+            "importance": 0.30,
+            "direction": "positive",
+            "description": "Strong GPA of 3.4 well above requirements"
+          },
+          {
+            "factor": "excellent-attendance",
+            "importance": 0.25,
+            "direction": "positive",
+            "description": "95% attendance shows strong engagement"
+          },
+          {
+            "factor": "high-assignment-completion",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "92% assignment completion indicates good work habits"
+          },
+          {
+            "factor": "positive-trend",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "GPA increasing from 3.3 to 3.4"
+          },
+          {
+            "factor": "support-engagement",
+            "importance": 0.10,
+            "direction": "positive",
+            "description": "Proactive use of tutoring and no missed appointments"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "low",
+            "action": "maintain-support",
+            "description": "Continue current tutoring schedule"
+          },
+          {
+            "priority": "low",
+            "action": "enrichment",
+            "description": "Consider honors courses or research opportunities"
+          }
+        ],
+        "actualOutcome": "earned-3.5-gpa"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "low-risk-accurate",
+        "tags": ["risk-prediction", "low-risk", "sophomore", "succeeding"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-003",
+      "input": {
+        "studentId": "SA-RISK-003",
+        "sport": "Track and Field",
+        "yearInProgram": 3,
+        "semester": "fall-2024",
+        "academicData": {
+          "currentGPA": 2.6,
+          "semesterCredits": 13,
+          "attendanceRate": 0.88,
+          "assignmentCompletionRate": 0.81,
+          "midtermAverage": 76,
+          "courseDifficulty": "medium",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.92,
+          "injuryStatus": "minor-injury",
+          "travelDaysPerMonth": 5
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 4,
+          "studyHallHours": 10,
+          "advisorMeetings": 2,
+          "missedAppointments": 1
+        },
+        "historicalTrends": {
+          "gpaChange": -0.2,
+          "previousSemesterGPA": 2.8,
+          "highSchoolGPA": 3.0
+        }
+      },
+      "expected": {
+        "riskLevel": "medium",
+        "riskScore": 0.48,
+        "predictedOutcome": "at-risk-but-manageable",
+        "confidence": 0.76,
+        "keyFactors": [
+          {
+            "factor": "declining-gpa",
+            "importance": 0.30,
+            "direction": "negative",
+            "description": "GPA declining from 2.8 to 2.6"
+          },
+          {
+            "factor": "moderate-performance",
+            "importance": 0.25,
+            "direction": "neutral",
+            "description": "Current performance is passing but below historical baseline"
+          },
+          {
+            "factor": "good-attendance",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "88% attendance is acceptable but could be better"
+          },
+          {
+            "factor": "support-engagement",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "Actively using tutoring services (4 sessions)"
+          },
+          {
+            "factor": "injury-impact",
+            "importance": 0.10,
+            "direction": "negative",
+            "description": "Minor injury may be affecting focus and energy"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "high",
+            "action": "increase-monitoring",
+            "description": "Weekly check-ins to track progress and prevent further decline"
+          },
+          {
+            "priority": "high",
+            "action": "identify-struggling-courses",
+            "description": "Focus tutoring on specific courses where performance is weakest"
+          },
+          {
+            "priority": "medium",
+            "action": "attendance-improvement",
+            "description": "Work with student to improve attendance from 88% to 95%+"
+          },
+          {
+            "priority": "medium",
+            "action": "injury-support",
+            "description": "Coordinate with athletic training to ensure injury doesn't impact academics"
+          }
+        ],
+        "actualOutcome": "earned-2.7-gpa"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "medium-risk-accurate",
+        "tags": ["risk-prediction", "medium-risk", "junior", "declining"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-004",
+      "input": {
+        "studentId": "SA-RISK-004",
+        "sport": "Soccer",
+        "yearInProgram": 1,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 2.9,
+          "semesterCredits": 14,
+          "attendanceRate": 0.91,
+          "assignmentCompletionRate": 0.88,
+          "midtermAverage": 80,
+          "courseDifficulty": "medium",
+          "majorDeclared": false
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.94,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 3
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 2,
+          "studyHallHours": 9,
+          "advisorMeetings": 1,
+          "missedAppointments": 0
+        },
+        "historicalTrends": {
+          "gpaChange": 0.3,
+          "previousSemesterGPA": 2.6,
+          "highSchoolGPA": 3.1
+        }
+      },
+      "expected": {
+        "riskLevel": "low-medium",
+        "riskScore": 0.28,
+        "predictedOutcome": "likely-to-succeed",
+        "confidence": 0.72,
+        "keyFactors": [
+          {
+            "factor": "positive-trend",
+            "importance": 0.35,
+            "direction": "positive",
+            "description": "GPA improved significantly from 2.6 to 2.9"
+          },
+          {
+            "factor": "good-performance",
+            "importance": 0.25,
+            "direction": "positive",
+            "description": "Solid academic performance with 2.9 GPA"
+          },
+          {
+            "factor": "strong-attendance",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "91% attendance shows engagement"
+          },
+          {
+            "factor": "adjustment-period",
+            "importance": 0.15,
+            "direction": "neutral",
+            "description": "Freshman showing improvement after initial adjustment"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "low",
+            "action": "maintain-momentum",
+            "description": "Continue current study habits and support usage"
+          },
+          {
+            "priority": "low",
+            "action": "major-declaration",
+            "description": "Work with advisor to declare major by end of year"
+          },
+          {
+            "priority": "low",
+            "action": "preventive-monitoring",
+            "description": "Monthly check-ins to ensure continued improvement"
+          }
+        ],
+        "actualOutcome": "earned-3.1-gpa"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "improving-trajectory",
+        "tags": ["risk-prediction", "low-risk", "freshman", "improving"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-005",
+      "input": {
+        "studentId": "SA-RISK-005",
+        "sport": "Swimming",
+        "yearInProgram": 4,
+        "semester": "fall-2024",
+        "academicData": {
+          "currentGPA": 3.8,
+          "semesterCredits": 12,
+          "attendanceRate": 0.97,
+          "assignmentCompletionRate": 0.96,
+          "midtermAverage": 92,
+          "courseDifficulty": "high",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.99,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 4
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 1,
+          "studyHallHours": 5,
+          "advisorMeetings": 1,
+          "missedAppointments": 0
+        },
+        "historicalTrends": {
+          "gpaChange": 0.0,
+          "previousSemesterGPA": 3.8,
+          "highSchoolGPA": 3.9
+        }
+      },
+      "expected": {
+        "riskLevel": "very-low",
+        "riskScore": 0.05,
+        "predictedOutcome": "highly-likely-to-succeed",
+        "confidence": 0.96,
+        "keyFactors": [
+          {
+            "factor": "excellent-gpa",
+            "importance": 0.30,
+            "direction": "positive",
+            "description": "Exceptional 3.8 GPA maintained consistently"
+          },
+          {
+            "factor": "outstanding-attendance",
+            "importance": 0.25,
+            "direction": "positive",
+            "description": "97% attendance demonstrates strong commitment"
+          },
+          {
+            "factor": "high-completion-rate",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "96% assignment completion shows excellent work ethic"
+          },
+          {
+            "factor": "senior-experience",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "Senior with proven track record of success"
+          },
+          {
+            "factor": "self-sufficient",
+            "importance": 0.10,
+            "direction": "positive",
+            "description": "Minimal support needed, demonstrates independence"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "low",
+            "action": "graduation-planning",
+            "description": "Focus on graduation requirements and post-graduation plans"
+          },
+          {
+            "priority": "low",
+            "action": "leadership-opportunity",
+            "description": "Consider peer mentoring role to help struggling athletes"
+          }
+        ],
+        "actualOutcome": "earned-3.9-gpa"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "very-low-risk",
+        "tags": ["risk-prediction", "very-low-risk", "senior", "excellent"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-006",
+      "input": {
+        "studentId": "SA-RISK-006",
+        "sport": "Volleyball",
+        "yearInProgram": 2,
+        "semester": "fall-2024",
+        "academicData": {
+          "currentGPA": 2.2,
+          "semesterCredits": 12,
+          "attendanceRate": 0.78,
+          "assignmentCompletionRate": 0.70,
+          "midtermAverage": 71,
+          "courseDifficulty": "high",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.91,
+          "injuryStatus": "recovering",
+          "travelDaysPerMonth": 5
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 5,
+          "studyHallHours": 15,
+          "advisorMeetings": 3,
+          "missedAppointments": 2
+        },
+        "historicalTrends": {
+          "gpaChange": -0.4,
+          "previousSemesterGPA": 2.6,
+          "highSchoolGPA": 2.9
+        }
+      },
+      "expected": {
+        "riskLevel": "high",
+        "riskScore": 0.81,
+        "predictedOutcome": "likely-to-struggle",
+        "confidence": 0.85,
+        "keyFactors": [
+          {
+            "factor": "critical-gpa",
+            "importance": 0.35,
+            "direction": "negative",
+            "description": "GPA of 2.2 dangerously close to 2.0 NCAA minimum"
+          },
+          {
+            "factor": "steep-decline",
+            "importance": 0.25,
+            "direction": "negative",
+            "description": "GPA dropped 0.4 points - rapid deterioration"
+          },
+          {
+            "factor": "poor-attendance",
+            "importance": 0.20,
+            "direction": "negative",
+            "description": "78% attendance is concerning"
+          },
+          {
+            "factor": "difficult-courses",
+            "importance": 0.15,
+            "direction": "negative",
+            "description": "Taking high-difficulty courses while struggling"
+          },
+          {
+            "factor": "injury-impact",
+            "importance": 0.10,
+            "direction": "negative",
+            "description": "Recovering from injury may be affecting academics"
+          },
+          {
+            "factor": "seeking-help",
+            "importance": 0.08,
+            "direction": "positive",
+            "description": "High tutoring usage (5 sessions, 15 study hall hours) shows effort"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "critical",
+            "action": "eligibility-intervention",
+            "description": "Emergency intervention - GPA at risk of falling below 2.0"
+          },
+          {
+            "priority": "critical",
+            "action": "course-load-reduction",
+            "description": "Consider dropping to 12 credits, focusing on GPA recovery"
+          },
+          {
+            "priority": "critical",
+            "action": "daily-check-ins",
+            "description": "Implement daily accountability check-ins"
+          },
+          {
+            "priority": "high",
+            "action": "study-skills-intensive",
+            "description": "Mandatory study skills workshop and time management training"
+          },
+          {
+            "priority": "high",
+            "action": "injury-accommodation",
+            "description": "Work with disability services for temporary accommodations if injury affecting academics"
+          }
+        ],
+        "actualOutcome": "earned-2.1-gpa"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "high-risk-accurate",
+        "tags": ["risk-prediction", "high-risk", "sophomore", "critical", "injury"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-007",
+      "input": {
+        "studentId": "SA-RISK-007",
+        "sport": "Baseball",
+        "yearInProgram": 3,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 3.1,
+          "semesterCredits": 15,
+          "attendanceRate": 0.84,
+          "assignmentCompletionRate": 0.86,
+          "midtermAverage": 82,
+          "courseDifficulty": "medium",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.88,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 8
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 2,
+          "studyHallHours": 7,
+          "advisorMeetings": 1,
+          "missedAppointments": 2
+        },
+        "historicalTrends": {
+          "gpaChange": -0.1,
+          "previousSemesterGPA": 3.2,
+          "highSchoolGPA": 3.3
+        }
+      },
+      "expected": {
+        "riskLevel": "medium",
+        "riskScore": 0.42,
+        "predictedOutcome": "moderate-risk",
+        "confidence": 0.68,
+        "keyFactors": [
+          {
+            "factor": "heavy-travel",
+            "importance": 0.30,
+            "direction": "negative",
+            "description": "8 travel days per month during baseball season impacting attendance"
+          },
+          {
+            "factor": "attendance-concern",
+            "importance": 0.25,
+            "direction": "negative",
+            "description": "84% attendance below optimal, likely due to travel"
+          },
+          {
+            "factor": "solid-gpa",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "3.1 GPA is good but showing slight decline"
+          },
+          {
+            "factor": "heavy-courseload",
+            "importance": 0.15,
+            "direction": "neutral",
+            "description": "15 credits during heavy travel season is challenging"
+          },
+          {
+            "factor": "missed-appointments",
+            "importance": 0.10,
+            "direction": "negative",
+            "description": "2 missed appointments suggests scheduling difficulties"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "high",
+            "action": "travel-coordination",
+            "description": "Work with professors early about travel schedule and makeup work"
+          },
+          {
+            "priority": "medium",
+            "action": "online-courses",
+            "description": "Consider 1-2 online courses next semester for travel flexibility"
+          },
+          {
+            "priority": "medium",
+            "action": "proactive-communication",
+            "description": "Get absence letters at season start, communicate early and often"
+          },
+          {
+            "priority": "medium",
+            "action": "time-management",
+            "description": "Work on scheduling appointments around travel calendar"
+          }
+        ],
+        "actualOutcome": "earned-3.0-gpa"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "travel-impact",
+        "tags": ["risk-prediction", "medium-risk", "junior", "travel", "baseball"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-008",
+      "input": {
+        "studentId": "SA-RISK-008",
+        "sport": "Tennis",
+        "yearInProgram": 1,
+        "semester": "fall-2024",
+        "academicData": {
+          "currentGPA": 3.6,
+          "semesterCredits": 16,
+          "attendanceRate": 0.93,
+          "assignmentCompletionRate": 0.89,
+          "midtermAverage": 88,
+          "courseDifficulty": "high",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.95,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 3
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 3,
+          "studyHallHours": 10,
+          "advisorMeetings": 2,
+          "missedAppointments": 0
+        },
+        "historicalTrends": {
+          "gpaChange": 0.0,
+          "previousSemesterGPA": null,
+          "highSchoolGPA": 3.7
+        }
+      },
+      "expected": {
+        "riskLevel": "low",
+        "riskScore": 0.15,
+        "predictedOutcome": "likely-to-succeed",
+        "confidence": 0.88,
+        "keyFactors": [
+          {
+            "factor": "strong-gpa",
+            "importance": 0.30,
+            "direction": "positive",
+            "description": "Excellent 3.6 GPA in first semester"
+          },
+          {
+            "factor": "high-achievement",
+            "importance": 0.25,
+            "direction": "positive",
+            "description": "Handling 16 credits of high-difficulty courses well"
+          },
+          {
+            "factor": "proactive-support",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "Using support services proactively despite strong performance"
+          },
+          {
+            "factor": "excellent-attendance",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "93% attendance shows strong engagement"
+          },
+          {
+            "factor": "smooth-transition",
+            "importance": 0.10,
+            "direction": "positive",
+            "description": "Successfully transitioned from high school (3.7) to college (3.6)"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "low",
+            "action": "maintain-habits",
+            "description": "Continue excellent study habits and support usage"
+          },
+          {
+            "priority": "low",
+            "action": "honors-consideration",
+            "description": "Consider honors program or advanced coursework"
+          },
+          {
+            "priority": "low",
+            "action": "preventive-monitoring",
+            "description": "Monthly check-ins to ensure continued success"
+          }
+        ],
+        "actualOutcome": "earned-3.7-gpa"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "high-achiever",
+        "tags": ["risk-prediction", "low-risk", "freshman", "high-achiever"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-009",
+      "input": {
+        "studentId": "SA-RISK-009",
+        "sport": "Lacrosse",
+        "yearInProgram": 4,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 2.5,
+          "semesterCredits": 12,
+          "attendanceRate": 0.89,
+          "assignmentCompletionRate": 0.84,
+          "midtermAverage": 77,
+          "courseDifficulty": "medium",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.93,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 6
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 3,
+          "studyHallHours": 9,
+          "advisorMeetings": 2,
+          "missedAppointments": 1
+        },
+        "historicalTrends": {
+          "gpaChange": 0.0,
+          "previousSemesterGPA": 2.5,
+          "highSchoolGPA": 2.7
+        }
+      },
+      "expected": {
+        "riskLevel": "medium",
+        "riskScore": 0.38,
+        "predictedOutcome": "graduation-on-track-but-monitored",
+        "confidence": 0.79,
+        "keyFactors": [
+          {
+            "factor": "stable-performance",
+            "importance": 0.30,
+            "direction": "positive",
+            "description": "Maintaining 2.5 GPA consistently - stable if unexceptional"
+          },
+          {
+            "factor": "senior-status",
+            "importance": 0.25,
+            "direction": "positive",
+            "description": "Senior with proven ability to maintain eligibility"
+          },
+          {
+            "factor": "graduation-focused",
+            "importance": 0.20,
+            "direction": "positive",
+            "description": "On track for graduation with 12 credits"
+          },
+          {
+            "factor": "limited-upside",
+            "importance": 0.15,
+            "direction": "neutral",
+            "description": "Consistent 2.5 GPA shows ceiling reached"
+          },
+          {
+            "factor": "using-support",
+            "importance": 0.10,
+            "direction": "positive",
+            "description": "Actively using tutoring and study halls"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "medium",
+            "action": "graduation-verification",
+            "description": "Verify all degree requirements are being met"
+          },
+          {
+            "priority": "medium",
+            "action": "maintain-support",
+            "description": "Continue current support services through graduation"
+          },
+          {
+            "priority": "low",
+            "action": "post-grad-planning",
+            "description": "Focus on career/graduate school planning for after athletics"
+          }
+        ],
+        "actualOutcome": "earned-2.6-gpa-graduated"
+      },
+      "metadata": {
+        "difficulty": "medium",
+        "category": "senior-stable",
+        "tags": ["risk-prediction", "medium-risk", "senior", "stable", "graduation"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "synthetic"
+      }
+    },
+    {
+      "id": "risk-010",
+      "input": {
+        "studentId": "SA-RISK-010",
+        "sport": "Gymnastics",
+        "yearInProgram": 2,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 2.8,
+          "semesterCredits": 14,
+          "attendanceRate": 0.90,
+          "assignmentCompletionRate": 0.87,
+          "midtermAverage": 81,
+          "courseDifficulty": "medium",
+          "majorDeclared": true
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.89,
+          "injuryStatus": "chronic-minor",
+          "travelDaysPerMonth": 4
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 2,
+          "studyHallHours": 8,
+          "advisorMeetings": 1,
+          "missedAppointments": 1
+        },
+        "historicalTrends": {
+          "gpaChange": -0.1,
+          "previousSemesterGPA": 2.9,
+          "highSchoolGPA": 3.2
+        }
+      },
+      "expected": {
+        "riskLevel": "low-medium",
+        "riskScore": 0.32,
+        "predictedOutcome": "likely-to-maintain",
+        "confidence": 0.74,
+        "keyFactors": [
+          {
+            "factor": "adequate-gpa",
+            "importance": 0.30,
+            "direction": "positive",
+            "description": "2.8 GPA is safe, above NCAA requirements"
+          },
+          {
+            "factor": "slight-decline",
+            "importance": 0.25,
+            "direction": "negative",
+            "description": "Small GPA drop from 2.9 to 2.8"
+          },
+          {
+            "factor": "chronic-injury",
+            "importance": 0.20,
+            "direction": "negative",
+            "description": "Chronic minor injury may be affecting focus"
+          },
+          {
+            "factor": "good-engagement",
+            "importance": 0.15,
+            "direction": "positive",
+            "description": "Solid attendance (90%) and assignment completion (87%)"
+          },
+          {
+            "factor": "support-usage",
+            "importance": 0.10,
+            "direction": "positive",
+            "description": "Using support services appropriately"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "medium",
+            "action": "monitor-trend",
+            "description": "Watch for continued GPA decline"
+          },
+          {
+            "priority": "medium",
+            "action": "injury-support",
+            "description": "Coordinate with athletic training on injury management impact"
+          },
+          {
+            "priority": "low",
+            "action": "preventive-tutoring",
+            "description": "Consider increasing tutoring sessions if decline continues"
+          }
+        ],
+        "actualOutcome": "earned-2.9-gpa"
+      },
+      "metadata": {
+        "difficulty": "hard",
+        "category": "false-alarm",
+        "tags": ["risk-prediction", "medium-risk", "sophomore", "injury", "improved"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    },
+    {
+      "id": "risk-011",
+      "input": {
+        "studentId": "SA-RISK-011",
+        "sport": "Wrestling",
+        "yearInProgram": 1,
+        "semester": "spring-2024",
+        "academicData": {
+          "currentGPA": 1.9,
+          "semesterCredits": 12,
+          "attendanceRate": 0.65,
+          "assignmentCompletionRate": 0.58,
+          "midtermAverage": 62,
+          "courseDifficulty": "medium",
+          "majorDeclared": false
+        },
+        "athleticData": {
+          "practiceAttendanceRate": 0.96,
+          "injuryStatus": "healthy",
+          "travelDaysPerMonth": 5
+        },
+        "supportEngagement": {
+          "tutoringSessionsAttended": 1,
+          "studyHallHours": 4,
+          "advisorMeetings": 0,
+          "missedAppointments": 5
+        },
+        "historicalTrends": {
+          "gpaChange": -0.5,
+          "previousSemesterGPA": 2.4,
+          "highSchoolGPA": 2.6
+        }
+      },
+      "expected": {
+        "riskLevel": "critical",
+        "riskScore": 0.92,
+        "predictedOutcome": "imminent-eligibility-loss",
+        "confidence": 0.94,
+        "keyFactors": [
+          {
+            "factor": "below-minimum-gpa",
+            "importance": 0.40,
+            "direction": "negative",
+            "description": "GPA of 1.9 is BELOW NCAA 2.0 minimum - INELIGIBLE"
+          },
+          {
+            "factor": "severe-decline",
+            "importance": 0.25,
+            "direction": "negative",
+            "description": "GPA crashed from 2.4 to 1.9 - catastrophic drop"
+          },
+          {
+            "factor": "poor-attendance",
+            "importance": 0.20,
+            "direction": "negative",
+            "description": "65% attendance is severely low"
+          },
+          {
+            "factor": "low-engagement",
+            "importance": 0.15,
+            "direction": "negative",
+            "description": "Minimal support usage, 5 missed appointments shows disengagement"
+          },
+          {
+            "factor": "academic-crisis",
+            "importance": 0.10,
+            "direction": "negative",
+            "description": "58% assignment completion indicates serious academic distress"
+          }
+        ],
+        "recommendations": [
+          {
+            "priority": "critical",
+            "action": "immediate-eligibility-review",
+            "description": "GPA below 2.0 - student is INELIGIBLE. Immediate compliance review required"
+          },
+          {
+            "priority": "critical",
+            "action": "emergency-intervention",
+            "description": "Schedule emergency meeting with student, coach, academic advisor, and compliance"
+          },
+          {
+            "priority": "critical",
+            "action": "academic-probation",
+            "description": "Place on academic probation, mandatory daily check-ins"
+          },
+          {
+            "priority": "critical",
+            "action": "intensive-support",
+            "description": "Mandatory tutoring (minimum 8 hours/week), mandatory study halls"
+          },
+          {
+            "priority": "high",
+            "action": "course-withdrawal-review",
+            "description": "Consider strategic course withdrawals to salvage GPA if still possible"
+          },
+          {
+            "priority": "high",
+            "action": "mental-health-referral",
+            "description": "Such severe decline suggests possible mental health or personal crisis - refer to counseling"
+          }
+        ],
+        "actualOutcome": "below-2.0-ineligible"
+      },
+      "metadata": {
+        "difficulty": "easy",
+        "category": "critical-risk",
+        "tags": ["risk-prediction", "critical-risk", "freshman", "ineligible", "crisis"],
+        "createdAt": "2025-01-15T00:00:00Z",
+        "source": "edge-case"
+      }
+    }
+  ]
+}
