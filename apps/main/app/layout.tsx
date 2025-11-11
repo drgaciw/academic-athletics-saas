@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Lexend } from 'next/font/google'
 import {
   ClerkProvider,
   SignedIn,
@@ -97,6 +97,11 @@ const inter = Inter({
   variable: '--font-inter',
 })
 
+const lexend = Lexend({
+  subsets: ['latin'],
+  variable: '--font-lexend',
+})
+
 export const metadata: Metadata = {
   title: 'Athletic Academics Hub',
   description: 'Academic support platform for student-athletes',
@@ -122,7 +127,9 @@ export default function RootLayout({
   return (
     <ClerkProvider {...(clerkProviderProps as any)}>
       <html lang="en">
-        <body className={`${inter.variable} font-sans antialiased`}>
+        <body
+          className={`${inter.variable} ${lexend.variable} font-sans antialiased`}
+        >
           <header className="flex justify-between items-center p-4 border-b h-16">
             <div className="text-lg font-semibold">Athletic Academics Hub</div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
