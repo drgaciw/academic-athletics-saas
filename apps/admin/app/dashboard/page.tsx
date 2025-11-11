@@ -12,7 +12,7 @@ async function getAdminAnalytics() {
   // Get eligible students
   const eligibleStudents = await prisma.complianceRecord.count({
     where: {
-      eligible: true,
+      isEligible: true,
       createdAt: {
         gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
       },

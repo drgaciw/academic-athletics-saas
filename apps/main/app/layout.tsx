@@ -122,7 +122,18 @@ export default function RootLayout({
   return (
     <ClerkProvider {...(clerkProviderProps as any)}>
       <html lang="en">
-        <body className={`${inter.variable} font-sans antialiased`}>
+        <head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+          <style>{`
+            .material-symbols-outlined {
+              font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+            }
+          `}</style>
+        </head>
+        <body className={`${inter.variable} font-sans antialiased font-display bg-background-light dark:bg-background-dark text-neutral-dark dark:text-neutral-light`}>
           <header className="flex justify-between items-center p-4 border-b h-16">
             <div className="text-lg font-semibold">Athletic Academics Hub</div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
