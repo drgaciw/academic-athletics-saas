@@ -50,6 +50,7 @@ export {
 } from './components/chat';
 
 // Special Components
+export { SignIn } from './components/sign-in';
 export { CrossZoneLink } from './components/cross-zone-link';
 export { ZoneErrorBoundary } from './components/zone-error-boundary';
 
