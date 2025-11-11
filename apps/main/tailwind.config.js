@@ -6,7 +6,16 @@ module.exports = {
     '../../packages/ui/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#4217cf',
+        'background-light': '#f6f6f8',
+        'background-dark': '#151121',
+      },
+      fontFamily: {
+        display: ['var(--font-lexend)', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }
