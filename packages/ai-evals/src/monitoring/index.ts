@@ -15,19 +15,24 @@
 // Analytics exports
 export {
   AnalyticsTracker,
+  getAnalyticsTracker,
+  trackEvalRun,
+  trackRegression,
+  MetricsAggregator,
+} from './analytics';
+export type {
   AnalyticsConfig,
   AnalyticsEventType,
   EvalRunMetadata,
   RegressionMetadata,
-  MetricsAggregator,
-  getAnalyticsTracker,
-  trackEvalRun,
-  trackRegression,
 } from './analytics';
 
 // Alerting exports
 export {
   AlertManager,
+  getAlertManager,
+} from './alerts';
+export type {
   AlertConfig,
   AlertSeverity,
   AlertType,
@@ -38,12 +43,16 @@ export {
   AlertThresholds,
   EscalationPolicy,
   Alert,
-  getAlertManager,
 } from './alerts';
 
 // Cost tracking exports
 export {
   CostTracker,
+  getCostTracker,
+  formatCost,
+  formatTokens,
+} from './cost-tracker';
+export type {
   CostTrackerConfig,
   BudgetConfig,
   CostEntry,
@@ -53,9 +62,6 @@ export {
   CostTrendPoint,
   CostDimension,
   TimePeriod,
-  getCostTracker,
-  formatCost,
-  formatTokens,
 } from './cost-tracker';
 
 /**
