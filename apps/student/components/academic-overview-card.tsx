@@ -1,71 +1,51 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, ProgressIndicator } from '@aah/ui';
-import { GraduationCap } from 'lucide-react';
+'use client';
 
-export interface AcademicOverviewCardProps {
+interface AcademicOverviewCardProps {
   gpa: number;
-  maxGpa?: number;
-  creditsEarned: number;
   totalCredits: number;
-  degreeProgress: number;
+  degreeCompletion: number;
 }
 
 export function AcademicOverviewCard({
   gpa,
-  maxGpa = 4.0,
-  creditsEarned,
   totalCredits,
-  degreeProgress,
+  degreeCompletion,
 }: AcademicOverviewCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Academic Overview</CardTitle>
-            <CardDescription>Your current academic standing</CardDescription>
+    <div className="flex flex-col justify-between rounded-xl bg-white p-6">
+      <div>
+        <p className="mb-4 text-lg font-bold leading-tight tracking-[-0.015em] text-neutral-text">
+          Academic Overview
+        </p>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <p className="text-sm font-normal text-gray-500">Current GPA</p>
+            <p className="text-2xl font-bold text-neutral-text">{gpa}</p>
           </div>
-          <GraduationCap className="h-8 w-8 text-brand-primary" />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <div className="flex items-baseline justify-between mb-1">
-            <span className="text-sm font-medium">Current GPA</span>
-            <span className="text-2xl font-bold">{gpa.toFixed(2)}</span>
+          <div className="flex flex-col">
+            <p className="text-sm font-normal text-gray-500">Total Credits</p>
+            <p className="text-2xl font-bold text-neutral-text">
+              {totalCredits}
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground">out of {maxGpa.toFixed(1)}</p>
         </div>
-
-        <div>
-          <div className="flex items-baseline justify-between mb-2">
-            <span className="text-sm font-medium">Credits Earned</span>
-            <span className="text-lg font-semibold">
-              {creditsEarned} / {totalCredits}
-            </span>
-          </div>
-          <ProgressIndicator
-            value={creditsEarned}
-            max={totalCredits}
-            variant="linear"
-            size="md"
-            color="primary"
-          />
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between gap-6">
+          <p className="text-sm font-medium leading-normal text-neutral-text">
+            Degree Completion
+          </p>
+          <p className="text-sm font-bold leading-normal text-primary">
+            {degreeCompletion}%
+          </p>
         </div>
-
-        <div>
-          <div className="flex items-baseline justify-between mb-2">
-            <span className="text-sm font-medium">Degree Progress</span>
-            <span className="text-lg font-semibold">{Math.round(degreeProgress)}%</span>
-          </div>
-          <ProgressIndicator
-            value={degreeProgress}
-            max={100}
-            variant="linear"
-            size="md"
-            color="success"
-          />
+        <div className="rounded-full bg-gray-200">
+          <div
+            className="h-2 rounded-full bg-primary"
+            style={{ width: `${degreeCompletion}%` }}
+          ></div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
