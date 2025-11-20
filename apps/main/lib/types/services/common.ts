@@ -47,6 +47,8 @@ export enum UserRole {
   COMPLIANCE = 'COMPLIANCE',
   ADMIN = 'ADMIN',
   FACULTY = 'FACULTY',
+  COACH = 'COACH',
+  STAFF = 'STAFF',
 }
 
 // Request context passed to services

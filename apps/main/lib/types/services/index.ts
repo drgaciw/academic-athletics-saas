@@ -11,3 +11,4 @@ export * from './monitoring';
 export * from './support';
 export * from './integration';
 export * from './ai';
+export * from './coach';
