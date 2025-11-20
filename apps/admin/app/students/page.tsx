@@ -7,9 +7,13 @@ async function getStudents() {
   const students = await prisma.user.findMany({
     where: { role: 'STUDENT' },
     include: {
-      complianceRecords: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
+      studentProfile: {
+        include: {
+          complianceRecords: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       },
     },
     orderBy: { lastName: 'asc' },
@@ -50,7 +54,7 @@ export default async function StudentsPage() {
               </thead>
               <tbody>
                 {students.map((student) => {
-                  const latestCompliance = student.complianceRecords[0];
+                  const latestCompliance = student.studentProfile?.complianceRecords[0];
                   return (
                     <tr key={student.id} className="border-b hover:bg-gray-50">
                       <td className="p-3">
@@ -60,13 +64,13 @@ export default async function StudentsPage() {
                         {student.email}
                       </td>
                       <td className="p-3">
-                        {latestCompliance?.gpa?.toFixed(2) || 'N/A'}
+                        {latestCompliance?.cumulativeGpa?.toFixed(2) || 'N/A'}
                       </td>
                       <td className="p-3">
                         {latestCompliance?.creditHours || 0}
                       </td>
                       <td className="p-3">
-                        {latestCompliance?.eligible ? (
+                        {latestCompliance?.isEligible ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
                             Eligible
                           </span>

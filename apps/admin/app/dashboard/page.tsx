@@ -12,7 +12,7 @@ async function getAdminAnalytics() {
   // Get eligible students
   const eligibleStudents = await prisma.complianceRecord.count({
     where: {
-      eligible: true,
+      isEligible: true,
       createdAt: {
         gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
       },
@@ -22,7 +22,7 @@ async function getAdminAnalytics() {
   // Get at-risk students (GPA < 2.5)
   const atRiskStudents = await prisma.complianceRecord.count({
     where: {
-      gpa: {
+      cumulativeGpa: {
         lt: 2.5,
       },
       createdAt: {
@@ -32,9 +32,9 @@ async function getAdminAnalytics() {
   });
 
   // Get upcoming sessions
-  const upcomingSessions = await prisma.session.count({
+  const upcomingSessions = await prisma.tutoringSession.count({
     where: {
-      status: 'scheduled',
+      status: 'SCHEDULED',
       scheduledAt: {
         gte: new Date(),
       },

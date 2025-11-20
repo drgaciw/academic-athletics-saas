@@ -391,7 +391,7 @@ importers:
     dependencies:
       '@clerk/backend':
         specifier: ^1.0.0
-        version: 1.34.0(react@18.3.1)
+        version: 1.34.0(react-dom@18.3.1)(react@18.3.1)
       hono:
         specifier: ^4.0.0
         version: 4.10.4
@@ -399,6 +399,9 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.24
+      next:
+        specifier: ^14.0.0
+        version: 14.2.33(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1)(react@18.3.1)
       typescript:
         specifier: ^5.3.0
         version: 5.9.3
@@ -458,6 +461,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@clerk/nextjs':
+        specifier: ^4.29.0
+        version: 4.31.8(next@14.2.33)(react-dom@18.3.1)(react@18.3.1)
       '@radix-ui/react-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react@18.3.26)(react-dom@18.3.1)(react@18.3.1)
@@ -821,7 +827,7 @@ importers:
         version: link:../../packages/database
       '@clerk/backend':
         specifier: ^1.0.0
-        version: 1.34.0(react@18.3.1)
+        version: 1.34.0(react-dom@18.3.1)(react@18.3.1)
       hono:
         specifier: ^4.0.0
         version: 4.10.4
@@ -1907,7 +1913,7 @@ packages:
       - react
     dev: false
 
-  /@clerk/backend@1.34.0(react@18.3.1):
+  /@clerk/backend@1.34.0(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-9rZ8hQJVpX5KX2bEpiuVXfpjhojQCiqCWADJDdCI0PCeKxn58Ep0JPYiIcczg4VKUc3a7jve9vXylykG2XajLQ==}
     engines: {node: '>=18.17.0'}
     peerDependencies:
@@ -1916,8 +1922,8 @@ packages:
       svix:
         optional: true
     dependencies:
-      '@clerk/shared': 3.31.1(react@18.3.1)
-      '@clerk/types': 4.97.2(react@18.3.1)
+      '@clerk/shared': 3.31.1(react-dom@18.3.1)(react@18.3.1)
+      '@clerk/types': 4.97.2(react-dom@18.3.1)(react@18.3.1)
       cookie: 1.0.2
       snakecase-keys: 8.0.1
       tslib: 2.8.1
@@ -1988,7 +1994,7 @@ packages:
       swr: 2.2.0(react@18.3.1)
     dev: false
 
-  /@clerk/shared@3.31.1(react@18.3.1):
+  /@clerk/shared@3.31.1(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-mqxZqlzLJYJxA+ryLzhwFR0eO73teAvRd+wvA8bLUZLYvCRFvaiHsB9dEvbo9Z5bMYdq3NPwnx2uljMuu/tiQw==}
     engines: {node: '>=18.17.0'}
     requiresBuild: true
@@ -2006,6 +2012,7 @@ packages:
       glob-to-regexp: 0.4.1
       js-cookie: 3.0.5
       react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       std-env: 3.10.0
       swr: 2.3.4(react@18.3.1)
     dev: false
@@ -2017,11 +2024,11 @@ packages:
       csstype: 3.1.1
     dev: false
 
-  /@clerk/types@4.97.2(react@18.3.1):
+  /@clerk/types@4.97.2(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-xnJq3xzpmuuDnNnWuUMKJLPPkaEaLDM0kiv2Hm0gKIcL1+1P3VaGf2vL9roIhmhLswB2PUwtVvZKBmGjT5yOVw==}
     engines: {node: '>=18.17.0'}
     dependencies:
-      '@clerk/shared': 3.31.1(react@18.3.1)
+      '@clerk/shared': 3.31.1(react-dom@18.3.1)(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -3513,7 +3520,6 @@ packages:
 
   /@next/env@14.2.33:
     resolution: {integrity: sha512-CgVHNZ1fRIlxkLhIX22flAZI/HmpDaZ8vwyJ/B0SDPTBuLZ1PJ+DWMjCHhqnExfmSQzA/PbZi8OAc7PAq2w9IA==}
-    dev: false
 
   /@next/env@15.5.4:
     resolution: {integrity: sha512-27SQhYp5QryzIT5uO8hq99C69eLQ7qkzkDPsk3N+GuS2XgOgoYEeOav7Pf8Tn4drECOVDsDg8oj+/DVy8qQL2A==}
@@ -3531,7 +3537,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-darwin-arm64@15.5.4:
@@ -3549,7 +3554,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-darwin-x64@15.5.4:
@@ -3567,7 +3571,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-arm64-gnu@15.5.4:
@@ -3585,7 +3588,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-arm64-musl@15.5.4:
@@ -3603,7 +3605,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-x64-gnu@15.5.4:
@@ -3621,7 +3622,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-linux-x64-musl@15.5.4:
@@ -3639,7 +3639,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-win32-arm64-msvc@15.5.4:
@@ -3657,7 +3656,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-win32-x64-msvc@14.2.33:
@@ -3666,7 +3664,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@next/swc-win32-x64-msvc@15.5.4:
@@ -3777,7 +3774,6 @@ packages:
   /@opentelemetry/api@1.9.0:
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
-    dev: false
 
   /@opentelemetry/core@2.2.0(@opentelemetry/api@1.9.0):
     resolution: {integrity: sha512-FuabnnUm8LflnieVxs6eP7Z383hgQU4W1e3KJS6aOG3RxWxcHyBxH8fDMHNgu/gFx/M2jvTOW/4/PHhLz6bjWw==}
@@ -5268,7 +5264,6 @@ packages:
 
   /@swc/counter@0.1.3:
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
-    dev: false
 
   /@swc/helpers@0.3.17:
     resolution: {integrity: sha512-tb7Iu+oZ+zWJZ3HJqwx8oNwSDIU440hmVMDPhpACWQWnrZHK99Bxs70gT1L2dnr5Hg50ZRWEFkQCAnOVVV0z1Q==}
@@ -5287,7 +5282,6 @@ packages:
     dependencies:
       '@swc/counter': 0.1.3
       tslib: 2.8.1
-    dev: false
 
   /@swc/types@0.1.25:
     resolution: {integrity: sha512-iAoY/qRhNH8a/hBvm3zKj9qQ4oc2+3w1unPJa2XvTK3XjeLXtzcCingVPw/9e5mn1+0yPqxcBGp9Jf0pkfMb1g==}
@@ -6967,7 +6961,6 @@ packages:
     engines: {node: '>=10.16.0'}
     dependencies:
       streamsearch: 1.1.0
-    dev: false
 
   /bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -7158,7 +7151,6 @@ packages:
 
   /client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
-    dev: false
 
   /cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -10964,7 +10956,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /next@15.5.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-xH4Yjhb82sFYQfY3vbkJfgSDgXvBB6a8xPs9i35k6oZJRoQRihZH+4s9Yo2qsWpzBmZ3lPXaJ2KPXLfkvW4LnA==}
@@ -11645,7 +11636,6 @@ packages:
       nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
-    dev: false
 
   /postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
@@ -11868,7 +11858,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
-    dev: false
 
   /react-hook-form@7.66.0(react@18.3.1):
     resolution: {integrity: sha512-xXBqsWGKrY46ZqaHDo+ZUYiMUgi8suYu5kdrS20EG8KiL7VRQitEbNjm+UcrDYrNi1YLyfpmAeGjCZYXLT9YBw==}
@@ -11996,7 +11985,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -12312,7 +12300,6 @@ packages:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /scule@1.3.0:
     resolution: {integrity: sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==}
@@ -12613,7 +12600,6 @@ packages:
   /streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
-    dev: false
 
   /string-length@4.0.2:
     resolution: {integrity: sha512-+l6rNN5fYHNhZZy41RXsYptCjA2Igmq4EG7kZAYFQI1E1VTXarr6ZPXBg6eq7Y6eK4FEhY6AJlyuFIb/v/S0VQ==}
@@ -12790,7 +12776,6 @@ packages:
       '@babel/core': 7.28.5
       client-only: 0.0.1
       react: 18.3.1
-    dev: false
 
   /styled-jsx@5.1.6(@babel/core@7.28.5)(react@18.3.1):
     resolution: {integrity: sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==}

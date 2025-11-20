@@ -5,15 +5,15 @@ import { redirect } from 'next/navigation';
 
 async function getProgramData() {
   // Get upcoming sessions
-  const upcomingSessions = await prisma.session.findMany({
+  const upcomingSessions = await prisma.tutoringSession.findMany({
     where: {
-      status: 'scheduled',
+      status: 'SCHEDULED',
       scheduledAt: {
         gte: new Date(),
       },
     },
     include: {
-      user: {
+      student: {
         select: {
           firstName: true,
           lastName: true,
@@ -25,12 +25,12 @@ async function getProgramData() {
   });
 
   // Get session statistics
-  const totalSessions = await prisma.session.count();
-  const completedSessions = await prisma.session.count({
-    where: { status: 'completed' },
+  const totalSessions = await prisma.tutoringSession.count();
+  const completedSessions = await prisma.tutoringSession.count({
+    where: { status: 'COMPLETED' },
   });
-  const scheduledSessions = await prisma.session.count({
-    where: { status: 'scheduled' },
+  const scheduledSessions = await prisma.tutoringSession.count({
+    where: { status: 'SCHEDULED' },
   });
 
   return {
@@ -108,9 +108,9 @@ export default async function ProgramsPage() {
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
-                    <p className="font-semibold">{session.type}</p>
+                    <p className="font-semibold">{session.subject}</p>
                     <p className="text-sm text-gray-600">
-                      {session.user.firstName} {session.user.lastName}
+                      {session.student.firstName} {session.student.lastName}
                     </p>
                     <p className="text-sm text-gray-500">
                       {new Date(session.scheduledAt).toLocaleString()}
