@@ -1,59 +1,140 @@
 import { auth } from '@clerk/nextjs';
 import { prisma } from '@aah/database';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@aah/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
 import { redirect } from 'next/navigation';
+import { EligibilityChart } from './EligibilityChart';
+import { RecentAlerts } from './RecentAlerts';
 
 async function getAdminAnalytics() {
-  // Get total students
-  const totalStudents = await prisma.user.count({
-    where: { role: 'STUDENT' },
-  });
+  const now = new Date();
+  const oneMonthAgo = new Date(new Date().setMonth(now.getMonth() - 1));
 
-  // Get eligible students
-  const eligibleStudents = await prisma.complianceRecord.count({
-    where: {
-      eligible: true,
-      createdAt: {
-        gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-      },
-    },
-  });
+  const calculatePercentageChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  };
 
-  // Get at-risk students (GPA < 2.5)
-  const atRiskStudents = await prisma.complianceRecord.count({
-    where: {
-      gpa: {
-        lt: 2.5,
+  const [
+    totalStudents,
+    prevTotalStudents,
+    activeAlerts,
+    prevActiveAlerts,
+    eligibleStudents,
+    prevEligibleStudents,
+    activeInterventions,
+    prevActiveInterventions,
+    recentAlertsRaw,
+  ] = await Promise.all([
+    prisma.user.count({ where: { role: 'STUDENT' } }),
+    prisma.user.count({ where: { role: 'STUDENT', createdAt: { lt: oneMonthAgo } } }),
+    prisma.alert.count({ where: { status: 'ACTIVE' } }),
+    prisma.alert.count({ where: { status: 'ACTIVE', createdAt: { lt: oneMonthAgo } } }),
+    prisma.complianceRecord.count({ where: { isEligible: true } }),
+    prisma.complianceRecord.count({ where: { isEligible: true, createdAt: { lt: oneMonthAgo } } }),
+    prisma.interventionPlan.count({ where: { status: 'ACTIVE' } }),
+    prisma.interventionPlan.count({ where: { status: 'ACTIVE', createdAt: { lt: oneMonthAgo } } }),
+    prisma.alert.findMany({
+      where: { status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: {
+        student: {
+          include: {
+            user: {
+              select: { firstName: true, lastName: true },
+            },
+          },
+        },
       },
-      createdAt: {
-        gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
-      },
-    },
-  });
+    }),
+  ]);
 
-  // Get upcoming sessions
-  const upcomingSessions = await prisma.session.count({
-    where: {
-      status: 'scheduled',
-      scheduledAt: {
-        gte: new Date(),
-      },
-    },
-  });
+  const totalStudentsChange = calculatePercentageChange(totalStudents, prevTotalStudents);
+  const activeAlertsChange = calculatePercentageChange(activeAlerts, prevActiveAlerts);
+  const activeInterventionsChange = calculatePercentageChange(activeInterventions, prevActiveInterventions);
 
-  // Calculate eligibility rate
-  const eligibilityRate = totalStudents > 0 
-    ? ((eligibleStudents / totalStudents) * 100).toFixed(1)
-    : '0.0';
+  const eligibilityRate = totalStudents > 0 ? (eligibleStudents / totalStudents) * 100 : 0;
+  const prevEligibilityRate = prevTotalStudents > 0 ? (prevEligibleStudents / prevTotalStudents) * 100 : 0;
+  const eligibilityRateChange = eligibilityRate - prevEligibilityRate;
+
+  // Eligibility History (Database-level aggregation)
+  const eligibilityHistoryRaw: { month: string; Eligibility: number }[] = await prisma.$queryRaw`
+    SELECT
+      to_char(date_trunc('month', "createdAt"), 'Mon') AS month,
+      ROUND(
+        (COUNT(CASE WHEN "isEligible" = true THEN 1 END)::decimal / COUNT(*)::decimal) * 100
+      ) AS "Eligibility"
+    FROM "ComplianceRecord"
+    WHERE "createdAt" >= date_trunc('month', NOW() - interval '11 months')
+    GROUP BY 1
+    ORDER BY date_trunc('month', "createdAt")
+  `;
+
+    const eligibilityHistoryMap = new Map(eligibilityHistoryRaw.map(item => [item.month, item.Eligibility]));
+    const eligibilityHistory = [];
+    for (let i = 11; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const monthName = d.toLocaleString('default', { month: 'short' });
+        eligibilityHistory.push({
+            name: monthName,
+            Eligibility: Number(eligibilityHistoryMap.get(monthName)) || 0,
+        });
+    }
+
+  const recentAlerts = recentAlertsRaw.map(alert => ({
+    id: alert.id,
+    studentName: `${alert.student.user.firstName} ${alert.student.user.lastName}`,
+    alertType: alert.alertType,
+    severity: alert.severity,
+  }));
+
 
   return {
-    totalStudents,
-    eligibleStudents,
-    atRiskStudents,
-    upcomingSessions,
-    eligibilityRate,
+    totalStudents: {
+      value: totalStudents,
+      change: totalStudentsChange.toFixed(1),
+    },
+    activeAlerts: {
+      value: activeAlerts,
+      change: activeAlertsChange.toFixed(1),
+    },
+    eligibilityRate: {
+      value: eligibilityRate.toFixed(1),
+      change: eligibilityRateChange.toFixed(1),
+    },
+    activeInterventions: {
+        value: activeInterventions,
+        change: activeInterventionsChange.toFixed(1),
+    },
+    eligibilityHistory,
+    recentAlerts,
   };
 }
+
+const StatCard = ({ title, value, change, isPercentage = false }) => {
+  const changeValue = parseFloat(change);
+  const isPositive = changeValue >= 0;
+  const changeColor = isPositive ? 'text-green-500' : 'text-red-500';
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">
+          {value}
+          {isPercentage && '%'}
+        </div>
+        <p className={`text-xs ${changeColor}`}>
+          {isPositive ? '+' : ''}
+          {change}%
+        </p>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default async function AdminDashboardPage() {
   const { userId } = auth();
@@ -65,96 +146,41 @@ export default async function AdminDashboardPage() {
   const analytics = await getAdminAnalytics();
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Total Students Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Students</CardTitle>
-            <CardDescription>Active student-athletes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{analytics.totalStudents}</p>
-          </CardContent>
-        </Card>
-
-        {/* Eligibility Rate Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Eligibility Rate</CardTitle>
-            <CardDescription>NCAA compliance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-green-600">
-              {analytics.eligibilityRate}%
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* At-Risk Students Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>At-Risk Students</CardTitle>
-            <CardDescription>GPA below 2.5</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-orange-600">
-              {analytics.atRiskStudents}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Sessions Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Sessions</CardTitle>
-            <CardDescription>Scheduled support</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold">{analytics.upcomingSessions}</p>
-          </CardContent>
-        </Card>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      <div className="mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <a
-                href="/admin/students"
-                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="font-semibold mb-2">Manage Students</h3>
-                <p className="text-sm text-gray-600">
-                  View and manage student records
-                </p>
-              </a>
-              <a
-                href="/admin/programs"
-                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="font-semibold mb-2">Manage Programs</h3>
-                <p className="text-sm text-gray-600">
-                  Tutoring and study hall management
-                </p>
-              </a>
-              <a
-                href="/admin/reports"
-                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="font-semibold mb-2">Generate Reports</h3>
-                <p className="text-sm text-gray-600">
-                  Compliance and performance reports
-                </p>
-              </a>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Students"
+          value={analytics.totalStudents.value}
+          change={analytics.totalStudents.change}
+        />
+        <StatCard
+          title="Active Alerts"
+          value={analytics.activeAlerts.value}
+          change={analytics.activeAlerts.change}
+        />
+        <StatCard
+          title="Overall Eligibility"
+          value={analytics.eligibilityRate.value}
+          change={analytics.eligibilityRate.change}
+          isPercentage
+        />
+        <StatCard
+          title="Active Interventions"
+          value={analytics.activeInterventions.value}
+          change={analytics.activeInterventions.change}
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+            <EligibilityChart data={analytics.eligibilityHistory} />
+        </div>
+        <div className="lg:col-span-3">
+            <RecentAlerts alerts={analytics.recentAlerts} />
+        </div>
       </div>
     </div>
   );

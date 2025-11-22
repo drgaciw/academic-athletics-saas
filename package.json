@@ -37,10 +37,11 @@
     "postinstall": "pnpm run db:generate"
   },
   "devDependencies": {
-    "turbo": "^2.6.0",
-    "typescript": "^5.6.3",
+    "@types/node": "^22.8.6",
     "prettier": "^3.3.3",
-    "@types/node": "^22.8.6"
+    "tailwindcss": "^3.4.0",
+    "turbo": "^2.6.0",
+    "typescript": "^5.6.3"
   },
   "engines": {
     "node": ">=18.0.0",
