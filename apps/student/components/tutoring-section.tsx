@@ -1,35 +1,43 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Badge } from '@aah/ui'
-import { Clock, User, BookOpen } from 'lucide-react'
+import { useState } from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+  Badge,
+} from "@aah/ui";
+import { Clock, User, BookOpen } from "lucide-react";
 
 const mockTutoringSessions = [
   {
-    id: '1',
-    subject: 'Mathematics',
-    tutor: 'Mike Johnson',
-    available: ['Mon 2pm', 'Wed 3pm', 'Fri 1pm'],
-    topics: ['Calculus', 'Linear Algebra', 'Statistics'],
+    id: "1",
+    subject: "Mathematics",
+    tutor: "Mike Johnson",
+    available: ["Mon 2pm", "Wed 3pm", "Fri 1pm"],
+    topics: ["Calculus", "Linear Algebra", "Statistics"],
   },
   {
-    id: '2',
-    subject: 'Physics',
-    tutor: 'Sarah Williams',
-    available: ['Tue 4pm', 'Thu 2pm'],
-    topics: ['Mechanics', 'Thermodynamics', 'Electromagnetism'],
+    id: "2",
+    subject: "Physics",
+    tutor: "Sarah Williams",
+    available: ["Tue 4pm", "Thu 2pm"],
+    topics: ["Mechanics", "Thermodynamics", "Electromagnetism"],
   },
   {
-    id: '3',
-    subject: 'English',
-    tutor: 'David Brown',
-    available: ['Mon 1pm', 'Wed 2pm', 'Fri 3pm'],
-    topics: ['Writing', 'Literature', 'Grammar'],
+    id: "3",
+    subject: "English",
+    tutor: "David Brown",
+    available: ["Mon 1pm", "Wed 2pm", "Fri 3pm"],
+    topics: ["Writing", "Literature", "Grammar"],
   },
-]
+];
 
 export function TutoringSection() {
-  const [selectedSession, setSelectedSession] = useState<string | null>(null)
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
   return (
     <Card>
@@ -93,7 +101,8 @@ export function TutoringSection() {
         {selectedSession && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-800">
-              ✓ Booking request submitted! You'll receive a confirmation email shortly.
+              ✓ Booking request submitted! You&apos;ll receive a confirmation
+              email shortly.
             </p>
             <Button
               size="sm"
@@ -107,5 +116,5 @@ export function TutoringSection() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

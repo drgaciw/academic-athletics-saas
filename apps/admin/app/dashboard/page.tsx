@@ -1,18 +1,24 @@
-import { auth } from '@clerk/nextjs';
-import { prisma } from '@aah/database';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@aah/ui';
-import { redirect } from 'next/navigation';
+import { auth } from "@clerk/nextjs";
+import { prisma } from "@aah/database";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@aah/ui";
+import { redirect } from "next/navigation";
 
 async function getAdminAnalytics() {
   // Get total students
   const totalStudents = await prisma.user.count({
-    where: { role: 'STUDENT' },
+    where: { role: "STUDENT" },
   });
 
   // Get eligible students
   const eligibleStudents = await prisma.complianceRecord.count({
     where: {
-      eligible: true,
+      isEligible: true,
       createdAt: {
         gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
       },
@@ -34,7 +40,7 @@ async function getAdminAnalytics() {
   // Get upcoming sessions
   const upcomingSessions = await prisma.session.count({
     where: {
-      status: 'scheduled',
+      status: "scheduled",
       scheduledAt: {
         gte: new Date(),
       },
@@ -42,9 +48,10 @@ async function getAdminAnalytics() {
   });
 
   // Calculate eligibility rate
-  const eligibilityRate = totalStudents > 0 
-    ? ((eligibleStudents / totalStudents) * 100).toFixed(1)
-    : '0.0';
+  const eligibilityRate =
+    totalStudents > 0
+      ? ((eligibleStudents / totalStudents) * 100).toFixed(1)
+      : "0.0";
 
   return {
     totalStudents,
@@ -59,7 +66,7 @@ export default async function AdminDashboardPage() {
   const { userId } = auth();
 
   if (!userId) {
-    redirect('/sign-in');
+    redirect("/sign-in");
   }
 
   const analytics = await getAdminAnalytics();

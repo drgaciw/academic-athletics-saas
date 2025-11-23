@@ -1,11 +1,17 @@
-import { auth } from '@clerk/nextjs';
-import { prisma } from '@aah/database';
-import { redirect } from 'next/navigation';
-import { addDays } from 'date-fns';
-import { AcademicOverviewCard } from '@/components/academic-overview-card';
-import { EligibilityStatusCard, type EligibilityStatus } from '@/components/eligibility-status-card';
-import { WeekScheduleList, type ScheduleEvent } from '@/components/week-schedule-list';
-import { ChatWidgetWrapper } from '@/components/chat-widget-wrapper';
+import { auth } from "@clerk/nextjs";
+import { prisma } from "@aah/database";
+import { redirect } from "next/navigation";
+import { addDays } from "date-fns";
+import { AcademicOverviewCard } from "@/components/academic-overview-card";
+import {
+  EligibilityStatusCard,
+  type EligibilityStatus,
+} from "@/components/eligibility-status-card";
+import {
+  WeekScheduleList,
+  type ScheduleEvent,
+} from "@/components/week-schedule-list";
+import { ChatWidgetWrapper } from "@/components/chat-widget-wrapper";
 
 async function getStudentData(userId: string) {
   // Fetch user data - adjust based on actual database schema
@@ -20,7 +26,7 @@ export default async function DashboardPage() {
   const { userId } = auth();
 
   if (!userId) {
-    redirect('/sign-in');
+    redirect("/sign-in");
   }
 
   const student = await getStudentData(userId);
@@ -39,25 +45,25 @@ export default async function DashboardPage() {
   const creditsEarned = 90;
   const totalCredits = 120;
   const degreeProgress = (creditsEarned / totalCredits) * 100;
-  const eligibilityStatus: EligibilityStatus = 'eligible';
+  const eligibilityStatus: EligibilityStatus = "eligible";
 
   // Mock schedule events
   const scheduleEvents: ScheduleEvent[] = [
     {
-      id: '1',
-      title: 'MATH 201 - Calculus II',
-      type: 'class',
+      id: "1",
+      title: "MATH 201 - Calculus II",
+      type: "class",
       startTime: addDays(new Date(), 1),
       endTime: addDays(new Date(), 1),
-      location: 'Science Building 201',
+      location: "Science Building 201",
     },
     {
-      id: '2',
-      title: 'Team Practice',
-      type: 'practice',
+      id: "2",
+      title: "Team Practice",
+      type: "practice",
       startTime: addDays(new Date(), 2),
       endTime: addDays(new Date(), 2),
-      location: 'Athletic Center',
+      location: "Athletic Center",
     },
   ];
 
@@ -70,7 +76,7 @@ export default async function DashboardPage() {
             Welcome back, {student.firstName}!
           </h1>
           <p className="text-muted-foreground">
-            Here's your academic overview and upcoming schedule
+            Here&apos;s your academic overview and upcoming schedule
           </p>
         </div>
 

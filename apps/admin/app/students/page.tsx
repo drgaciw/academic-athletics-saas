@@ -1,18 +1,18 @@
-import { auth } from '@clerk/nextjs';
-import { prisma } from '@aah/database';
-import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
-import { redirect } from 'next/navigation';
+import { auth } from "@clerk/nextjs";
+import { prisma } from "@aah/database";
+import { Card, CardHeader, CardTitle, CardContent } from "@aah/ui";
+import { redirect } from "next/navigation";
 
 async function getStudents() {
   const students = await prisma.user.findMany({
-    where: { role: 'STUDENT' },
+    where: { role: "STUDENT" },
     include: {
       complianceRecords: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: 1,
       },
     },
-    orderBy: { lastName: 'asc' },
+    orderBy: { lastName: "asc" },
   });
 
   return students;
@@ -22,7 +22,7 @@ export default async function StudentsPage() {
   const { userId } = auth();
 
   if (!userId) {
-    redirect('/sign-in');
+    redirect("/sign-in");
   }
 
   const students = await getStudents();
@@ -60,13 +60,13 @@ export default async function StudentsPage() {
                         {student.email}
                       </td>
                       <td className="p-3">
-                        {latestCompliance?.gpa?.toFixed(2) || 'N/A'}
+                        {latestCompliance?.gpa?.toFixed(2) || "N/A"}
                       </td>
                       <td className="p-3">
                         {latestCompliance?.creditHours || 0}
                       </td>
                       <td className="p-3">
-                        {latestCompliance?.eligible ? (
+                        {latestCompliance?.isEligible ? (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm">
                             Eligible
                           </span>
