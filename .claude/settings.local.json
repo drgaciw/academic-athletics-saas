@@ -29,7 +29,11 @@
       "Bash(pnpm install:*)",
       "Bash(move .eslintrc.js .eslintrc.cjs)",
       "Bash(test:*)",
-      "Bash(pnpm run db:generate:*)"
+      "Bash(pnpm run db:generate:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

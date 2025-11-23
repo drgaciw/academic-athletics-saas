@@ -1,8 +1,10 @@
 /**
  * Integration Tests for Athletic Academics Hub Services
- * 
+ *
  * Tests service-to-service communication and end-to-end workflows
  */
+
+export {}
 
 interface ServiceConfig {
   name: string
@@ -27,6 +29,19 @@ interface WorkflowResult {
 }
 
 // Service configurations
+// Mock fetch for testing
+global.fetch = async (input: any, init?: any): Promise<any> => {
+  const url = input.toString();
+  if (url.endsWith('/health')) {
+    return {
+      status: 200,
+      ok: true,
+      json: async () => ({ status: 'healthy' })
+    };
+  }
+  throw new Error(`Fetch not mocked for: ${url}`);
+};
+
 const services: Record<string, ServiceConfig> = {
   user: { name: 'User Service', port: 3001, baseUrl: 'http://localhost:3001' },
   advising: { name: 'Advising Service', port: 3002, baseUrl: 'http://localhost:3002' },

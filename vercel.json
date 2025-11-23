@@ -8,16 +8,6 @@
   "framework": null,
   "outputDirectory": ".next",
   "regions": ["iad1"],
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 30
-    },
-    "services/**/*.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/api/user/:path*",
