@@ -1,0 +1,380 @@
+packages/ai-evals/datasets/adversarial/index.ts(9,10): error TS2305: Module '"../../src/types"' has no exported member 'AdversarialDataset'.
+packages/ai-evals/datasets/adversarial/index.ts(9,30): error TS2305: Module '"../../src/types"' has no exported member 'AdversarialDatasetSchema'.
+packages/ai-evals/src/cli/commands/config.ts(3,44): error TS2307: Cannot find module 'yaml' or its corresponding type declarations.
+packages/ai-evals/src/cli/interactive.ts(1,22): error TS2307: Cannot find module 'inquirer' or its corresponding type declarations.
+packages/ai-evals/src/cli/utils.ts(4,19): error TS2307: Cannot find module 'boxen' or its corresponding type declarations.
+packages/ai-evals/src/cli/utils.ts(5,20): error TS2307: Cannot find module 'figlet' or its corresponding type declarations.
+packages/ai-evals/src/config/examples.ts(218,3): error TS2739: Type '{ enabled: false; }' is missing the following properties from type '{ enabled: boolean; regressionThreshold: number; failOnRegression: boolean; baselineId?: string | undefined; }': regressionThreshold, failOnRegression
+packages/ai-evals/src/config/parser.ts(2,36): error TS2307: Cannot find module 'yaml' or its corresponding type declarations.
+packages/ai-evals/src/datasets/DatasetManager.ts(18,24): error TS2307: Cannot find module 'nanoid' or its corresponding type declarations.
+packages/ai-evals/src/datasets/DatasetManager.ts(23,3): error TS2305: Module '"../types"' has no exported member 'DatasetConfig'.
+packages/ai-evals/src/datasets/DatasetManager.ts(25,3): error TS2305: Module '"../types"' has no exported member 'ValidationResult'.
+packages/ai-evals/src/datasets/DatasetManager.ts(26,3): error TS2305: Module '"../types"' has no exported member 'ValidationError'.
+packages/ai-evals/src/datasets/DatasetManager.ts(27,3): error TS2305: Module '"../types"' has no exported member 'ValidationWarning'.
+packages/ai-evals/src/datasets/DatasetManager.ts(29,3): error TS2305: Module '"../types"' has no exported member 'LoadOptions'.
+packages/ai-evals/src/datasets/DatasetManager.ts(72,14): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(86,20): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(113,70): error TS7006: Parameter 'e' implicitly has an 'any' type.
+packages/ai-evals/src/datasets/DatasetManager.ts(142,14): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(156,20): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(201,14): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(209,33): error TS7006: Parameter 'tc' implicitly has an 'any' type.
+packages/ai-evals/src/datasets/DatasetManager.ts(214,11): error TS2739: Type '{ id: string; input: TInput; expected: TOutput; metadata: { source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; } | undefined; }' is missing the following properties from type 'TestCase<TInput, TOutput>': name, category
+packages/ai-evals/src/datasets/DatasetManager.ts(254,14): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(327,8): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+packages/ai-evals/src/datasets/DatasetManager.ts(327,13): error TS7006: Parameter 'tc' implicitly has an 'any' type.
+packages/ai-evals/src/datasets/DatasetManager.ts(376,35): error TS2339: Property 'includeMetadata' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/datasets/DatasetManager.ts(376,59): error TS2339: Property 'pretty' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/datasets/DatasetManager.ts(414,12): error TS2678: Type '"yaml"' is not comparable to type 'ExportFormat'.
+packages/ai-evals/src/datasets/DatasetManager.ts(463,14): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/DatasetManager.ts(488,41): error TS7006: Parameter 'tc' implicitly has an 'any' type.
+packages/ai-evals/src/datasets/DatasetManager.ts(628,9): error TS18048: 'tc.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/DatasetManager.ts(628,21): error TS2339: Property 'difficulty' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/DatasetManager.ts(629,9): error TS18048: 'tc.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/DatasetManager.ts(629,21): error TS2339: Property 'category' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/DatasetManager.ts(630,9): error TS18048: 'tc.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/DatasetManager.ts(630,21): error TS2339: Property 'tags' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/DatasetManager.ts(631,9): error TS18048: 'tc.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(11,24): error TS2307: Cannot find module 'nanoid' or its corresponding type declarations.
+packages/ai-evals/src/datasets/utils.ts(12,25): error TS2305: Module '"../types"' has no exported member 'TestCaseMetadata'.
+packages/ai-evals/src/datasets/utils.ts(41,7): error TS2353: Object literal may only specify known properties, and 'difficulty' does not exist in type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(178,31): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(178,49): error TS2339: Property 'difficulty' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(181,29): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(181,47): error TS2339: Property 'category' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(184,27): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(187,54): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(187,72): error TS2339: Property 'tags' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(214,19): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(214,19): error TS7053: Element implicitly has an 'any' type because expression of type 'string | number | symbol' can't be used to index type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+  No index signature with a parameter of type 'string' was found on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(259,5): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ easy: number; medium: number; hard: number; }'.
+packages/ai-evals/src/datasets/utils.ts(259,24): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(259,42): error TS2339: Property 'difficulty' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(262,22): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(262,40): error TS2339: Property 'category' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(266,20): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(266,20): error TS2538: Type 'undefined' cannot be used as an index type.
+packages/ai-evals/src/datasets/utils.ts(269,23): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(269,41): error TS2339: Property 'tags' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(273,18): error TS18048: 'testCase.metadata' is possibly 'undefined'.
+packages/ai-evals/src/datasets/utils.ts(273,36): error TS2339: Property 'tags' does not exist on type '{ source?: string | undefined; description?: string | undefined; createdAt?: string | undefined; updatedAt?: string | undefined; author?: string | undefined; }'.
+packages/ai-evals/src/datasets/utils.ts(339,13): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/utils.ts(342,9): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/datasets/utils.ts(387,12): error TS2315: Type 'Dataset' is not generic.
+packages/ai-evals/src/db/repository.ts(8,30): error TS2307: Cannot find module '@prisma/client' or its corresponding type declarations.
+packages/ai-evals/src/db/repository.ts(281,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(286,38): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(286,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(287,42): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(287,47): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(288,39): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(288,44): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(290,8): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(290,13): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(298,22): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(338,22): error TS7006: Parameter 'result' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(484,16): error TS7006: Parameter 'run' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(485,13): error TS7006: Parameter 'run' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(613,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(616,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(616,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(620,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(620,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(632,24): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(632,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(634,23): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(634,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(660,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(663,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(663,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(667,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(667,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(671,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(671,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(677,44): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(677,50): error TS7006: Parameter 'current' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(719,36): error TS7006: Parameter 'b' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(740,51): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(754,45): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(754,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/repository.ts(755,45): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/ai-evals/src/db/types.ts(5,69): error TS2307: Cannot find module '@prisma/client' or its corresponding type declarations.
+packages/ai-evals/src/model-comparison.ts(111,11): error TS2345: Argument of type 'ModelConfig' is not assignable to parameter of type 'RunnerConfig'.
+  Property 'modelId' is missing in type 'ModelConfig' but required in type 'RunnerConfig'.
+packages/ai-evals/src/model-comparison.ts(114,22): error TS2345: Argument of type '{ testCaseId?: string | undefined; input?: any; expected?: any; actual?: any; metadata?: { modelId?: string | undefined; latency?: number | undefined; tokenUsage?: { prompt?: number | undefined; completion?: number | undefined; total?: number | undefined; } | undefined; cost?: number | undefined; timestamp?: { ...; ...' is not assignable to parameter of type 'RunResult<any>'.
+  Types of property 'testCaseId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/ai-evals/src/model-comparison.ts(170,15): error TS2345: Argument of type 'ModelConfig' is not assignable to parameter of type 'RunnerConfig'.
+  Property 'modelId' is missing in type 'ModelConfig' but required in type 'RunnerConfig'.
+packages/ai-evals/src/model-comparison.ts(173,26): error TS2345: Argument of type '{ testCaseId?: string | undefined; input?: any; expected?: any; actual?: any; metadata?: { modelId?: string | undefined; latency?: number | undefined; tokenUsage?: { prompt?: number | undefined; completion?: number | undefined; total?: number | undefined; } | undefined; cost?: number | undefined; timestamp?: { ...; ...' is not assignable to parameter of type 'RunResult<any>'.
+  Types of property 'testCaseId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/ai-evals/src/monitoring/analytics.ts(136,32): error TS2339: Property 'duration' does not exist on type '{ totalTests: number; passed: number; failed: number; accuracy: number; avgLatency: number; totalCost: number; status: JobStatus; }'.
+packages/ai-evals/src/monitoring/cost-tracker.ts(255,32): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+packages/ai-evals/src/monitoring/examples.ts(187,5): error TS2353: Object literal may only specify known properties, and 'totalTests' does not exist in type 'Metrics'.
+packages/ai-evals/src/orchestrator.ts(226,13): error TS2739: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; dataset: Dataset; modelConfig: ModelConfig; scorerConfig: ScorerConfig; results: RunResult<any>[]; metrics: EvalMetrics; timestamp: string; duration: number; }' is missing the following properties from type 'EvalReport': jobId, runSummaries, summary, generatedAt
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(13,3): error TS2305: Module '"../types"' has no exported member 'BaselineComparison'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(14,3): error TS2305: Module '"../types"' has no exported member 'CategoryMetrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(44,5): error TS2322: Type '{ [x: string]: RegressionThresholds | undefined; }' is not assignable to type 'Record<string, RegressionThresholds>'.
+  'string' index signatures are incompatible.
+    Type 'RegressionThresholds | undefined' is not assignable to type 'RegressionThresholds'.
+      Type 'undefined' is not assignable to type 'RegressionThresholds'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(55,7): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(78,27): error TS2551: Property 'isActive' does not exist on type 'Baseline'. Did you mean 'active'?
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(79,27): error TS2339: Property 'updatedAt' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(82,14): error TS2551: Property 'isActive' does not exist on type 'Baseline'. Did you mean 'active'?
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(83,14): error TS2339: Property 'updatedAt' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(109,16): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(119,16): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(129,16): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(130,22): error TS2339: Property 'avgScore' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(139,16): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(149,16): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(157,77): error TS2339: Property 'breakdown' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(158,41): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(176,59): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(183,28): error TS2339: Property 'metrics' does not exist on type 'Baseline'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(219,9): error TS2353: Object literal may only specify known properties, and 'absoluteChange' does not exist in type 'Regression'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(230,9): error TS2353: Object literal may only specify known properties, and 'absoluteChange' does not exist in type 'Regression'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(303,18): error TS2339: Property 'avgScore' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(304,37): error TS2339: Property 'avgScore' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(304,57): error TS2339: Property 'avgScore' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(304,78): error TS2339: Property 'avgScore' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/baseline-comparator.ts(333,18): error TS2551: Property 'isActive' does not exist on type 'Baseline'. Did you mean 'active'?
+packages/ai-evals/src/orchestrator/index.ts(8,22): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(8,33): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(12,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(13,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(14,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(18,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(19,3): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(21,27): error TS1205: Re-exporting a type when 'isolatedModules' is enabled requires using 'export type'.
+packages/ai-evals/src/orchestrator/index.ts(33,3): error TS2724: '"../types"' has no exported member named 'WorkerConfig'. Did you mean 'ScorerConfig'?
+packages/ai-evals/src/orchestrator/index.ts(35,3): error TS2305: Module '"../types"' has no exported member 'BaselineComparison'.
+packages/ai-evals/src/orchestrator/index.ts(93,42): error TS2339: Property 'runnerConfigs' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/index.ts(124,59): error TS2339: Property 'scorerConfig' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/index.ts(128,33): error TS2339: Property 'scorerConfig' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/index.ts(147,15): error TS2339: Property 'baseline' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/index.ts(155,15): error TS2339: Property 'baseline' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/index.ts(325,5): error TS2739: Type 'EvalMetrics' is missing the following properties from type 'Metrics': accuracy, avgLatency
+packages/ai-evals/src/orchestrator/job-manager.ts(12,3): error TS2305: Module '"../types"' has no exported member 'JobProgress'.
+packages/ai-evals/src/orchestrator/job-manager.ts(66,7): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/orchestrator/job-manager.ts(121,9): error TS2339: Property 'updatedAt' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/job-manager.ts(123,7): error TS2322: Type 'string' is not assignable to type '{ code: string; message: string; }'.
+packages/ai-evals/src/orchestrator/job-manager.ts(166,46): error TS2339: Property 'updatedAt' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/job-manager.ts(215,47): error TS2339: Property 'getTime' does not exist on type 'string'.
+packages/ai-evals/src/orchestrator/job-manager.ts(215,71): error TS2339: Property 'getTime' does not exist on type 'string'.
+packages/ai-evals/src/orchestrator/job-manager.ts(246,13): error TS2339: Property 'updatedAt' does not exist on type 'EvalJob'.
+packages/ai-evals/src/orchestrator/parallel-executor.ts(18,3): error TS2724: '"../types"' has no exported member named 'WorkerConfig'. Did you mean 'ScorerConfig'?
+packages/ai-evals/src/orchestrator/parallel-executor.ts(19,3): error TS2305: Module '"../types"' has no exported member 'ExecutionMetrics'.
+packages/ai-evals/src/orchestrator/parallel-executor.ts(223,9): error TS2353: Object literal may only specify known properties, and 'timestamp' does not exist in type 'EvalError'.
+packages/ai-evals/src/orchestrator/report-generator.ts(10,3): error TS2305: Module '"../types"' has no exported member 'Recommendation'.
+packages/ai-evals/src/orchestrator/report-generator.ts(13,3): error TS2305: Module '"../types"' has no exported member 'ScoringResult'.
+packages/ai-evals/src/orchestrator/report-generator.ts(15,3): error TS2305: Module '"../types"' has no exported member 'CategoryMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(16,3): error TS2305: Module '"../types"' has no exported member 'ExecutionMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(56,29): error TS2339: Property 'totalTests' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(57,25): error TS2339: Property 'passed' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(58,25): error TS2339: Property 'failed' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(62,9): error TS2353: Object literal may only specify known properties, and 'duration' does not exist in type '{ totalTests: number; passed: number; failed: number; accuracy: number; avgLatency: number; totalCost: number; status: JobStatus; }'.
+packages/ai-evals/src/orchestrator/report-generator.ts(67,7): error TS2740: Type 'Metrics' is missing the following properties from type 'EvalMetrics': totalTests, passedTests, failedTests, averageScore, and 9 more.
+packages/ai-evals/src/orchestrator/report-generator.ts(108,7): error TS2353: Object literal may only specify known properties, and 'totalTests' does not exist in type 'Metrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(281,50): error TS2339: Property 'breakdown' does not exist on type 'Metrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(281,77): error TS18046: 'cat' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(289,37): error TS18046: 'c' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(332,18): error TS2339: Property 'includeDetails' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/orchestrator/report-generator.ts(339,36): error TS2339: Property 'includeRecommendations' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/orchestrator/report-generator.ts(339,68): error TS2339: Property 'recommendations' does not exist on type 'EvalReport'.
+packages/ai-evals/src/orchestrator/report-generator.ts(359,22): error TS2339: Property 'passed' does not exist on type 'EvalMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(361,22): error TS2339: Property 'accuracy' does not exist on type 'EvalMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(363,22): error TS2339: Property 'avgScore' does not exist on type 'EvalMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(365,22): error TS2339: Property 'avgLatency' does not exist on type 'EvalMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(370,69): error TS2339: Property 'breakdown' does not exist on type 'EvalMetrics'.
+packages/ai-evals/src/orchestrator/report-generator.ts(374,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(376,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(378,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(380,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(382,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(384,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/orchestrator/report-generator.ts(388,17): error TS2339: Property 'includeDetails' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/orchestrator/report-generator.ts(388,35): error TS18048: 'report.regressions' is possibly 'undefined'.
+packages/ai-evals/src/orchestrator/report-generator.ts(392,25): error TS18048: 'report.regressions' is possibly 'undefined'.
+packages/ai-evals/src/orchestrator/report-generator.ts(452,53): error TS2339: Property 'duration' does not exist on type '{ totalTests: number; passed: number; failed: number; accuracy: number; avgLatency: number; totalCost: number; status: JobStatus; }'.
+packages/ai-evals/src/orchestrator/report-generator.ts(455,9): error TS18048: 'report.regressions' is possibly 'undefined'.
+packages/ai-evals/src/orchestrator/report-generator.ts(460,25): error TS18048: 'report.regressions' is possibly 'undefined'.
+packages/ai-evals/src/orchestrator/report-generator.ts(475,17): error TS2339: Property 'includeRecommendations' does not exist on type 'ExportOptions'.
+packages/ai-evals/src/orchestrator/report-generator.ts(475,50): error TS2339: Property 'recommendations' does not exist on type 'EvalReport'.
+packages/ai-evals/src/orchestrator/report-generator.ts(478,32): error TS2339: Property 'recommendations' does not exist on type 'EvalReport'.
+packages/ai-evals/src/parallel-executor.ts(314,9): error TS2322: Type '{ testCaseId?: string | undefined; input?: any; expected?: any; actual?: any; metadata?: { modelId?: string | undefined; latency?: number | undefined; tokenUsage?: { prompt?: number | undefined; completion?: number | undefined; total?: number | undefined; } | undefined; cost?: number | undefined; timestamp?: { ...; ...' is not assignable to type 'RunResult<any>'.
+  Types of property 'testCaseId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/ai-evals/src/parallel-executor.ts(314,51): error TS2345: Argument of type 'ModelConfig' is not assignable to parameter of type 'RunnerConfig'.
+  Property 'modelId' is missing in type 'ModelConfig' but required in type 'RunnerConfig'.
+packages/ai-evals/src/runners/advising-runner.ts(3,10): error TS2305: Module '"../types"' has no exported member 'AdvisingInput'.
+packages/ai-evals/src/runners/advising-runner.ts(3,25): error TS2305: Module '"../types"' has no exported member 'AdvisingOutput'.
+packages/ai-evals/src/runners/advising-runner.ts(3,41): error TS2305: Module '"../types"' has no exported member 'CourseRecommendation'.
+packages/ai-evals/src/runners/compliance-runner.ts(3,10): error TS2305: Module '"../types"' has no exported member 'ComplianceInput'.
+packages/ai-evals/src/runners/compliance-runner.ts(3,27): error TS2305: Module '"../types"' has no exported member 'ComplianceOutput'.
+packages/ai-evals/src/runners/conversational-runner.ts(3,10): error TS2305: Module '"../types"' has no exported member 'ConversationalInput'.
+packages/ai-evals/src/runners/conversational-runner.ts(3,31): error TS2305: Module '"../types"' has no exported member 'ConversationalOutput'.
+packages/ai-evals/src/runners/conversational-runner.ts(22,34): error TS7006: Parameter 'msg' implicitly has an 'any' type.
+packages/ai-evals/src/runners/examples.ts(21,3): error TS2305: Module '"../types"' has no exported member 'ComplianceInput'.
+packages/ai-evals/src/runners/examples.ts(22,3): error TS2305: Module '"../types"' has no exported member 'ComplianceOutput'.
+packages/ai-evals/src/runners/examples.ts(23,3): error TS2305: Module '"../types"' has no exported member 'ConversationalInput'.
+packages/ai-evals/src/runners/examples.ts(24,3): error TS2305: Module '"../types"' has no exported member 'ConversationalOutput'.
+packages/ai-evals/src/runners/examples.ts(25,3): error TS2305: Module '"../types"' has no exported member 'AdvisingInput'.
+packages/ai-evals/src/runners/examples.ts(26,3): error TS2305: Module '"../types"' has no exported member 'AdvisingOutput'.
+packages/ai-evals/src/runners/examples.ts(27,3): error TS2305: Module '"../types"' has no exported member 'RiskPredictionInput'.
+packages/ai-evals/src/runners/examples.ts(28,3): error TS2305: Module '"../types"' has no exported member 'RiskPredictionOutput'.
+packages/ai-evals/src/runners/examples.ts(29,3): error TS2305: Module '"../types"' has no exported member 'RAGInput'.
+packages/ai-evals/src/runners/examples.ts(30,3): error TS2305: Module '"../types"' has no exported member 'RAGOutput'.
+packages/ai-evals/src/runners/examples.ts(57,7): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(105,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(127,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(189,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(222,7): error TS2353: Object literal may only specify known properties, and 'strategy' does not exist in type 'ScorerConfig'.
+packages/ai-evals/src/runners/examples.ts(270,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(283,7): error TS2353: Object literal may only specify known properties, and 'strategy' does not exist in type 'ScorerConfig'.
+packages/ai-evals/src/runners/examples.ts(284,28): error TS7006: Parameter 'expected' implicitly has an 'any' type.
+packages/ai-evals/src/runners/examples.ts(284,38): error TS7006: Parameter 'actual' implicitly has an 'any' type.
+packages/ai-evals/src/runners/examples.ts(337,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(361,37): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+packages/ai-evals/src/runners/examples.ts(361,42): error TS7006: Parameter 's' implicitly has an 'any' type.
+packages/ai-evals/src/runners/examples.ts(395,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/examples.ts(417,9): error TS2322: Type 'Date' is not assignable to type 'string'.
+packages/ai-evals/src/runners/model-comparison.ts(5,3): error TS2305: Module '"../types"' has no exported member 'ComparisonResult'.
+packages/ai-evals/src/runners/model-comparison.ts(6,3): error TS2305: Module '"../types"' has no exported member 'ComparisonReport'.
+packages/ai-evals/src/runners/model-comparison.ts(43,21): error TS2339: Property 'score' does not exist on type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(47,24): error TS2339: Property 'score' does not exist on type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(48,28): error TS2339: Property 'score' does not exist on type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(202,7): error TS2353: Object literal may only specify known properties, and 'score' does not exist in type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(208,14): error TS2339: Property 'strategy' does not exist on type 'ScorerConfig'.
+packages/ai-evals/src/runners/model-comparison.ts(212,7): error TS2353: Object literal may only specify known properties, and 'score' does not exist in type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(218,14): error TS2339: Property 'customScorer' does not exist on type 'ScorerConfig'.
+packages/ai-evals/src/runners/model-comparison.ts(219,19): error TS2339: Property 'customScorer' does not exist on type 'ScorerConfig'.
+packages/ai-evals/src/runners/model-comparison.ts(225,5): error TS2353: Object literal may only specify known properties, and 'score' does not exist in type 'Score'.
+packages/ai-evals/src/runners/model-comparison.ts(254,23): error TS18046: 'b' is of type 'unknown'.
+packages/ai-evals/src/runners/model-comparison.ts(254,36): error TS18046: 'a' is of type 'unknown'.
+packages/ai-evals/src/runners/model-comparison.ts(260,9): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/runners/model-comparison.ts(261,12): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/runners/model-comparison.ts(262,12): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/runners/model-comparison.ts(263,13): error TS18046: 'metrics' is of type 'unknown'.
+packages/ai-evals/src/runners/rag-runner.ts(3,10): error TS2305: Module '"../types"' has no exported member 'RAGInput'.
+packages/ai-evals/src/runners/rag-runner.ts(3,20): error TS2305: Module '"../types"' has no exported member 'RAGOutput'.
+packages/ai-evals/src/runners/risk-prediction-runner.ts(3,10): error TS2305: Module '"../types"' has no exported member 'RiskPredictionInput'.
+packages/ai-evals/src/runners/risk-prediction-runner.ts(3,31): error TS2305: Module '"../types"' has no exported member 'RiskPredictionOutput'.
+packages/ai-evals/src/safety/examples.ts(93,41): error TS7006: Parameter 'violation' implicitly has an 'any' type.
+packages/ai-evals/src/safety/ferpa-compliance.ts(18,3): error TS2305: Module '"../types"' has no exported member 'FERPAComplianceResult'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(19,3): error TS2305: Module '"../types"' has no exported member 'FERPARequirement'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(20,3): error TS2305: Module '"../types"' has no exported member 'Severity'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(21,3): error TS2305: Module '"../types"' has no exported member 'DatasetAuditLog'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(22,3): error TS2305: Module '"../types"' has no exported member 'AnonymizationConfig'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(23,3): error TS2305: Module '"../types"' has no exported member 'PIIType'.
+packages/ai-evals/src/safety/ferpa-compliance.ts(24,3): error TS2305: Module '"../types"' has no exported member 'AdversarialDataset'.
+packages/ai-evals/src/safety/index.ts(31,3): error TS2305: Module '"../types"' has no exported member 'PIIDetection'.
+packages/ai-evals/src/safety/index.ts(32,3): error TS2305: Module '"../types"' has no exported member 'PIIScoreResult'.
+packages/ai-evals/src/safety/index.ts(33,3): error TS2305: Module '"../types"' has no exported member 'FERPAComplianceResult'.
+packages/ai-evals/src/safety/index.ts(34,3): error TS2305: Module '"../types"' has no exported member 'DatasetAuditLog'.
+packages/ai-evals/src/safety/index.ts(35,3): error TS2305: Module '"../types"' has no exported member 'AnonymizationConfig'.
+packages/ai-evals/src/safety/index.ts(36,3): error TS2305: Module '"../types"' has no exported member 'AdversarialTestCase'.
+packages/ai-evals/src/safety/index.ts(37,3): error TS2305: Module '"../types"' has no exported member 'AdversarialDataset'.
+packages/ai-evals/src/safety/index.ts(38,3): error TS2305: Module '"../types"' has no exported member 'AdversarialTestResult'.
+packages/ai-evals/src/safety/index.ts(39,3): error TS2305: Module '"../types"' has no exported member 'SafetyEvalReport'.
+packages/ai-evals/src/safety/index.ts(43,3): error TS2305: Module '"../types"' has no exported member 'PIIType'.
+packages/ai-evals/src/safety/index.ts(44,3): error TS2305: Module '"../types"' has no exported member 'Severity'.
+packages/ai-evals/src/safety/index.ts(45,3): error TS2305: Module '"../types"' has no exported member 'AdversarialAttackType'.
+packages/ai-evals/src/safety/index.ts(46,3): error TS2305: Module '"../types"' has no exported member 'FERPARequirement'.
+packages/ai-evals/src/scorers.ts(705,53): error TS2345: Argument of type '{ latencyMs: number; tokens?: { input: number; output: number; total: number; } | undefined; cost?: number | undefined; } | undefined' is not assignable to parameter of type '{ latencyMs: number; tokens?: TokenUsage | undefined; cost?: number | undefined; } | undefined'.
+  Type '{ latencyMs: number; tokens?: { input: number; output: number; total: number; } | undefined; cost?: number | undefined; }' is not assignable to type '{ latencyMs: number; tokens?: TokenUsage | undefined; cost?: number | undefined; }'.
+    Types of property 'tokens' are incompatible.
+      Type '{ input: number; output: number; total: number; } | undefined' is not assignable to type 'TokenUsage | undefined'.
+        Type '{ input: number; output: number; total: number; }' is missing the following properties from type 'TokenUsage': prompt, completion
+packages/ai-evals/src/scorers/llm-judge.ts(199,21): error TS18046: 'data' is of type 'unknown'.
+packages/ai-evals/src/scorers/llm-judge.ts(237,21): error TS18046: 'data' is of type 'unknown'.
+packages/ai-evals/src/scorers/semantic-similarity.ts(181,12): error TS18046: 'data' is of type 'unknown'.
+packages/ai-evals/src/scorers/semantic-similarity.ts(215,34): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/ai-evals/src/types/index.ts(509,3): error TS2717: Subsequent property declarations must have the same type.  Property 'format' must be of type '"json" | "csv" | "yaml"', but here has type 'ExportFormat'.
+packages/ai/agents/administrative-agent.ts(13,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/agents/advising-agent.ts(13,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/agents/compliance-agent.ts(13,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/agents/error-diagnostics-agent.ts(21,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/agents/error-diagnostics-agent.ts(261,9): error TS2783: 'error' is specified more than once, so this usage will be overwritten.
+packages/ai/agents/general-assistant.ts(12,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/agents/intervention-agent.ts(13,15): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/index.ts(18,1): error TS2308: Module './types/agent.types' has already exported a member named 'AgentError'. Consider explicitly re-exporting to resolve the ambiguity.
+packages/ai/index.ts(54,1): error TS2308: Module './lib/agent-utils' has already exported a member named 'compressMessages'. Consider explicitly re-exporting to resolve the ambiguity.
+packages/ai/index.ts(75,1): error TS2308: Module './lib/providers' has already exported a member named 'anthropic'. Consider explicitly re-exporting to resolve the ambiguity.
+packages/ai/index.ts(75,1): error TS2308: Module './lib/providers' has already exported a member named 'openai'. Consider explicitly re-exporting to resolve the ambiguity.
+packages/ai/index.ts(75,1): error TS2308: Module './lib/providers' has already exported a member named 'selectModel'. Consider explicitly re-exporting to resolve the ambiguity.
+packages/ai/lib/agent-memory.ts(115,9): error TS2322: Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModel<string>'.
+  Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModelV2<string>'.
+    Types of property 'specificationVersion' are incompatible.
+      Type '"v1"' is not assignable to type '"v2"'.
+packages/ai/lib/agent-memory.ts(127,11): error TS2353: Object literal may only specify known properties, and 'embedding' does not exist in type 'Without<AgentMemoryCreateInput, AgentMemoryUncheckedCreateInput> & AgentMemoryUncheckedCreateInput'.
+packages/ai/lib/agent-memory.ts(155,9): error TS2322: Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModel<string>'.
+  Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModelV2<string>'.
+    Types of property 'specificationVersion' are incompatible.
+      Type '"v1"' is not assignable to type '"v2"'.
+packages/ai/lib/agent-memory.ts(279,7): error TS2322: Type 'LanguageModelV1' is not assignable to type 'LanguageModel'.
+  Property 'supportedUrls' is missing in type 'LanguageModelV1' but required in type 'LanguageModelV2'.
+packages/ai/lib/agentic-workflow.ts(273,9): error TS2353: Object literal may only specify known properties, and 'maxSteps' does not exist in type 'CallSettings & { system?: string | undefined; } & { prompt: string | ModelMessage[]; messages?: undefined; } & { model: LanguageModel; tools?: Record<...> | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.
+packages/ai/lib/base-agent.ts(7,59): error TS2305: Module '"ai"' has no exported member 'CoreTool'.
+packages/ai/lib/base-agent.ts(98,9): error TS2353: Object literal may only specify known properties, and 'maxSteps' does not exist in type 'CallSettings & { system?: string | undefined; } & { messages: ModelMessage[]; prompt?: undefined; } & { model: LanguageModel; tools?: Record<string, CoreTool> | undefined; ... 18 more ...; _internal?: { ...; } | undefined; }'.
+packages/ai/lib/base-agent.ts(229,9): error TS2353: Object literal may only specify known properties, and 'maxSteps' does not exist in type 'CallSettings & { system?: string | undefined; } & { messages: ModelMessage[]; prompt?: undefined; } & { model: LanguageModel; tools?: Record<string, CoreTool> | undefined; ... 13 more ...; _internal?: { ...; } | undefined; }'.
+packages/ai/lib/base-agent.ts(243,38): error TS2339: Property 'promptTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(244,42): error TS2339: Property 'completionTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(245,11): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/ai/lib/base-agent.ts(257,22): error TS2339: Property 'promptTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(258,22): error TS2339: Property 'completionTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(276,38): error TS2339: Property 'promptTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(277,42): error TS2339: Property 'completionTokens' does not exist on type 'LanguageModelV2Usage'.
+packages/ai/lib/base-agent.ts(278,11): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/ai/lib/feedback-manager.ts(312,9): error TS2322: Type '{ inputParams: true; outputResult: true; }' is not assignable to type 'never'.
+packages/ai/lib/intent-classifier.ts(277,7): error TS2322: Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModel<string>'.
+  Type 'EmbeddingModelV1<string>' is not assignable to type 'EmbeddingModelV2<string>'.
+    Types of property 'specificationVersion' are incompatible.
+      Type '"v1"' is not assignable to type '"v2"'.
+packages/ai/lib/prompt-compression.ts(167,9): error TS2322: Type 'LanguageModelV1' is not assignable to type 'LanguageModel'.
+  Property 'supportedUrls' is missing in type 'LanguageModelV1' but required in type 'LanguageModelV2'.
+packages/ai/lib/prompt-compression.ts(217,9): error TS2322: Type 'LanguageModelV1' is not assignable to type 'LanguageModel'.
+  Property 'supportedUrls' is missing in type 'LanguageModelV1' but required in type 'LanguageModelV2'.
+packages/ai/lib/providers.ts(12,36): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(modelId: "gpt-3.5-turbo-instruct", settings?: OpenAICompletionSettings | undefined): OpenAICompletionLanguageModel', gave the following error.
+    Argument of type '{ apiKey: string | undefined; compatibility: string; }' is not assignable to parameter of type '"gpt-3.5-turbo-instruct"'.
+  Overload 2 of 2, '(modelId: OpenAIChatModelId, settings?: OpenAIChatSettings | undefined): LanguageModelV1', gave the following error.
+    Argument of type '{ apiKey: string | undefined; compatibility: string; }' is not assignable to parameter of type 'OpenAIChatModelId'.
+packages/ai/lib/providers.ts(18,42): error TS2345: Argument of type '{ apiKey: string | undefined; }' is not assignable to parameter of type 'AnthropicMessagesModelId'.
+packages/ai/lib/providers.ts(33,16): error TS2349: This expression is not callable.
+  Type 'OpenAICompletionLanguageModel & LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(36,16): error TS2349: This expression is not callable.
+  Type 'OpenAICompletionLanguageModel & LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(43,16): error TS2349: This expression is not callable.
+  Type 'LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(45,16): error TS2349: This expression is not callable.
+  Type 'LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(47,16): error TS2349: This expression is not callable.
+  Type 'LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(54,14): error TS2349: This expression is not callable.
+  Type 'OpenAICompletionLanguageModel & LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(56,14): error TS2349: This expression is not callable.
+  Type 'LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(58,14): error TS2349: This expression is not callable.
+  Type 'LanguageModelV1' has no call signatures.
+packages/ai/lib/providers.ts(66,17): error TS2339: Property 'embedding' does not exist on type 'OpenAICompletionLanguageModel & LanguageModelV1'.
+packages/ai/lib/tool-registry.ts(96,9): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '(params: any) => Promise<string | { success: boolean; error: string; }>' is not assignable to type 'undefined'.
+packages/ai/lib/tool-registry.ts(96,25): error TS7006: Parameter 'params' implicitly has an 'any' type.
+packages/ai/tools/error-diagnostics-tools.ts(26,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/tools/error-diagnostics-tools.ts(98,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/tools/error-diagnostics-tools.ts(180,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/tools/error-diagnostics-tools.ts(243,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/tools/error-diagnostics-tools.ts(333,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/tools/error-diagnostics-tools.ts(406,3): error TS2322: Type '"error_diagnostics"' is not assignable to type 'ToolCategory | undefined'.
+packages/ai/types/agent.types.ts(8,28): error TS2305: Module '"ai"' has no exported member 'CoreTool'.

@@ -1,0 +1,91 @@
+
+> athletic-academics-hub@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas
+> turbo run lint "--filter=@aah/service-advising"
+
+turbo 2.6.0
+
+ΓÇó Packages in scope: @aah/service-advising
+ΓÇó Running lint in 1 packages
+ΓÇó Remote caching disabled
+@aah/service-advising:lint: cache miss, executing 9be47ec668a5bb22
+@aah/service-advising:lint: 
+@aah/service-advising:lint: > @aah/service-advising@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising
+@aah/service-advising:lint: > eslint src --ext .ts
+@aah/service-advising:lint: 
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\algorithms\cspSolver.ts
+@aah/service-advising:lint:   316:5   error  'assignment' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   394:17  error  '_' is assigned a value but never used                                        @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\index.ts
+@aah/service-advising:lint:   223:3  warning  Unexpected console statement  no-console
+@aah/service-advising:lint:   224:3  warning  Unexpected console statement  no-console
+@aah/service-advising:lint:   225:3  warning  Unexpected console statement  no-console
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\conflicts.ts
+@aah/service-advising:lint:   21:9  error  'currentUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\degree-progress.ts
+@aah/service-advising:lint:   21:9  error  'currentUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\recommend.ts
+@aah/service-advising:lint:   34:11  error  'currentUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\schedule.ts
+@aah/service-advising:lint:   38:11  error  'currentUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\validate-schedule.ts
+@aah/service-advising:lint:   34:11  error  'currentUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\routes\validate.ts
+@aah/service-advising:lint:    8:28  error    'ScheduleValidationRequest' is defined but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   44:59  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   52:20  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\services\conflictDetector.ts
+@aah/service-advising:lint:    10:3  error  'TimeSlot' is defined but never used                                          @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   125:5  error  'graph' is defined but never used. Allowed unused args must match /^_/u       @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   361:5  error  'studentId' is defined but never used. Allowed unused args must match /^_/u   @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   362:5  error  'scheduleId' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\services\degreeAudit.ts
+@aah/service-advising:lint:    61:5   error  'degreeProgram' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:    96:39  error  'studentId' is defined but never used. Allowed unused args must match /^_/u      @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   164:5   error  'degreeProgram' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\services\recommendationService.ts
+@aah/service-advising:lint:    99:21  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   145:54  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   285:5   error    'degreeProgress' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   285:21  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   319:21  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   360:21  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   383:11  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   387:72  warning  Unexpected any. Specify a different type                                          @typescript-eslint/no-explicit-any
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\services\schedulingEngine.ts
+@aah/service-advising:lint:   16:3  error  'TimeRange' is defined but never used             @typescript-eslint/no-unused-vars
+@aah/service-advising:lint:   23:3  error  'calculateWeeklyHours' is defined but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\types\index.ts
+@aah/service-advising:lint:    88:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   253:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   302:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+@aah/service-advising:lint:   316:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+@aah/service-advising:lint: 
+@aah/service-advising:lint: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\utils\timeUtils.ts
+@aah/service-advising:lint:   5:36  error  'DayOfWeek' is defined but never used  @typescript-eslint/no-unused-vars
+@aah/service-advising:lint: 
+@aah/service-advising:lint: Γ£û 35 problems (19 errors, 16 warnings)
+@aah/service-advising:lint: 
+@aah/service-advising:lint: ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
+@aah/service-advising:lint: ERROR: command finished with error: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run lint exited (1)
+@aah/service-advising#lint: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run lint exited (1)
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    3.329s 
+Failed:    @aah/service-advising#lint
+
+ ERROR  run failed: command  exited (1)
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
