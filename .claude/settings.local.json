@@ -33,7 +33,13 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel --prod:*)",
+      "Bash(git restore:*)",
+      "Bash(vercel deploy:*)",
+      "Bash($env:NODE_ENV=\"development\")"
     ],
     "deny": [],
     "ask": []
