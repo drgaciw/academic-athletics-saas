@@ -5,7 +5,7 @@
   "description": "Integration service for external systems (LMS, SIS, email, calendar)",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup src/index.ts --format esm,cjs",
+    "build": "tsup src/index.ts --format esm,cjs --external isomorphic-fetch",
     "type-check": "tsc --noEmit",
     "start": "node dist/index.js",
     "test": "jest",
