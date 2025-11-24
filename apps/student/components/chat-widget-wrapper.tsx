@@ -1,7 +1,6 @@
 'use client'
 
-// @ts-expect-error - ai/react module resolution
-import { useChat } from 'ai/react'
+import { useChat } from 'ai'
 import { ChatWidget } from '@aah/ui'
 
 export function ChatWidgetWrapper() {
