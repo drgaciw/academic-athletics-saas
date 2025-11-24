@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "echo 'AI Evals CLI - Use: npm run eval, npm run compare, or npm run report'",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm",
     "type-check": "tsc --noEmit",
     "test": "jest",
     "eval": "tsx cli.ts eval",
