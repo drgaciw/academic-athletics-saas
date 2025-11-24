@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 async function getProgramData() {
   // Get upcoming sessions
-  const upcomingSessions = await prisma.session.findMany({
+  const upcomingSessions = await prisma.tutoringSession.findMany({
     where: {
       status: 'scheduled',
       scheduledAt: {
@@ -25,11 +25,11 @@ async function getProgramData() {
   });
 
   // Get session statistics
-  const totalSessions = await prisma.session.count();
-  const completedSessions = await prisma.session.count({
+  const totalSessions = await prisma.tutoringSession.count();
+  const completedSessions = await prisma.tutoringSession.count({
     where: { status: 'completed' },
   });
-  const scheduledSessions = await prisma.session.count({
+  const scheduledSessions = await prisma.tutoringSession.count({
     where: { status: 'scheduled' },
   });
 
