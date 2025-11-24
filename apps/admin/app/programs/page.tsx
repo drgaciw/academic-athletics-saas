@@ -13,7 +13,17 @@ async function getProgramData() {
       },
     },
     include: {
-      user: {
+      student: {
+        select: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+      tutor: {
         select: {
           firstName: true,
           lastName: true,
