@@ -114,9 +114,9 @@ export default async function ProgramsPage() {
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
-                    <p className="font-semibold">{session.type}</p>
+                    <p className="font-semibold">{session.subject}</p>
                     <p className="text-sm text-gray-600">
-                      {session.user.firstName} {session.user.lastName}
+                      {session.student.firstName} {session.student.lastName}
                     </p>
                     <p className="text-sm text-gray-500">
                       {new Date(session.scheduledAt).toLocaleString()}
