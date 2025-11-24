@@ -15,12 +15,8 @@ async function getProgramData() {
     include: {
       student: {
         select: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
+          firstName: true,
+          lastName: true,
         },
       },
       tutor: {
