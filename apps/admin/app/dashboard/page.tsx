@@ -37,10 +37,9 @@ async function getAdminAnalytics() {
     },
   });
 
-  // Get upcoming sessions
-  const upcomingSessions = await prisma.session.count({
+  // Get upcoming sessions (using TutoringSession as proxy)
+  const upcomingSessions = await prisma.tutoringSession.count({
     where: {
-      status: "scheduled",
       scheduledAt: {
         gte: new Date(),
       },
