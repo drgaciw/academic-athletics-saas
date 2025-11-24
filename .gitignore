@@ -35,3 +35,16 @@ yarn-error.log*
 
 # Prisma
 prisma/migrations
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
