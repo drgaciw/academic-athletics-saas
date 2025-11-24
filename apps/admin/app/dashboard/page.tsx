@@ -28,7 +28,7 @@ async function getAdminAnalytics() {
   // Get at-risk students (GPA < 2.5)
   const atRiskStudents = await prisma.complianceRecord.count({
     where: {
-      gpa: {
+      cumulativeGpa: {
         lt: 2.5,
       },
       createdAt: {
