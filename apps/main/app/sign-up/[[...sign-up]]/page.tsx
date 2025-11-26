@@ -40,15 +40,7 @@ export default function SignUpPage() {
                     'text-[#131118] dark:text-gray-200 text-sm font-medium leading-normal pb-2',
                 },
               }}
-            >
-              <div className="flex items-center">
-                <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
-                <p className="text-[#6b6388] dark:text-gray-400 text-sm font-normal leading-normal px-4 text-center">
-                  OR
-                </p>
-                <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
-              </div>
-            </SignUp>
+            />
           </div>
         </div>
       </div>

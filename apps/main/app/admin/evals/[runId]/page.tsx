@@ -91,11 +91,11 @@ export default function EvalRunDetailsPage() {
     } else if (format === "csv") {
       const headers = ["Test ID", "Passed", "Score", "Latency (ms)", "Cost"];
       const rows = results.map((r) => [
-        r.testCaseId,
-        r.metadata.error ? "false" : "true",
-        r.metadata.error ? "0" : "1",
-        r.metadata.latency.toFixed(0),
-        r.metadata.cost.toFixed(4),
+        r.testCase.id,
+        r.score.passed ? "true" : "false",
+        r.score.value.toFixed(2),
+        r.score.latencyMs.toFixed(0),
+        (r.score.cost || 0).toFixed(4),
       ]);
       const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
       const dataBlob = new Blob([csv], { type: "text/csv" });
@@ -110,13 +110,13 @@ export default function EvalRunDetailsPage() {
 
   const filteredResults = results.filter((result) => {
     if (filterStatus === "all") return true;
-    const passed = !result.metadata.error;
+    const passed = result.score.passed;
     if (filterStatus === "passed") return passed;
     if (filterStatus === "failed") return !passed;
     return true;
   });
 
-  const failedResults = results.filter((r) => r.metadata.error);
+  const failedResults = results.filter((r) => !r.score.passed);
 
   if (loading) {
     return (
@@ -176,7 +176,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Total Tests</CardDescription>
             <CardTitle className="text-3xl">
-              {report.summary.totalTests}
+              {report.metrics.totalTests}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -185,7 +185,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Passed</CardDescription>
             <CardTitle className="text-3xl text-green-600">
-              {report.summary.passed}
+              {report.metrics.passedTests}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -194,7 +194,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Failed</CardDescription>
             <CardTitle className="text-3xl text-red-600">
-              {report.summary.failed}
+              {report.metrics.failedTests}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -203,7 +203,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Accuracy</CardDescription>
             <CardTitle className="text-3xl">
-              {report.summary.accuracy.toFixed(1)}%
+              {(report.metrics.passRate * 100).toFixed(1)}%
             </CardTitle>
           </CardHeader>
         </Card>
@@ -212,7 +212,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Total Cost</CardDescription>
             <CardTitle className="text-3xl">
-              ${report.summary.totalCost.toFixed(2)}
+              ${report.metrics.totalCost.toFixed(2)}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -230,40 +230,7 @@ export default function EvalRunDetailsPage() {
         </Alert>
       )}
 
-      {/* Recommendations */}
-      {report.recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recommendations</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {report.recommendations.map((rec: any, idx: number) => (
-              <Alert
-                key={idx}
-                variant={
-                  rec.severity === "high"
-                    ? "error"
-                    : rec.severity === "medium"
-                      ? "warning"
-                      : "info"
-                }
-              >
-                <AlertTitle>{rec.title}</AlertTitle>
-                <AlertDescription>
-                  <p>{rec.description}</p>
-                  {rec.suggestedActions && rec.suggestedActions.length > 0 && (
-                    <ul className="mt-2 list-disc list-inside space-y-1">
-                      {rec.suggestedActions.map((action: string, i: number) => (
-                        <li key={i}>{action}</li>
-                      ))}
-                    </ul>
-                  )}
-                </AlertDescription>
-              </Alert>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      {/* Recommendations - removed as not part of EvalReport type */}
 
       {/* Category Breakdown */}
       <Card>
@@ -287,28 +254,28 @@ export default function EvalRunDetailsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.values(report.metrics.breakdown).map((category: any) => (
-                <TableRow key={category.category}>
+              {Object.entries(report.metrics.categoryBreakdown).map(([categoryName, category]) => (
+                <TableRow key={categoryName}>
                   <TableCell className="font-medium">
-                    {category.category}
+                    {categoryName}
                   </TableCell>
                   <TableCell className="text-right">
                     {category.totalTests}
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.passed}
+                    {category.passedTests}
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.accuracy.toFixed(1)}%
+                    {(category.passRate * 100).toFixed(1)}%
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.avgScore.toFixed(2)}
+                    {category.averageScore.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.avgLatency.toFixed(0)}ms
+                    {category.averageLatencyMs.toFixed(0)}ms
                   </TableCell>
                   <TableCell className="text-right">
-                    ${category.avgCost.toFixed(4)}
+                    N/A
                   </TableCell>
                 </TableRow>
               ))}
@@ -338,7 +305,7 @@ export default function EvalRunDetailsPage() {
                 size="sm"
                 onClick={() => setFilterStatus("passed")}
               >
-                Passed ({results.filter((r) => !r.metadata.error).length})
+                Passed ({results.filter((r) => r.score.passed).length})
               </Button>
               <Button
                 variant={filterStatus === "failed" ? "default" : "outline"}
@@ -364,11 +331,11 @@ export default function EvalRunDetailsPage() {
             </TableHeader>
             <TableBody>
               {filteredResults.map((result) => {
-                const passed = !result.metadata.error;
+                const passed = result.score.passed;
                 return (
-                  <TableRow key={result.testCaseId}>
+                  <TableRow key={result.testCase.id}>
                     <TableCell className="font-mono text-sm">
-                      {result.testCaseId}
+                      {result.testCase.id}
                     </TableCell>
                     <TableCell>
                       <Badge variant={passed ? "success" : "error"}>
@@ -376,13 +343,13 @@ export default function EvalRunDetailsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {passed ? "1.00" : "0.00"}
+                      {result.score.value.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {result.metadata.latency.toFixed(0)}ms
+                      {result.score.latencyMs.toFixed(0)}ms
                     </TableCell>
                     <TableCell className="text-right">
-                      ${result.metadata.cost.toFixed(4)}
+                      ${(result.score.cost || 0).toFixed(4)}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -406,7 +373,7 @@ export default function EvalRunDetailsPage() {
         <Card className="border-2 border-blue-500">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Test Case: {selectedTest.testCaseId}</CardTitle>
+              <CardTitle>Test Case: {selectedTest.testCase.id}</CardTitle>
               <Button
                 variant="outline"
                 size="sm"
@@ -421,7 +388,7 @@ export default function EvalRunDetailsPage() {
             <div>
               <h3 className="font-semibold mb-2">Input:</h3>
               <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm">
-                {JSON.stringify(selectedTest.input, null, 2)}
+                {selectedTest.testCase.input}
               </pre>
             </div>
 
@@ -430,8 +397,8 @@ export default function EvalRunDetailsPage() {
               <h3 className="font-semibold mb-2">Expected vs Actual Output:</h3>
               <div className="border rounded-lg overflow-hidden">
                 <ReactDiffViewer
-                  oldValue={JSON.stringify(selectedTest.expected, null, 2)}
-                  newValue={JSON.stringify(selectedTest.actual, null, 2)}
+                  oldValue={JSON.stringify(selectedTest.score.expected, null, 2)}
+                  newValue={JSON.stringify(selectedTest.score.actual, null, 2)}
                   splitView={true}
                   leftTitle="Expected"
                   rightTitle="Actual"
@@ -446,26 +413,26 @@ export default function EvalRunDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Model</p>
                 <p className="font-mono text-sm">
-                  {selectedTest.metadata.modelId}
+                  {selectedTest.modelConfig.model}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Latency</p>
                 <p className="font-semibold">
-                  {selectedTest.metadata.latency.toFixed(0)}ms
+                  {selectedTest.score.latencyMs.toFixed(0)}ms
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Cost</p>
                 <p className="font-semibold">
-                  ${selectedTest.metadata.cost.toFixed(4)}
+                  ${(selectedTest.score.cost || 0).toFixed(4)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
                   {format(
-                    new Date(selectedTest.metadata.timestamp),
+                    new Date(selectedTest.timestamp),
                     "MMM d, HH:mm:ss",
                   )}
                 </p>
@@ -473,11 +440,11 @@ export default function EvalRunDetailsPage() {
             </div>
 
             {/* Error if any */}
-            {selectedTest.metadata.error && (
+            {selectedTest.score.error && (
               <Alert variant="error">
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-                  {selectedTest.metadata.error}
+                  {selectedTest.score.error.message}
                 </AlertDescription>
               </Alert>
             )}

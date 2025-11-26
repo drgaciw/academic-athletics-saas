@@ -17,10 +17,9 @@
 import { track } from '@vercel/analytics/server';
 import type {
   EvalReport,
-  Regression,
-  Metrics,
-  JobStatus,
-  RegressionSeverity,
+  RegressionResult,
+  EvalMetrics,
+  EvalJob,
 } from '../types';
 
 /**
@@ -59,7 +58,7 @@ export interface EvalRunMetadata {
   accuracy: number; // 0-100
   avgLatency: number; // milliseconds
   totalCost: number; // USD
-  status: JobStatus;
+  status: EvalJob['status'];
   regressionCount?: number;
   timestamp: string;
 }
@@ -71,7 +70,7 @@ export interface RegressionMetadata {
   jobId: string;
   testCaseId: string;
   metric: string;
-  severity: RegressionSeverity;
+  severity: RegressionResult['severity'];
   baseline: number;
   current: number;
   percentChange: number;
@@ -129,7 +128,7 @@ export class AnalyticsTracker {
     if (!this.shouldTrack()) return;
 
     const metadata: EvalRunMetadata = {
-      jobId: report.jobId,
+      jobId: report.id,
       datasetIds: report.runSummaries.map((r) => r.datasetId),
       modelIds: report.runSummaries.map((r) => r.config.modelId),
       totalTests: report.summary.totalTests,
@@ -154,7 +153,7 @@ export class AnalyticsTracker {
     // Track individual regressions if any
     if (report.regressions && report.regressions.length > 0) {
       for (const regression of report.regressions) {
-        await this.trackRegression(report.jobId, regression);
+        await this.trackRegression(report.id, regression);
       }
     }
   }
@@ -162,7 +161,7 @@ export class AnalyticsTracker {
   /**
    * Track a regression detection
    */
-  async trackRegression(jobId: string, regression: Regression): Promise<void> {
+  async trackRegression(jobId: string, regression: RegressionResult): Promise<void> {
     if (!this.shouldTrack()) return;
 
     const metadata: RegressionMetadata = {
@@ -336,7 +335,7 @@ export async function trackEvalRun(report: EvalReport): Promise<void> {
 /**
  * Helper function to track regression
  */
-export async function trackRegression(jobId: string, regression: Regression): Promise<void> {
+export async function trackRegression(jobId: string, regression: RegressionResult): Promise<void> {
   const tracker = getAnalyticsTracker();
   await tracker.trackRegression(jobId, regression);
 }
@@ -359,22 +358,20 @@ export class MetricsAggregator {
     criticalRegressions: number;
   } {
     const totalRuns = reports.length;
-    const totalTests = reports.reduce((sum, r) => sum + r.summary.totalTests, 0);
-    const totalCost = reports.reduce((sum, r) => sum + r.summary.totalCost, 0);
-    const totalRegressions = reports.reduce((sum, r) => sum + (r.regressions?.length || 0), 0);
-    const criticalRegressions = reports.reduce(
-      (sum, r) => sum + (r.regressions?.filter((reg) => reg.severity === 'critical').length || 0),
-      0
-    );
+    const totalTests = reports.reduce((sum, r) => sum + r.metrics.totalTests, 0);
+    const totalCost = reports.reduce((sum, r) => sum + r.metrics.totalCost, 0);
+    const totalRegressions = reports.reduce((sum, r) => sum + (r.baseline?.regressions?.length || 0), 0);
+    // Note: baseline regressions don't have severity, so we count all of them
+    const criticalRegressions = 0; // Would need separate tracking of regression severity
 
     const avgPassRate =
       reports.reduce(
-        (sum, r) => sum + (r.summary.passed / r.summary.totalTests) * 100,
+        (sum, r) => sum + (r.metrics.passed / r.metrics.totalTests) * 100,
         0
       ) / totalRuns;
 
-    const avgAccuracy = reports.reduce((sum, r) => sum + r.summary.accuracy, 0) / totalRuns;
-    const avgLatency = reports.reduce((sum, r) => sum + r.summary.avgLatency, 0) / totalRuns;
+    const avgAccuracy = reports.reduce((sum, r) => sum + r.metrics.accuracy, 0) / totalRuns;
+    const avgLatency = reports.reduce((sum, r) => sum + r.metrics.avgLatency, 0) / totalRuns;
 
     return {
       totalRuns,
