@@ -6,7 +6,7 @@
   "devCommand": "turbo run dev --parallel",
   "installCommand": "pnpm install",
   "framework": null,
-  "outputDirectory": ".next",
+  "outputDirectory": "apps/main/.next",
   "regions": ["iad1"],
   "rewrites": [
     {
