@@ -1,6 +1,6 @@
 'use client'
 
-import { useChat } from 'ai'
+import { useChat } from 'ai/react'
 import { ChatWidget } from '@aah/ui'
 
 export default function ChatPage() {
