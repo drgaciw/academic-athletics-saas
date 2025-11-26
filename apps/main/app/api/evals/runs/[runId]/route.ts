@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import type { EvalReport } from '@aah/ai-evals/types';
+import { NextResponse } from "next/server";
+import type { EvalReport } from "@aah/ai-evals";
 
 // Mock data - replace with actual database queries
 export async function GET(
   request: Request,
-  { params }: { params: { runId: string } }
+  { params }: { params: { runId: string } },
 ) {
   try {
     const { runId } = params;
@@ -20,7 +20,7 @@ export async function GET(
         avgLatency: 1200,
         totalCost: 0.45,
         duration: 60000,
-        status: 'completed',
+        status: "completed",
       },
       runSummaries: [],
       scoringResults: [],
@@ -34,8 +34,8 @@ export async function GET(
         avgLatency: 1200,
         totalCost: 0.45,
         breakdown: {
-          'Initial Eligibility': {
-            category: 'Initial Eligibility',
+          "Initial Eligibility": {
+            category: "Initial Eligibility",
             totalTests: 20,
             passed: 19,
             accuracy: 95.0,
@@ -43,8 +43,8 @@ export async function GET(
             avgLatency: 1100,
             avgCost: 0.009,
           },
-          'Continuing Eligibility': {
-            category: 'Continuing Eligibility',
+          "Continuing Eligibility": {
+            category: "Continuing Eligibility",
             totalTests: 15,
             passed: 14,
             accuracy: 93.3,
@@ -52,8 +52,8 @@ export async function GET(
             avgLatency: 1250,
             avgCost: 0.01,
           },
-          'Progress Toward Degree': {
-            category: 'Progress Toward Degree',
+          "Progress Toward Degree": {
+            category: "Progress Toward Degree",
             totalTests: 15,
             passed: 14,
             accuracy: 93.3,
@@ -66,14 +66,15 @@ export async function GET(
       regressions: [],
       recommendations: [
         {
-          type: 'accuracy',
-          severity: 'medium',
-          title: 'Review failed test cases',
-          description: '3 test cases failed in this run. Review the results to identify patterns.',
+          type: "accuracy",
+          severity: "medium",
+          title: "Review failed test cases",
+          description:
+            "3 test cases failed in this run. Review the results to identify patterns.",
           actionable: true,
           suggestedActions: [
             'Examine failed test cases in the "Continuing Eligibility" category',
-            'Check if edge cases need better handling',
+            "Check if edge cases need better handling",
           ],
         },
       ],
@@ -90,18 +91,18 @@ export async function GET(
       },
       expected: {
         eligible: i % 17 !== 0, // Make some fail
-        issues: i % 17 === 0 ? ['GPA below minimum'] : [],
+        issues: i % 17 === 0 ? ["GPA below minimum"] : [],
       },
       actual: {
         eligible: i % 17 !== 0,
-        issues: i % 17 === 0 ? ['GPA below minimum'] : [],
+        issues: i % 17 === 0 ? ["GPA below minimum"] : [],
       },
       score: {
         passed: i % 17 !== 0,
         score: i % 17 !== 0 ? 1.0 : 0.0,
       },
       metadata: {
-        modelId: 'gpt-4',
+        modelId: "gpt-4",
         latency: 1000 + Math.random() * 500,
         cost: 0.009,
         timestamp: new Date(),
@@ -113,10 +114,10 @@ export async function GET(
       results: mockResults,
     });
   } catch (error) {
-    console.error('Error fetching eval run:', error);
+    console.error("Error fetching eval run:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch eval run' },
-      { status: 500 }
+      { error: "Failed to fetch eval run" },
+      { status: 500 },
     );
   }
 }
