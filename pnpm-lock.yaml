@@ -205,6 +205,9 @@ importers:
       '@ai-sdk/openai':
         specifier: ^0.0.66
         version: 0.0.66(zod@3.25.76)
+      '@ai-sdk/react':
+        specifier: ^0.0.70
+        version: 0.0.70(react@18.3.1)(zod@3.25.76)
       '@clerk/nextjs':
         specifier: ^4.29.0
         version: 4.31.8(next@14.2.33)(react-dom@18.3.1)(react@18.3.1)
