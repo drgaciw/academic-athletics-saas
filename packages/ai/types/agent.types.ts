@@ -250,6 +250,8 @@ export type ToolCategory =
   | 'integration'
   | 'analytics'
   | 'administrative'
+  | 'error_diagnostics'
+  | 'monitoring'
 
 /**
  * Tool execution context

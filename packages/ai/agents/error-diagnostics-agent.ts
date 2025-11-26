@@ -258,7 +258,7 @@ Please analyze:
 5. NCAA notification requirements`,
       context: {
         errorType: 'compliance_impact',
-        error: errorMessage,
+        errorMessage,
         ...params,
       },
     }

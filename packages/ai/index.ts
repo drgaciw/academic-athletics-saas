@@ -15,7 +15,17 @@ export * from './lib/langfuse-client'
 export * from './lib/service-client'
 
 // Errors
-export * from './lib/errors'
+export {
+  ToolExecutionError,
+  AgentPlanningError,
+  ContextWindowError,
+  RateLimitError,
+  PermissionDeniedError,
+  InvalidInputError,
+  TimeoutError,
+  isRecoverableError,
+  toAgentError,
+} from './lib/errors'
 
 // Base Agent
 export * from './lib/base-agent'
@@ -51,16 +61,17 @@ export * from './lib/state-manager'
 export * from './lib/cache-manager'
 
 // Prompt Compression (NEW)
-export * from './lib/prompt-compression'
+export type { CompressionStrategy, CompressionOptions, CompressionResult } from './lib/prompt-compression'
+export { PromptCompressor, globalCompressor, compressContent, autoCompress } from './lib/prompt-compression'
 
-// Feedback Management (NEW)
-export * from './lib/feedback-manager'
+// Feedback Management (NEW) - Temporarily disabled due to Prisma schema issues
+// export * from './lib/feedback-manager'
 
 // Configuration Management (NEW)
 export * from './lib/config-manager'
 
-// Agent Memory (NEW)
-export * from './lib/agent-memory'
+// Agent Memory (NEW) - Temporarily disabled due to Prisma schema issues
+// export * from './lib/agent-memory'
 
 // Audit Logging (NEW)
 export * from './lib/audit-logger'
@@ -72,6 +83,6 @@ export * from './tools'
 export * from './agents'
 
 // Existing exports
-export * from './lib/chat'
+export { selectModel } from './lib/chat'
 export * from './lib/embeddings'
 export * from './lib/rag'

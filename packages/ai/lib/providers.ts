@@ -4,14 +4,13 @@
  * Initializes and exports AI SDK providers for OpenAI and Anthropic
  */
 
-import { openai as createOpenAI } from '@ai-sdk/openai'
-import { anthropic as createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { aiConfig } from '../config'
 
 // Initialize OpenAI provider
 export const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict',
 })
 
 // Initialize Anthropic provider

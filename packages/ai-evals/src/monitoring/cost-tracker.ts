@@ -22,10 +22,8 @@
 
 import type {
   EvalReport,
-  RunSummary,
   RunResult,
-  TokenUsage,
-  RunnerConfig,
+  ModelConfig,
 } from '../types';
 
 /**
@@ -181,12 +179,11 @@ export class CostTracker {
   async trackRun(report: EvalReport): Promise<void> {
     if (!this.config.enabled) return;
 
-    for (const runSummary of report.runSummaries) {
-      const entry = this.createCostEntry(report.jobId, runSummary);
-      this.entries.push(entry);
-      this.updateBudgetTracking(entry.totalCost);
-      this.log('Cost tracked:', entry);
-    }
+    // Create cost entry from the new EvalReport structure
+    const entry = this.createCostEntry(report);
+    this.entries.push(entry);
+    this.updateBudgetTracking(entry.totalCost);
+    this.log('Cost tracked:', entry);
 
     // Persist data
     if (this.config.persistPath) {
@@ -200,21 +197,21 @@ export class CostTracker {
   /**
    * Track cost for individual run result
    */
-  trackRunResult(jobId: string, result: RunResult, config: RunnerConfig): void {
+  trackRunResult(jobId: string, result: RunResult, config: ModelConfig): void {
     if (!this.config.enabled) return;
 
     const entry: CostEntry = {
-      runId: `${result.testCaseId}-${config.modelId}`,
+      runId: `${result.testCase.id}-${config.model}`,
       jobId,
-      timestamp: result.metadata.timestamp,
-      modelId: config.modelId,
+      timestamp: new Date(result.timestamp),
+      modelId: config.model,
       datasetId: 'unknown', // Would need to be passed separately
-      totalCost: result.metadata.cost,
-      totalTokens: result.metadata.tokenUsage.total,
-      promptTokens: result.metadata.tokenUsage.prompt,
-      completionTokens: result.metadata.tokenUsage.completion,
+      totalCost: result.score.cost || 0,
+      totalTokens: result.score.tokens?.total || 0,
+      promptTokens: result.score.tokens?.input || 0,
+      completionTokens: result.score.tokens?.output || 0,
       testCount: 1,
-      avgCostPerTest: result.metadata.cost,
+      avgCostPerTest: result.score.cost || 0,
     };
 
     this.entries.push(entry);
@@ -252,7 +249,10 @@ export class CostTracker {
    */
   getCostBreakdown(dimension: CostDimension, period?: TimePeriod): CostBreakdown {
     const entries = period
-      ? this.getEntriesInRange(...Object.values(this.getDateRange(period)))
+      ? (() => {
+          const { start, end } = this.getDateRange(period);
+          return this.getEntriesInRange(start, end);
+        })()
       : this.entries;
 
     const breakdown = new Map<string, { cost: number; tokens: number; runs: number }>();
@@ -465,30 +465,21 @@ export class CostTracker {
   }
 
   /**
-   * Create cost entry from run summary
+   * Create cost entry from eval report
    */
-  private createCostEntry(jobId: string, runSummary: RunSummary): CostEntry {
-    const promptTokens = runSummary.results.reduce(
-      (sum, r) => sum + r.metadata.tokenUsage.prompt,
-      0
-    );
-    const completionTokens = runSummary.results.reduce(
-      (sum, r) => sum + r.metadata.tokenUsage.completion,
-      0
-    );
-
+  private createCostEntry(report: EvalReport): CostEntry {
     return {
-      runId: runSummary.runId,
-      jobId,
-      timestamp: runSummary.startTime,
-      modelId: runSummary.config.modelId,
-      datasetId: runSummary.datasetId,
-      totalCost: runSummary.totalCost,
-      totalTokens: runSummary.totalTokens,
-      promptTokens,
-      completionTokens,
-      testCount: runSummary.results.length,
-      avgCostPerTest: runSummary.totalCost / runSummary.results.length,
+      runId: report.id,
+      jobId: report.id,
+      timestamp: new Date(report.timestamp),
+      modelId: report.modelConfig.model,
+      datasetId: report.dataset.id,
+      totalCost: report.metrics.totalCost,
+      totalTokens: report.metrics.totalTokens.total,
+      promptTokens: report.metrics.totalTokens.input,
+      completionTokens: report.metrics.totalTokens.output,
+      testCount: report.metrics.totalTests,
+      avgCostPerTest: report.metrics.totalCost / report.metrics.totalTests,
     };
   }
 
