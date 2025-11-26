@@ -129,21 +129,23 @@ export class AnalyticsTracker {
 
     const metadata: EvalRunMetadata = {
       jobId: report.id,
-      datasetIds: report.runSummaries.map((r) => r.datasetId),
-      modelIds: report.runSummaries.map((r) => r.config.modelId),
-      totalTests: report.summary.totalTests,
-      duration: report.summary.duration,
-      passRate: (report.summary.passed / report.summary.totalTests) * 100,
-      accuracy: report.summary.accuracy,
-      avgLatency: report.summary.avgLatency,
-      totalCost: report.summary.totalCost,
-      status: report.summary.status,
-      regressionCount: report.regressions?.length || 0,
-      timestamp: report.generatedAt.toISOString(),
+      datasetIds: [report.dataset.id],
+      modelIds: [report.modelConfig.model],
+      totalTests: report.metrics.totalTests,
+      duration: report.duration,
+      passRate: report.metrics.passRate * 100,
+      accuracy: report.metrics.passRate * 100,
+      avgLatency: report.metrics.averageLatencyMs,
+      totalCost: report.metrics.totalCost,
+      status: 'completed' as const,
+      regressionCount: report.baseline?.regressions?.length || 0,
+      timestamp: report.timestamp,
     };
 
+    // Determine event type based on failure rate
+    const failureRate = (report.metrics.failedTests / report.metrics.totalTests) * 100;
     const eventType =
-      report.summary.status === 'completed'
+      failureRate < 100
         ? AnalyticsEventType.EVAL_RUN_COMPLETED
         : AnalyticsEventType.EVAL_RUN_FAILED;
 
@@ -151,9 +153,18 @@ export class AnalyticsTracker {
     this.log('Eval run tracked:', metadata);
 
     // Track individual regressions if any
-    if (report.regressions && report.regressions.length > 0) {
-      for (const regression of report.regressions) {
-        await this.trackRegression(report.id, regression);
+    if (report.baseline?.regressions && report.baseline.regressions.length > 0) {
+      for (const regression of report.baseline.regressions) {
+        // Convert baseline regression to RegressionResult format
+        const regressionResult: RegressionResult = {
+          testCaseId: regression.testCaseId,
+          testCaseName: regression.testCaseName,
+          baselineScore: regression.baselineScore,
+          currentScore: regression.currentScore,
+          scoreDelta: regression.delta,
+          severity: 'major',
+        };
+        await this.trackRegression(report.id, regressionResult);
       }
     }
   }
@@ -164,15 +175,16 @@ export class AnalyticsTracker {
   async trackRegression(jobId: string, regression: RegressionResult): Promise<void> {
     if (!this.shouldTrack()) return;
 
+    const percentChange = (regression.scoreDelta / regression.baselineScore) * 100;
     const metadata: RegressionMetadata = {
       jobId,
       testCaseId: regression.testCaseId,
-      metric: regression.metric,
+      metric: 'score',
       severity: regression.severity,
-      baseline: regression.baseline,
-      current: regression.current,
-      percentChange: regression.percentChange,
-      category: regression.category,
+      baseline: regression.baselineScore,
+      current: regression.currentScore,
+      percentChange,
+      category: regression.testCaseName,
       timestamp: new Date().toISOString(),
     };
 
@@ -186,16 +198,16 @@ export class AnalyticsTracker {
   async trackBaselineUpdate(
     baselineId: string,
     name: string,
-    metrics: Metrics
+    metrics: EvalMetrics
   ): Promise<void> {
     if (!this.shouldTrack()) return;
 
     const metadata = {
       baselineId,
       name,
-      accuracy: metrics.accuracy,
-      passRate: metrics.passRate,
-      avgLatency: metrics.avgLatency,
+      accuracy: metrics.passRate * 100,
+      passRate: metrics.passRate * 100,
+      avgLatency: metrics.averageLatencyMs,
       totalCost: metrics.totalCost,
       timestamp: new Date().toISOString(),
     };
@@ -366,12 +378,12 @@ export class MetricsAggregator {
 
     const avgPassRate =
       reports.reduce(
-        (sum, r) => sum + (r.metrics.passed / r.metrics.totalTests) * 100,
+        (sum, r) => sum + r.metrics.passRate * 100,
         0
       ) / totalRuns;
 
-    const avgAccuracy = reports.reduce((sum, r) => sum + r.metrics.accuracy, 0) / totalRuns;
-    const avgLatency = reports.reduce((sum, r) => sum + r.metrics.avgLatency, 0) / totalRuns;
+    const avgAccuracy = reports.reduce((sum, r) => sum + r.metrics.passRate * 100, 0) / totalRuns;
+    const avgLatency = reports.reduce((sum, r) => sum + r.metrics.averageLatencyMs, 0) / totalRuns;
 
     return {
       totalRuns,
@@ -397,20 +409,20 @@ export class MetricsAggregator {
         let value: number;
         switch (metric) {
           case 'accuracy':
-            value = report.summary.accuracy;
+            value = report.metrics.passRate * 100;
             break;
           case 'passRate':
-            value = (report.summary.passed / report.summary.totalTests) * 100;
+            value = report.metrics.passRate * 100;
             break;
           case 'latency':
-            value = report.summary.avgLatency;
+            value = report.metrics.averageLatencyMs;
             break;
           case 'cost':
-            value = report.summary.totalCost;
+            value = report.metrics.totalCost;
             break;
         }
         return {
-          timestamp: report.generatedAt.toISOString(),
+          timestamp: report.timestamp,
           value,
         };
       })
