@@ -1,6 +1,6 @@
 'use client'
 
-import { useChat } from 'ai/react'
+import { useChat } from '@ai-sdk/react'
 import { ChatWidget } from '@aah/ui'
 
 export function ChatWidgetWrapper() {
