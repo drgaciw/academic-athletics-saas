@@ -14,6 +14,7 @@
     "@aah/database": "*",
     "@aah/ui": "*",
     "@ai-sdk/openai": "^0.0.66",
+    "@ai-sdk/react": "^0.0.70",
     "@clerk/nextjs": "^4.29.0",
     "@tanstack/react-query": "^5.0.0",
     "@types/react-big-calendar": "^1.16.3",
