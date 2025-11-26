@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { format } from 'date-fns';
-import ReactDiffViewer from 'react-diff-viewer-continued';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { format } from "date-fns";
+import ReactDiffViewer from "react-diff-viewer-continued";
 import {
   Card,
   CardHeader,
@@ -22,8 +22,8 @@ import {
   TableRow,
   TableCell,
   Button,
-} from '@aah/ui';
-import type { EvalReport, RunResult } from '@/lib/types/evals';
+} from "@aah/ui";
+import type { EvalReport, RunResult } from "@/lib/types/evals";
 
 /**
  * Task 9.2: Eval Run Details Page
@@ -46,7 +46,9 @@ export default function EvalRunDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTest, setSelectedTest] = useState<RunResult | null>(null);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'passed' | 'failed'>('all');
+  const [filterStatus, setFilterStatus] = useState<"all" | "passed" | "failed">(
+    "all",
+  );
 
   useEffect(() => {
     if (runId) {
@@ -61,42 +63,44 @@ export default function EvalRunDetailsPage() {
 
       const response = await fetch(`/api/evals/runs/${runId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch run details');
+        throw new Error("Failed to fetch run details");
       }
 
       const data = await response.json();
       setReport(data.report);
       setResults(data.results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load run details');
+      setError(
+        err instanceof Error ? err.message : "Failed to load run details",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const exportResults = (format: 'json' | 'csv') => {
-    if (format === 'json') {
+  const exportResults = (format: "json" | "csv") => {
+    if (format === "json") {
       const dataStr = JSON.stringify({ report, results }, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `eval-run-${runId}.json`;
       link.click();
       URL.revokeObjectURL(url);
-    } else if (format === 'csv') {
-      const headers = ['Test ID', 'Passed', 'Score', 'Latency (ms)', 'Cost'];
+    } else if (format === "csv") {
+      const headers = ["Test ID", "Passed", "Score", "Latency (ms)", "Cost"];
       const rows = results.map((r) => [
         r.testCaseId,
-        r.metadata.error ? 'false' : 'true',
-        r.metadata.error ? '0' : '1',
+        r.metadata.error ? "false" : "true",
+        r.metadata.error ? "0" : "1",
         r.metadata.latency.toFixed(0),
         r.metadata.cost.toFixed(4),
       ]);
-      const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
-      const dataBlob = new Blob([csv], { type: 'text/csv' });
+      const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
+      const dataBlob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `eval-run-${runId}.csv`;
       link.click();
@@ -105,10 +109,10 @@ export default function EvalRunDetailsPage() {
   };
 
   const filteredResults = results.filter((result) => {
-    if (filterStatus === 'all') return true;
+    if (filterStatus === "all") return true;
     const passed = !result.metadata.error;
-    if (filterStatus === 'passed') return passed;
-    if (filterStatus === 'failed') return !passed;
+    if (filterStatus === "passed") return passed;
+    if (filterStatus === "failed") return !passed;
     return true;
   });
 
@@ -130,7 +134,7 @@ export default function EvalRunDetailsPage() {
       <div className="container mx-auto p-6">
         <Alert variant="error">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error || 'Run not found'}</AlertDescription>
+          <AlertDescription>{error || "Run not found"}</AlertDescription>
         </Alert>
         <Link href="/admin/evals">
           <Button className="mt-4">Back to Dashboard</Button>
@@ -150,15 +154,17 @@ export default function EvalRunDetailsPage() {
                 Back
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold tracking-tight">Evaluation Run Details</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Evaluation Run Details
+            </h1>
           </div>
           <p className="text-gray-600 mt-1">Run ID: {runId}</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => exportResults('csv')}>
+          <Button variant="outline" onClick={() => exportResults("csv")}>
             Export CSV
           </Button>
-          <Button variant="outline" onClick={() => exportResults('json')}>
+          <Button variant="outline" onClick={() => exportResults("json")}>
             Export JSON
           </Button>
         </div>
@@ -169,35 +175,45 @@ export default function EvalRunDetailsPage() {
         <Card>
           <CardHeader>
             <CardDescription>Total Tests</CardDescription>
-            <CardTitle className="text-3xl">{report.summary.totalTests}</CardTitle>
+            <CardTitle className="text-3xl">
+              {report.summary.totalTests}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader>
             <CardDescription>Passed</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{report.summary.passed}</CardTitle>
+            <CardTitle className="text-3xl text-green-600">
+              {report.summary.passed}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader>
             <CardDescription>Failed</CardDescription>
-            <CardTitle className="text-3xl text-red-600">{report.summary.failed}</CardTitle>
+            <CardTitle className="text-3xl text-red-600">
+              {report.summary.failed}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader>
             <CardDescription>Accuracy</CardDescription>
-            <CardTitle className="text-3xl">{report.summary.accuracy.toFixed(1)}%</CardTitle>
+            <CardTitle className="text-3xl">
+              {report.summary.accuracy.toFixed(1)}%
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader>
             <CardDescription>Total Cost</CardDescription>
-            <CardTitle className="text-3xl">${report.summary.totalCost.toFixed(2)}</CardTitle>
+            <CardTitle className="text-3xl">
+              ${report.summary.totalCost.toFixed(2)}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -207,8 +223,9 @@ export default function EvalRunDetailsPage() {
         <Alert variant="error">
           <AlertTitle>Failed Test Cases</AlertTitle>
           <AlertDescription>
-            {failedResults.length} test case{failedResults.length > 1 ? 's' : ''} failed. Review
-            the details below to identify issues.
+            {failedResults.length} test case
+            {failedResults.length > 1 ? "s" : ""} failed. Review the details
+            below to identify issues.
           </AlertDescription>
         </Alert>
       )}
@@ -223,7 +240,13 @@ export default function EvalRunDetailsPage() {
             {report.recommendations.map((rec: any, idx: number) => (
               <Alert
                 key={idx}
-                variant={rec.severity === 'high' ? 'error' : rec.severity === 'medium' ? 'warning' : 'info'}
+                variant={
+                  rec.severity === "high"
+                    ? "error"
+                    : rec.severity === "medium"
+                      ? "warning"
+                      : "info"
+                }
               >
                 <AlertTitle>{rec.title}</AlertTitle>
                 <AlertDescription>
@@ -246,7 +269,9 @@ export default function EvalRunDetailsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Performance by Category</CardTitle>
-          <CardDescription>Breakdown of results by test category</CardDescription>
+          <CardDescription>
+            Breakdown of results by test category
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -264,13 +289,27 @@ export default function EvalRunDetailsPage() {
             <TableBody>
               {Object.values(report.metrics.breakdown).map((category: any) => (
                 <TableRow key={category.category}>
-                  <TableCell className="font-medium">{category.category}</TableCell>
-                  <TableCell className="text-right">{category.totalTests}</TableCell>
-                  <TableCell className="text-right">{category.passed}</TableCell>
-                  <TableCell className="text-right">{category.accuracy.toFixed(1)}%</TableCell>
-                  <TableCell className="text-right">{category.avgScore.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{category.avgLatency.toFixed(0)}ms</TableCell>
-                  <TableCell className="text-right">${category.avgCost.toFixed(4)}</TableCell>
+                  <TableCell className="font-medium">
+                    {category.category}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {category.totalTests}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {category.passed}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {category.accuracy.toFixed(1)}%
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {category.avgScore.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {category.avgLatency.toFixed(0)}ms
+                  </TableCell>
+                  <TableCell className="text-right">
+                    ${category.avgCost.toFixed(4)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -288,23 +327,23 @@ export default function EvalRunDetailsPage() {
             </div>
             <div className="flex gap-2">
               <Button
-                variant={filterStatus === 'all' ? 'primary' : 'outline'}
+                variant={filterStatus === "all" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setFilterStatus('all')}
+                onClick={() => setFilterStatus("all")}
               >
                 All ({results.length})
               </Button>
               <Button
-                variant={filterStatus === 'passed' ? 'primary' : 'outline'}
+                variant={filterStatus === "passed" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setFilterStatus('passed')}
+                onClick={() => setFilterStatus("passed")}
               >
                 Passed ({results.filter((r) => !r.metadata.error).length})
               </Button>
               <Button
-                variant={filterStatus === 'failed' ? 'primary' : 'outline'}
+                variant={filterStatus === "failed" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setFilterStatus('failed')}
+                onClick={() => setFilterStatus("failed")}
               >
                 Failed ({failedResults.length})
               </Button>
@@ -328,14 +367,16 @@ export default function EvalRunDetailsPage() {
                 const passed = !result.metadata.error;
                 return (
                   <TableRow key={result.testCaseId}>
-                    <TableCell className="font-mono text-sm">{result.testCaseId}</TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {result.testCaseId}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={passed ? 'success' : 'error'}>
-                        {passed ? 'Passed' : 'Failed'}
+                      <Badge variant={passed ? "success" : "error"}>
+                        {passed ? "Passed" : "Failed"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {passed ? '1.00' : '0.00'}
+                      {passed ? "1.00" : "0.00"}
                     </TableCell>
                     <TableCell className="text-right">
                       {result.metadata.latency.toFixed(0)}ms
@@ -366,7 +407,11 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Test Case: {selectedTest.testCaseId}</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setSelectedTest(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedTest(null)}
+              >
                 Close
               </Button>
             </div>
@@ -400,20 +445,29 @@ export default function EvalRunDetailsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Model</p>
-                <p className="font-mono text-sm">{selectedTest.metadata.modelId}</p>
+                <p className="font-mono text-sm">
+                  {selectedTest.metadata.modelId}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Latency</p>
-                <p className="font-semibold">{selectedTest.metadata.latency.toFixed(0)}ms</p>
+                <p className="font-semibold">
+                  {selectedTest.metadata.latency.toFixed(0)}ms
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Cost</p>
-                <p className="font-semibold">${selectedTest.metadata.cost.toFixed(4)}</p>
+                <p className="font-semibold">
+                  ${selectedTest.metadata.cost.toFixed(4)}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
-                  {format(new Date(selectedTest.metadata.timestamp), 'MMM d, HH:mm:ss')}
+                  {format(
+                    new Date(selectedTest.metadata.timestamp),
+                    "MMM d, HH:mm:ss",
+                  )}
                 </p>
               </div>
             </div>
@@ -422,7 +476,9 @@ export default function EvalRunDetailsPage() {
             {selectedTest.metadata.error && (
               <Alert variant="error">
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{selectedTest.metadata.error}</AlertDescription>
+                <AlertDescription>
+                  {selectedTest.metadata.error}
+                </AlertDescription>
               </Alert>
             )}
           </CardContent>
