@@ -1,8 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm turbo run build --filter=main",
-  "installCommand": "pnpm install",
-  "outputDirectory": "apps/main/.next",
   "rewrites": [
     {
       "source": "/api/user/:path*",
@@ -56,14 +53,6 @@
       ]
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "TURBO_REMOTE_ONLY": "true"
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/compliance-check",
