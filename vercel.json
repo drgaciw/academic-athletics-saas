@@ -2,9 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "name": "athletic-academics-hub",
-  "buildCommand": "cd apps/main && pnpm run build",
+  "buildCommand": "pnpm turbo run build --filter=main && ls -la apps/main/.next",
   "devCommand": "turbo run dev --parallel",
   "installCommand": "pnpm install",
+  "outputDirectory": "apps/main/.next",
   "regions": ["iad1"],
   "rewrites": [
     {
