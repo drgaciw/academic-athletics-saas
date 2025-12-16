@@ -1,12 +1,13 @@
+import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { RBACService } from '../../services/rbacService'
 import { prisma, UserRole } from '@aah/database'
 import { AppError } from '../../middleware/errorHandler'
 
 // Mock prisma
-jest.mock('@aah/database', () => ({
+vi.mock('@aah/database', () => ({
   prisma: {
     user: {
-      findUnique: jest.fn(),
+      findUnique: vi.fn(),
     },
   },
   UserRole: {
@@ -23,7 +24,7 @@ describe('RBACService', () => {
 
   beforeEach(() => {
     service = new RBACService()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('getUserRoles', () => {
@@ -38,7 +39,7 @@ describe('RBACService', () => {
         },
       }
 
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
 
       const result = await service.getUserRoles('user_123')
 
@@ -64,7 +65,7 @@ describe('RBACService', () => {
     })
 
     it('should return null if user not found', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(null)
 
       const result = await service.getUserRoles('non_existent')
 
@@ -72,7 +73,7 @@ describe('RBACService', () => {
     })
 
     it('should handle database errors', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB Error'))
+      ;(prisma.user.findUnique as Mock).mockRejectedValue(new Error('DB Error'))
 
       await expect(service.getUserRoles('user_123')).rejects.toThrow(
         new AppError(500, 'DATABASE_ERROR', 'Failed to fetch user roles')
@@ -86,7 +87,7 @@ describe('RBACService', () => {
         id: 'user_123',
         role: UserRole.STUDENT_ATHLETE,
       }
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
 
       const result = await service.checkPermission('user_123', 'read:own_profile')
 
@@ -98,7 +99,7 @@ describe('RBACService', () => {
         id: 'user_123',
         role: UserRole.STUDENT_ATHLETE,
       }
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
 
       const result = await service.checkPermission('user_123', 'delete:profiles')
 
@@ -106,7 +107,7 @@ describe('RBACService', () => {
     })
 
     it('should return false if user not found', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(null)
 
       const result = await service.checkPermission('non_existent', 'read:own_profile')
 
@@ -114,7 +115,7 @@ describe('RBACService', () => {
     })
 
     it('should return false on error', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB Error'))
+      ;(prisma.user.findUnique as Mock).mockRejectedValue(new Error('DB Error'))
 
       const result = await service.checkPermission('user_123', 'read:own_profile')
 
@@ -124,13 +125,13 @@ describe('RBACService', () => {
 
   describe('requirePermission', () => {
     it('should resolve if user has permission', async () => {
-      jest.spyOn(service, 'checkPermission').mockResolvedValue(true)
+      vi.spyOn(service, 'checkPermission').mockResolvedValue(true)
 
       await expect(service.requirePermission('user_123', 'read:own_profile')).resolves.not.toThrow()
     })
 
     it('should throw AppError if user does not have permission', async () => {
-      jest.spyOn(service, 'checkPermission').mockResolvedValue(false)
+      vi.spyOn(service, 'checkPermission').mockResolvedValue(false)
 
       await expect(service.requirePermission('user_123', 'delete:profiles')).rejects.toThrow(
         new AppError(403, 'INSUFFICIENT_PERMISSIONS', 'Required permission: delete:profiles')
@@ -145,7 +146,7 @@ describe('RBACService', () => {
         role: UserRole.ADMIN,
         permissions: [],
       }
-      jest.spyOn(service, 'getUserRoles').mockResolvedValue(mockUserRoles as any)
+      vi.spyOn(service, 'getUserRoles').mockResolvedValue(mockUserRoles as any)
 
       await expect(service.requireRole('user_123', [UserRole.ADMIN])).resolves.not.toThrow()
     })
@@ -156,7 +157,7 @@ describe('RBACService', () => {
         role: UserRole.STUDENT_ATHLETE,
         permissions: [],
       }
-      jest.spyOn(service, 'getUserRoles').mockResolvedValue(mockUserRoles as any)
+      vi.spyOn(service, 'getUserRoles').mockResolvedValue(mockUserRoles as any)
 
       await expect(service.requireRole('user_123', [UserRole.ADMIN])).rejects.toThrow(
         new AppError(403, 'INSUFFICIENT_ROLE', 'User does not have the required role for this operation')
@@ -164,7 +165,7 @@ describe('RBACService', () => {
     })
 
     it('should throw AppError if user roles not found', async () => {
-      jest.spyOn(service, 'getUserRoles').mockResolvedValue(null)
+      vi.spyOn(service, 'getUserRoles').mockResolvedValue(null)
 
       await expect(service.requireRole('user_123', [UserRole.ADMIN])).rejects.toThrow(
         new AppError(403, 'INSUFFICIENT_ROLE', 'User does not have the required role for this operation')

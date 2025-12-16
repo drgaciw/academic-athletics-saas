@@ -1,0 +1,8 @@
+
+> main@2.0.0 dev C:\Users\Username01\IdeaProjects\academic-athletics-saas\apps\main
+> next dev -p 3000
+
+'next' is not recognized as an internal or external command,
+operable program or batch file.
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
+ΓÇëWARNΓÇë  Local package.json exists, but node_modules missing, did you mean to install?

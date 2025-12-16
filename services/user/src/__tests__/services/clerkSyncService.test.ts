@@ -1,17 +1,18 @@
+import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { ClerkSyncService } from '../../services/clerkSyncService'
 import { prisma, UserRole } from '@aah/database'
 import { AppError } from '../../middleware/errorHandler'
 
 // Mock prisma
-jest.mock('@aah/database', () => ({
+vi.mock('@aah/database', () => ({
   prisma: {
     user: {
-      upsert: jest.fn(),
-      findUnique: jest.fn(),
-      delete: jest.fn(),
+      upsert: vi.fn(),
+      findUnique: vi.fn(),
+      delete: vi.fn(),
     },
     studentProfile: {
-      delete: jest.fn(),
+      delete: vi.fn(),
     },
   },
   UserRole: {
@@ -28,7 +29,7 @@ describe('ClerkSyncService', () => {
 
   beforeEach(() => {
     service = new ClerkSyncService()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('syncUser', () => {
@@ -66,7 +67,7 @@ describe('ClerkSyncService', () => {
         },
       }
 
-      ;(prisma.user.upsert as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.upsert as Mock).mockResolvedValue(mockUser)
 
       const result = await service.syncUser(mockClerkData as any)
 
@@ -123,7 +124,7 @@ describe('ClerkSyncService', () => {
         role: UserRole.STUDENT_ATHLETE,
         email: 'test@example.com',
       }
-      ;(prisma.user.upsert as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.upsert as Mock).mockResolvedValue(mockUser)
 
       await service.syncUser(dataWithoutRole as any)
 
@@ -137,7 +138,7 @@ describe('ClerkSyncService', () => {
     })
 
     it('should handle database errors', async () => {
-      ;(prisma.user.upsert as jest.Mock).mockRejectedValue(new Error('DB Error'))
+      ;(prisma.user.upsert as Mock).mockRejectedValue(new Error('DB Error'))
 
       await expect(service.syncUser(mockClerkData as any)).rejects.toThrow(
         new AppError(500, 'SYNC_ERROR', 'Failed to sync user from Clerk')
@@ -147,7 +148,7 @@ describe('ClerkSyncService', () => {
 
   describe('handleWebhook', () => {
     it('should handle user.created event', async () => {
-      const spy = jest.spyOn(service, 'syncUser').mockResolvedValue({} as any)
+      const spy = vi.spyOn(service, 'syncUser').mockResolvedValue({} as any)
       const webhookData = { type: 'user.created', data: {} }
 
       await service.handleWebhook(webhookData)
@@ -156,7 +157,7 @@ describe('ClerkSyncService', () => {
     })
 
     it('should handle user.updated event', async () => {
-      const spy = jest.spyOn(service, 'syncUser').mockResolvedValue({} as any)
+      const spy = vi.spyOn(service, 'syncUser').mockResolvedValue({} as any)
       const webhookData = { type: 'user.updated', data: {} }
 
       await service.handleWebhook(webhookData)
@@ -166,9 +167,9 @@ describe('ClerkSyncService', () => {
 
     it('should handle user.deleted event', async () => {
       const mockUser = { id: 'user_123', studentProfile: { id: 'profile_123' } }
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
-      ;(prisma.studentProfile.delete as jest.Mock).mockResolvedValue({})
-      ;(prisma.user.delete as jest.Mock).mockResolvedValue({})
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
+      ;(prisma.studentProfile.delete as Mock).mockResolvedValue({})
+      ;(prisma.user.delete as Mock).mockResolvedValue({})
 
       const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
 
@@ -180,7 +181,7 @@ describe('ClerkSyncService', () => {
     })
 
     it('should ignore unknown events', async () => {
-      const spySync = jest.spyOn(service, 'syncUser')
+      const spySync = vi.spyOn(service, 'syncUser')
       const webhookData = { type: 'unknown.event', data: {} }
 
       await service.handleWebhook(webhookData)
@@ -189,7 +190,7 @@ describe('ClerkSyncService', () => {
     })
 
     it('should handle errors in webhook processing', async () => {
-      jest.spyOn(service, 'syncUser').mockRejectedValue(new Error('Sync failed'))
+      vi.spyOn(service, 'syncUser').mockRejectedValue(new Error('Sync failed'))
       const webhookData = { type: 'user.created', data: {} }
 
       await expect(service.handleWebhook(webhookData)).rejects.toThrow(
@@ -200,7 +201,7 @@ describe('ClerkSyncService', () => {
 
   describe('deleteUser (private)', () => {
     it('should handle user not found during deletion', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(null)
       
       const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
       await service.handleWebhook(webhookData)
@@ -210,7 +211,7 @@ describe('ClerkSyncService', () => {
     })
 
     it('should handle deletion errors', async () => {
-       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB Error'))
+       ;(prisma.user.findUnique as Mock).mockRejectedValue(new Error('DB Error'))
        
        const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
        

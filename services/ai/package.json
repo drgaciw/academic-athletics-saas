@@ -8,9 +8,9 @@
     "build": "tsup src/index.ts --format esm,cjs --external @ai-sdk/openai --external @ai-sdk/anthropic",
     "type-check": "tsc --noEmit",
     "start": "node dist/index.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "hono": "^4.0.0",
@@ -32,8 +32,8 @@
     "@types/node": "^20.10.0",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/crypto-js": "^4.2.2",
-    "jest": "^29.7.0",
-    "@types/jest": "^29.5.0"
+    "vitest": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.0"
   },
   "keywords": ["ai", "llm", "rag", "agents", "conversational-ai"],
   "engines": {

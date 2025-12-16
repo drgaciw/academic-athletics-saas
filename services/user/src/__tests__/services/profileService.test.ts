@@ -1,25 +1,21 @@
 /**
- * Example test file for ProfileService
- *
- * To run tests:
- * 1. Install test dependencies: npm install -D jest ts-jest @types/jest
- * 2. Add test script to package.json: "test": "jest"
- * 3. Run tests: npm test
+ * Profile Service Tests
  */
 
+import { describe, it, expect, beforeEach, vi, Mock } from 'vitest'
 import { ProfileService } from '../../services/profileService'
 import { prisma } from '@aah/database'
 
 // Mock Prisma client
-jest.mock('@aah/database', () => ({
+vi.mock('@aah/database', () => ({
   prisma: {
     user: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     studentProfile: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
     },
   },
 }))
@@ -29,7 +25,7 @@ describe('ProfileService', () => {
 
   beforeEach(() => {
     profileService = new ProfileService()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('getUserProfile', () => {
@@ -46,7 +42,7 @@ describe('ProfileService', () => {
         studentProfile: null,
       }
 
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
 
       const result = await profileService.getUserProfile('user-123')
 
@@ -60,7 +56,7 @@ describe('ProfileService', () => {
     })
 
     it('should return null when user does not exist', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(null)
 
       const result = await profileService.getUserProfile('nonexistent')
 
@@ -82,8 +78,8 @@ describe('ProfileService', () => {
         studentProfile: null,
       }
 
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
-      ;(prisma.user.update as jest.Mock).mockResolvedValue({
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(mockUser)
+      ;(prisma.user.update as Mock).mockResolvedValue({
         ...mockUser,
         firstName: 'Jane',
       })
@@ -97,7 +93,7 @@ describe('ProfileService', () => {
     })
 
     it('should throw error when user not found', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(prisma.user.findUnique as Mock).mockResolvedValue(null)
 
       await expect(
         profileService.updateUserProfile('nonexistent', { firstName: 'Test' })

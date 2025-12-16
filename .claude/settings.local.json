@@ -39,7 +39,12 @@
       "Bash(vercel --prod:*)",
       "Bash(git restore:*)",
       "Bash(vercel deploy:*)",
-      "Bash($env:NODE_ENV=\"development\")"
+      "Bash($env:NODE_ENV=\"development\")",
+      "mcp__MCP_DOCKER__mcp-find",
+      "Bash(pnpm test:*)",
+      "mcp__MCP_DOCKER__sequentialthinking",
+      "Bash(pnpm --filter @aah/service-ai test)",
+      "Bash(pnpm run test:*)"
     ],
     "deny": [],
     "ask": []
