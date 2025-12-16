@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "name": "athletic-academics-hub",
-  "buildCommand": "turbo run build",
+  "buildCommand": "turbo run build --filter=main",
   "devCommand": "turbo run dev --parallel",
   "installCommand": "pnpm install",
   "framework": null,
