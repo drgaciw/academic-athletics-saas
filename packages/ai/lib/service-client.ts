@@ -6,6 +6,46 @@
 
 import type { ToolExecutionContext } from '../types/agent.types'
 
+/**
+ * Service Response Types
+ */
+
+export interface PerformanceMetrics {
+  gpa?: number
+  averageGpa?: number
+  attendanceRate?: number
+  [key: string]: unknown
+}
+
+export interface ProgressReport {
+  [key: string]: unknown
+}
+
+export interface ProgressReportsResponse {
+  reports?: ProgressReport[]
+  count?: number
+  [key: string]: unknown
+}
+
+export interface EligibilityCheck {
+  isEligible?: boolean
+  eligibilityRate?: number
+  [key: string]: unknown
+}
+
+export interface AttendanceData {
+  attendanceRate?: number
+  [key: string]: unknown
+}
+
+export interface TeamAnalytics {
+  averageGpa?: number
+  eligibilityRate?: number
+  attendanceRate?: number
+  totalStudents?: number
+  [key: string]: unknown
+}
+
 // Get environment variables with fallbacks
 const getEnv = (key: string, fallback: string): string => {
   if (typeof process !== 'undefined' && process.env) {
@@ -194,9 +234,9 @@ export const monitoringService = {
     studentId: string,
     timeframe?: string,
     context?: ToolExecutionContext
-  ) {
+  ): Promise<PerformanceMetrics> {
     const query = timeframe ? `?timeframe=${timeframe}` : ''
-    return makeRequest('monitoring', `/api/monitoring/performance/${studentId}${query}`, {}, context)
+    return makeRequest<PerformanceMetrics>('monitoring', `/api/monitoring/performance/${studentId}${query}`, {}, context)
   },
 
   /**
@@ -205,28 +245,42 @@ export const monitoringService = {
   async getAttendance(
     studentId: string,
     context?: ToolExecutionContext
-  ) {
-    return makeRequest('monitoring', `/api/monitoring/attendance/${studentId}`, {}, context)
+  ): Promise<AttendanceData> {
+    return makeRequest<AttendanceData>('monitoring', `/api/monitoring/attendance/${studentId}`, {}, context)
   },
 
   /**
    * Get team analytics
+   * 
+   * Retrieves comprehensive analytics for a specific team including performance metrics,
+   * eligibility rates, and student statistics.
+   * 
+   * @param teamId - The unique identifier of the team
+   * @param context - Optional execution context for authentication
+   * @returns Promise resolving to team analytics data
    */
   async getTeamAnalytics(
     teamId: string,
     context?: ToolExecutionContext
-  ) {
-    return makeRequest('monitoring', `/api/monitoring/analytics/team/${teamId}`, {}, context)
+  ): Promise<TeamAnalytics> {
+    return makeRequest<TeamAnalytics>('monitoring', `/api/monitoring/analytics/team/${teamId}`, {}, context)
   },
 
   /**
    * Get progress reports
+   * 
+   * Retrieves all progress reports for a specific student, including academic performance,
+   * goal tracking, and advisor notes.
+   * 
+   * @param studentId - The unique identifier of the student
+   * @param context - Optional execution context for authentication
+   * @returns Promise resolving to progress reports data
    */
   async getProgressReports(
     studentId: string,
     context?: ToolExecutionContext
-  ) {
-    return makeRequest('monitoring', `/api/monitoring/progress-report/student/${studentId}`, {}, context)
+  ): Promise<ProgressReportsResponse> {
+    return makeRequest<ProgressReportsResponse>('monitoring', `/api/monitoring/progress-report/student/${studentId}`, {}, context)
   },
 }
 
@@ -240,8 +294,8 @@ export const complianceService = {
   async checkEligibility(
     studentId: string,
     context?: ToolExecutionContext
-  ) {
-    return makeRequest('compliance', `/api/compliance/check/${studentId}`, {}, context)
+  ): Promise<EligibilityCheck> {
+    return makeRequest<EligibilityCheck>('compliance', `/api/compliance/check/${studentId}`, {}, context)
   },
 
   /**

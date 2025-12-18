@@ -8,6 +8,13 @@ import { z } from 'zod'
 import { createTool } from '../lib/tool-registry'
 import type { ToolExecutionContext } from '../types/agent.types'
 import { serviceClients } from '../lib/service-client'
+import type {
+  PerformanceMetrics,
+  ProgressReportsResponse,
+  EligibilityCheck,
+  AttendanceData,
+  TeamAnalytics,
+} from '../lib/service-client'
 
 /**
  * Send Email
@@ -171,22 +178,35 @@ export const generateReport = createTool({
   returnFormat: 'Report generation result with reportId, download URL, and summary statistics',
   execute: async (params, context) => {
     const { reportType, studentId, teamId, dateRange, format } = params
-    let summaryData: any = {}
+    
+    // Validate that at least one target parameter is provided
+    if (!studentId && !teamId) {
+      throw new Error('Either studentId or teamId must be provided to generate a report')
+    }
+
+    // Union type for all possible summary data shapes
+    let summaryData: PerformanceMetrics | ProgressReportsResponse | EligibilityCheck | AttendanceData | TeamAnalytics = {}
 
     // Fetch data based on report type and target (student or team)
-    if (studentId) {
-      if (reportType === 'performance') {
-        summaryData = await serviceClients.monitoring.getPerformanceMetrics(studentId, undefined, context)
-      } else if (reportType === 'progress') {
-        const reports = await serviceClients.monitoring.getProgressReports(studentId, context)
-        summaryData = { reports, count: Array.isArray(reports) ? reports.length : 0 }
-      } else if (reportType === 'compliance') {
-        summaryData = await serviceClients.compliance.checkEligibility(studentId, context)
-      } else if (reportType === 'attendance') {
-        summaryData = await serviceClients.monitoring.getAttendance(studentId, context)
+    try {
+      if (studentId) {
+        if (reportType === 'performance') {
+          summaryData = await serviceClients.monitoring.getPerformanceMetrics(studentId, undefined, context)
+        } else if (reportType === 'progress') {
+          const reports = await serviceClients.monitoring.getProgressReports(studentId, context)
+          summaryData = { reports: reports.reports, count: Array.isArray(reports.reports) ? reports.reports.length : 0 }
+        } else if (reportType === 'compliance') {
+          summaryData = await serviceClients.compliance.checkEligibility(studentId, context)
+        } else if (reportType === 'attendance') {
+          summaryData = await serviceClients.monitoring.getAttendance(studentId, context)
+        }
+      } else if (teamId) {
+        summaryData = await serviceClients.monitoring.getTeamAnalytics(teamId, context)
       }
-    } else if (teamId) {
-      summaryData = await serviceClients.monitoring.getTeamAnalytics(teamId, context)
+    } catch (error) {
+      // Handle service errors gracefully
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch report data: ${errorMessage}`)
     }
 
     const reportId = `rpt-${Date.now()}`
@@ -194,12 +214,14 @@ export const generateReport = createTool({
     // Construct summary metrics from fetched data
     const keyMetrics = {
       averageGPA: summaryData.gpa || summaryData.averageGpa || 0,
-      eligibilityRate: summaryData.eligibilityRate || (summaryData.isEligible ? 1.0 : 0.0),
+      eligibilityRate: summaryData.eligibilityRate ?? 0,
       attendanceRate: summaryData.attendanceRate || 0,
     }
 
-    // In a real implementation, this would generate a file and upload it
-    const downloadUrl = `https://example.com/reports/${reportId}.${format || 'pdf'}`
+    // TODO: Replace placeholder URL construction with actual file generation and upload logic.
+    // Use the REPORTS_BASE_URL environment variable to configure the public base URL for generated reports.
+    const reportsBaseUrl = (process.env.REPORTS_BASE_URL || '').replace(/\/+$/, '')
+    const downloadUrl = `${reportsBaseUrl || '/reports'}/${reportId}.${format || 'pdf'}`
 
     return {
       reportId,
