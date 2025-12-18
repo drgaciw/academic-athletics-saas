@@ -6,6 +6,7 @@
  */
 
 import { createHash } from 'crypto'
+import Redis from 'ioredis'
 
 /**
  * Cache entry
@@ -141,34 +142,80 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: any // Redis client
+  private client: Redis | null = null
 
   constructor(redisUrl?: string) {
-    // In production, initialize Redis client
-    // For now, this is a placeholder
-    console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    if (redisUrl) {
+      this.client = new Redis(redisUrl)
+
+      this.client.on('error', (err) => {
+        console.warn('Redis connection error:', err)
+      })
+    } else {
+      console.warn('Redis URL not provided, RedisCacheStorage will not function correctly')
+    }
   }
 
   async get<T>(key: string): Promise<T | null> {
-    // TODO: Implement Redis get
-    return null
+    if (!this.client) return null
+
+    try {
+      const value = await this.client.get(key)
+      if (!value) return null
+
+      try {
+        return JSON.parse(value) as T
+      } catch (e) {
+        return value as unknown as T
+      }
+    } catch (error) {
+      console.error('Redis get error:', error)
+      return null
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    // TODO: Implement Redis set with TTL
+    if (!this.client) return
+
+    try {
+      const stringValue = typeof value === 'string' ? value : JSON.stringify(value)
+      // Redis TTL is in seconds, but we receive milliseconds
+      const ttlSeconds = Math.ceil(ttl / 1000)
+      await this.client.setex(key, ttlSeconds, stringValue)
+    } catch (error) {
+      console.error('Redis set error:', error)
+    }
   }
 
   async delete(key: string): Promise<void> {
-    // TODO: Implement Redis delete
+    if (!this.client) return
+
+    try {
+      await this.client.del(key)
+    } catch (error) {
+      console.error('Redis delete error:', error)
+    }
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    if (!this.client) return
+
+    try {
+      await this.client.flushdb()
+    } catch (error) {
+      console.error('Redis clear error:', error)
+    }
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    if (!this.client) return []
+
+    try {
+      return await this.client.keys('*')
+    } catch (error) {
+      console.error('Redis keys error:', error)
+      return []
+    }
   }
 }
 
