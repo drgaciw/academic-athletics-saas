@@ -185,7 +185,8 @@ export const generateReport = createTool({
     }
 
     // Union type for all possible summary data shapes
-    let summaryData: PerformanceMetrics | ProgressReportsResponse | EligibilityCheck | AttendanceData | TeamAnalytics = {}
+    type SummaryData = PerformanceMetrics | ProgressReportsResponse | EligibilityCheck | AttendanceData | TeamAnalytics
+    let summaryData: SummaryData | null = null
 
     // Fetch data based on report type and target (student or team)
     try {
@@ -211,12 +212,14 @@ export const generateReport = createTool({
 
     const reportId = `rpt-${Date.now()}`
 
-    // Construct summary metrics from fetched data
+    // Construct summary metrics from fetched data using safe property access
+    const data = summaryData || {}
     const keyMetrics = {
-      averageGPA: summaryData.gpa || summaryData.averageGpa || 0,
-      eligibilityRate: summaryData.eligibilityRate ?? 0,
-      attendanceRate: summaryData.attendanceRate || 0,
+      averageGPA: ('gpa' in data ? data.gpa : 'averageGpa' in data ? data.averageGpa : undefined) || 0,
+      eligibilityRate: ('eligibilityRate' in data ? data.eligibilityRate : undefined) ?? 0,
+      attendanceRate: ('attendanceRate' in data ? data.attendanceRate : undefined) || 0,
     }
+
 
     // TODO: Replace placeholder URL construction with actual file generation and upload logic.
     // Use the REPORTS_BASE_URL environment variable to configure the public base URL for generated reports.
@@ -230,7 +233,7 @@ export const generateReport = createTool({
       format: format || 'pdf',
       downloadUrl,
       summary: {
-        studentsIncluded: studentId ? 1 : (summaryData.totalStudents || 0),
+        studentsIncluded: studentId ? 1 : (('totalStudents' in data ? data.totalStudents : undefined) || 0),
         dateRange,
         keyMetrics,
       },
