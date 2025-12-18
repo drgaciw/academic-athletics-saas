@@ -167,8 +167,10 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    if (!this.client) {
+      return []
+    }
+    return this.client.keys('*')
   }
 }
 
