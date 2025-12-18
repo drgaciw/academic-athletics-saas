@@ -383,16 +383,37 @@ export const integrationService = {
    * Generate travel letter
    */
   async generateTravelLetter(
-    studentId: string,
     data: {
-      startDate: string
-      endDate: string
+      studentName: string
+      studentId: string
+      sport: string
+      travelDates: {
+        start: string
+        end: string
+      }
       destination: string
-      courses: string[]
+      event: string
+      courses: Array<{
+        code: string
+        name: string
+        instructor: string
+        meetingTimes?: string
+      }>
+      advisor?: {
+        name: string
+        title: string
+        phone?: string
+        email?: string
+      }
+      generatedBy?: string
     },
     context?: ToolExecutionContext
   ) {
-    return makeRequest('integration', `/api/integration/documents/travel-letter/${studentId}`, {
+    return makeRequest<{
+      success: boolean
+      url?: string
+      message?: string
+    }>('integration', '/api/integration/travel-letter', {
       method: 'POST',
       body: JSON.stringify(data),
     }, context)
