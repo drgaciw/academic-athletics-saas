@@ -91,10 +91,19 @@ app.get(
         }, 401)
       }
 
-      // TODO: Check if user has admin/staff role
-      // For now, users can only query their own logs
+      const { prisma } = await import('@aah/database')
+      const user = await prisma.user.findUnique({
+        where: { id: authUserId },
+        select: { role: true },
+      })
+
+      const isAdminOrStaff = user?.role === 'ADMIN' || user?.role === 'STAFF'
+
+      // Users can only query their own logs unless they are admin/staff
+      // If admin/staff and no userId provided, query all logs (userId: undefined)
+      // If not admin/staff, force userId to be authUserId
       const filters: AuditQueryFilters = {
-        userId: query.userId || authUserId,
+        userId: isAdminOrStaff ? query.userId : authUserId,
         agentType: query.agentType as any,
         actionType: query.actionType,
         toolName: query.toolName,
@@ -160,6 +169,22 @@ app.get(
         }, 401)
       }
 
+      const { prisma } = await import('@aah/database')
+      const user = await prisma.user.findUnique({
+        where: { id: authUserId },
+        select: { role: true },
+      })
+
+      if (user?.role !== 'ADMIN' && user?.role !== 'STAFF') {
+        return c.json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Insufficient permissions',
+          },
+        }, 403)
+      }
+
       const filters: AuditQueryFilters = {
         userId: query.userId,
         agentType: query.agentType as any,
@@ -217,14 +242,21 @@ app.get(
 
       // Users can only query their own activity (unless admin)
       if (userId !== authUserId) {
-        // TODO: Check if user has admin role
-        return c.json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'You can only query your own activity',
-          },
-        }, 403)
+        const { prisma } = await import('@aah/database')
+        const user = await prisma.user.findUnique({
+          where: { id: authUserId },
+          select: { role: true },
+        })
+
+        if (user?.role !== 'ADMIN') {
+          return c.json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You can only query your own activity',
+            },
+          }, 403)
+        }
       }
 
       const activity = await getUserActivity(userId, query.days || 30)
@@ -275,7 +307,21 @@ app.post(
         }, 401)
       }
 
-      // TODO: Check if user has admin role
+      const { prisma } = await import('@aah/database')
+      const user = await prisma.user.findUnique({
+        where: { id: authUserId },
+        select: { role: true },
+      })
+
+      if (user?.role !== 'ADMIN') {
+        return c.json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Insufficient permissions',
+          },
+        }, 403)
+      }
 
       const startDate = new Date(body.startDate)
       const endDate = new Date(body.endDate)
@@ -347,14 +393,20 @@ app.get('/logs/:logId', async (c) => {
 
       // Users can only view their own logs (unless admin)
       if (log.userId !== authUserId) {
-        // TODO: Check if user has admin role
-        return c.json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'You can only view your own audit logs',
-          },
-        }, 403)
+        const user = await prisma.user.findUnique({
+          where: { id: authUserId },
+          select: { role: true },
+        })
+
+        if (user?.role !== 'ADMIN') {
+          return c.json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You can only view your own audit logs',
+            },
+          }, 403)
+        }
       }
 
       return c.json({
