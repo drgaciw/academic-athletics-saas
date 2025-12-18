@@ -220,11 +220,10 @@ export const generateReport = createTool({
       attendanceRate: ('attendanceRate' in data ? data.attendanceRate : undefined) || 0,
     }
 
-
     // TODO: Replace placeholder URL construction with actual file generation and upload logic.
     // Use the REPORTS_BASE_URL environment variable to configure the public base URL for generated reports.
-    const reportsBaseUrl = (process.env.REPORTS_BASE_URL || '').replace(/\/+$/, '')
-    const downloadUrl = `${reportsBaseUrl || '/reports'}/${reportId}.${format || 'pdf'}`
+    const reportsBaseUrl = process.env.REPORTS_BASE_URL?.replace(/\/+$/, '') || '/reports'
+    const downloadUrl = `${reportsBaseUrl}/${reportId}.${format || 'pdf'}`
 
     return {
       reportId,
