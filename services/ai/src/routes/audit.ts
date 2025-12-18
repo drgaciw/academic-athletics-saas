@@ -15,6 +15,7 @@ import {
   getComplianceReport,
   type AuditQueryFilters,
 } from '@aah/ai'
+import { isAdmin, isAdminOrStaff } from '../utils/auth'
 
 const app = new Hono()
 
@@ -91,10 +92,25 @@ app.get(
         }, 401)
       }
 
-      // TODO: Check if user has admin/staff role
-      // For now, users can only query their own logs
+      // Check if user has admin/staff role if querying for other users
+      let targetUserId = query.userId
+      if (targetUserId && targetUserId !== authUserId) {
+        const isAuthorized = await isAdminOrStaff(authUserId)
+        if (!isAuthorized) {
+          return c.json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You can only query your own logs',
+            },
+          }, 403)
+        }
+      } else {
+        targetUserId = authUserId
+      }
+
       const filters: AuditQueryFilters = {
-        userId: query.userId || authUserId,
+        userId: targetUserId,
         agentType: query.agentType as any,
         actionType: query.actionType,
         toolName: query.toolName,
@@ -160,6 +176,18 @@ app.get(
         }, 401)
       }
 
+      // Only admin/staff can access statistics
+      const isAuthorized = await isAdminOrStaff(authUserId)
+      if (!isAuthorized) {
+        return c.json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Access denied: Requires Admin or Staff role',
+          },
+        }, 403)
+      }
+
       const filters: AuditQueryFilters = {
         userId: query.userId,
         agentType: query.agentType as any,
@@ -217,14 +245,16 @@ app.get(
 
       // Users can only query their own activity (unless admin)
       if (userId !== authUserId) {
-        // TODO: Check if user has admin role
-        return c.json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'You can only query your own activity',
-          },
-        }, 403)
+        const isAuthorized = await isAdmin(authUserId)
+        if (!isAuthorized) {
+          return c.json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You can only query your own activity',
+            },
+          }, 403)
+        }
       }
 
       const activity = await getUserActivity(userId, query.days || 30)
@@ -275,7 +305,16 @@ app.post(
         }, 401)
       }
 
-      // TODO: Check if user has admin role
+      const isAuthorized = await isAdmin(authUserId)
+      if (!isAuthorized) {
+        return c.json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Access denied: Requires Admin role',
+          },
+        }, 403)
+      }
 
       const startDate = new Date(body.startDate)
       const endDate = new Date(body.endDate)
@@ -347,14 +386,16 @@ app.get('/logs/:logId', async (c) => {
 
       // Users can only view their own logs (unless admin)
       if (log.userId !== authUserId) {
-        // TODO: Check if user has admin role
-        return c.json({
-          success: false,
-          error: {
-            code: 'FORBIDDEN',
-            message: 'You can only view your own audit logs',
-          },
-        }, 403)
+        const isAuthorized = await isAdmin(authUserId)
+        if (!isAuthorized) {
+          return c.json({
+            success: false,
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You can only view your own audit logs',
+            },
+          }, 403)
+        }
       }
 
       return c.json({
