@@ -6,6 +6,7 @@
  */
 
 import { createHash } from 'crypto'
+import { Redis } from 'ioredis'
 
 /**
  * Cache entry
@@ -141,34 +142,39 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: any // Redis client
+  private client: Redis
 
   constructor(redisUrl?: string) {
-    // In production, initialize Redis client
-    // For now, this is a placeholder
-    console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    this.client = new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379')
   }
 
   async get<T>(key: string): Promise<T | null> {
-    // TODO: Implement Redis get
-    return null
+    const value = await this.client.get(key)
+    if (!value) return null
+
+    try {
+      return JSON.parse(value) as T
+    } catch (error) {
+      console.warn(`Failed to parse cache value for key ${key}:`, error)
+      return null
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    // TODO: Implement Redis set with TTL
+    // Store as JSON string with TTL (in milliseconds)
+    await this.client.set(key, JSON.stringify(value), 'PX', ttl)
   }
 
   async delete(key: string): Promise<void> {
-    // TODO: Implement Redis delete
+    await this.client.del(key)
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    await this.client.flushdb()
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    return await this.client.keys('*')
   }
 }
 
