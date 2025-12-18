@@ -4,25 +4,27 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "dependencies": {
-    "ai": "^3.4.0",
-    "@ai-sdk/openai": "^0.0.66",
     "@ai-sdk/anthropic": "^0.0.51",
-    "openai": "^4.67.0",
+    "@ai-sdk/openai": "^0.0.66",
     "@anthropic-ai/sdk": "^0.30.0",
-    "zod": "^3.23.8",
-    "langfuse": "^3.26.0",
-    "langfuse-vercel": "^3.38.6",
-    "langchain": "^0.3.0",
-    "@langchain/core": "^0.3.0",
-    "@langchain/openai": "^0.3.0",
     "@langchain/anthropic": "^0.3.0",
     "@langchain/community": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.3.0",
+    "@prisma/client": "^5.22.0",
+    "ai": "^3.4.0",
+    "ioredis": "^5.8.2",
+    "langchain": "^0.3.0",
+    "langfuse": "^3.26.0",
+    "langfuse-vercel": "^3.38.6",
+    "openai": "^4.67.0",
     "tiktoken": "^1.0.15",
-    "zod-to-json-schema": "^3.23.0",
-    "@prisma/client": "^5.22.0"
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "@types/node": "^20.0.0"
+    "@types/ioredis": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
   }
 }
