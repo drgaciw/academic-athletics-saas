@@ -6,6 +6,7 @@
  */
 
 import { createHash } from 'crypto'
+import Redis from 'ioredis'
 
 /**
  * Cache entry
@@ -141,34 +142,52 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: any // Redis client
+  private client: Redis | null = null
 
   constructor(redisUrl?: string) {
-    // In production, initialize Redis client
-    // For now, this is a placeholder
-    console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    if (redisUrl) {
+      this.client = new Redis(redisUrl)
+    } else if (process.env.REDIS_URL) {
+      this.client = new Redis(process.env.REDIS_URL)
+    } else {
+      console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    }
   }
 
   async get<T>(key: string): Promise<T | null> {
-    // TODO: Implement Redis get
-    return null
+    if (!this.client) return null
+    const value = await this.client.get(key)
+    if (!value) return null
+    try {
+      return JSON.parse(value) as T
+    } catch (e) {
+      return value as unknown as T
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    // TODO: Implement Redis set with TTL
+    if (!this.client) return
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value)
+    if (ttl > 0) {
+      await this.client.set(key, stringValue, 'PX', ttl)
+    } else {
+      await this.client.set(key, stringValue)
+    }
   }
 
   async delete(key: string): Promise<void> {
-    // TODO: Implement Redis delete
+    if (!this.client) return
+    await this.client.del(key)
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    if (!this.client) return
+    await this.client.flushdb()
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    if (!this.client) return []
+    return await this.client.keys('*')
   }
 }
 
