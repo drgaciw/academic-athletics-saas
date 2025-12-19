@@ -163,7 +163,9 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    if (this.client) {
+      await this.client.flushdb()
+    }
   }
 
   async keys(): Promise<string[]> {
