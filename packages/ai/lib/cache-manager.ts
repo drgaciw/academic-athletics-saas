@@ -153,23 +153,45 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async get<T>(key: string): Promise<T | null> {
-    return await this.client.get<T>(key)
+    try {
+      return await this.client.get<T>(key)
+    } catch (error) {
+      console.error('Redis get error:', error)
+      return null
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    await this.client.set(key, value, { px: ttl })
+    try {
+      await this.client.set(key, value, { px: ttl })
+    } catch (error) {
+      console.error('Redis set error:', error)
+    }
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.del(key)
+    try {
+      await this.client.del(key)
+    } catch (error) {
+      console.error('Redis delete error:', error)
+    }
   }
 
   async clear(): Promise<void> {
-    await this.client.flushdb()
+    try {
+      await this.client.flushdb()
+    } catch (error) {
+      console.error('Redis clear error:', error)
+    }
   }
 
   async keys(): Promise<string[]> {
-    return await this.client.keys('*')
+    try {
+      return await this.client.keys('*')
+    } catch (error) {
+      console.error('Redis keys error:', error)
+      return []
+    }
   }
 }
 
