@@ -266,6 +266,7 @@ function getDefaultPort(serviceName: string): number {
     support: 3005,
     integration: 3006,
     ai: 3007,
+    coach: 3008,
   };
 
   return ports[serviceName] || 3000;
