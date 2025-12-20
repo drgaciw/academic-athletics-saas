@@ -39,7 +39,10 @@
       "Bash(vercel --prod:*)",
       "Bash(git restore:*)",
       "Bash(vercel deploy:*)",
-      "Bash($env:NODE_ENV=\"development\")"
+      "Bash($env:NODE_ENV=\"development\")",
+      "Bash(vercel inspect:*)",
+      "Bash(vercel logs:*)",
+      "Bash(vercel ls:*)"
     ],
     "deny": [],
     "ask": []
