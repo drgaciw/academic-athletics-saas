@@ -43,22 +43,6 @@ datasets:
 
 # Model configuration
 models:
-  # OpenAI models
-  - provider: openai
-    modelId: gpt-4-turbo
-    config:
-      temperature: 0.0
-      maxTokens: 2048
-      topP: 1.0
-    enabled: true
-
-  - provider: openai
-    modelId: gpt-4-turbo-preview
-    config:
-      temperature: 0.0
-      maxTokens: 2048
-    enabled: false  # Disabled by default
-
   # Anthropic Claude 4.5 Family (Latest - November 2025)
   - provider: anthropic
     modelId: claude-opus-4-5-20251101
@@ -91,28 +75,6 @@ models:
 
   - provider: anthropic
     modelId: claude-sonnet-4-20250514
-    config:
-      temperature: 0.0
-      maxTokens: 2048
-    enabled: false
-
-  # Anthropic Claude 3.x Family (Legacy)
-  - provider: anthropic
-    modelId: claude-3-7-sonnet-20250219
-    config:
-      temperature: 0.0
-      maxTokens: 2048
-    enabled: false
-
-  - provider: anthropic
-    modelId: claude-3-5-haiku-20241022
-    config:
-      temperature: 0.0
-      maxTokens: 2048
-    enabled: false
-
-  - provider: anthropic
-    modelId: claude-3-opus-20240229
     config:
       temperature: 0.0
       maxTokens: 2048
@@ -155,7 +117,7 @@ scorer:
 
   # LLM-as-judge scorer config
   llmJudge:
-    model: gpt-4-turbo
+    model: claude-sonnet-4-5-20250929
     rubric:
       accuracy: 0.4    # Weight for accuracy
       helpfulness: 0.3 # Weight for helpfulness
