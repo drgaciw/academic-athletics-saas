@@ -5,6 +5,7 @@ node_modules/
 .pnp
 .pnp.js
 .yarn/
+.pnpm-store/
 
 # ================================
 # Testing
@@ -103,8 +104,7 @@ Thumbs.db
 .parcel-cache/
 .vite/
 .eslintcache
-.tsbuildinfo
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # ================================
 # Python (for AI/ML services)
