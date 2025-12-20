@@ -200,8 +200,10 @@ export class CostTracker {
   /**
    * Track cost for individual run result
    */
-  trackRunResult(jobId: string, result: RunResult, config: RunnerConfig): void {
+  trackRunResult(jobId: string, result: RunResult, config: { modelId: string; [key: string]: any }): void {
     if (!this.config.enabled) return;
+
+    if (!result.metadata) return;
 
     const entry: CostEntry = {
       runId: `${result.testCaseId}-${config.modelId}`,
@@ -209,12 +211,12 @@ export class CostTracker {
       timestamp: result.metadata.timestamp,
       modelId: config.modelId,
       datasetId: 'unknown', // Would need to be passed separately
-      totalCost: result.metadata.cost,
-      totalTokens: result.metadata.tokenUsage.total,
-      promptTokens: result.metadata.tokenUsage.prompt,
-      completionTokens: result.metadata.tokenUsage.completion,
+      totalCost: result.metadata.cost ?? 0,
+      totalTokens: (result.metadata as any).tokenUsage?.total ?? 0,
+      promptTokens: (result.metadata as any).tokenUsage?.prompt ?? 0,
+      completionTokens: (result.metadata as any).tokenUsage?.completion ?? 0,
       testCount: 1,
-      avgCostPerTest: result.metadata.cost,
+      avgCostPerTest: result.metadata.cost ?? 0,
     };
 
     this.entries.push(entry);
@@ -252,7 +254,7 @@ export class CostTracker {
    */
   getCostBreakdown(dimension: CostDimension, period?: TimePeriod): CostBreakdown {
     const entries = period
-      ? this.getEntriesInRange(...Object.values(this.getDateRange(period)))
+      ? (() => { const { start, end } = this.getDateRange(period); return this.getEntriesInRange(start, end); })()
       : this.entries;
 
     const breakdown = new Map<string, { cost: number; tokens: number; runs: number }>();
@@ -468,14 +470,16 @@ export class CostTracker {
    * Create cost entry from run summary
    */
   private createCostEntry(jobId: string, runSummary: RunSummary): CostEntry {
-    const promptTokens = runSummary.results.reduce(
-      (sum, r) => sum + r.metadata.tokenUsage.prompt,
+    const results = runSummary.results || [];
+    const promptTokens = results.reduce(
+      (sum, r) => sum + ((r.metadata as any)?.tokenUsage?.prompt ?? 0),
       0
     );
-    const completionTokens = runSummary.results.reduce(
-      (sum, r) => sum + r.metadata.tokenUsage.completion,
+    const completionTokens = results.reduce(
+      (sum, r) => sum + ((r.metadata as any)?.tokenUsage?.completion ?? 0),
       0
     );
+    const testCount = results.length || 1;
 
     return {
       runId: runSummary.runId,
@@ -483,12 +487,12 @@ export class CostTracker {
       timestamp: runSummary.startTime,
       modelId: runSummary.config.modelId,
       datasetId: runSummary.datasetId,
-      totalCost: runSummary.totalCost,
-      totalTokens: runSummary.totalTokens,
+      totalCost: (runSummary as any).totalCost ?? 0,
+      totalTokens: (runSummary as any).totalTokens ?? 0,
       promptTokens,
       completionTokens,
-      testCount: runSummary.results.length,
-      avgCostPerTest: runSummary.totalCost / runSummary.results.length,
+      testCount,
+      avgCostPerTest: ((runSummary as any).totalCost ?? 0) / testCount,
     };
   }
 

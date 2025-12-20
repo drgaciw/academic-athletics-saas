@@ -1,10 +1,13 @@
 /**
  * AI Evaluation Framework - Core Types
- * 
+ *
  * Type definitions for test cases, datasets, scores, and evaluation results
  */
 
 import type { AgentType } from '@aah/ai'
+
+// Re-export RunnerConfig from base-runner for backward compatibility
+export type { RunnerConfig } from './base-runner'
 
 /**
  * Test case for AI evaluation
@@ -156,18 +159,30 @@ export interface Score {
 export interface RunResult {
   /** Test case */
   testCase: TestCase
-  
+
+  /** Test case ID (convenience accessor) */
+  testCaseId?: string
+
   /** Score */
   score: Score
-  
+
   /** Model configuration used */
   modelConfig: ModelConfig
-  
+
   /** Scorer configuration used */
   scorerConfig: ScorerConfig
-  
+
   /** Timestamp */
   timestamp: string
+
+  /** Metadata for cost tracking and analytics */
+  metadata?: {
+    timestamp: Date
+    tokens?: TokenUsage
+    latency?: number
+    cost?: number
+    error?: string
+  }
 }
 
 /**
@@ -176,7 +191,10 @@ export interface RunResult {
 export interface EvalReport {
   /** Report ID */
   id: string
-  
+
+  /** Job ID (alias for id for compatibility) */
+  jobId: string
+
   /** Dataset used */
   dataset: Dataset
   
@@ -219,6 +237,27 @@ export interface EvalReport {
   
   /** Duration in ms */
   duration: number
+
+  /** Summary for monitoring compatibility */
+  summary: {
+    totalTests: number
+    passed: number
+    failed: number
+    accuracy: number
+    avgLatency: number
+    totalCost: number
+    duration: number
+    status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+  }
+
+  /** When the report was generated */
+  generatedAt: Date
+
+  /** Regressions detected during evaluation */
+  regressions?: Regression[]
+
+  /** Run summaries for analytics */
+  runSummaries: RunSummary[]
 }
 
 /**
@@ -283,6 +322,12 @@ export interface EvalMetrics {
   
   /** Total cost in USD */
   totalCost: number
+
+  /** Accuracy alias for compatibility (same as averageScore) */
+  accuracy?: number
+
+  /** Average latency alias for compatibility (same as averageLatencyMs) */
+  avgLatency?: number
 }
 
 /**
@@ -416,6 +461,40 @@ export interface RegressionResult {
 export type ExportFormat = 'json' | 'csv' | 'html' | 'markdown'
 
 /**
+ * Run summary for analytics
+ */
+export interface RunSummary {
+  runId: string
+  datasetId: string
+  modelId: string
+  status: JobStatus
+  metrics: EvalMetrics
+  startTime: Date
+  endTime: Date
+  config: {
+    modelId: string
+    temperature?: number
+    maxTokens?: number
+    timeout?: number
+    retries?: number
+    concurrency?: number
+  }
+  results?: RunResult[]
+}
+
+/**
+ * Token usage tracking
+ */
+export interface TokenUsage {
+  input: number
+  output: number
+  total: number
+}
+
+// RunnerConfig is exported from base-runner.ts
+// Re-using that definition for compatibility
+
+/**
  * Export options
  */
 export interface ExportOptions {
@@ -430,4 +509,62 @@ export interface ExportOptions {
   
   /** Include baseline comparison */
   includeBaseline?: boolean
+}
+
+// Additional types needed by monitoring module
+
+/**
+ * Job status
+ */
+export type JobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+
+/**
+ * Metrics type alias for compatibility
+ */
+export type Metrics = EvalMetrics
+
+/**
+ * Regression severity levels
+ */
+export type RegressionSeverity = 'critical' | 'major' | 'minor'
+
+/**
+ * Regression detection for monitoring module
+ * Note: This interface is used by the monitoring/alerts module
+ */
+export interface Regression {
+  /** Test case ID */
+  testCaseId: string
+  /** Metric name */
+  metric: string
+  /** Baseline value */
+  baseline: number
+  /** Current value */
+  current: number
+  /** Percent change */
+  percentChange: number
+  /** Absolute change */
+  absoluteChange?: number
+  /** Severity */
+  severity: RegressionSeverity
+  /** Category */
+  category?: string
+}
+
+/**
+ * Evaluation error
+ */
+export interface EvalError {
+  /** Error type */
+  type: 'execution' | 'scoring' | 'system'
+  /** Error severity */
+  severity: 'fatal' | 'error' | 'warning'
+  /** Error message */
+  message: string
+  /** Test case ID if applicable */
+  testCaseId?: string
+  /** Stack trace */
+  stack?: string
+  /** Whether error is retryable */
+  retryable: boolean
 }

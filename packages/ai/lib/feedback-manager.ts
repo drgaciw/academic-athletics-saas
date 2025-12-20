@@ -306,13 +306,9 @@ export class FeedbackManager {
     const prisma = new PrismaClient()
 
     try {
-      // Get high-rated tasks
+      // Get high-rated tasks (inputParams and outputResult are Json fields, not relations)
       const tasks = await prisma.agentTask.findMany({
         where: { agentType },
-        include: {
-          inputParams: true,
-          outputResult: true,
-        },
       })
 
       const dataset: Array<{ input: string; output: string; metadata: any }> = []

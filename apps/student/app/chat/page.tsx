@@ -1,13 +1,29 @@
 'use client'
 
-import { useChat } from 'ai'
+import { useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { ChatWidget } from '@aah/ui'
 
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat({
+  const [input, setInput] = useState('')
+  const chat = useChat({
+    transport: new DefaultChatTransport({
       api: '/api/ai/chat',
-    })
+    }),
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim()) {
+      chat.sendMessage({
+        text: input,
+      })
+      setInput('')
+    }
+  }
+
+  const isLoading = chat.status === 'submitted' || chat.status === 'streaming'
 
   return (
     <div className="h-screen flex flex-col">
@@ -20,7 +36,7 @@ export default function ChatPage() {
 
       <div className="flex-1 relative">
         <ChatWidget
-          messages={messages.map((m: any) => ({
+          messages={chat.messages.map((m: any) => ({
             id: m.id,
             role: m.role as 'user' | 'assistant',
             content: m.content,
@@ -33,9 +49,9 @@ export default function ChatPage() {
           }))}
           input={input}
           isLoading={isLoading}
-          onInputChange={(e) => handleInputChange({ target: { value: e } } as any)}
+          onInputChange={setInput}
           onSubmit={handleSubmit}
-          onStop={stop}
+          onStop={chat.stop}
           className="!fixed !inset-0 !w-full !h-full !max-w-none !max-h-none !rounded-none"
         />
       </div>

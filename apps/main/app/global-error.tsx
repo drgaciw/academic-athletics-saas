@@ -34,7 +34,7 @@ export default function GlobalError({
               Something went wrong
             </h2>
             <p style={{ color: '#666', marginBottom: '24px' }}>
-              We're experiencing technical difficulties. Please try again.
+              We&apos;re experiencing technical difficulties. Please try again.
             </p>
             <button
               onClick={reset}

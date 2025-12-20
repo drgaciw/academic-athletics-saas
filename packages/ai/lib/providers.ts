@@ -1,23 +1,27 @@
 /**
  * AI SDK Providers
- * 
+ *
  * Initializes and exports AI SDK providers for OpenAI and Anthropic
  */
 
-import { openai as createOpenAI } from '@ai-sdk/openai'
-import { anthropic as createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI, openai as openaiProvider } from '@ai-sdk/openai'
+import { createAnthropic, anthropic as anthropicProvider } from '@ai-sdk/anthropic'
 import { aiConfig } from '../config'
 
-// Initialize OpenAI provider
-export const openai = createOpenAI({
+// Initialize OpenAI provider with custom config
+const openaiClient = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   compatibility: 'strict',
 })
 
-// Initialize Anthropic provider
-export const anthropic = createAnthropic({
+// Initialize Anthropic provider with custom config
+const anthropicClient = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
+
+// Export providers - use the initialized clients
+export const openai = openaiClient
+export const anthropic = anthropicClient
 
 /**
  * Select the optimal model based on task complexity and cost constraints

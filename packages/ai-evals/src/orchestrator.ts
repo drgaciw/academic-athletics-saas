@@ -223,15 +223,30 @@ export class EvalOrchestrator {
       const metrics = calculateMetrics(results)
 
       // Create report
+      const reportId = randomUUID();
+      const duration = Date.now() - new Date(job.startedAt!).getTime();
       const report: EvalReport = {
-        id: randomUUID(),
+        id: reportId,
+        jobId: job.id,
         dataset,
         modelConfig: job.config.modelConfig,
         scorerConfig: job.config.scorerConfig,
         results,
         metrics,
         timestamp: new Date().toISOString(),
-        duration: Date.now() - new Date(job.startedAt!).getTime(),
+        duration,
+        summary: {
+          totalTests: metrics.totalTests,
+          passed: metrics.passedTests,
+          failed: metrics.failedTests,
+          accuracy: metrics.passRate * 100,
+          avgLatency: metrics.averageLatencyMs,
+          totalCost: metrics.totalCost,
+          duration,
+          status: 'completed' as const,
+        },
+        generatedAt: new Date(),
+        runSummaries: [],
       }
 
       // Update job

@@ -190,7 +190,7 @@ export default function Home() {
             {/* Testimonial 1 */}
             <div className="bg-white p-8 rounded-lg shadow-sm">
               <p className="text-gray-700 leading-relaxed mb-6">
-                "This platform has been a game-changer for our athletic department. We can now track student progress, ensure eligibility, and communicate with coaches and faculty all in one place."
+                &quot;This platform has been a game-changer for our athletic department. We can now track student progress, ensure eligibility, and communicate with coaches and faculty all in one place.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
@@ -204,7 +204,7 @@ export default function Home() {
             {/* Testimonial 2 */}
             <div className="bg-white p-8 rounded-lg shadow-sm">
               <p className="text-gray-700 leading-relaxed mb-6">
-                "The system automates tedious tasks, freeing up our staff to focus on what matters most: student success. The eligibility tracking alone has saved us countless hours."
+                &quot;The system automates tedious tasks, freeing up our staff to focus on what matters most: student success. The eligibility tracking alone has saved us countless hours.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
@@ -218,7 +218,7 @@ export default function Home() {
             {/* Testimonial 3 */}
             <div className="bg-white p-8 rounded-lg shadow-sm">
               <p className="text-gray-700 leading-relaxed mb-6">
-                "As an academic advisor, having all student information in one place has been invaluable. I can easily track progress and identify students who need extra support."
+                &quot;As an academic advisor, having all student information in one place has been invaluable. I can easily track progress and identify students who need extra support.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gray-300 rounded-full"></div>

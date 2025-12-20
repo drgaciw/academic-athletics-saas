@@ -23,7 +23,9 @@ import {
   TableCell,
   Button,
 } from '@aah/ui';
-import type { EvalReport, RunResult } from '@/lib/types/evals';
+// Using any for types as there's a mismatch between the API response and type definitions
+type EvalReport = any;
+type RunResult = any;
 
 /**
  * Task 9.2: Eval Run Details Page
@@ -86,12 +88,12 @@ export default function EvalRunDetailsPage() {
       URL.revokeObjectURL(url);
     } else if (format === 'csv') {
       const headers = ['Test ID', 'Passed', 'Score', 'Latency (ms)', 'Cost'];
-      const rows = results.map((r) => [
-        r.testCaseId,
-        r.metadata.error ? 'false' : 'true',
-        r.metadata.error ? '0' : '1',
-        r.metadata.latency.toFixed(0),
-        r.metadata.cost.toFixed(4),
+      const rows = results.map((r: any) => [
+        r.testCaseId || r.testCase?.id || 'N/A',
+        r.metadata?.error ? 'false' : 'true',
+        r.metadata?.error ? '0' : '1',
+        (r.metadata?.latency ?? 0).toFixed(0),
+        (r.metadata?.cost ?? 0).toFixed(4),
       ]);
       const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
       const dataBlob = new Blob([csv], { type: 'text/csv' });
@@ -288,21 +290,21 @@ export default function EvalRunDetailsPage() {
             </div>
             <div className="flex gap-2">
               <Button
-                variant={filterStatus === 'all' ? 'primary' : 'outline'}
+                variant={filterStatus === 'all' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilterStatus('all')}
               >
                 All ({results.length})
               </Button>
               <Button
-                variant={filterStatus === 'passed' ? 'primary' : 'outline'}
+                variant={filterStatus === 'passed' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilterStatus('passed')}
               >
                 Passed ({results.filter((r) => !r.metadata.error).length})
               </Button>
               <Button
-                variant={filterStatus === 'failed' ? 'primary' : 'outline'}
+                variant={filterStatus === 'failed' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setFilterStatus('failed')}
               >

@@ -1,4 +1,4 @@
-import { openai } from './chat'
+import { legacyOpenai as openai } from './chat'
 
 export async function generateEmbedding(text: string): Promise<number[]> {
   const response = await openai.embeddings.create({

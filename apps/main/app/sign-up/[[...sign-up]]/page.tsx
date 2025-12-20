@@ -28,7 +28,9 @@ export default function SignUpPage() {
                 elements: {
                   root: 'space-y-6',
                   socialButtonsBlock: 'space-y-3',
-                  dividerRow: 'hidden',
+                  dividerRow: 'flex items-center my-4',
+                  dividerLine: 'flex-grow border-t border-gray-200 dark:border-gray-700',
+                  dividerText: 'text-[#6b6388] dark:text-gray-400 text-sm font-normal leading-normal px-4 text-center',
                   formFieldInput:
                     'form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#131118] dark:text-white dark:bg-gray-700 focus:outline-0 border border-gray-300 dark:border-gray-600 bg-white dark:focus:border-primary h-12 placeholder:text-[#6b6388] p-3 text-base font-normal leading-normal',
                   formButtonPrimary:
@@ -40,15 +42,7 @@ export default function SignUpPage() {
                     'text-[#131118] dark:text-gray-200 text-sm font-medium leading-normal pb-2',
                 },
               }}
-            >
-              <div className="flex items-center">
-                <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
-                <p className="text-[#6b6388] dark:text-gray-400 text-sm font-normal leading-normal px-4 text-center">
-                  OR
-                </p>
-                <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
-              </div>
-            </SignUp>
+            />
           </div>
         </div>
       </div>

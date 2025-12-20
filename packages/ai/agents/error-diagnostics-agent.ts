@@ -237,9 +237,10 @@ Please provide:
     affectedStudents?: string[]
     service: string
   }) {
-    const errorMessage = typeof params.error === 'string' 
-      ? params.error 
-      : params.error.message
+    const { error: rawError, ...restParams } = params;
+    const errorMessage = typeof rawError === 'string'
+      ? rawError
+      : rawError.message
 
     const request: AgentRequest = {
       userId: 'system',
@@ -259,7 +260,7 @@ Please analyze:
       context: {
         errorType: 'compliance_impact',
         error: errorMessage,
-        ...params,
+        ...restParams,
       },
     }
 

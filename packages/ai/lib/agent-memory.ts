@@ -1,4 +1,4 @@
-/help/**
+/**
  * Agent Memory System
  * 
  * Manages short-term and long-term memory for agents
@@ -119,18 +119,35 @@ export class AgentMemoryStore {
       // Calculate importance if not provided
       const importance = entry.importance ?? (await this.calculateImportance(entry.content))
 
-      const memory = await prisma.agentMemory.create({
-        data: {
-          userId: entry.userId,
-          memoryType: entry.memoryType,
-          content: entry.content,
-          embedding: `[${embedding.join(',')}]`, // Store as string for pgvector
-          metadata: entry.metadata,
-          confidence: entry.confidence ?? 1.0,
-          importance,
-          expiresAt: entry.expiresAt,
-        },
+      // Use raw SQL to insert with pgvector embedding
+      const embeddingStr = `[${embedding.join(',')}]`
+      const result = await prisma.$queryRaw<Array<{ id: string }>>`
+        INSERT INTO "AgentMemory" (
+          "id", "userId", "memoryType", "content", "embedding", "metadata", "confidence", "importance", "expiresAt", "createdAt", "updatedAt"
+        ) VALUES (
+          gen_random_uuid()::text,
+          ${entry.userId},
+          ${entry.memoryType},
+          ${entry.content},
+          ${embeddingStr}::vector,
+          ${JSON.stringify(entry.metadata ?? {})}::jsonb,
+          ${entry.confidence ?? 1.0},
+          ${importance},
+          ${entry.expiresAt ?? null},
+          NOW(),
+          NOW()
+        )
+        RETURNING "id"
+      `
+
+      // Fetch the created memory
+      const memory = await prisma.agentMemory.findUnique({
+        where: { id: result[0].id },
       })
+
+      if (!memory) {
+        throw new Error('Failed to create memory')
+      }
 
       return this.mapToAgentMemory(memory)
     } finally {

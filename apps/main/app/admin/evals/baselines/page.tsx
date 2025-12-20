@@ -440,7 +440,7 @@ export default function BaselinesPage() {
                         Compare
                       </Button>
                       <Button
-                        variant={baseline.isActive ? 'secondary' : 'primary'}
+                        variant={baseline.isActive ? 'secondary' : 'default'}
                         size="sm"
                         onClick={() => toggleBaselineActive(baseline.id, !baseline.isActive)}
                       >

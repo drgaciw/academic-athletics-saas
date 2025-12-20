@@ -478,7 +478,7 @@ export default function DatasetsPage() {
 
             {testCases.length === 0 ? (
               <div className="text-center py-8 text-gray-600">
-                <p>No test cases yet. Click "Add Test Case" to create one.</p>
+                <p>No test cases yet. Click &quot;Add Test Case&quot; to create one.</p>
               </div>
             ) : (
               <div className="space-y-4">

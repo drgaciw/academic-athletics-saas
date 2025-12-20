@@ -1,27 +1,31 @@
 // Re-export types from @aah/ai-evals for use in the UI
+// Note: The @aah/ai-evals package has inconsistent type definitions
+// Some types don't match what the API actually returns, so we define local types for UI use
+
 import type {
   EvalReport,
-  Metrics,
+  EvalMetrics,
   RunResult,
-  Regression,
   Baseline,
   Dataset,
   TestCase,
-  JobStatus,
-  BaselineComparison,
-} from '@aah/ai-evals/types';
+} from '@aah/ai-evals';
 
+// Re-export available types
 export type {
   EvalReport,
-  Metrics,
+  EvalMetrics,
   RunResult,
-  Regression,
   Baseline,
   Dataset,
   TestCase,
-  JobStatus,
-  BaselineComparison,
 };
+
+// Define missing types for UI compatibility
+export type Metrics = EvalMetrics;
+export type JobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type Regression = any;
+export type BaselineComparison = any;
 
 // UI-specific types
 export interface EvalRunListItem {

@@ -236,9 +236,9 @@ export class PromptCompressor {
 export const globalCompressor = new PromptCompressor()
 
 /**
- * Convenience function for message compression
+ * Convenience function for message compression with options
  */
-export async function compressMessages(
+export async function compressMessagesWithOptions(
   messages: CoreMessage[],
   options: CompressionOptions
 ): Promise<CompressionResult> {
@@ -262,7 +262,7 @@ export async function autoCompress(
   messages: CoreMessage[],
   maxContextTokens: number = 8000
 ): Promise<CoreMessage[]> {
-  const result = await compressMessages(messages, {
+  const result = await compressMessagesWithOptions(messages, {
     strategy: 'summarize',
     maxTokens: maxContextTokens,
     preserveSystemMessage: true,

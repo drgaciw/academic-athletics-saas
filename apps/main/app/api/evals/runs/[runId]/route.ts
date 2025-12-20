@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { EvalReport } from '@aah/ai-evals/types';
 
 // Mock data - replace with actual database queries
 export async function GET(
@@ -10,7 +9,8 @@ export async function GET(
     const { runId } = params;
 
     // TODO: Replace with actual database query
-    const mockReport: EvalReport = {
+    // Mock report structure for UI development
+    const mockReport = {
       jobId: runId,
       summary: {
         totalTests: 50,

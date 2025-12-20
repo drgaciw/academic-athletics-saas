@@ -1,17 +1,33 @@
 'use client'
 
-import { useChat } from 'ai'
+import { useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { ChatWidget } from '@aah/ui'
 
 export function ChatWidgetWrapper() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat({
+  const [input, setInput] = useState('')
+  const chat = useChat({
+    transport: new DefaultChatTransport({
       api: '/api/ai/chat',
-    })
+    }),
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim()) {
+      chat.sendMessage({
+        text: input,
+      })
+      setInput('')
+    }
+  }
+
+  const isLoading = chat.status === 'submitted' || chat.status === 'streaming'
 
   return (
     <ChatWidget
-      messages={messages.map((m: any) => ({
+      messages={chat.messages.map((m: any) => ({
         id: m.id,
         role: m.role as 'user' | 'assistant',
         content: m.content,
@@ -24,9 +40,9 @@ export function ChatWidgetWrapper() {
       }))}
       input={input}
       isLoading={isLoading}
-      onInputChange={(e) => handleInputChange({ target: { value: e } } as any)}
+      onInputChange={setInput}
       onSubmit={handleSubmit}
-      onStop={stop}
+      onStop={chat.stop}
     />
   )
 }

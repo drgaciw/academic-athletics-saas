@@ -117,7 +117,7 @@ export interface AgentResponse {
   status: AgentStatus
   
   /** Error if failed */
-  error?: AgentError
+  error?: AgentErrorInfo
   
   /** Metadata */
   metadata?: Record<string, any>
@@ -195,7 +195,7 @@ export interface AgentStep {
   response?: string
   
   /** Error if step failed */
-  error?: AgentError
+  error?: AgentErrorInfo
   
   /** Timestamp */
   timestamp: Date
@@ -250,6 +250,7 @@ export type ToolCategory =
   | 'integration'
   | 'analytics'
   | 'administrative'
+  | 'error_diagnostics'
 
 /**
  * Tool execution context
@@ -296,7 +297,7 @@ export interface ToolInvocation extends ToolCall {
   result?: any
   
   /** Error if tool failed */
-  error?: AgentError
+  error?: AgentErrorInfo
   
   /** Execution time in ms */
   latency: number
@@ -381,24 +382,25 @@ export interface AgentConfig {
 // ============================================================================
 
 /**
- * Agent error
+ * Agent error info (data shape for error reporting)
+ * Note: For the Error class, use AgentError from './lib/errors'
  */
-export interface AgentError {
+export interface AgentErrorInfo {
   /** Error code */
   code: string
-  
+
   /** Error message */
   message: string
-  
+
   /** Error details */
   details?: any
-  
+
   /** Stack trace */
   stack?: string
-  
+
   /** Timestamp */
   timestamp: Date
-  
+
   /** Recoverable */
   recoverable: boolean
 }
