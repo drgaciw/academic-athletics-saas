@@ -11,6 +11,7 @@ import calendarRoutes from './routes/calendar';
 import lmsRoutes from './routes/lms';
 import sisRoutes from './routes/sis';
 import transcriptRoutes from './routes/transcript';
+import reminderRoutes from './routes/reminders';
 
 const app = new Hono();
 
@@ -51,6 +52,7 @@ app.route('/api/integration/calendar', calendarRoutes);
 app.route('/api/integration/lms', lmsRoutes);
 app.route('/api/integration/sis', sisRoutes);
 app.route('/api/integration/transcript', transcriptRoutes);
+app.route('/api/integration/reminders', reminderRoutes);
 
 // 404 handler
 app.notFound((c) => {

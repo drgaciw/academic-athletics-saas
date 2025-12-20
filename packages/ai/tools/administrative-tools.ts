@@ -239,15 +239,29 @@ export const createReminder = createTool({
   ],
   returnFormat: 'Reminder creation result with reminderId and scheduled time',
   execute: async (params, context) => {
-    // TODO: Integrate with Notification Service
-    return {
-      reminderId: `rem-${Date.now()}`,
-      userId: params.userId,
-      message: params.message,
-      reminderDate: params.reminderDate,
-      channel: params.channel || 'email',
-      status: 'scheduled',
-      createdAt: new Date().toISOString(),
+    try {
+      const baseUrl = process.env.INTEGRATION_SERVICE_URL || 'http://localhost:3006'
+      const response = await fetch(`${baseUrl}/api/integration/reminders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to create reminder: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      return result
+    } catch (error) {
+      console.error('Failed to create reminder:', error)
+      return {
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Service unavailable',
+        timestamp: new Date().toISOString(),
+      }
     }
   },
 })
