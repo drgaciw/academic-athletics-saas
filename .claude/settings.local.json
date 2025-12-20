@@ -49,7 +49,9 @@
       "Bash(vercel project:*)",
       "Bash(git stash:*)",
       "Bash(gh run view:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(gh run list:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
