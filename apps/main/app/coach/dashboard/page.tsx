@@ -179,7 +179,7 @@ export default function CoachDashboardPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Coach Dashboard</h1>
         <p className="text-muted-foreground">
-          Monitor your student-athletes' academic performance and compliance
+          Monitor your student-athletes&apos; academic performance and compliance
         </p>
       </div>
 
