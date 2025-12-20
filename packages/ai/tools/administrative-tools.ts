@@ -8,6 +8,13 @@ import { z } from 'zod'
 import { createTool } from '../lib/tool-registry'
 import type { ToolExecutionContext } from '../types/agent.types'
 import { serviceClients } from '../lib/service-client'
+import type {
+  PerformanceMetrics,
+  ProgressReportsResponse,
+  EligibilityCheck,
+  AttendanceData,
+  TeamAnalytics,
+} from '../lib/service-client'
 
 /**
  * Send Email
@@ -171,35 +178,52 @@ export const generateReport = createTool({
   returnFormat: 'Report generation result with reportId, download URL, and summary statistics',
   execute: async (params, context) => {
     const { reportType, studentId, teamId, dateRange, format } = params
-    let summaryData: any = {}
+    
+    // Validate that at least one target parameter is provided
+    if (!studentId && !teamId) {
+      throw new Error('Either studentId or teamId must be provided to generate a report')
+    }
+
+    // Union type for all possible summary data shapes
+    type SummaryData = PerformanceMetrics | ProgressReportsResponse | EligibilityCheck | AttendanceData | TeamAnalytics
+    let summaryData: SummaryData | null = null
 
     // Fetch data based on report type and target (student or team)
-    if (studentId) {
-      if (reportType === 'performance') {
-        summaryData = await serviceClients.monitoring.getPerformanceMetrics(studentId, undefined, context)
-      } else if (reportType === 'progress') {
-        const reports = await serviceClients.monitoring.getProgressReports(studentId, context)
-        summaryData = { reports, count: Array.isArray(reports) ? reports.length : 0 }
-      } else if (reportType === 'compliance') {
-        summaryData = await serviceClients.compliance.checkEligibility(studentId, context)
-      } else if (reportType === 'attendance') {
-        summaryData = await serviceClients.monitoring.getAttendance(studentId, context)
+    try {
+      if (studentId) {
+        if (reportType === 'performance') {
+          summaryData = await serviceClients.monitoring.getPerformanceMetrics(studentId, undefined, context)
+        } else if (reportType === 'progress') {
+          const reports = await serviceClients.monitoring.getProgressReports(studentId, context)
+          summaryData = { reports: reports.reports, count: Array.isArray(reports.reports) ? reports.reports.length : 0 }
+        } else if (reportType === 'compliance') {
+          summaryData = await serviceClients.compliance.checkEligibility(studentId, context)
+        } else if (reportType === 'attendance') {
+          summaryData = await serviceClients.monitoring.getAttendance(studentId, context)
+        }
+      } else if (teamId) {
+        summaryData = await serviceClients.monitoring.getTeamAnalytics(teamId, context)
       }
-    } else if (teamId) {
-      summaryData = await serviceClients.monitoring.getTeamAnalytics(teamId, context)
+    } catch (error) {
+      // Handle service errors gracefully
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      throw new Error(`Failed to fetch report data: ${errorMessage}`)
     }
 
     const reportId = `rpt-${Date.now()}`
 
-    // Construct summary metrics from fetched data
+    // Construct summary metrics from fetched data using safe property access
+    const data = summaryData || {}
     const keyMetrics = {
-      averageGPA: summaryData.gpa || summaryData.averageGpa || 0,
-      eligibilityRate: summaryData.eligibilityRate || (summaryData.isEligible ? 1.0 : 0.0),
-      attendanceRate: summaryData.attendanceRate || 0,
+      averageGPA: ('gpa' in data ? data.gpa : 'averageGpa' in data ? data.averageGpa : undefined) || 0,
+      eligibilityRate: ('eligibilityRate' in data ? data.eligibilityRate : undefined) ?? 0,
+      attendanceRate: ('attendanceRate' in data ? data.attendanceRate : undefined) || 0,
     }
 
-    // In a real implementation, this would generate a file and upload it
-    const downloadUrl = `https://example.com/reports/${reportId}.${format || 'pdf'}`
+    // TODO: Replace placeholder URL construction with actual file generation and upload logic.
+    // Use the REPORTS_BASE_URL environment variable to configure the public base URL for generated reports.
+    const reportsBaseUrl = process.env.REPORTS_BASE_URL?.replace(/\/+$/, '') || '/reports'
+    const downloadUrl = `${reportsBaseUrl}/${reportId}.${format || 'pdf'}`
 
     return {
       reportId,
@@ -208,7 +232,7 @@ export const generateReport = createTool({
       format: format || 'pdf',
       downloadUrl,
       summary: {
-        studentsIncluded: studentId ? 1 : (summaryData.totalStudents || 0),
+        studentsIncluded: studentId ? 1 : (('totalStudents' in data ? data.totalStudents : undefined) || 0),
         dateRange,
         keyMetrics,
       },
