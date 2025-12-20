@@ -6,6 +6,7 @@
  */
 
 import { createHash } from 'crypto'
+import { Redis } from '@upstash/redis'
 import { generateEmbedding } from './embeddings'
 
 /**
@@ -41,7 +42,7 @@ export interface CacheStorage {
   delete(key: string): Promise<void>
   clear(): Promise<void>
   keys(): Promise<string[]>
-  entries<T>(): Promise<[string, T][]>
+  entries<T>(prefix?: string): Promise<[string, T][]>
 }
 
 /**
@@ -106,9 +107,17 @@ export class InMemoryCacheStorage implements CacheStorage {
     return Array.from(this.cache.keys())
   }
 
-  async entries<T>(): Promise<[string, T][]> {
-    // Return all entries without modifying LRU
-    return Array.from(this.cache.entries()).map(([key, entry]) => [key, entry.value as T])
+  async entries<T>(prefix?: string): Promise<[string, T][]> {
+    // Return entries without modifying LRU
+    const allEntries = Array.from(this.cache.entries());
+
+    if (prefix) {
+      return allEntries
+        .filter(([key]) => key.startsWith(prefix))
+        .map(([key, entry]) => [key, entry.value as T]);
+    }
+
+    return allEntries.map(([key, entry]) => [key, entry.value as T]);
   }
 
   private estimateSize(value: any): number {
@@ -148,39 +157,103 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: any // Redis client
+  private client: Redis
 
   constructor(redisUrl?: string) {
-    // In production, initialize Redis client
-    // For now, this is a placeholder
-    console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    if (redisUrl) {
+      this.client = new Redis({ url: redisUrl, token: process.env.KV_REST_API_TOKEN || '' })
+    } else {
+      this.client = Redis.fromEnv()
+    }
   }
 
   async get<T>(key: string): Promise<T | null> {
-    // TODO: Implement Redis get
-    return null
+    try {
+      return await this.client.get<T>(key)
+    } catch (error) {
+      console.error('Redis get error:', error)
+      return null
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    // TODO: Implement Redis set with TTL
+    try {
+      await this.client.set(key, value, { px: ttl })
+    } catch (error) {
+      console.error('Redis set error:', error)
+    }
   }
 
   async delete(key: string): Promise<void> {
-    // TODO: Implement Redis delete
+    try {
+      await this.client.del(key)
+    } catch (error) {
+      console.error('Redis delete error:', error)
+    }
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    try {
+      await this.client.flushdb()
+    } catch (error) {
+      console.error('Redis clear error:', error)
+    }
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    try {
+      const keys: string[] = []
+      let cursor = 0
+
+      do {
+        const [nextCursor, batchKeys] = await this.client.scan(cursor, { count: 100 })
+        cursor = Number(nextCursor)
+        keys.push(...batchKeys)
+      } while (cursor !== 0)
+
+      return keys
+    } catch (error) {
+      console.error('Redis keys error:', error)
+      return []
+    }
   }
 
-  async entries<T>(): Promise<[string, T][]> {
-    // TODO: Implement Redis entries (scan)
-    return []
+  async entries<T>(prefix?: string): Promise<[string, T][]> {
+    try {
+      const keys: string[] = []
+      let cursor = 0
+      const match = prefix ? `${prefix}*` : '*'
+
+      do {
+        const [nextCursor, batchKeys] = await this.client.scan(cursor, { match, count: 100 })
+        cursor = Number(nextCursor)
+        keys.push(...batchKeys)
+      } while (cursor !== 0)
+
+      if (keys.length === 0) return []
+
+      // Fetch in batches to avoid huge payloads
+      const result: [string, T][] = []
+      const batchSize = 100
+
+      for (let i = 0; i < keys.length; i += batchSize) {
+        const batchKeys = keys.slice(i, i + batchSize)
+        if (batchKeys.length === 0) continue
+
+        const values = await this.client.mget<T[]>(...batchKeys)
+
+        for (let j = 0; j < batchKeys.length; j++) {
+          if (values[j] !== null) {
+            result.push([batchKeys[j], values[j]])
+          }
+        }
+      }
+
+      return result
+    } catch (error) {
+      console.error('Redis entries error:', error)
+      return []
+    }
   }
 }
 
@@ -434,19 +507,20 @@ export class ResponseCache extends CacheManager {
       return null
     }
 
-    // Get all entries to search
-    // Note: For in-memory cache this is fine. For Redis, we would need a vector index or scan
-    // But since we are using InMemoryCacheStorage by default or placeholder Redis, this works for now.
-    const entries = await this.storage.entries<CachedResponseValue | string>()
     const prefix = `response:${agentType}`
+
+    // Get entries with matching prefix to search
+    // WARNING: This iterates all keys matching the prefix.
+    // This linear scan (O(N)) is not scalable for production use with large datasets.
+    // Ideally, a vector database or Redis Vector Search should be used.
+    // This implementation is a fallback for small-scale or development environments.
+    const entries = await this.storage.entries<CachedResponseValue | string>(prefix)
 
     let bestMatch: { response: string; score: number } | null = null
 
     for (const [key, value] of entries) {
-      // Only check keys for this agent type
-      // Since keys are hashed, we can't strictly filter by prefix for exact match of params
-      // But the key generation is `response:${agentType}:${hash}`
-      // So checking startWith is correct
+      // Keys are already filtered by prefix if the storage supports it
+      // But double check just in case
       if (!key.startsWith(prefix)) continue
 
       if (typeof value === 'string' || !value.embedding) continue

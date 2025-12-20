@@ -26,6 +26,7 @@ model User {
 
   // Relations
   studentProfile            StudentProfile?
+  coachProfile              CoachProfile?
   conversations             Conversation[]
   predictions               StudentPrediction[]
   auditLogs                 AIAuditLog[]
@@ -96,6 +97,24 @@ model StudentProfile {
   @@index([sport])
   @@index([eligibilityStatus])
   @@index([academicStanding])
+}
+
+model CoachProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coachId     String   @unique
+  sport       String
+  teams       String[] // Array of team names/IDs they coach
+  title       String?  // e.g., "Head Coach", "Assistant Coach"
+  department  String?
+  phone       String?
+  officeLocation String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([coachId])
+  @@index([sport])
 }
 
 // ============================================================================

@@ -7,6 +7,7 @@
 import { z } from 'zod'
 import { createTool } from '../lib/tool-registry'
 import type { ToolExecutionContext } from '../types/agent.types'
+import { serviceClients } from '../lib/service-client'
 
 /**
  * Send Email
@@ -169,21 +170,47 @@ export const generateReport = createTool({
   ],
   returnFormat: 'Report generation result with reportId, download URL, and summary statistics',
   execute: async (params, context) => {
-    // TODO: Integrate with Monitoring Service / Report Generation
+    const { reportType, studentId, teamId, dateRange, format } = params
+    let summaryData: any = {}
+
+    // Fetch data based on report type and target (student or team)
+    if (studentId) {
+      if (reportType === 'performance') {
+        summaryData = await serviceClients.monitoring.getPerformanceMetrics(studentId, undefined, context)
+      } else if (reportType === 'progress') {
+        const reports = await serviceClients.monitoring.getProgressReports(studentId, context)
+        summaryData = { reports, count: Array.isArray(reports) ? reports.length : 0 }
+      } else if (reportType === 'compliance') {
+        summaryData = await serviceClients.compliance.checkEligibility(studentId, context)
+      } else if (reportType === 'attendance') {
+        summaryData = await serviceClients.monitoring.getAttendance(studentId, context)
+      }
+    } else if (teamId) {
+      summaryData = await serviceClients.monitoring.getTeamAnalytics(teamId, context)
+    }
+
+    const reportId = `rpt-${Date.now()}`
+
+    // Construct summary metrics from fetched data
+    const keyMetrics = {
+      averageGPA: summaryData.gpa || summaryData.averageGpa || 0,
+      eligibilityRate: summaryData.eligibilityRate || (summaryData.isEligible ? 1.0 : 0.0),
+      attendanceRate: summaryData.attendanceRate || 0,
+    }
+
+    // In a real implementation, this would generate a file and upload it
+    const downloadUrl = `https://example.com/reports/${reportId}.${format || 'pdf'}`
+
     return {
-      reportId: `rpt-${Date.now()}`,
-      reportType: params.reportType,
+      reportId,
+      reportType,
       generatedAt: new Date().toISOString(),
-      format: params.format || 'pdf',
-      downloadUrl: 'https://example.com/reports/rpt-123.pdf',
+      format: format || 'pdf',
+      downloadUrl,
       summary: {
-        studentsIncluded: params.studentId ? 1 : 25,
-        dateRange: params.dateRange,
-        keyMetrics: {
-          averageGPA: 3.2,
-          eligibilityRate: 0.96,
-          attendanceRate: 0.94,
-        },
+        studentsIncluded: studentId ? 1 : (summaryData.totalStudents || 0),
+        dateRange,
+        keyMetrics,
       },
     }
   },
