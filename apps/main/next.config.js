@@ -4,6 +4,17 @@ import { withWorkflow } from 'workflow/next'
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@aah/ui', '@aah/database', '@aah/auth', '@aah/ai'],
+  webpack: (config, { isServer }) => {
+    // Ignore source map warnings from @workflow/core
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /@workflow\/core/,
+        message: /failed to read input source map/,
+      },
+    ];
+    return config;
+  },
   async rewrites() {
     return [
       // Student Portal zone rewrites
