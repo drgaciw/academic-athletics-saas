@@ -3,36 +3,6 @@
   "buildCommand": "pnpm turbo run build --filter=main",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/main/.next",
-  "rewrites": [
-    {
-      "source": "/api/user/:path*",
-      "destination": "/api/services/user/:path*"
-    },
-    {
-      "source": "/api/advising/:path*",
-      "destination": "/api/services/advising/:path*"
-    },
-    {
-      "source": "/api/compliance/:path*",
-      "destination": "/api/services/compliance/:path*"
-    },
-    {
-      "source": "/api/monitoring/:path*",
-      "destination": "/api/services/monitoring/:path*"
-    },
-    {
-      "source": "/api/support/:path*",
-      "destination": "/api/services/support/:path*"
-    },
-    {
-      "source": "/api/integration/:path*",
-      "destination": "/api/services/integration/:path*"
-    },
-    {
-      "source": "/api/ai/:path*",
-      "destination": "/api/services/ai/:path*"
-    }
-  ],
   "headers": [
     {
       "source": "/api/(.*)",
