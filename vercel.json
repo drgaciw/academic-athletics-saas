@@ -1,8 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm turbo run build --filter=main",
+  "buildCommand": "cd apps/main && pnpm build",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/main/.next",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/main",
   "rewrites": [
     {
       "source": "/api/user/:path*",
