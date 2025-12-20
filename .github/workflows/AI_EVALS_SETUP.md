@@ -63,28 +63,59 @@ vercel postgres url eval-database
 
 ## GitHub Secrets Setup
 
-Configure the following secrets in your GitHub repository:
+Configure the following secrets in your GitHub repository. These correspond to the environment variables in your local `.env` file.
 
 ### Required Secrets
 
 Navigate to **Settings → Secrets and variables → Actions → New repository secret**
 
-| Secret Name | Description | How to Obtain |
-|------------|-------------|---------------|
-| `OPENAI_API_KEY` | OpenAI API key for GPT models | [OpenAI Platform](https://platform.openai.com/api-keys) |
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude models | [Anthropic Console](https://console.anthropic.com/) |
-| `EVAL_DATABASE_URL` | Postgres connection string for eval results | Vercel Postgres connection string |
+| Secret Name         | Description                                 | .env Variable       | How to Obtain                                           |
+| ------------------- | ------------------------------------------- | ------------------- | ------------------------------------------------------- |
+| `OPENAI_API_KEY`    | OpenAI API key for GPT models               | `OPENAI_API_KEY`    | [OpenAI Platform](https://platform.openai.com/api-keys) |
+| `ANTHROPIC_API_KEY` | Anthropic API key for Claude models         | `ANTHROPIC_API_KEY` | [Anthropic Console](https://console.anthropic.com/)     |
+| `EVAL_DATABASE_URL` | Postgres connection string for eval results | `DATABASE_URL`      | Vercel Postgres connection string                       |
+
+### Optional AI Provider Secrets
+
+Additional AI providers supported in the workflow:
+
+| Secret Name          | Description                | .env Variable        | How to Obtain                                              |
+| -------------------- | -------------------------- | -------------------- | ---------------------------------------------------------- |
+| `GOOGLE_API_KEY`     | Google AI (Gemini) API key | `GOOGLE_API_KEY`     | [Google AI Studio](https://aistudio.google.com/app/apikey) |
+| `PERPLEXITY_API_KEY` | Perplexity AI API key      | `PERPLEXITY_API_KEY` | [Perplexity](https://www.perplexity.ai/)                   |
+| `MISTRAL_API_KEY`    | Mistral AI API key         | `MISTRAL_API_KEY`    | [Mistral Console](https://console.mistral.ai/)             |
+| `OPENROUTER_API_KEY` | OpenRouter API key         | `OPENROUTER_API_KEY` | [OpenRouter](https://openrouter.ai/)                       |
+| `XAI_API_KEY`        | xAI (Grok) API key         | `XAI_API_KEY`        | [xAI Console](https://console.x.ai/)                       |
+| `CEREBRAS_API_KEY`   | Cerebras API key           | `CEREBRAS_API_KEY`   | [Cerebras](https://cloud.cerebras.ai/)                     |
+| `AI_GATEWAY_API_KEY` | Vercel AI Gateway key      | `AI_GATEWAY_API_KEY` | [Vercel Dashboard](https://vercel.com/dashboard)           |
+
+### Claude Code Workflow Secrets
+
+For the Claude Code workflow (`claude.yml`):
+
+| Secret Name               | Description             | .env Variable    | How to Obtain                                          |
+| ------------------------- | ----------------------- | ---------------- | ------------------------------------------------------ |
+| `CLAUDE_CODE_OAUTH_TOKEN` | Claude Code OAuth token | N/A (OAuth flow) | [Claude Code App](https://github.com/apps/claude-code) |
+
+> **Note:** Alternatively, you can use `ANTHROPIC_API_KEY` instead of OAuth token.
 
 ### Setting Secrets via GitHub CLI
 
 ```bash
-# Set OpenAI API key
-gh secret set OPENAI_API_KEY --body "sk-..."
+# Primary AI Providers (from .env values)
+gh secret set OPENAI_API_KEY --body "sk-proj-..."
+gh secret set ANTHROPIC_API_KEY --body "sk-ant-api03-..."
+gh secret set GOOGLE_API_KEY --body "AIza..."
 
-# Set Anthropic API key
-gh secret set ANTHROPIC_API_KEY --body "sk-ant-..."
+# Additional AI Providers (from .env values)
+gh secret set PERPLEXITY_API_KEY --body "pplx-..."
+gh secret set MISTRAL_API_KEY --body "..."
+gh secret set OPENROUTER_API_KEY --body "sk-or-v1-..."
+gh secret set XAI_API_KEY --body "xai-..."
+gh secret set CEREBRAS_API_KEY --body "csk-..."
+gh secret set AI_GATEWAY_API_KEY --body "vck_..."
 
-# Set eval database URL
+# Database
 gh secret set EVAL_DATABASE_URL --body "postgres://..."
 ```
 
@@ -142,11 +173,11 @@ The workflow uses path filters to detect changes in AI code:
 ```yaml
 filters:
   compliance:
-    - 'packages/ai/agents/compliance-agent.ts'
-    - 'services/ai/src/services/complianceAgent.ts'
+    - "packages/ai/agents/compliance-agent.ts"
+    - "services/ai/src/services/complianceAgent.ts"
   advising:
-    - 'packages/ai/agents/advising-agent.ts'
-    - 'services/ai/src/services/advisingAgent.ts'
+    - "packages/ai/agents/advising-agent.ts"
+    - "services/ai/src/services/advisingAgent.ts"
   # ... other AI components
 ```
 
@@ -235,14 +266,17 @@ gh workflow run ai-evals.yml \
 ### View Results
 
 **In PR Comment:**
+
 - Summary metrics displayed automatically in PR comment
 - Updated on each workflow run
 
 **In Workflow Summary:**
+
 - Click on workflow run → **Summary** tab
 - View detailed metrics for each eval suite
 
 **In Artifacts:**
+
 - Click on workflow run → Scroll to **Artifacts** section
 - Download `eval-results-{suite}` for JSON data
 - Download `eval-report-{suite}` for markdown report
@@ -321,18 +355,21 @@ The override label should be removed after merge to prevent accidental use.
 ### Issue: Workflow Not Triggering
 
 **Symptoms:**
+
 - PR created but workflow doesn't run
 - No status check appears
 
 **Solutions:**
 
 1. **Check path filters:**
+
    ```bash
    # Verify changed files match path filters
    git diff --name-only origin/main...HEAD
    ```
 
 2. **Check workflow file syntax:**
+
    ```bash
    # Validate YAML syntax
    yamllint .github/workflows/ai-evals.yml
@@ -345,12 +382,14 @@ The override label should be removed after merge to prevent accidental use.
 ### Issue: API Key Errors
 
 **Symptoms:**
+
 - Eval run fails with "API key not found"
 - Authentication errors in logs
 
 **Solutions:**
 
 1. **Verify secrets are set:**
+
    ```bash
    # List all secrets (values hidden)
    gh secret list
@@ -361,6 +400,7 @@ The override label should be removed after merge to prevent accidental use.
    - `ANTHROPIC_API_KEY` (not `ANTHROPIC_KEY`)
 
 3. **Validate API keys:**
+
    ```bash
    # Test OpenAI key
    curl https://api.openai.com/v1/models \
@@ -377,17 +417,20 @@ The override label should be removed after merge to prevent accidental use.
 ### Issue: Database Connection Failures
 
 **Symptoms:**
+
 - "Database connection failed" error
 - Timeout connecting to database
 
 **Solutions:**
 
 1. **Verify database URL format:**
+
    ```
    postgres://user:password@host:port/database?sslmode=require
    ```
 
 2. **Check database is accessible:**
+
    ```bash
    # Test connection
    psql "$EVAL_DATABASE_URL" -c "SELECT 1"
@@ -401,15 +444,17 @@ The override label should be removed after merge to prevent accidental use.
 ### Issue: Timeout Errors
 
 **Symptoms:**
+
 - Workflow times out after 30 minutes
 - "Job execution time has exceeded the maximum"
 
 **Solutions:**
 
 1. **Reduce concurrency:**
+
    ```yaml
    # In workflow file
-   --concurrency <number>  # Default: 5, try: 3
+   --concurrency <number> # Default: 5, try: 3
    ```
 
 2. **Reduce dataset size:**
@@ -419,22 +464,24 @@ The override label should be removed after merge to prevent accidental use.
 3. **Increase timeout (if needed):**
    ```yaml
    # In workflow file, under run-evals job
-   timeout-minutes: 45  # Increase from 30
+   timeout-minutes: 45 # Increase from 30
    ```
 
 ### Issue: Results Not Posted to PR
 
 **Symptoms:**
+
 - Eval runs successfully but no PR comment
 - "Resource not accessible by integration" error
 
 **Solutions:**
 
 1. **Check workflow permissions:**
+
    ```yaml
    # In workflow file, under post-pr-comment job
    permissions:
-     pull-requests: write  # Must be present
+     pull-requests: write # Must be present
    ```
 
 2. **Verify Actions permissions:**
@@ -448,19 +495,22 @@ The override label should be removed after merge to prevent accidental use.
 ### Issue: Incorrect Change Detection
 
 **Symptoms:**
+
 - Changes in AI code don't trigger relevant evals
 - Irrelevant evals run
 
 **Solutions:**
 
 1. **Review path filter patterns:**
+
    ```yaml
    # Ensure patterns match your file structure
    compliance:
-     - 'packages/ai/agents/compliance-agent.ts'
+     - "packages/ai/agents/compliance-agent.ts"
    ```
 
 2. **Test path filters locally:**
+
    ```bash
    # Install paths-filter action locally
    npm install -g @actions/paths-filter
@@ -472,8 +522,8 @@ The override label should be removed after merge to prevent accidental use.
 3. **Use wildcard patterns if structure varies:**
    ```yaml
    compliance:
-     - 'packages/ai/**/compliance*.ts'
-     - 'services/ai/**/compliance*.ts'
+     - "packages/ai/**/compliance*.ts"
+     - "services/ai/**/compliance*.ts"
    ```
 
 ## Advanced Configuration
@@ -509,7 +559,7 @@ Add scheduled runs to catch drift:
 # Add to ai-evals.yml
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Weekly on Sunday at midnight
+    - cron: "0 0 * * 0" # Weekly on Sunday at midnight
 ```
 
 ### Custom Baseline Management
