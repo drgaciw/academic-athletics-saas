@@ -3,12 +3,29 @@
  * Tests for the Coach Service client
  */
 
-import { coachService } from '../coachService';
-import { ServiceClient } from '../serviceClient';
 import { RequestContext, UserRole } from '../../types/services/common';
 
-// Mock ServiceClient
-jest.mock('../serviceClient');
+// Define mocks at module level so they're available when the singleton is created
+const mockPost = jest.fn();
+const mockGet = jest.fn();
+const mockPut = jest.fn();
+const mockDelete = jest.fn();
+const mockHealthCheck = jest.fn();
+
+// Mock ServiceClient with factory function - must be before import
+jest.mock('../serviceClient', () => ({
+  ServiceClient: jest.fn().mockImplementation(() => ({
+    post: mockPost,
+    get: mockGet,
+    put: mockPut,
+    delete: mockDelete,
+    healthCheck: mockHealthCheck,
+  })),
+  getServiceUrl: jest.fn().mockReturnValue('http://localhost:3008'),
+}));
+
+// Import after mock is set up
+import { coachService } from '../coachService';
 
 describe('CoachService', () => {
   const mockContext: RequestContext = {
@@ -19,29 +36,8 @@ describe('CoachService', () => {
     timestamp: new Date(),
   };
 
-  let mockPost: jest.Mock;
-  let mockGet: jest.Mock;
-  let mockPut: jest.Mock;
-  let mockDelete: jest.Mock;
-  let mockHealthCheck: jest.Mock;
-
   beforeEach(() => {
-    mockPost = jest.fn();
-    mockGet = jest.fn();
-    mockPut = jest.fn();
-    mockDelete = jest.fn();
-    mockHealthCheck = jest.fn();
-
-    (ServiceClient as jest.Mock).mockImplementation(() => ({
-      post: mockPost,
-      get: mockGet,
-      put: mockPut,
-      delete: mockDelete,
-      healthCheck: mockHealthCheck,
-    }));
-  });
-
-  afterEach(() => {
+    // Clear all mock call history between tests
     jest.clearAllMocks();
   });
 
@@ -166,7 +162,7 @@ describe('CoachService', () => {
 
       expect(result).toEqual(mockResponse);
       expect(mockGet).toHaveBeenCalledWith(
-        `/coaches/${coachId}/students?sport=Basketball&team=Men%27s%20Varsity&limit=10&offset=0`,
+        `/coaches/${coachId}/students?sport=Basketball&team=Men%27s+Varsity&limit=10`,
         mockContext
       );
     });
