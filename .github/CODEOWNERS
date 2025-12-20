@@ -1,0 +1,247 @@
+# CODEOWNERS - Define code ownership and required reviewers
+#
+# Each line is a file pattern followed by one or more owners.
+# Order is important; the last matching pattern takes precedence.
+#
+# Syntax:
+#   pattern @owner
+#   pattern @org/team
+#   pattern user@example.com
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ==============================================================================
+# DEFAULT OWNERS
+# ==============================================================================
+
+# Default reviewers for all files
+* @drgaciw
+
+# ==============================================================================
+# CORE INFRASTRUCTURE
+# ==============================================================================
+
+# GitHub workflows and CI/CD configuration
+/.github/workflows/ @drgaciw
+/.github/actions/ @drgaciw
+.github/dependabot.yml @drgaciw
+
+# Monorepo configuration
+/package.json @drgaciw
+/pnpm-workspace.yaml @drgaciw
+/turbo.json @drgaciw
+
+# Environment and deployment configuration
+/.env.example @drgaciw
+/vercel.json @drgaciw
+/DEPLOYMENT.md @drgaciw
+
+# ==============================================================================
+# AI SYSTEM & EVALUATIONS
+# ==============================================================================
+
+# AI evaluation framework - requires review
+/packages/ai-evals/** @drgaciw
+
+# AI evaluation datasets - critical for quality assurance
+/packages/ai-evals/datasets/** @drgaciw
+
+# AI evaluation workflow - requires review
+/.github/workflows/ai-evals.yml @drgaciw
+
+# AI core package - foundational AI utilities
+/packages/ai/** @drgaciw
+
+# AI agents - specialized AI implementations
+/packages/ai/agents/** @drgaciw
+
+# AI safety and compliance
+/packages/ai/lib/safety.ts @drgaciw
+/packages/ai-evals/src/safety/** @drgaciw
+
+# AI service - microservice implementation
+/services/ai/** @drgaciw
+
+# AI prompt templates - critical for model behavior
+/packages/ai/lib/prompt-templates.ts @drgaciw
+/services/ai/src/prompts/ @drgaciw
+
+# ==============================================================================
+# COMPLIANCE & NCAA
+# ==============================================================================
+
+# NCAA compliance service - requires compliance specialist review
+/services/compliance/** @drgaciw
+
+# Compliance rules and configurations
+/services/compliance/src/services/ruleConfig.ts @drgaciw
+/services/compliance/src/services/ruleEngine.ts @drgaciw
+
+# Eligibility checking logic
+/services/compliance/src/services/initialEligibility.ts @drgaciw
+/services/compliance/src/services/continuingEligibility.ts @drgaciw
+
+# ==============================================================================
+# STUDENT SERVICES
+# ==============================================================================
+
+# Advising service - academic advising algorithms
+/services/advising/** @drgaciw
+
+# CSP solver - critical scheduling algorithm
+/services/advising/src/algorithms/cspSolver.ts @drgaciw
+
+# Support services - tutoring, study halls, workshops
+/services/support/** @drgaciw
+
+# Monitoring service - student tracking and interventions
+/services/monitoring/** @drgaciw
+
+# ==============================================================================
+# USER MANAGEMENT & AUTHENTICATION
+# ==============================================================================
+
+# User service - profile and RBAC management
+/services/user/** @drgaciw
+
+# Authentication package - security critical
+/packages/auth/** @drgaciw
+
+# RBAC implementation - role-based access control
+/packages/auth/middleware/rbac.ts @drgaciw
+/services/user/src/services/rbacService.ts @drgaciw
+
+# ==============================================================================
+# DATABASE & DATA
+# ==============================================================================
+
+# Database package - schema and migrations
+/packages/database/** @drgaciw
+
+# Prisma schema - requires careful review
+/packages/database/prisma/schema.prisma @drgaciw
+
+# Database migrations - production impact
+/packages/database/prisma/migrations/ @drgaciw
+
+# ==============================================================================
+# FRONTEND APPLICATIONS
+# ==============================================================================
+
+# Main application - API gateway and routes
+/apps/main/** @drgaciw
+
+# API routes - backend integration
+/apps/main/app/api/** @drgaciw
+
+# Student portal
+/apps/student/** @drgaciw
+
+# UI components package
+/packages/ui/** @drgaciw
+
+# ==============================================================================
+# SECURITY & COMPLIANCE
+# ==============================================================================
+
+# Security-related files require security review
+**/*security*.ts @drgaciw
+**/*auth*.ts @drgaciw
+**/*rbac*.ts @drgaciw
+
+# Environment variable examples - may contain sensitive patterns
+**/.env.example @drgaciw
+
+# Middleware - authentication and authorization
+/apps/*/middleware.ts @drgaciw
+/packages/*/middleware/ @drgaciw
+
+# ==============================================================================
+# INTEGRATIONS
+# ==============================================================================
+
+# Integration service - external system connections
+/services/integration/** @drgaciw
+
+# LMS integration - Canvas, Blackboard, etc.
+/services/integration/src/services/lmsConnector.ts @drgaciw
+
+# SIS integration - student information system
+/services/integration/src/services/sisConnector.ts @drgaciw
+
+# Email service - communication templates
+/services/integration/src/services/emailService.ts @drgaciw
+
+# ==============================================================================
+# DOCUMENTATION
+# ==============================================================================
+
+# Architecture documentation
+/docs/tech-spec.md @drgaciw
+/docs/prd.md @drgaciw
+
+# API documentation
+**/API.md @drgaciw
+**/README.md @drgaciw
+
+# Implementation guides
+**/*IMPLEMENTATION*.md @drgaciw
+
+# Kiro specs and steering documents
+/.kiro/specs/** @drgaciw
+/.kiro/steering/** @drgaciw
+
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+# TypeScript configuration
+/tsconfig.json @drgaciw
+/packages/config/tsconfig/** @drgaciw
+
+# ESLint configuration
+/packages/config/eslint/** @drgaciw
+
+# Tailwind configuration
+/packages/config/tailwind/** @drgaciw
+
+# ==============================================================================
+# SPECIAL CASES
+# ==============================================================================
+
+# Package.json files - dependency management
+**/package.json @drgaciw
+
+# License and legal
+/LICENSE @drgaciw
+/CODE_OF_CONDUCT.md @drgaciw
+
+# Security policy
+/SECURITY.md @drgaciw
+
+# Contributing guidelines
+/CONTRIBUTING.md @drgaciw
+
+# ==============================================================================
+# SETUP INSTRUCTIONS FOR TEAMS (when moving to organization)
+# ==============================================================================
+#
+# When moving to a GitHub organization, replace @drgaciw with team names:
+#
+# 1. Create teams in GitHub organization (Settings → Teams)
+# 2. Replace individual username with @your-org/team-name format
+# 3. Example teams:
+#    - @your-org/engineering (all engineers)
+#    - @your-org/tech-leads (technical leadership)
+#    - @your-org/ai-team (AI/ML engineers)
+#    - @your-org/regression-approvers (authorized to approve AI regressions)
+#    - @your-org/devops (DevOps team)
+#    - @your-org/security (security team)
+# 4. Enable "Require review from Code Owners" in branch protection rules
+# 5. Test by creating a PR that modifies files with different owners
+#
+# Example team-based configuration:
+#   /packages/ai/** @your-org/ai-team @your-org/tech-leads
+#   /.github/workflows/ @your-org/devops @your-org/tech-leads
+#
+# ==============================================================================
