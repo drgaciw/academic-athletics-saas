@@ -47,6 +47,8 @@ const COMPLIANCE_AGENT_CONFIG: AgentConfig = {
  * - Compliance history review
  */
 export class ComplianceAgent extends BaseAgent {
+  private requestContext?: AgentRequest['context']
+
   constructor() {
     super(COMPLIANCE_AGENT_CONFIG)
   }
@@ -78,7 +80,12 @@ export class ComplianceAgent extends BaseAgent {
    * Get user roles
    */
   protected getUserRoles(): string[] {
-    // TODO: Get actual user roles from authentication context
+    // Get actual user roles from authentication context
+    if (this.requestContext?.userRoles && Array.isArray(this.requestContext.userRoles)) {
+      return this.requestContext.userRoles
+    }
+
+    // Fallback to minimal role if not found
     return ['compliance_officer']
   }
 
@@ -95,6 +102,7 @@ export class ComplianceAgent extends BaseAgent {
    * Note: Context is set in getTools() and updated during execution
    */
   async execute(request: AgentRequest) {
+    this.requestContext = request.context
     return super.execute(request)
   }
 
