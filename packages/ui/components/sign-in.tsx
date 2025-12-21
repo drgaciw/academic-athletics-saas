@@ -7,7 +7,7 @@ import { Input } from './input'
 import { Label } from './label'
 
 const GoogleIcon = () => (
-  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path
       d="M22.56 12.25C22.56 11.45 22.49 10.68 22.36 9.92H12V14.4H18.1C17.82 15.93 17.02 17.22 15.78 18.09V20.65H19.5C21.46 18.88 22.56 15.91 22.56 12.25Z"
       fill="#4285F4"
@@ -28,7 +28,7 @@ const GoogleIcon = () => (
 )
 
 const AppleIcon = () => (
-  <svg className="h-5 w-5 text-black dark:text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <svg className="h-5 w-5 text-black dark:text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M16.1425 21.657C15.4275 21.892 14.6575 22.022 13.8825 22.022C12.5625 22.022 11.0875 21.572 9.8725 20.672C8.6175 19.742 7.6475 18.572 7.0225 17.162C6.1225 15.152 6.5725 12.722 8.3725 11.012C9.3725 10.052 10.6275 9.53203 11.8525 9.50203C12.3325 9.50203 13.3625 9.69203 14.3325 10.322L14.4225 10.382C13.5225 9.93203 12.6225 9.69203 11.8525 9.69203C11.1675 9.69203 10.4275 9.87203 9.7725 10.202C9.0975 10.532 8.5425 10.982 8.1325 11.522C6.8125 13.202 6.7225 15.602 8.0125 17.582C8.6175 18.512 9.4875 19.262 10.6275 19.832C11.1975 20.132 11.9725 20.372 12.7425 20.372C13.2225 20.372 13.9125 20.252 14.5025 20.012C15.0925 19.772 15.5425 19.472 15.8425 19.112C15.1275 18.632 14.7175 17.912 14.7175 16.982C14.7175 15.422 15.7175 14.342 17.4875 13.832C18.6275 13.502 19.8725 13.832 20.6725 14.702L20.4525 14.822C19.7975 13.112 17.9375 12.002 16.0475 12.002C14.2475 12.002 12.6275 12.962 11.9425 14.642C12.8725 15.122 13.3925 16.022 13.3925 17.072C13.3925 18.152 12.8725 19.082 11.9725 19.532C12.4225 20.222 13.2825 20.732 14.3025 20.942C14.5725 21.002 14.8725 21.062 15.2025 21.122C15.5325 21.182 15.8325 21.212 16.1025 21.212C16.1325 21.212 16.1475 21.452 16.1425 21.657ZM15.1525 8.16203C15.5025 7.68203 15.7425 7.05203 15.8725 6.30203C15.5325 5.58203 14.9425 5.07203 14.1725 4.86203C13.0325 4.53203 11.8725 5.10203 11.2475 6.00203C10.8975 6.45203 10.6275 7.02203 10.5075 7.74203C10.8375 8.49203 11.4275 8.97203 12.2375 9.21203C13.3325 9.51203 14.5325 8.97203 15.1525 8.16203Z"></path>
   </svg>
 )
@@ -114,18 +114,22 @@ export function SignIn() {
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Email address</Label>
+              <Label htmlFor="email" className="pb-2">Email address</Label>
               <Input
+                id="email"
                 type="email"
+                required
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Password</Label>
+              <Label htmlFor="password" className="pb-2">Password</Label>
               <Input
+                id="password"
                 type="password"
+                required
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
