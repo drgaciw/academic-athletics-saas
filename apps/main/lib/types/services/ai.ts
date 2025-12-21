@@ -14,7 +14,7 @@ export interface ChatRequest {
   message: string;
   context?: ChatContext;
   stream?: boolean;
-  model?: 'gpt-4' | 'gpt-4-mini' | 'claude-3-5-sonnet';
+  model?: 'gpt-4' | 'gpt-4-mini' | 'claude-3-5-sonnet' | 'gpt-5.1-codex-max';
 }
 
 export interface ChatContext {

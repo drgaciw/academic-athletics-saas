@@ -9,6 +9,7 @@ export const aiConfig = {
   models: {
     // OpenAI Models
     openai: {
+      gpt51codexmax: 'gpt-5.1-codex-max',
       gpt4: 'gpt-4-turbo-preview',
       gpt4mini: 'gpt-4o-mini',
       gpt35turbo: 'gpt-3.5-turbo',
@@ -31,6 +32,7 @@ export const aiConfig = {
 
   // Token Limits
   tokenLimits: {
+    gpt51codexmax: 256000,
     gpt4: 128000,
     gpt4mini: 128000,
     gpt35turbo: 16385,
@@ -39,6 +41,10 @@ export const aiConfig = {
 
   // Cost per 1M tokens (in USD)
   costs: {
+    gpt51codexmax: {
+      input: 15.0,
+      output: 45.0,
+    },
     gpt4: {
       input: 10.0,
       output: 30.0,
