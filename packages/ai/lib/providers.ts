@@ -4,14 +4,13 @@
  * Initializes and exports AI SDK providers for OpenAI and Anthropic
  */
 
-import { openai as createOpenAI } from '@ai-sdk/openai'
-import { anthropic as createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { aiConfig } from '../config'
 
 // Initialize OpenAI provider
 export const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  compatibility: 'strict',
 })
 
 // Initialize Anthropic provider
@@ -32,8 +31,9 @@ export function selectModel(
       case 'simple':
         return openai(aiConfig.models.openai.gpt4mini)
       case 'moderate':
-      case 'complex':
         return openai(aiConfig.models.openai.gpt4)
+      case 'complex':
+        return openai(aiConfig.models.openai.gpt51codexmax)
     }
   }
 
@@ -55,7 +55,7 @@ export function selectModel(
     case 'moderate':
       return anthropic(aiConfig.models.anthropic.sonnet)
     case 'complex':
-      return anthropic(aiConfig.models.anthropic.opus)
+      return openai(aiConfig.models.openai.gpt51codexmax)
   }
 }
 

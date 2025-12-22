@@ -4,12 +4,15 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import {
   TestCase,
-  RunnerConfig,
   RunResult,
-  RunSummary,
-  TokenUsage,
-  EvalError,
+  ModelConfig,
 } from '../types';
+
+// TODO: Refactor these types - temporarily defined here for compatibility
+type TokenUsage = { input: number; output: number; total: number };
+type RunnerConfig = ModelConfig & { timeout?: number; retries?: number };
+type RunSummary = { runId: string; results: RunResult[]; totalCost: number; totalTokens: number };
+type EvalError = Error & { code?: string; retryable?: boolean };
 
 /**
  * Pricing information for different models (USD per 1000 tokens)

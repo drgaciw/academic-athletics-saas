@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import Link from "next/link";
 import {
   Card,
   CardHeader,
@@ -27,8 +27,8 @@ import {
   Textarea,
   Label,
   Select,
-} from '@aah/ui';
-import type { BaselineListItem, EvalRunListItem } from '@/lib/types/evals';
+} from "@aah/ui";
+import type { BaselineListItem, EvalRunListItem } from "@/lib/types/evals";
 
 /**
  * Task 9.4: Baseline Management Interface
@@ -44,9 +44,9 @@ import type { BaselineListItem, EvalRunListItem } from '@/lib/types/evals';
 
 // Zod schema for baseline creation
 const baselineSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  runId: z.string().min(1, 'Run selection is required'),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  runId: z.string().min(1, "Run selection is required"),
 });
 
 type BaselineFormData = z.infer<typeof baselineSchema>;
@@ -93,21 +93,23 @@ export default function BaselinesPage() {
       setError(null);
 
       const [baselinesRes, runsRes] = await Promise.all([
-        fetch('/api/evals/baselines'),
-        fetch('/api/evals/runs'),
+        fetch("/api/evals/baselines"),
+        fetch("/api/evals/runs"),
       ]);
 
       if (!baselinesRes.ok || !runsRes.ok) {
-        throw new Error('Failed to fetch data');
+        throw new Error("Failed to fetch data");
       }
 
       const baselinesData = await baselinesRes.json();
       const runsData = await runsRes.json();
 
       setBaselines(baselinesData.baselines);
-      setRuns(runsData.runs.filter((r: EvalRunListItem) => r.status === 'completed'));
+      setRuns(
+        runsData.runs.filter((r: EvalRunListItem) => r.status === "completed"),
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
+      setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -117,12 +119,12 @@ export default function BaselinesPage() {
     try {
       const selectedRun = runs.find((r) => r.id === data.runId);
       if (!selectedRun) {
-        throw new Error('Invalid run selected');
+        throw new Error("Invalid run selected");
       }
 
-      const response = await fetch('/api/evals/baselines', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/evals/baselines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
           datasetId: selectedRun.datasetId,
@@ -134,49 +136,52 @@ export default function BaselinesPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create baseline');
+        throw new Error("Failed to create baseline");
       }
 
       await loadData();
       setShowNewBaselineForm(false);
       baselineForm.reset();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to create baseline');
+      alert(err instanceof Error ? err.message : "Failed to create baseline");
     }
   };
 
-  const toggleBaselineActive = async (baselineId: string, isActive: boolean) => {
+  const toggleBaselineActive = async (
+    baselineId: string,
+    isActive: boolean,
+  ) => {
     try {
       // TODO: Implement API endpoint to toggle baseline active status
-      console.log('Toggle baseline', baselineId, isActive);
+      console.log("Toggle baseline", baselineId, isActive);
       await loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update baseline');
+      alert(err instanceof Error ? err.message : "Failed to update baseline");
     }
   };
 
   const deleteBaseline = async (baselineId: string) => {
-    if (!confirm('Are you sure you want to delete this baseline?')) {
+    if (!confirm("Are you sure you want to delete this baseline?")) {
       return;
     }
 
     try {
       // TODO: Implement API endpoint to delete baseline
-      console.log('Delete baseline', baselineId);
+      console.log("Delete baseline", baselineId);
       await loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete baseline');
+      alert(err instanceof Error ? err.message : "Failed to delete baseline");
     }
   };
 
   const onUpdateThresholds = async (data: ThresholdFormData) => {
     try {
       // TODO: Implement API endpoint to update thresholds
-      console.log('Update thresholds', data);
-      alert('Thresholds updated successfully');
+      console.log("Update thresholds", data);
+      alert("Thresholds updated successfully");
       setShowThresholdConfig(false);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update thresholds');
+      alert(err instanceof Error ? err.message : "Failed to update thresholds");
     }
   };
 
@@ -237,17 +242,24 @@ export default function BaselinesPage() {
                 Back
               </Button>
             </Link>
-            <h1 className="text-3xl font-bold tracking-tight">Baseline Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Baseline Management
+            </h1>
           </div>
           <p className="text-gray-600 mt-1">
             Set performance baselines and configure regression thresholds
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => setShowThresholdConfig(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setShowThresholdConfig(true)}
+          >
             Configure Thresholds
           </Button>
-          <Button onClick={() => setShowNewBaselineForm(true)}>Create Baseline</Button>
+          <Button onClick={() => setShowNewBaselineForm(true)}>
+            Create Baseline
+          </Button>
         </div>
       </div>
 
@@ -269,20 +281,27 @@ export default function BaselinesPage() {
               </Button>
             </div>
             <CardDescription>
-              Define thresholds for regression detection. Runs exceeding these thresholds will be
-              flagged.
+              Define thresholds for regression detection. Runs exceeding these
+              thresholds will be flagged.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={thresholdForm.handleSubmit(onUpdateThresholds)} className="space-y-4">
+            <form
+              onSubmit={thresholdForm.handleSubmit(onUpdateThresholds)}
+              className="space-y-4"
+            >
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="accuracy-threshold">Accuracy Threshold (%)</Label>
+                  <Label htmlFor="accuracy-threshold">
+                    Accuracy Threshold (%)
+                  </Label>
                   <Input
                     id="accuracy-threshold"
                     type="number"
                     step="0.1"
-                    {...thresholdForm.register('accuracyThreshold', { valueAsNumber: true })}
+                    {...thresholdForm.register("accuracyThreshold", {
+                      valueAsNumber: true,
+                    })}
                   />
                   <p className="text-sm text-gray-600 mt-1">
                     Alert if accuracy drops by more than this percentage
@@ -290,12 +309,16 @@ export default function BaselinesPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="latency-threshold">Latency Threshold (ms)</Label>
+                  <Label htmlFor="latency-threshold">
+                    Latency Threshold (ms)
+                  </Label>
                   <Input
                     id="latency-threshold"
                     type="number"
                     step="10"
-                    {...thresholdForm.register('latencyThreshold', { valueAsNumber: true })}
+                    {...thresholdForm.register("latencyThreshold", {
+                      valueAsNumber: true,
+                    })}
                   />
                   <p className="text-sm text-gray-600 mt-1">
                     Alert if latency increases by more than this amount
@@ -308,7 +331,9 @@ export default function BaselinesPage() {
                     id="cost-threshold"
                     type="number"
                     step="0.01"
-                    {...thresholdForm.register('costThreshold', { valueAsNumber: true })}
+                    {...thresholdForm.register("costThreshold", {
+                      valueAsNumber: true,
+                    })}
                   />
                   <p className="text-sm text-gray-600 mt-1">
                     Alert if cost increases by more than this amount
@@ -339,15 +364,20 @@ export default function BaselinesPage() {
                 Cancel
               </Button>
             </div>
-            <CardDescription>Create a baseline from a completed evaluation run</CardDescription>
+            <CardDescription>
+              Create a baseline from a completed evaluation run
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={baselineForm.handleSubmit(onCreateBaseline)} className="space-y-4">
+            <form
+              onSubmit={baselineForm.handleSubmit(onCreateBaseline)}
+              className="space-y-4"
+            >
               <div>
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  {...baselineForm.register('name')}
+                  {...baselineForm.register("name")}
                   placeholder="e.g., Compliance Baseline v2.0"
                 />
                 {baselineForm.formState.errors.name && (
@@ -361,7 +391,7 @@ export default function BaselinesPage() {
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  {...baselineForm.register('description')}
+                  {...baselineForm.register("description")}
                   placeholder="Describe what this baseline represents..."
                   rows={3}
                 />
@@ -374,12 +404,13 @@ export default function BaselinesPage() {
 
               <div>
                 <Label htmlFor="runId">Select Evaluation Run</Label>
-                <Select id="runId" {...baselineForm.register('runId')}>
+                <Select id="runId" {...baselineForm.register("runId")}>
                   <option value="">Choose a run...</option>
                   {runs.map((run) => (
                     <option key={run.id} value={run.id}>
-                      {run.datasetName} - {run.modelId} ({run.accuracy.toFixed(1)}% accuracy) -{' '}
-                      {format(new Date(run.createdAt), 'MMM d, yyyy')}
+                      {run.datasetName} - {run.modelId} (
+                      {run.accuracy.toFixed(1)}% accuracy) -{" "}
+                      {format(new Date(run.createdAt), "MMM d, yyyy")}
                     </option>
                   ))}
                 </Select>
@@ -400,7 +431,9 @@ export default function BaselinesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Active Baselines</CardTitle>
-          <CardDescription>Performance baselines for regression detection</CardDescription>
+          <CardDescription>
+            Performance baselines for regression detection
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -421,14 +454,20 @@ export default function BaselinesPage() {
                   <TableCell className="font-medium">{baseline.name}</TableCell>
                   <TableCell>{baseline.datasetName}</TableCell>
                   <TableCell>
-                    <Badge variant={baseline.isActive ? 'success' : 'secondary'}>
-                      {baseline.isActive ? 'Active' : 'Inactive'}
+                    <Badge
+                      variant={baseline.isActive ? "success" : "secondary"}
+                    >
+                      {baseline.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">{baseline.accuracy.toFixed(1)}%</TableCell>
-                  <TableCell className="text-right">{baseline.passRate.toFixed(1)}%</TableCell>
+                  <TableCell className="text-right">
+                    {baseline.accuracy.toFixed(1)}%
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {baseline.passRate.toFixed(1)}%
+                  </TableCell>
                   <TableCell className="text-sm text-gray-600">
-                    {format(new Date(baseline.createdAt), 'MMM d, yyyy')}
+                    {format(new Date(baseline.createdAt), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -440,11 +479,13 @@ export default function BaselinesPage() {
                         Compare
                       </Button>
                       <Button
-                        variant={baseline.isActive ? 'secondary' : 'primary'}
+                        variant={baseline.isActive ? "secondary" : "default"}
                         size="sm"
-                        onClick={() => toggleBaselineActive(baseline.id, !baseline.isActive)}
+                        onClick={() =>
+                          toggleBaselineActive(baseline.id, !baseline.isActive)
+                        }
                       >
-                        {baseline.isActive ? 'Deactivate' : 'Activate'}
+                        {baseline.isActive ? "Deactivate" : "Activate"}
                       </Button>
                       <Button
                         variant="destructive"
@@ -470,11 +511,15 @@ export default function BaselinesPage() {
               <div>
                 <CardTitle>Baseline Comparison</CardTitle>
                 <CardDescription>
-                  Compare evaluation runs against{' '}
+                  Compare evaluation runs against{" "}
                   {baselines.find((b) => b.id === selectedBaseline)?.name}
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setSelectedBaseline(null)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedBaseline(null)}
+              >
                 Close
               </Button>
             </div>
@@ -484,14 +529,15 @@ export default function BaselinesPage() {
               <Label htmlFor="comparison-run">Select Run to Compare</Label>
               <Select
                 id="comparison-run"
-                value={comparisonRun || ''}
+                value={comparisonRun || ""}
                 onChange={(e) => setComparisonRun(e.target.value)}
               >
                 <option value="">Choose a run...</option>
                 {runs.map((run) => (
                   <option key={run.id} value={run.id}>
-                    {run.datasetName} - {run.modelId} ({run.accuracy.toFixed(1)}% accuracy) -{' '}
-                    {format(new Date(run.createdAt), 'MMM d, yyyy')}
+                    {run.datasetName} - {run.modelId} ({run.accuracy.toFixed(1)}
+                    % accuracy) -{" "}
+                    {format(new Date(run.createdAt), "MMM d, yyyy")}
                   </option>
                 ))}
               </Select>
@@ -502,22 +548,22 @@ export default function BaselinesPage() {
                 <Alert
                   variant={
                     comparisonData.accuracyDelta < -5
-                      ? 'error'
+                      ? "error"
                       : comparisonData.accuracyDelta > 5
-                      ? 'success'
-                      : 'info'
+                        ? "success"
+                        : "info"
                   }
                 >
                   <AlertTitle>Comparison Summary</AlertTitle>
                   <AlertDescription>
                     {comparisonData.accuracyDelta < -5 ? (
                       <p>
-                        Regression detected: Accuracy dropped by{' '}
+                        Regression detected: Accuracy dropped by{" "}
                         {Math.abs(comparisonData.accuracyDelta).toFixed(1)}%
                       </p>
                     ) : comparisonData.accuracyDelta > 5 ? (
                       <p>
-                        Improvement detected: Accuracy increased by{' '}
+                        Improvement detected: Accuracy increased by{" "}
                         {comparisonData.accuracyDelta.toFixed(1)}%
                       </p>
                     ) : (
@@ -533,13 +579,13 @@ export default function BaselinesPage() {
                       <CardTitle
                         className={
                           comparisonData.accuracyDelta < 0
-                            ? 'text-red-600'
+                            ? "text-red-600"
                             : comparisonData.accuracyDelta > 0
-                            ? 'text-green-600'
-                            : ''
+                              ? "text-green-600"
+                              : ""
                         }
                       >
-                        {comparisonData.accuracyDelta > 0 ? '+' : ''}
+                        {comparisonData.accuracyDelta > 0 ? "+" : ""}
                         {comparisonData.accuracyDelta.toFixed(1)}%
                       </CardTitle>
                     </CardHeader>
@@ -559,13 +605,13 @@ export default function BaselinesPage() {
                       <CardTitle
                         className={
                           comparisonData.passRateDelta < 0
-                            ? 'text-red-600'
+                            ? "text-red-600"
                             : comparisonData.passRateDelta > 0
-                            ? 'text-green-600'
-                            : ''
+                              ? "text-green-600"
+                              : ""
                         }
                       >
-                        {comparisonData.passRateDelta > 0 ? '+' : ''}
+                        {comparisonData.passRateDelta > 0 ? "+" : ""}
                         {comparisonData.passRateDelta.toFixed(1)}%
                       </CardTitle>
                     </CardHeader>
@@ -585,13 +631,13 @@ export default function BaselinesPage() {
                       <CardTitle
                         className={
                           comparisonData.latencyDelta > 0
-                            ? 'text-red-600'
+                            ? "text-red-600"
                             : comparisonData.latencyDelta < 0
-                            ? 'text-green-600'
-                            : ''
+                              ? "text-green-600"
+                              : ""
                         }
                       >
-                        {comparisonData.latencyDelta > 0 ? '+' : ''}
+                        {comparisonData.latencyDelta > 0 ? "+" : ""}
                         {comparisonData.latencyDelta.toFixed(0)}ms
                       </CardTitle>
                     </CardHeader>
@@ -609,13 +655,13 @@ export default function BaselinesPage() {
                       <CardTitle
                         className={
                           comparisonData.costDelta > 0
-                            ? 'text-red-600'
+                            ? "text-red-600"
                             : comparisonData.costDelta < 0
-                            ? 'text-green-600'
-                            : ''
+                              ? "text-green-600"
+                              : ""
                         }
                       >
-                        {comparisonData.costDelta > 0 ? '+' : ''}$
+                        {comparisonData.costDelta > 0 ? "+" : ""}$
                         {Math.abs(comparisonData.costDelta).toFixed(2)}
                       </CardTitle>
                     </CardHeader>

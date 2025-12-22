@@ -31,8 +31,8 @@ export interface AuthMiddlewareOptions {
  * });
  * ```
  */
-export function authMiddleware(options: AuthMiddlewareOptions = {}) {
-  return async function middleware(req: NextRequest) {
+export function authMiddleware(options: AuthMiddlewareOptions = {}): (req: NextRequest) => Promise<NextResponse | Response> {
+  return async function middleware(req: NextRequest): Promise<NextResponse | Response> {
     // This is a placeholder that will be replaced with actual Clerk integration
     // For now, we'll return a basic implementation
     const { publicRoutes = [], afterAuth } = options;

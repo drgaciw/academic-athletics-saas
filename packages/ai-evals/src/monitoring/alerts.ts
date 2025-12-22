@@ -20,11 +20,9 @@
  */
 
 import type {
-  Regression,
+  RegressionResult,
   EvalReport,
-  EvalError,
-  RegressionSeverity,
-  JobStatus,
+  EvalJob,
 } from '../types';
 
 /**
@@ -194,7 +192,7 @@ export class AlertManager {
   /**
    * Send regression alert
    */
-  async sendRegressionAlert(regression: Regression, report: EvalReport): Promise<void> {
+  async sendRegressionAlert(regression: RegressionResult, report: EvalReport): Promise<void> {
     if (!this.config.enabled) return;
 
     const severity = this.mapRegressionSeverity(regression.severity);
@@ -205,16 +203,16 @@ export class AlertManager {
       title: `${regression.severity.toUpperCase()} Regression Detected`,
       message: this.formatRegressionMessage(regression, report),
       context: {
-        jobId: report.jobId,
+        jobId: report.id,
         testCaseId: regression.testCaseId,
-        metric: regression.metric,
-        baseline: regression.baseline,
-        current: regression.current,
-        percentChange: regression.percentChange,
-        category: regression.category,
+        testCaseName: regression.testCaseName,
+        baselineScore: regression.baselineScore,
+        currentScore: regression.currentScore,
+        scoreDelta: regression.scoreDelta,
+        severity: regression.severity,
       },
       timestamp: new Date(),
-      links: this.generateLinks(report.jobId, regression.testCaseId),
+      links: this.generateLinks(report.id, regression.testCaseId),
     };
 
     await this.sendAlert(alert);
@@ -226,7 +224,7 @@ export class AlertManager {
   async sendEvalFailureAlert(report: EvalReport): Promise<void> {
     if (!this.config.enabled) return;
 
-    const failureRate = (report.summary.failed / report.summary.totalTests) * 100;
+    const failureRate = (report.metrics.failedTests / report.metrics.totalTests) * 100;
     const severity =
       failureRate > 50 ? AlertSeverity.CRITICAL : failureRate > 20 ? AlertSeverity.HIGH : AlertSeverity.MEDIUM;
 
@@ -234,17 +232,16 @@ export class AlertManager {
       id: `alert-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       type: AlertType.EVAL_FAILURE,
       severity,
-      title: `Eval Run Failed: ${report.jobId}`,
+      title: `Eval Run Failed: ${report.id}`,
       message: this.formatEvalFailureMessage(report),
       context: {
-        jobId: report.jobId,
-        totalTests: report.summary.totalTests,
-        failed: report.summary.failed,
+        jobId: report.id,
+        totalTests: report.metrics.totalTests,
+        failed: report.metrics.failedTests,
         failureRate,
-        status: report.summary.status,
       },
       timestamp: new Date(),
-      links: this.generateLinks(report.jobId),
+      links: this.generateLinks(report.id),
     };
 
     await this.sendAlert(alert);
@@ -253,23 +250,21 @@ export class AlertManager {
   /**
    * Send system error alert
    */
-  async sendSystemErrorAlert(error: EvalError, jobId?: string): Promise<void> {
+  async sendSystemErrorAlert(error: Error & { code?: string }, jobId?: string): Promise<void> {
     if (!this.config.enabled) return;
 
-    const severity = error.severity === 'fatal' ? AlertSeverity.CRITICAL : AlertSeverity.HIGH;
+    const severity = AlertSeverity.HIGH;
 
     const alert: Alert = {
       id: `alert-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       type: AlertType.SYSTEM_ERROR,
       severity,
-      title: `System Error: ${error.type}`,
+      title: `System Error: ${error.name}`,
       message: this.formatSystemErrorMessage(error),
       context: {
-        errorType: error.type,
-        severity: error.severity,
+        errorName: error.name,
+        errorCode: error.code,
         message: error.message,
-        testCaseId: error.testCaseId,
-        retryable: error.retryable,
         jobId,
       },
       timestamp: new Date(),
@@ -330,15 +325,15 @@ export class AlertManager {
       title: `Performance Degradation: ${metric}`,
       message: `Metric ${metric} is below threshold (${threshold})`,
       context: {
-        jobId: report.jobId,
+        jobId: report.id,
         metric,
         threshold,
-        accuracy: report.summary.accuracy,
-        passRate: (report.summary.passed / report.summary.totalTests) * 100,
-        avgLatency: report.summary.avgLatency,
+        accuracy: (report.metrics.passRate * 100),
+        passRate: (report.metrics.passedTests / report.metrics.totalTests) * 100,
+        avgLatency: report.metrics.averageLatencyMs,
       },
       timestamp: new Date(),
-      links: this.generateLinks(report.jobId),
+      links: this.generateLinks(report.id),
     };
 
     await this.sendAlert(alert);
@@ -352,44 +347,45 @@ export class AlertManager {
 
     const thresholds = this.config.thresholds!;
 
-    // Check for regressions
-    const criticalRegressions = report.regressions?.filter((r) => r.severity === 'critical') || [];
-    const majorRegressions = report.regressions?.filter((r) => r.severity === 'major') || [];
-    const minorRegressions = report.regressions?.filter((r) => r.severity === 'minor') || [];
+    // Check for regressions (baseline regressions don't have severity, so we treat all as major)
+    const regressions = report.baseline?.regressions || [];
 
-    if (criticalRegressions.length >= (thresholds.criticalRegressionCount || 1)) {
-      for (const regression of criticalRegressions) {
-        await this.sendRegressionAlert(regression, report);
-      }
-    }
-
-    if (majorRegressions.length >= (thresholds.majorRegressionCount || 3)) {
-      for (const regression of majorRegressions) {
-        await this.sendRegressionAlert(regression, report);
+    if (regressions.length >= (thresholds.majorRegressionCount || 3)) {
+      for (const regression of regressions) {
+        // Convert baseline regression to RegressionResult format
+        const regressionResult: RegressionResult = {
+          testCaseId: regression.testCaseId,
+          testCaseName: regression.testCaseName,
+          baselineScore: regression.baselineScore,
+          currentScore: regression.currentScore,
+          scoreDelta: regression.delta,
+          severity: 'major',
+        };
+        await this.sendRegressionAlert(regressionResult, report);
       }
     }
 
     // Check failure rate
-    const failureRate = (report.summary.failed / report.summary.totalTests) * 100;
+    const failureRate = (report.metrics.failedTests / report.metrics.totalTests) * 100;
     if (failureRate > (thresholds.maxFailureRate || 10)) {
       await this.sendEvalFailureAlert(report);
     }
 
     // Check cost thresholds
-    if (thresholds.maxCostPerRun && report.summary.totalCost > thresholds.maxCostPerRun) {
+    if (thresholds.maxCostPerRun && report.metrics.totalCost > thresholds.maxCostPerRun) {
       await this.sendCostExceededAlert(
-        report.jobId,
-        report.summary.totalCost,
+        report.id,
+        report.metrics.totalCost,
         thresholds.maxCostPerRun,
         'run'
       );
     }
 
     // Track daily/monthly costs
-    this.trackCost(report.summary.totalCost);
+    this.trackCost(report.metrics.totalCost);
     if (thresholds.dailyCostLimit && this.costTracking.daily > thresholds.dailyCostLimit) {
       await this.sendCostExceededAlert(
-        report.jobId,
+        report.id,
         this.costTracking.daily,
         thresholds.dailyCostLimit,
         'daily'
@@ -397,16 +393,16 @@ export class AlertManager {
     }
 
     // Check performance thresholds
-    if (thresholds.minAccuracy && report.summary.accuracy < thresholds.minAccuracy) {
+    if (thresholds.minAccuracy && (report.metrics.passRate * 100) < thresholds.minAccuracy) {
       await this.sendPerformanceDegradationAlert(report, 'accuracy', thresholds.minAccuracy);
     }
 
-    const passRate = (report.summary.passed / report.summary.totalTests) * 100;
+    const passRate = (report.metrics.passedTests / report.metrics.totalTests) * 100;
     if (thresholds.minPassRate && passRate < thresholds.minPassRate) {
       await this.sendPerformanceDegradationAlert(report, 'passRate', thresholds.minPassRate);
     }
 
-    if (thresholds.maxLatencyMs && report.summary.avgLatency > thresholds.maxLatencyMs) {
+    if (thresholds.maxLatencyMs && report.metrics.averageLatencyMs > thresholds.maxLatencyMs) {
       await this.sendPerformanceDegradationAlert(report, 'latency', thresholds.maxLatencyMs);
     }
   }
@@ -633,16 +629,16 @@ export class AlertManager {
   /**
    * Format regression message
    */
-  private formatRegressionMessage(regression: Regression, report: EvalReport): string {
+  private formatRegressionMessage(regression: RegressionResult, report: EvalReport): string {
+    const percentChange = ((regression.scoreDelta / regression.baselineScore) * 100).toFixed(1);
     return `
-Regression detected in eval run ${report.jobId}
+Regression detected in eval run ${report.id}
 
-Test Case: ${regression.testCaseId}
-Metric: ${regression.metric}
-Baseline: ${regression.baseline.toFixed(2)}
-Current: ${regression.current.toFixed(2)}
-Change: ${regression.percentChange.toFixed(1)}%
-Category: ${regression.category || 'N/A'}
+Test Case: ${regression.testCaseId} (${regression.testCaseName})
+Baseline Score: ${regression.baselineScore.toFixed(2)}
+Current Score: ${regression.currentScore.toFixed(2)}
+Score Delta: ${regression.scoreDelta.toFixed(2)}
+Change: ${percentChange}%
 
 This represents a ${regression.severity} regression that requires attention.
     `.trim();
@@ -652,14 +648,13 @@ This represents a ${regression.severity} regression that requires attention.
    * Format eval failure message
    */
   private formatEvalFailureMessage(report: EvalReport): string {
-    const failureRate = ((report.summary.failed / report.summary.totalTests) * 100).toFixed(1);
+    const failureRate = ((report.metrics.failedTests / report.metrics.totalTests) * 100).toFixed(1);
     return `
-Eval run ${report.jobId} completed with failures
+Eval run ${report.id} completed with failures
 
-Total Tests: ${report.summary.totalTests}
-Failed: ${report.summary.failed}
+Total Tests: ${report.metrics.totalTests}
+Failed: ${report.metrics.failedTests}
 Failure Rate: ${failureRate}%
-Status: ${report.summary.status}
 
 Review the failed test cases and address the issues.
     `.trim();
@@ -668,15 +663,13 @@ Review the failed test cases and address the issues.
   /**
    * Format system error message
    */
-  private formatSystemErrorMessage(error: EvalError): string {
+  private formatSystemErrorMessage(error: Error & { code?: string }): string {
     return `
 System error occurred during eval execution
 
-Type: ${error.type}
-Severity: ${error.severity}
+Name: ${error.name}
+Code: ${error.code || 'N/A'}
 Message: ${error.message}
-Test Case: ${error.testCaseId || 'N/A'}
-Retryable: ${error.retryable}
 
 ${error.stack || ''}
     `.trim();
@@ -738,7 +731,7 @@ ${error.stack || ''}
   /**
    * Map regression severity to alert severity
    */
-  private mapRegressionSeverity(severity: RegressionSeverity): AlertSeverity {
+  private mapRegressionSeverity(severity: RegressionResult['severity']): AlertSeverity {
     switch (severity) {
       case 'critical':
         return AlertSeverity.CRITICAL;

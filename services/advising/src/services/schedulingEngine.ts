@@ -2,8 +2,8 @@
 // SCHEDULING ENGINE SERVICE
 // ============================================================================
 
-import { CSPSolver } from '../algorithms/cspSolver'
-import { ConflictDetectorService } from './conflictDetector'
+import { CSPSolver } from "../algorithms/cspSolver";
+import { ConflictDetectorService } from "./conflictDetector";
 import type {
   ScheduleRequest,
   ScheduleResponse,
@@ -13,25 +13,23 @@ import type {
   CourseSectionInfo,
   AthleticSchedule,
   SchedulePreferences,
-  TimeRange
-} from '../types'
-import { CREDIT_HOUR_LIMITS } from '../types'
+} from "../types";
+import { CREDIT_HOUR_LIMITS } from "../types";
 import {
   hasTimeSlotOverlap,
   sectionToTimeSlots,
   timeToMinutes,
-  calculateWeeklyHours
-} from '../utils/timeUtils'
+} from "../utils/timeUtils";
 
 /**
  * Scheduling Engine Service
  * Uses CSP solver to generate optimal course schedules
  */
 export class SchedulingEngineService {
-  private conflictDetector: ConflictDetectorService
+  private conflictDetector: ConflictDetectorService;
 
   constructor() {
-    this.conflictDetector = new ConflictDetectorService()
+    this.conflictDetector = new ConflictDetectorService();
   }
 
   /**
@@ -41,49 +39,60 @@ export class SchedulingEngineService {
     request: ScheduleRequest,
     availableSections: CourseSectionInfo[],
     athleticSchedule?: AthleticSchedule,
-    prerequisiteData?: Map<string, string[]>
+    prerequisiteData?: Map<string, string[]>,
   ): Promise<ScheduleResponse> {
     // Build CSP variables - one per course
-    const variables = this.buildCSPVariables(request.sectionIds, availableSections)
+    const variables = this.buildCSPVariables(
+      request.sectionIds,
+      availableSections,
+    );
 
     // Build CSP constraints
     const constraints = this.buildCSPConstraints(
       variables,
       availableSections,
       athleticSchedule,
-      request.preferences
-    )
+      request.preferences,
+    );
 
     // Solve CSP
-    const solver = new CSPSolver(variables, constraints, availableSections)
-    const solution = solver.solve()
+    const solver = new CSPSolver(variables, constraints, availableSections);
+    const solution = solver.solve();
 
     // Convert solution to schedule response
-    const selectedSections = this.solutionToSections(solution.assignment, availableSections)
+    const selectedSections = this.solutionToSections(
+      solution.assignment,
+      availableSections,
+    );
 
     // Detect any remaining conflicts
     const conflictResult = await this.conflictDetector.detectConflicts(
       selectedSections,
       request.studentId,
       athleticSchedule,
-      prerequisiteData
-    )
+      prerequisiteData,
+    );
 
     // Calculate total credits
-    const totalCredits = selectedSections.reduce((sum, s) => sum + (s.course?.credits || 0), 0)
+    const totalCredits = selectedSections.reduce(
+      (sum, s) => sum + (s.course?.credits || 0),
+      0,
+    );
 
     // Determine status
-    let status: 'VALID' | 'HAS_CONFLICTS' | 'INVALID'
+    let status: "VALID" | "HAS_CONFLICTS" | "INVALID";
     if (solution.isValid && !conflictResult.hasConflicts) {
-      status = 'VALID'
-    } else if (conflictResult.conflicts.some(c => c.severity === 'CRITICAL')) {
-      status = 'INVALID'
+      status = "VALID";
+    } else if (
+      conflictResult.conflicts.some((c) => c.severity === "CRITICAL")
+    ) {
+      status = "INVALID";
     } else {
-      status = 'HAS_CONFLICTS'
+      status = "HAS_CONFLICTS";
     }
 
     return {
-      scheduleId: '', // Will be set when saved to database
+      scheduleId: "", // Will be set when saved to database
       studentId: request.studentId,
       term: request.term,
       academicYear: request.academicYear,
@@ -91,8 +100,8 @@ export class SchedulingEngineService {
       totalCredits,
       conflicts: [...solution.conflicts, ...conflictResult.conflicts],
       status,
-      warnings: conflictResult.warnings
-    }
+      warnings: conflictResult.warnings,
+    };
   }
 
   /**
@@ -100,41 +109,41 @@ export class SchedulingEngineService {
    */
   private buildCSPVariables(
     requestedSectionIds: string[],
-    availableSections: CourseSectionInfo[]
+    availableSections: CourseSectionInfo[],
   ): CSPVariable[] {
     // Group sections by course
-    const sectionsByCourse = new Map<string, CourseSectionInfo[]>()
+    const sectionsByCourse = new Map<string, CourseSectionInfo[]>();
 
     for (const sectionId of requestedSectionIds) {
-      const section = availableSections.find(s => s.id === sectionId)
-      if (!section || !section.courseId) continue
+      const section = availableSections.find((s) => s.id === sectionId);
+      if (!section || !section.courseId) continue;
 
-      const courseSections = sectionsByCourse.get(section.courseId) || []
-      courseSections.push(section)
-      sectionsByCourse.set(section.courseId, courseSections)
+      const courseSections = sectionsByCourse.get(section.courseId) || [];
+      courseSections.push(section);
+      sectionsByCourse.set(section.courseId, courseSections);
     }
 
     // Also include alternative sections for each course
     for (const section of availableSections) {
-      if (!section.courseId) continue
+      if (!section.courseId) continue;
 
-      const courseSections = sectionsByCourse.get(section.courseId)
-      if (courseSections && !courseSections.find(s => s.id === section.id)) {
-        courseSections.push(section)
+      const courseSections = sectionsByCourse.get(section.courseId);
+      if (courseSections && !courseSections.find((s) => s.id === section.id)) {
+        courseSections.push(section);
       }
     }
 
     // Create variables
-    const variables: CSPVariable[] = []
+    const variables: CSPVariable[] = [];
 
     for (const [courseId, sections] of sectionsByCourse) {
       variables.push({
         id: courseId,
-        domain: sections.map(s => s.id)
-      })
+        domain: sections.map((s) => s.id),
+      });
     }
 
-    return variables
+    return variables;
   }
 
   /**
@@ -144,31 +153,39 @@ export class SchedulingEngineService {
     variables: CSPVariable[],
     sections: CourseSectionInfo[],
     athleticSchedule?: AthleticSchedule,
-    preferences?: SchedulePreferences
+    preferences?: SchedulePreferences,
   ): CSPConstraint[] {
-    const constraints: CSPConstraint[] = []
-    const sectionMap = new Map(sections.map(s => [s.id, s]))
+    const constraints: CSPConstraint[] = [];
+    const sectionMap = new Map(sections.map((s) => [s.id, s]));
 
     // Time conflict constraints (pairwise)
     for (let i = 0; i < variables.length; i++) {
       for (let j = i + 1; j < variables.length; j++) {
         constraints.push({
-          type: 'TIME',
+          type: "TIME",
           variables: [variables[i].id, variables[j].id],
           validator: (assignment) => {
-            const section1 = sectionMap.get(assignment[variables[i].id])
-            const section2 = sectionMap.get(assignment[variables[j].id])
+            const section1 = sectionMap.get(assignment[variables[i].id]);
+            const section2 = sectionMap.get(assignment[variables[j].id]);
 
-            if (!section1 || !section2) return true
+            if (!section1 || !section2) return true;
 
-            const slots1 = sectionToTimeSlots(section1.days, section1.startTime, section1.endTime)
-            const slots2 = sectionToTimeSlots(section2.days, section2.startTime, section2.endTime)
+            const slots1 = sectionToTimeSlots(
+              section1.days,
+              section1.startTime,
+              section1.endTime,
+            );
+            const slots2 = sectionToTimeSlots(
+              section2.days,
+              section2.startTime,
+              section2.endTime,
+            );
 
-            return !hasTimeSlotOverlap(slots1, slots2)
+            return !hasTimeSlotOverlap(slots1, slots2);
           },
-          description: 'No time conflicts between courses',
-          severity: 'CRITICAL'
-        })
+          description: "No time conflicts between courses",
+          severity: "CRITICAL",
+        });
       }
     }
 
@@ -176,90 +193,106 @@ export class SchedulingEngineService {
     if (athleticSchedule) {
       for (const variable of variables) {
         constraints.push({
-          type: 'ATHLETIC',
+          type: "ATHLETIC",
           variables: [variable.id],
           validator: (assignment) => {
-            const section = sectionMap.get(assignment[variable.id])
-            if (!section) return true
+            const section = sectionMap.get(assignment[variable.id]);
+            if (!section) return true;
 
-            const courseSlots = sectionToTimeSlots(section.days, section.startTime, section.endTime)
+            const courseSlots = sectionToTimeSlots(
+              section.days,
+              section.startTime,
+              section.endTime,
+            );
 
             for (const event of athleticSchedule.events) {
-              const eventSlots = sectionToTimeSlots(event.days, event.startTime, event.endTime)
-              if (hasTimeSlotOverlap(courseSlots, eventSlots) && event.isMandatory) {
-                return false
+              const eventSlots = sectionToTimeSlots(
+                event.days,
+                event.startTime,
+                event.endTime,
+              );
+              if (
+                hasTimeSlotOverlap(courseSlots, eventSlots) &&
+                event.isMandatory
+              ) {
+                return false;
               }
             }
 
-            return true
+            return true;
           },
-          description: 'No conflicts with mandatory athletic events',
-          severity: 'CRITICAL'
-        })
+          description: "No conflicts with mandatory athletic events",
+          severity: "CRITICAL",
+        });
       }
     }
 
     // Credit hour limit constraint
     constraints.push({
-      type: 'CREDIT_LIMIT',
-      variables: variables.map(v => v.id),
+      type: "CREDIT_LIMIT",
+      variables: variables.map((v) => v.id),
       validator: (assignment) => {
-        let totalCredits = 0
+        let totalCredits = 0;
         for (const varId of Object.keys(assignment)) {
-          const section = sectionMap.get(assignment[varId])
+          const section = sectionMap.get(assignment[varId]);
           if (section?.course) {
-            totalCredits += section.course.credits
+            totalCredits += section.course.credits;
           }
         }
-        return totalCredits >= CREDIT_HOUR_LIMITS.MIN_FULL_TIME &&
-               totalCredits <= CREDIT_HOUR_LIMITS.MAX_STANDARD
+        return (
+          totalCredits >= CREDIT_HOUR_LIMITS.MIN_FULL_TIME &&
+          totalCredits <= CREDIT_HOUR_LIMITS.MAX_STANDARD
+        );
       },
       description: `Credit hours must be between ${CREDIT_HOUR_LIMITS.MIN_FULL_TIME} and ${CREDIT_HOUR_LIMITS.MAX_STANDARD}`,
-      severity: 'HIGH'
-    })
+      severity: "HIGH",
+    });
 
     // Preference-based constraints
     if (preferences) {
       if (preferences.preferredDays && preferences.preferredDays.length > 0) {
         for (const variable of variables) {
           constraints.push({
-            type: 'TIME',
+            type: "TIME",
             variables: [variable.id],
             validator: (assignment) => {
-              const section = sectionMap.get(assignment[variable.id])
-              if (!section) return true
+              const section = sectionMap.get(assignment[variable.id]);
+              if (!section) return true;
 
-              return section.days.some(day =>
-                preferences.preferredDays!.includes(day)
-              )
+              return section.days.some((day) =>
+                preferences.preferredDays!.includes(day),
+              );
             },
-            description: 'Prefer courses on specified days',
-            severity: 'LOW'
-          })
+            description: "Prefer courses on specified days",
+            severity: "LOW",
+          });
         }
       }
 
-      if (preferences.preferredTimeRanges && preferences.preferredTimeRanges.length > 0) {
+      if (
+        preferences.preferredTimeRanges &&
+        preferences.preferredTimeRanges.length > 0
+      ) {
         for (const variable of variables) {
           constraints.push({
-            type: 'TIME',
+            type: "TIME",
             variables: [variable.id],
             validator: (assignment) => {
-              const section = sectionMap.get(assignment[variable.id])
-              if (!section) return true
+              const section = sectionMap.get(assignment[variable.id]);
+              if (!section) return true;
 
-              const startMin = timeToMinutes(section.startTime)
-              const endMin = timeToMinutes(section.endTime)
+              const startMin = timeToMinutes(section.startTime);
+              const endMin = timeToMinutes(section.endTime);
 
-              return preferences.preferredTimeRanges!.some(range => {
-                const rangeStartMin = timeToMinutes(range.start)
-                const rangeEndMin = timeToMinutes(range.end)
-                return startMin >= rangeStartMin && endMin <= rangeEndMin
-              })
+              return preferences.preferredTimeRanges!.some((range) => {
+                const rangeStartMin = timeToMinutes(range.start);
+                const rangeEndMin = timeToMinutes(range.end);
+                return startMin >= rangeStartMin && endMin <= rangeEndMin;
+              });
             },
-            description: 'Prefer courses within specified time ranges',
-            severity: 'LOW'
-          })
+            description: "Prefer courses within specified time ranges",
+            severity: "LOW",
+          });
         }
       }
 
@@ -267,68 +300,84 @@ export class SchedulingEngineService {
         for (let i = 0; i < variables.length; i++) {
           for (let j = i + 1; j < variables.length; j++) {
             constraints.push({
-              type: 'TIME',
+              type: "TIME",
               variables: [variables[i].id, variables[j].id],
               validator: (assignment) => {
-                const section1 = sectionMap.get(assignment[variables[i].id])
-                const section2 = sectionMap.get(assignment[variables[j].id])
+                const section1 = sectionMap.get(assignment[variables[i].id]);
+                const section2 = sectionMap.get(assignment[variables[j].id]);
 
-                if (!section1 || !section2) return true
+                if (!section1 || !section2) return true;
 
-                const slots1 = sectionToTimeSlots(section1.days, section1.startTime, section1.endTime)
-                const slots2 = sectionToTimeSlots(section2.days, section2.startTime, section2.endTime)
+                const slots1 = sectionToTimeSlots(
+                  section1.days,
+                  section1.startTime,
+                  section1.endTime,
+                );
+                const slots2 = sectionToTimeSlots(
+                  section2.days,
+                  section2.startTime,
+                  section2.endTime,
+                );
 
                 // Check if any slots are back-to-back
                 for (const slot1 of slots1) {
                   for (const slot2 of slots2) {
                     if (slot1.day === slot2.day) {
                       const gap = Math.abs(
-                        timeToMinutes(slot1.endTime) - timeToMinutes(slot2.startTime)
-                      )
-                      if (gap === 0) return false // Back-to-back
+                        timeToMinutes(slot1.endTime) -
+                          timeToMinutes(slot2.startTime),
+                      );
+                      if (gap === 0) return false; // Back-to-back
                     }
                   }
                 }
 
-                return true
+                return true;
               },
-              description: 'Avoid back-to-back classes',
-              severity: 'LOW'
-            })
+              description: "Avoid back-to-back classes",
+              severity: "LOW",
+            });
           }
         }
       }
 
       if (preferences.maxDailyHours) {
         constraints.push({
-          type: 'TIME',
-          variables: variables.map(v => v.id),
+          type: "TIME",
+          variables: variables.map((v) => v.id),
           validator: (assignment) => {
-            const dailyHours = new Map<string, number>()
+            const dailyHours = new Map<string, number>();
 
             for (const varId of Object.keys(assignment)) {
-              const section = sectionMap.get(assignment[varId])
-              if (!section) continue
+              const section = sectionMap.get(assignment[varId]);
+              if (!section) continue;
 
-              const slots = sectionToTimeSlots(section.days, section.startTime, section.endTime)
+              const slots = sectionToTimeSlots(
+                section.days,
+                section.startTime,
+                section.endTime,
+              );
               for (const slot of slots) {
-                const duration = (timeToMinutes(slot.endTime) - timeToMinutes(slot.startTime)) / 60
-                const current = dailyHours.get(slot.day) || 0
-                dailyHours.set(slot.day, current + duration)
+                const duration =
+                  (timeToMinutes(slot.endTime) -
+                    timeToMinutes(slot.startTime)) /
+                  60;
+                const current = dailyHours.get(slot.day) || 0;
+                dailyHours.set(slot.day, current + duration);
               }
             }
 
             return Array.from(dailyHours.values()).every(
-              hours => hours <= preferences.maxDailyHours!
-            )
+              (hours) => hours <= preferences.maxDailyHours!,
+            );
           },
           description: `Limit daily class hours to ${preferences.maxDailyHours}`,
-          severity: 'MEDIUM'
-        })
+          severity: "MEDIUM",
+        });
       }
     }
 
-    return constraints
+    return constraints;
   }
 
   /**
@@ -336,18 +385,18 @@ export class SchedulingEngineService {
    */
   private solutionToSections(
     assignment: CSPAssignment,
-    availableSections: CourseSectionInfo[]
+    availableSections: CourseSectionInfo[],
   ): CourseSectionInfo[] {
-    const sections: CourseSectionInfo[] = []
-    const sectionMap = new Map(availableSections.map(s => [s.id, s]))
+    const sections: CourseSectionInfo[] = [];
+    const sectionMap = new Map(availableSections.map((s) => [s.id, s]));
 
     for (const sectionId of Object.values(assignment)) {
-      const section = sectionMap.get(sectionId)
+      const section = sectionMap.get(sectionId);
       if (section) {
-        sections.push(section)
+        sections.push(section);
       }
     }
 
-    return sections
+    return sections;
   }
 }

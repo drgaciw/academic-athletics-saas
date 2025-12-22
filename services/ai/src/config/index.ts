@@ -4,8 +4,8 @@ import { env } from './env'
 export const AI_CONFIG = {
   // Model Configuration
   models: {
-    default: 'gpt-4o-mini' as OpenAIModel,
-    advanced: 'gpt-4' as OpenAIModel,
+    default: 'gpt-5.1-codex-max' as OpenAIModel,
+    advanced: 'gpt-5.1-codex-max' as OpenAIModel,
     fast: 'gpt-4o-mini' as OpenAIModel,
     reasoning: 'claude-3-5-sonnet-20241022' as AnthropicModel,
     embedding: 'text-embedding-3-large',
@@ -23,6 +23,7 @@ export const AI_CONFIG = {
 
   // Token Limits
   tokenLimits: {
+    'gpt-5.1-codex-max': 256000,
     'gpt-4': 8192,
     'gpt-4-turbo': 128000,
     'gpt-4o': 128000,
@@ -35,6 +36,7 @@ export const AI_CONFIG = {
 
   // Cost per 1M tokens (in USD)
   pricing: {
+    'gpt-5.1-codex-max': { prompt: 15, completion: 45 },
     'gpt-4': { prompt: 30, completion: 60 },
     'gpt-4-turbo': { prompt: 10, completion: 30 },
     'gpt-4o': { prompt: 5, completion: 15 },
@@ -73,6 +75,10 @@ export const AI_CONFIG = {
     promptInjectionDetectionEnabled: true,
     contentFilteringEnabled: true,
     encryptConversations: true,
+    jwtSecret: env.JWT_SECRET,
+    encryptionKey: env.ENCRYPTION_KEY,
+    allowedOrigins: env.ALLOWED_ORIGINS.split(',').map((o: string) => o.trim()),
+    corsCredentials: env.CORS_CREDENTIALS,
   },
 
   // Rate Limiting
@@ -80,6 +86,8 @@ export const AI_CONFIG = {
     requestsPerMinute: 60,
     requestsPerHour: 1000,
     tokensPerDay: 1000000,
+    window: env.RATE_LIMIT_WINDOW,
+    maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
   },
 
   // Caching Configuration
@@ -239,20 +247,6 @@ Provide data-driven insights with specific recommendations.`,
       min: env.DATABASE_POOL_MIN,
       max: env.DATABASE_POOL_MAX,
     },
-  },
-  
-  // Security (from validated env)
-  security: {
-    jwtSecret: env.JWT_SECRET,
-    encryptionKey: env.ENCRYPTION_KEY,
-    allowedOrigins: env.ALLOWED_ORIGINS.split(',').map((o: string) => o.trim()),
-    corsCredentials: env.CORS_CREDENTIALS,
-  },
-  
-  // Rate Limiting (from validated env)
-  rateLimit: {
-    window: env.RATE_LIMIT_WINDOW,
-    maxRequests: env.RATE_LIMIT_MAX_REQUESTS,
   },
 } as const
 

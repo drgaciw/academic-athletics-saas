@@ -1,26 +1,24 @@
 // Re-export types from @aah/ai-evals for use in the UI
 import type {
   EvalReport,
-  Metrics,
+  EvalMetrics,
   RunResult,
-  Regression,
+  RegressionResult,
   Baseline,
   Dataset,
   TestCase,
-  JobStatus,
-  BaselineComparison,
-} from '@aah/ai-evals/types';
+  EvalJob,
+} from '@aah/ai-evals';
 
 export type {
   EvalReport,
-  Metrics,
+  EvalMetrics as Metrics,
   RunResult,
-  Regression,
+  RegressionResult as Regression,
   Baseline,
   Dataset,
   TestCase,
-  JobStatus,
-  BaselineComparison,
+  EvalJob,
 };
 
 // UI-specific types
@@ -29,7 +27,7 @@ export interface EvalRunListItem {
   datasetId: string;
   datasetName: string;
   modelId: string;
-  status: JobStatus;
+  status: EvalJob['status'];
   accuracy: number;
   passRate: number;
   totalTests: number;

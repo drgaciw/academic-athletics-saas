@@ -31,6 +31,7 @@ import {
   type UserContext,
   type Permission,
   type AuthenticatedContext,
+  type AuthError,
 
   // Utilities
   isAdmin,
@@ -257,7 +258,7 @@ dynamicApp.put('/users/:id', async (c) => {
 const errorHandlingApp = new Hono()
 
 errorHandlingApp.use('*', authMiddleware({
-  onError: (error, c) => {
+  onError: (error: AuthError, c: any) => {
     // Custom logging
     console.error(`[AUTH ERROR] ${error.code}: ${error.message}`)
 
@@ -276,7 +277,7 @@ errorHandlingApp.use('*', authMiddleware({
 
 errorHandlingApp.use('/admin/*', rbacMiddleware({
   roles: UserRole.ADMIN,
-  onError: (error, c) => {
+  onError: (error: AuthError, c: any) => {
     // Custom RBAC error handling
     return c.json({
       error: {
@@ -284,7 +285,7 @@ errorHandlingApp.use('/admin/*', rbacMiddleware({
         message: 'Administrator access required',
         supportEmail: 'support@aah.edu',
       },
-    }, 403)
+    }, error.statusCode)
   },
 }))
 

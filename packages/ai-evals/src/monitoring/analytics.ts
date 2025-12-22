@@ -17,10 +17,9 @@
 import { track } from '@vercel/analytics/server';
 import type {
   EvalReport,
-  Regression,
-  Metrics,
-  JobStatus,
-  RegressionSeverity,
+  RegressionResult,
+  EvalMetrics,
+  EvalJob,
 } from '../types';
 
 /**
@@ -59,7 +58,7 @@ export interface EvalRunMetadata {
   accuracy: number; // 0-100
   avgLatency: number; // milliseconds
   totalCost: number; // USD
-  status: JobStatus;
+  status: EvalJob['status'];
   regressionCount?: number;
   timestamp: string;
 }
@@ -71,7 +70,7 @@ export interface RegressionMetadata {
   jobId: string;
   testCaseId: string;
   metric: string;
-  severity: RegressionSeverity;
+  severity: RegressionResult['severity'];
   baseline: number;
   current: number;
   percentChange: number;
@@ -129,22 +128,24 @@ export class AnalyticsTracker {
     if (!this.shouldTrack()) return;
 
     const metadata: EvalRunMetadata = {
-      jobId: report.jobId,
-      datasetIds: report.runSummaries.map((r) => r.datasetId),
-      modelIds: report.runSummaries.map((r) => r.config.modelId),
-      totalTests: report.summary.totalTests,
-      duration: report.summary.duration,
-      passRate: (report.summary.passed / report.summary.totalTests) * 100,
-      accuracy: report.summary.accuracy,
-      avgLatency: report.summary.avgLatency,
-      totalCost: report.summary.totalCost,
-      status: report.summary.status,
-      regressionCount: report.regressions?.length || 0,
-      timestamp: report.generatedAt.toISOString(),
+      jobId: report.id,
+      datasetIds: [report.dataset.id],
+      modelIds: [report.modelConfig.model],
+      totalTests: report.metrics.totalTests,
+      duration: report.duration,
+      passRate: report.metrics.passRate * 100,
+      accuracy: report.metrics.passRate * 100,
+      avgLatency: report.metrics.averageLatencyMs,
+      totalCost: report.metrics.totalCost,
+      status: 'completed' as const,
+      regressionCount: report.baseline?.regressions?.length || 0,
+      timestamp: report.timestamp,
     };
 
+    // Determine event type based on failure rate
+    const failureRate = (report.metrics.failedTests / report.metrics.totalTests) * 100;
     const eventType =
-      report.summary.status === 'completed'
+      failureRate < 100
         ? AnalyticsEventType.EVAL_RUN_COMPLETED
         : AnalyticsEventType.EVAL_RUN_FAILED;
 
@@ -152,9 +153,18 @@ export class AnalyticsTracker {
     this.log('Eval run tracked:', metadata);
 
     // Track individual regressions if any
-    if (report.regressions && report.regressions.length > 0) {
-      for (const regression of report.regressions) {
-        await this.trackRegression(report.jobId, regression);
+    if (report.baseline?.regressions && report.baseline.regressions.length > 0) {
+      for (const regression of report.baseline.regressions) {
+        // Convert baseline regression to RegressionResult format
+        const regressionResult: RegressionResult = {
+          testCaseId: regression.testCaseId,
+          testCaseName: regression.testCaseName,
+          baselineScore: regression.baselineScore,
+          currentScore: regression.currentScore,
+          scoreDelta: regression.delta,
+          severity: 'major',
+        };
+        await this.trackRegression(report.id, regressionResult);
       }
     }
   }
@@ -162,18 +172,19 @@ export class AnalyticsTracker {
   /**
    * Track a regression detection
    */
-  async trackRegression(jobId: string, regression: Regression): Promise<void> {
+  async trackRegression(jobId: string, regression: RegressionResult): Promise<void> {
     if (!this.shouldTrack()) return;
 
+    const percentChange = (regression.scoreDelta / regression.baselineScore) * 100;
     const metadata: RegressionMetadata = {
       jobId,
       testCaseId: regression.testCaseId,
-      metric: regression.metric,
+      metric: 'score',
       severity: regression.severity,
-      baseline: regression.baseline,
-      current: regression.current,
-      percentChange: regression.percentChange,
-      category: regression.category,
+      baseline: regression.baselineScore,
+      current: regression.currentScore,
+      percentChange,
+      category: regression.testCaseName,
       timestamp: new Date().toISOString(),
     };
 
@@ -187,16 +198,16 @@ export class AnalyticsTracker {
   async trackBaselineUpdate(
     baselineId: string,
     name: string,
-    metrics: Metrics
+    metrics: EvalMetrics
   ): Promise<void> {
     if (!this.shouldTrack()) return;
 
     const metadata = {
       baselineId,
       name,
-      accuracy: metrics.accuracy,
-      passRate: metrics.passRate,
-      avgLatency: metrics.avgLatency,
+      accuracy: metrics.passRate * 100,
+      passRate: metrics.passRate * 100,
+      avgLatency: metrics.averageLatencyMs,
       totalCost: metrics.totalCost,
       timestamp: new Date().toISOString(),
     };
@@ -336,7 +347,7 @@ export async function trackEvalRun(report: EvalReport): Promise<void> {
 /**
  * Helper function to track regression
  */
-export async function trackRegression(jobId: string, regression: Regression): Promise<void> {
+export async function trackRegression(jobId: string, regression: RegressionResult): Promise<void> {
   const tracker = getAnalyticsTracker();
   await tracker.trackRegression(jobId, regression);
 }
@@ -359,22 +370,20 @@ export class MetricsAggregator {
     criticalRegressions: number;
   } {
     const totalRuns = reports.length;
-    const totalTests = reports.reduce((sum, r) => sum + r.summary.totalTests, 0);
-    const totalCost = reports.reduce((sum, r) => sum + r.summary.totalCost, 0);
-    const totalRegressions = reports.reduce((sum, r) => sum + (r.regressions?.length || 0), 0);
-    const criticalRegressions = reports.reduce(
-      (sum, r) => sum + (r.regressions?.filter((reg) => reg.severity === 'critical').length || 0),
-      0
-    );
+    const totalTests = reports.reduce((sum, r) => sum + r.metrics.totalTests, 0);
+    const totalCost = reports.reduce((sum, r) => sum + r.metrics.totalCost, 0);
+    const totalRegressions = reports.reduce((sum, r) => sum + (r.baseline?.regressions?.length || 0), 0);
+    // Note: baseline regressions don't have severity, so we count all of them
+    const criticalRegressions = 0; // Would need separate tracking of regression severity
 
     const avgPassRate =
       reports.reduce(
-        (sum, r) => sum + (r.summary.passed / r.summary.totalTests) * 100,
+        (sum, r) => sum + r.metrics.passRate * 100,
         0
       ) / totalRuns;
 
-    const avgAccuracy = reports.reduce((sum, r) => sum + r.summary.accuracy, 0) / totalRuns;
-    const avgLatency = reports.reduce((sum, r) => sum + r.summary.avgLatency, 0) / totalRuns;
+    const avgAccuracy = reports.reduce((sum, r) => sum + r.metrics.passRate * 100, 0) / totalRuns;
+    const avgLatency = reports.reduce((sum, r) => sum + r.metrics.averageLatencyMs, 0) / totalRuns;
 
     return {
       totalRuns,
@@ -400,20 +409,20 @@ export class MetricsAggregator {
         let value: number;
         switch (metric) {
           case 'accuracy':
-            value = report.summary.accuracy;
+            value = report.metrics.passRate * 100;
             break;
           case 'passRate':
-            value = (report.summary.passed / report.summary.totalTests) * 100;
+            value = report.metrics.passRate * 100;
             break;
           case 'latency':
-            value = report.summary.avgLatency;
+            value = report.metrics.averageLatencyMs;
             break;
           case 'cost':
-            value = report.summary.totalCost;
+            value = report.metrics.totalCost;
             break;
         }
         return {
-          timestamp: report.generatedAt.toISOString(),
+          timestamp: report.timestamp,
           value,
         };
       })

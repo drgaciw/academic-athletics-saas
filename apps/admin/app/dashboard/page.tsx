@@ -1,18 +1,24 @@
-import { auth } from '@clerk/nextjs';
-import { prisma } from '@aah/database';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@aah/ui';
-import { redirect } from 'next/navigation';
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@aah/database";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@aah/ui";
+import { redirect } from "next/navigation";
 
 async function getAdminAnalytics() {
   // Get total students
   const totalStudents = await prisma.user.count({
-    where: { role: 'student' },
+    where: { role: "STUDENT" },
   });
 
   // Get eligible students
   const eligibleStudents = await prisma.complianceRecord.count({
     where: {
-      eligible: true,
+      isEligible: true,
       createdAt: {
         gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
       },
@@ -22,7 +28,7 @@ async function getAdminAnalytics() {
   // Get at-risk students (GPA < 2.5)
   const atRiskStudents = await prisma.complianceRecord.count({
     where: {
-      gpa: {
+      cumulativeGpa: {
         lt: 2.5,
       },
       createdAt: {
@@ -31,10 +37,9 @@ async function getAdminAnalytics() {
     },
   });
 
-  // Get upcoming sessions
-  const upcomingSessions = await prisma.session.count({
+  // Get upcoming sessions (using TutoringSession as proxy)
+  const upcomingSessions = await prisma.tutoringSession.count({
     where: {
-      status: 'scheduled',
       scheduledAt: {
         gte: new Date(),
       },
@@ -42,9 +47,10 @@ async function getAdminAnalytics() {
   });
 
   // Calculate eligibility rate
-  const eligibilityRate = totalStudents > 0 
-    ? ((eligibleStudents / totalStudents) * 100).toFixed(1)
-    : '0.0';
+  const eligibilityRate =
+    totalStudents > 0
+      ? ((eligibleStudents / totalStudents) * 100).toFixed(1)
+      : "0.0";
 
   return {
     totalStudents,
@@ -56,10 +62,10 @@ async function getAdminAnalytics() {
 }
 
 export default async function AdminDashboardPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
-    redirect('/sign-in');
+    redirect("/sign-in");
   }
 
   const analytics = await getAdminAnalytics();

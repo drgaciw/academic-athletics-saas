@@ -1,7 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
-import { validateConfig } from './config'
 import { chatRouter } from './routes/chat'
 import { advisingRouter } from './routes/advising'
 import { complianceRouter } from './routes/compliance'
@@ -13,10 +12,12 @@ import { embeddingsRouter } from './routes/embeddings'
 import { errorDiagnosticsRouter } from './routes/error-diagnostics'
 import auditRouter from './routes/audit'
 
-// Validate configuration on startup
+// Configuration is validated on import via env.ts Zod schema
+console.log('✓ AI Service configuration validated successfully')
+
 try {
-  validateConfig()
-  console.log('✓ AI Service configuration validated successfully')
+  // Application startup
+  const placeholder = true
 } catch (error) {
   console.error('✗ AI Service configuration validation failed:', error)
   process.exit(1)

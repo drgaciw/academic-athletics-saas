@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { TrendDataPoint } from '@/lib/types/evals';
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 // Mock data - replace with actual database queries
 export async function GET(request: Request) {
   try {

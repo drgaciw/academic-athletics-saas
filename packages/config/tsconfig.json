@@ -11,8 +11,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "noEmit": true,
+    "noEmit": false,
     "incremental": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist"
   }
 }

@@ -21,8 +21,8 @@ const GENERAL_ASSISTANT_CONFIG: AgentConfig = {
   systemPrompt: GENERAL_ASSISTANT_PROMPT,
   tools: getToolsForAgentType('general'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.7,
     maxTokens: 4096,
   },

@@ -1,83 +1,86 @@
-import { NextResponse } from 'next/server';
-import type { EvalReport } from '@aah/ai-evals/types';
+import { NextResponse } from "next/server";
+import type { EvalReport } from "@aah/ai-evals";
 
 // Mock data - replace with actual database queries
 export async function GET(
   request: Request,
-  { params }: { params: { runId: string } }
+  { params }: { params: { runId: string } },
 ) {
   try {
     const { runId } = params;
 
     // TODO: Replace with actual database query
     const mockReport: EvalReport = {
-      jobId: runId,
-      summary: {
-        totalTests: 50,
-        passed: 47,
-        failed: 3,
-        accuracy: 94.0,
-        avgLatency: 1200,
-        totalCost: 0.45,
-        duration: 60000,
-        status: 'completed',
+      id: runId,
+      dataset: {
+        id: "dataset-1",
+        name: "NCAA Compliance Test Suite",
+        description: "Comprehensive test cases for NCAA eligibility rules",
+        version: "1.0.0",
+        testCases: [],
       },
-      runSummaries: [],
-      scoringResults: [],
+      modelConfig: {
+        provider: "openai",
+        model: "gpt-4",
+        temperature: 0.7,
+        maxTokens: 1000,
+      },
+      scorerConfig: {
+        type: "llm-judge",
+        threshold: 0.8,
+      },
+      results: [],
       metrics: {
         totalTests: 50,
-        passed: 47,
-        failed: 3,
-        accuracy: 94.0,
-        passRate: 94.0,
-        avgScore: 0.94,
-        avgLatency: 1200,
-        totalCost: 0.45,
-        breakdown: {
-          'Initial Eligibility': {
-            category: 'Initial Eligibility',
+        passedTests: 47,
+        failedTests: 3,
+        passRate: 0.94,
+        averageScore: 0.94,
+        medianScore: 0.94,
+        minScore: 0.85,
+        maxScore: 1.0,
+        standardDeviation: 0.08,
+        confidenceInterval: {
+          lower: 0.92,
+          upper: 0.96,
+        },
+        categoryBreakdown: {
+          "Initial Eligibility": {
             totalTests: 20,
-            passed: 19,
-            accuracy: 95.0,
-            avgScore: 0.95,
-            avgLatency: 1100,
-            avgCost: 0.009,
+            passedTests: 19,
+            failedTests: 1,
+            passRate: 0.95,
+            averageScore: 0.95,
+            averageLatencyMs: 1100,
           },
-          'Continuing Eligibility': {
-            category: 'Continuing Eligibility',
+          "Continuing Eligibility": {
             totalTests: 15,
-            passed: 14,
-            accuracy: 93.3,
-            avgScore: 0.933,
-            avgLatency: 1250,
-            avgCost: 0.01,
+            passedTests: 14,
+            failedTests: 1,
+            passRate: 0.933,
+            averageScore: 0.933,
+            averageLatencyMs: 1250,
           },
-          'Progress Toward Degree': {
-            category: 'Progress Toward Degree',
+          "Progress Toward Degree": {
             totalTests: 15,
-            passed: 14,
-            accuracy: 93.3,
-            avgScore: 0.933,
-            avgLatency: 1250,
-            avgCost: 0.01,
+            passedTests: 14,
+            failedTests: 1,
+            passRate: 0.933,
+            averageScore: 0.933,
+            averageLatencyMs: 1250,
           },
         },
+        totalLatencyMs: 60000,
+        averageLatencyMs: 1200,
+        totalTokens: {
+          input: 25000,
+          output: 15000,
+          total: 40000,
+        },
+        totalCost: 0.45,
       },
-      regressions: [],
-      recommendations: [
-        {
-          type: 'accuracy',
-          severity: 'medium',
-          title: 'Review failed test cases',
-          description: '3 test cases failed in this run. Review the results to identify patterns.',
-          actionable: true,
-          suggestedActions: [
-            'Examine failed test cases in the "Continuing Eligibility" category',
-            'Check if edge cases need better handling',
-          ],
-        },
-      ],
-      generatedAt: new Date(),
+      timestamp: new Date().toISOString(),
+      duration: 60000,
     };
 
     // Mock test results
@@ -90,18 +93,18 @@ export async function GET(
       },
       expected: {
         eligible: i % 17 !== 0, // Make some fail
-        issues: i % 17 === 0 ? ['GPA below minimum'] : [],
+        issues: i % 17 === 0 ? ["GPA below minimum"] : [],
       },
       actual: {
         eligible: i % 17 !== 0,
-        issues: i % 17 === 0 ? ['GPA below minimum'] : [],
+        issues: i % 17 === 0 ? ["GPA below minimum"] : [],
       },
       score: {
         passed: i % 17 !== 0,
         score: i % 17 !== 0 ? 1.0 : 0.0,
       },
       metadata: {
-        modelId: 'gpt-4',
+        modelId: "gpt-4",
         latency: 1000 + Math.random() * 500,
         cost: 0.009,
         timestamp: new Date(),
@@ -113,10 +116,10 @@ export async function GET(
       results: mockResults,
     });
   } catch (error) {
-    console.error('Error fetching eval run:', error);
+    console.error("Error fetching eval run:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch eval run' },
-      { status: 500 }
+      { error: "Failed to fetch eval run" },
+      { status: 500 },
     );
   }
 }

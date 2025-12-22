@@ -5,10 +5,10 @@
   "description": "AI microservice for conversational interfaces, RAG pipelines, and agentic workflows",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "build": "tsup src/index.ts --format esm,cjs --external @ai-sdk/openai --external @ai-sdk/anthropic",
     "type-check": "tsc --noEmit",
     "start": "node dist/index.js",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },

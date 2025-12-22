@@ -1,0 +1,53 @@
+
+> athletic-academics-hub@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas
+> turbo run lint
+
+turbo 2.6.0
+
+ΓÇó Packages in scope: @aah/ai, @aah/ai-evals, @aah/api-utils, @aah/auth, @aah/config, @aah/database, @aah/service-advising, @aah/service-ai, @aah/service-compliance, @aah/service-integration, @aah/service-monitoring, @aah/service-support, @aah/service-user, @aah/ui, admin, main, student
+ΓÇó Running lint in 17 packages
+ΓÇó Remote caching disabled
+@aah/service-advising:lint: cache miss, executing ccbf8a0da63b3af3
+student:lint: cache miss, executing a2844b173adc51c3
+admin:lint: cache miss, executing cd10c151e10163cf
+main:lint: cache miss, executing e1c64a8f70261165
+main:lint: 
+main:lint: > main@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas\apps\main
+admin:lint: 
+main:lint: > next lint
+main:lint: 
+admin:lint: > admin@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas\apps\admin
+admin:lint: > next lint
+admin:lint: 
+student:lint: 
+student:lint: > student@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas\apps\student
+student:lint: > next lint
+student:lint: 
+@aah/service-advising:lint: 
+@aah/service-advising:lint: > @aah/service-advising@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising
+@aah/service-advising:lint: > eslint src --ext .ts
+@aah/service-advising:lint: 
+@aah/service-advising:lint: 
+@aah/service-advising:lint: Oops! Something went wrong! :(
+@aah/service-advising:lint: 
+@aah/service-advising:lint: ESLint: 8.57.1
+@aah/service-advising:lint: 
+@aah/service-advising:lint: ESLint couldn't find a configuration file. To set up a configuration file for this project, please run:
+@aah/service-advising:lint: 
+@aah/service-advising:lint:     npm init @eslint/config
+@aah/service-advising:lint: 
+@aah/service-advising:lint: ESLint looked for configuration files in C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising\src\algorithms and its ancestors. If it found none, it then looked in your home directory.
+@aah/service-advising:lint: 
+@aah/service-advising:lint: If you think you already have a configuration file or if you need more help, please stop by the ESLint Discord server: https://eslint.org/chat
+@aah/service-advising:lint: 
+@aah/service-advising:lint: ΓÇëELIFECYCLEΓÇë Command failed with exit code 2.
+@aah/service-advising:lint: ERROR: command finished with error: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run lint exited (1)
+@aah/service-advising#lint: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run lint exited (1)
+
+ Tasks:    0 successful, 4 total
+Cached:    0 cached, 4 total
+  Time:    1.298s 
+Failed:    @aah/service-advising#lint
+
+ ERROR  run failed: command  exited (1)
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

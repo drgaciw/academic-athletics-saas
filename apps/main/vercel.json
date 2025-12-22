@@ -1,0 +1,70 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/user/:path*",
+      "destination": "/api/services/user/:path*"
+    },
+    {
+      "source": "/api/advising/:path*",
+      "destination": "/api/services/advising/:path*"
+    },
+    {
+      "source": "/api/compliance/:path*",
+      "destination": "/api/services/compliance/:path*"
+    },
+    {
+      "source": "/api/monitoring/:path*",
+      "destination": "/api/services/monitoring/:path*"
+    },
+    {
+      "source": "/api/support/:path*",
+      "destination": "/api/services/support/:path*"
+    },
+    {
+      "source": "/api/integration/:path*",
+      "destination": "/api/services/integration/:path*"
+    },
+    {
+      "source": "/api/ai/:path*",
+      "destination": "/api/services/ai/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/compliance-check",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/risk-assessment",
+      "schedule": "0 3 * * 1"
+    },
+    {
+      "path": "/api/cron/sync-lms",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}

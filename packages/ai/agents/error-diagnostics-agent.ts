@@ -30,8 +30,8 @@ const ERROR_DIAGNOSTICS_AGENT_CONFIG: AgentConfig = {
   systemPrompt: ERROR_DIAGNOSTICS_AGENT_PROMPT,
   tools: getToolsForAgentType('error_diagnostics'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.3, // Lower temperature for precise technical analysis
     maxTokens: 8192, // Higher token limit for detailed diagnostics
   },
@@ -258,7 +258,7 @@ Please analyze:
 5. NCAA notification requirements`,
       context: {
         errorType: 'compliance_impact',
-        error: errorMessage,
+        errorMessage,
         ...params,
       },
     }

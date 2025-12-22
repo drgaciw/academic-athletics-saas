@@ -1,6 +1,6 @@
-/help/**
+/**
  * Agent Memory System
- * 
+ *
  * Manages short-term and long-term memory for agents
  * Enables context retention and fact storage across conversations
  */

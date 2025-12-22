@@ -7,25 +7,20 @@
 
 import {
   EvalReport,
-  Recommendation,
-  Regression,
-  RunSummary,
-  ScoringResult,
-  Metrics,
-  CategoryMetrics,
-  ExecutionMetrics,
+  RegressionResult,
+  RunResult,
+  EvalMetrics,
   ExportFormat,
   ExportOptions,
-  JobStatus,
+  EvalJob,
 } from '../types';
 
+// TODO: Refactor ReportConfig for new EvalReport structure
 export interface ReportConfig {
   jobId: string;
-  runSummaries: RunSummary[];
-  scoringResults: ScoringResult[];
-  regressions?: Regression[];
-  executionMetrics?: ExecutionMetrics;
-  status: JobStatus;
+  results: RunResult[];
+  regressions?: RegressionResult[];
+  status: EvalJob['status'];
 }
 
 /**

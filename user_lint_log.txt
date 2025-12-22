@@ -1,0 +1,16 @@
+
+> athletic-academics-hub@2.0.0 lint C:\Users\dgorn\My Gemini Code\academic-athletics-saas
+> turbo run lint "--filter=@aah/service-user"
+
+turbo 2.6.0
+
+ΓÇó Packages in scope: @aah/service-user
+ΓÇó Running lint in 1 packages
+ΓÇó Remote caching disabled
+
+No tasks were executed as part of this run.
+
+ Tasks:    0 successful, 0 total
+Cached:    0 cached, 0 total
+  Time:    311ms 
+

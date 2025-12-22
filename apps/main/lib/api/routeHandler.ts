@@ -34,6 +34,7 @@ export function createRouteHandler(
   ): Promise<NextResponse> => {
     const timer = createTimer();
     const origin = request.headers.get('origin') || undefined;
+    let context: RequestContext | null = null;
 
     try {
       // Handle CORS preflight
@@ -42,7 +43,6 @@ export function createRouteHandler(
       }
 
       // Validate authentication
-      let context: RequestContext | null = null;
       if (config.requireAuth !== false) {
         context = await validateAuth(request);
       } else {

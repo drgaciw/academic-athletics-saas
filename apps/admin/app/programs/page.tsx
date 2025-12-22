@@ -1,11 +1,11 @@
-import { auth } from '@clerk/nextjs';
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { redirect } from 'next/navigation';
 
 async function getProgramData() {
   // Get upcoming sessions
-  const upcomingSessions = await prisma.session.findMany({
+  const upcomingSessions = await prisma.tutoringSession.findMany({
     where: {
       status: 'scheduled',
       scheduledAt: {
@@ -13,7 +13,13 @@ async function getProgramData() {
       },
     },
     include: {
-      user: {
+      student: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      tutor: {
         select: {
           firstName: true,
           lastName: true,
@@ -25,11 +31,11 @@ async function getProgramData() {
   });
 
   // Get session statistics
-  const totalSessions = await prisma.session.count();
-  const completedSessions = await prisma.session.count({
+  const totalSessions = await prisma.tutoringSession.count();
+  const completedSessions = await prisma.tutoringSession.count({
     where: { status: 'completed' },
   });
-  const scheduledSessions = await prisma.session.count({
+  const scheduledSessions = await prisma.tutoringSession.count({
     where: { status: 'scheduled' },
   });
 
@@ -42,7 +48,7 @@ async function getProgramData() {
 }
 
 export default async function ProgramsPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');
@@ -108,9 +114,9 @@ export default async function ProgramsPage() {
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
-                    <p className="font-semibold">{session.type}</p>
+                    <p className="font-semibold">{session.subject}</p>
                     <p className="text-sm text-gray-600">
-                      {session.user.firstName} {session.user.lastName}
+                      {session.student.firstName} {session.student.lastName}
                     </p>
                     <p className="text-sm text-gray-500">
                       {new Date(session.scheduledAt).toLocaleString()}

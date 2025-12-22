@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { authMiddleware } from '@clerk/nextjs';
 
-// Temporary middleware that bypasses Clerk authentication
-// Replace this with proper Clerk middleware once you have valid API keys
-export function middleware(request: NextRequest) {
-  // Allow all requests through without authentication
-  return NextResponse.next()
-}
+export default authMiddleware({
+  publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY,
+  // Routes that can be accessed while signed out
+  publicRoutes: [
+    '/',
+    '/sign-in(.*)',
+    '/sign-up(.*)',
+    '/api/webhooks(.*)',
+  ],
+});
 
 export const config = {
   matcher: [
@@ -15,4 +19,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-}
+};

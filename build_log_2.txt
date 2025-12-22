@@ -1,0 +1,268 @@
+
+> athletic-academics-hub@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas
+> turbo run build
+
+turbo 2.6.0
+
+ΓÇó Packages in scope: @aah/ai, @aah/ai-evals, @aah/api-utils, @aah/auth, @aah/config, @aah/database, @aah/service-advising, @aah/service-ai, @aah/service-compliance, @aah/service-integration, @aah/service-monitoring, @aah/service-support, @aah/service-user, @aah/ui, admin, main, student
+ΓÇó Running build in 17 packages
+ΓÇó Remote caching disabled
+admin:build: cache miss, executing 0a192d4864dbea07
+@aah/service-compliance:build: cache miss, executing e737fc2a7b7748a1
+@aah/service-monitoring:build: cache miss, executing f49743f47bf26b1c
+@aah/ai-evals:build: cache miss, executing 454fff43237dcf67
+student:build: cache miss, executing 9895af313a566bc4
+@aah/service-integration:build: cache miss, executing 2b4f4326e2db20aa
+@aah/service-user:build: cache miss, executing 255a8f7b82197d8a
+@aah/service-ai:build: cache miss, executing 30b93077c84bafda
+@aah/service-support:build: cache miss, executing 216241f6f903df5b
+@aah/service-advising:build: cache miss, executing f4788d738933e6ed
+admin:build: 
+admin:build: > admin@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\apps\admin
+admin:build: > next build
+admin:build: 
+@aah/service-compliance:build: 
+@aah/service-compliance:build: > @aah/service-compliance@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\compliance
+@aah/service-compliance:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-compliance:build: 
+@aah/ai-evals:build: 
+@aah/ai-evals:build: > @aah/ai-evals@1.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\packages\ai-evals
+@aah/ai-evals:build: > tsup src/index.ts --format cjs,esm --dts
+@aah/ai-evals:build: 
+@aah/service-advising:build: 
+@aah/service-advising:build: > @aah/service-advising@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\advising
+@aah/service-advising:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-advising:build: 
+student:build: 
+student:build: > student@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\apps\student
+student:build: > next build
+student:build: 
+@aah/service-support:build: 
+@aah/service-support:build: > @aah/service-support@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\support
+@aah/service-support:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-support:build: 
+@aah/service-user:build: 
+@aah/service-user:build: > @aah/service-user@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\user
+@aah/service-user:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-user:build: 
+@aah/service-monitoring:build: 
+@aah/service-monitoring:build: > @aah/service-monitoring@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\monitoring
+@aah/service-monitoring:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-monitoring:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: > @aah/service-ai@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\ai
+@aah/service-ai:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-ai:build: 
+@aah/service-integration:build: 
+@aah/service-integration:build: > @aah/service-integration@2.0.0 build C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\integration
+@aah/service-integration:build: > tsup src/index.ts --format esm,cjs --dts
+@aah/service-integration:build: 
+@aah/service-compliance:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-compliance:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-compliance:build: [34mCLI[39m tsup v8.5.0
+@aah/service-compliance:build: [34mCLI[39m Target: es2022
+@aah/service-support:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-compliance:build: [34mESM[39m Build start
+@aah/service-compliance:build: [34mCJS[39m Build start
+@aah/service-support:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-advising:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-support:build: [34mCLI[39m tsup v8.5.0
+@aah/service-advising:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-advising:build: [34mCLI[39m tsup v8.5.0
+@aah/service-support:build: [34mCLI[39m Target: es2022
+@aah/service-support:build: [34mESM[39m Build start
+@aah/service-support:build: [34mCJS[39m Build start
+@aah/service-advising:build: [34mCLI[39m Target: es2022
+@aah/service-advising:build: [34mESM[39m Build start
+@aah/service-advising:build: [34mCJS[39m Build start
+@aah/ai-evals:build: [34mCLI[39m Building entry: src/index.ts
+@aah/ai-evals:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/ai-evals:build: [34mCLI[39m tsup v8.5.0
+@aah/ai-evals:build: [34mCLI[39m Using tsup config: C:\Users\dgorn\My Gemini Code\academic-athletics-saas\packages\ai-evals\tsup.config.ts
+@aah/service-compliance:build: [32mCJS[39m [1mdist\index.js [22m[32m26.52 KB[39m
+@aah/service-compliance:build: [32mCJS[39m ΓÜí∩╕Å Build success in 44ms
+@aah/service-compliance:build: [32mESM[39m [1mdist\index.mjs [22m[32m25.37 KB[39m
+@aah/service-compliance:build: [32mESM[39m ΓÜí∩╕Å Build success in 44ms
+@aah/ai-evals:build: [34mCLI[39m Target: es2022
+@aah/service-advising:build: [32mESM[39m [1mdist\index.mjs [22m[32m16.16 KB[39m
+@aah/service-advising:build: [32mESM[39m ΓÜí∩╕Å Build success in 43ms
+@aah/service-advising:build: [32mCJS[39m [1mdist\index.js [22m[32m17.38 KB[39m
+@aah/service-advising:build: [32mCJS[39m ΓÜí∩╕Å Build success in 42ms
+@aah/ai-evals:build: [34mCLI[39m Cleaning output folder
+@aah/ai-evals:build: [34mCJS[39m Build start
+@aah/ai-evals:build: [34mESM[39m Build start
+@aah/service-support:build: [32mCJS[39m [1mdist\index.js [22m[32m40.21 KB[39m
+@aah/service-support:build: [32mCJS[39m ΓÜí∩╕Å Build success in 59ms
+@aah/service-support:build: [32mESM[39m [1mdist\index.mjs [22m[32m38.77 KB[39m
+@aah/service-support:build: [32mESM[39m ΓÜí∩╕Å Build success in 59ms
+@aah/service-user:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-user:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-user:build: [34mCLI[39m tsup v8.5.0
+@aah/service-monitoring:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-monitoring:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-monitoring:build: [34mCLI[39m tsup v8.5.0
+@aah/service-user:build: [34mCLI[39m Target: es2022
+@aah/service-user:build: [34mESM[39m Build start
+@aah/service-user:build: [34mCJS[39m Build start
+@aah/service-monitoring:build: [34mCLI[39m Target: es2022
+@aah/service-integration:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-monitoring:build: [34mESM[39m Build start
+@aah/service-monitoring:build: [34mCJS[39m Build start
+@aah/service-integration:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-integration:build: [34mCLI[39m tsup v8.5.0
+@aah/service-ai:build: [34mCLI[39m Building entry: src/index.ts
+@aah/service-ai:build: [34mCLI[39m Using tsconfig: tsconfig.json
+@aah/service-integration:build: [34mCLI[39m Target: es2022
+@aah/service-ai:build: [34mCLI[39m tsup v8.5.0
+@aah/service-integration:build: [34mESM[39m Build start
+@aah/service-integration:build: [34mCJS[39m Build start
+@aah/service-ai:build: [34mCLI[39m Target: es2022
+@aah/service-ai:build: [34mESM[39m Build start
+@aah/service-ai:build: [34mCJS[39m Build start
+@aah/service-user:build: [32mESM[39m [1mdist\index.mjs [22m[32m12.86 KB[39m
+@aah/service-user:build: [32mESM[39m ΓÜí∩╕Å Build success in 70ms
+@aah/service-user:build: [32mCJS[39m [1mdist\index.js [22m[32m14.34 KB[39m
+@aah/service-user:build: [32mCJS[39m ΓÜí∩╕Å Build success in 79ms
+@aah/service-monitoring:build: [32mCJS[39m [1mdist\index.js [22m[32m69.98 KB[39m
+@aah/service-monitoring:build: [32mCJS[39m ΓÜí∩╕Å Build success in 84ms
+@aah/service-monitoring:build: [32mESM[39m [1mdist\index.mjs [22m[32m67.38 KB[39m
+@aah/service-monitoring:build: [32mESM[39m ΓÜí∩╕Å Build success in 85ms
+@aah/service-integration:build: [32mCJS[39m [1mdist\index.js [22m[32m109.40 KB[39m
+@aah/service-integration:build: [32mCJS[39m ΓÜí∩╕Å Build success in 83ms
+@aah/service-integration:build: [32mESM[39m [1mdist\index.mjs [22m[32m105.70 KB[39m
+@aah/service-integration:build: [32mESM[39m ΓÜí∩╕Å Build success in 84ms
+@aah/service-ai:build: 
+@aah/service-ai:build: [43m[30m WARN [39m[49m [33mΓû▓ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "security" in object literal[0m [duplicate-object-key]
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:245:2:
+@aah/service-ai:build: [37m      245 Γöé   [32msecurity[37m: {
+@aah/service-ai:build:           Γò╡   [32m~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build:   The original key "security" is here:
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:69:2:
+@aah/service-ai:build: [37m      69 Γöé   [32msecurity[37m: {
+@aah/service-ai:build:          Γò╡   [32m~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: [43m[30m WARN [39m[49m [33mΓû▓ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "rateLimit" in object literal[0m [duplicate-object-key]
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:253:2:
+@aah/service-ai:build: [37m      253 Γöé   [32mrateLimit[37m: {
+@aah/service-ai:build:           Γò╡   [32m~~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build:   The original key "rateLimit" is here:
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:79:2:
+@aah/service-ai:build: [37m      79 Γöé   [32mrateLimit[37m: {
+@aah/service-ai:build:          Γò╡   [32m~~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: [43m[30m WARN [39m[49m [33mΓû▓ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "security" in object literal[0m [duplicate-object-key]
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:245:2:
+@aah/service-ai:build: [37m      245 Γöé   [32msecurity[37m: {
+@aah/service-ai:build:           Γò╡   [32m~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build:   The original key "security" is here:
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:69:2:
+@aah/service-ai:build: [37m      69 Γöé   [32msecurity[37m: {
+@aah/service-ai:build:          Γò╡   [32m~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: [43m[30m WARN [39m[49m [33mΓû▓ [43;33m[[43;30mWARNING[43;33m][0m [1mDuplicate key "rateLimit" in object literal[0m [duplicate-object-key]
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:253:2:
+@aah/service-ai:build: [37m      253 Γöé   [32mrateLimit[37m: {
+@aah/service-ai:build:           Γò╡   [32m~~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build:   The original key "rateLimit" is here:
+@aah/service-ai:build: 
+@aah/service-ai:build:     src/config/index.ts:79:2:
+@aah/service-ai:build: [37m      79 Γöé   [32mrateLimit[37m: {
+@aah/service-ai:build:          Γò╡   [32m~~~~~~~~~[0m
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: 
+@aah/service-ai:build: [32mCJS[39m [1mdist\index.js [22m[32m120.84 KB[39m
+@aah/service-ai:build: [32mCJS[39m ΓÜí∩╕Å Build success in 109ms
+@aah/service-ai:build: [32mESM[39m [1mdist\index.mjs [22m[32m116.05 KB[39m
+@aah/service-ai:build: [32mESM[39m ΓÜí∩╕Å Build success in 113ms
+@aah/service-compliance:build: [34mDTS[39m Build start
+@aah/service-advising:build: [34mDTS[39m Build start
+@aah/service-support:build: [34mDTS[39m Build start
+@aah/service-user:build: [34mDTS[39m Build start
+@aah/service-monitoring:build: [34mDTS[39m Build start
+@aah/service-integration:build: [34mDTS[39m Build start
+@aah/service-ai:build: [34mDTS[39m Build start
+@aah/ai-evals:build: [34mDTS[39m Build start
+@aah/ai-evals:build: [32mESM[39m [1mdist\index.mjs     [22m[32m143.06 KB[39m
+@aah/ai-evals:build: [32mESM[39m [1mdist\index.mjs.map [22m[32m350.81 KB[39m
+@aah/ai-evals:build: [32mESM[39m ΓÜí∩╕Å Build success in 486ms
+@aah/ai-evals:build: [32mCJS[39m [1mdist\index.js     [22m[32m145.10 KB[39m
+@aah/ai-evals:build: [32mCJS[39m [1mdist\index.js.map [22m[32m350.94 KB[39m
+@aah/ai-evals:build: [32mCJS[39m ΓÜí∩╕Å Build success in 487ms
+student:build:  ΓÜá Invalid next.config.js options detected: 
+student:build:  ΓÜá     Expected object, received boolean at "experimental.serverActions"
+student:build:  ΓÜá See more info here: https://nextjs.org/docs/messages/invalid-next-config
+student:build:  ΓÜá Server Actions are available by default now, `experimental.serverActions` option can be safely removed.
+student:build:   Γû▓ Next.js 14.2.33
+student:build: 
+admin:build:   Γû▓ Next.js 14.2.33
+admin:build: 
+student:build:    Creating an optimized production build ...
+admin:build:    Creating an optimized production build ...
+@aah/service-support:build: [32mDTS[39m ΓÜí∩╕Å Build success in 2280ms
+@aah/service-support:build: [32mDTS[39m [1mdist\index.d.mts [22m[32m227.00 B[39m
+@aah/service-support:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m227.00 B[39m
+@aah/service-advising:build: [32mDTS[39m ΓÜí∩╕Å Build success in 2291ms
+@aah/service-advising:build: [32mDTS[39m [1mdist\index.d.mts [22m[32m582.00 B[39m
+@aah/service-advising:build: [32mDTS[39m [1mdist\index.d.ts  [22m[32m582.00 B[39m
+@aah/service-compliance:build: src/index.ts(96,31): error TS2769: No overload matches this call.
+@aah/service-compliance:build:   Overload 1 of 2, '(key: never): unknown', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build:   Overload 2 of 2, '(key: never): never', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build: src/index.ts(105,6): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | undefined'.
+@aah/service-compliance:build: src/index.ts(113,31): error TS2769: No overload matches this call.
+@aah/service-compliance:build:   Overload 1 of 2, '(key: never): unknown', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build:   Overload 2 of 2, '(key: never): never', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build: src/index.ts(136,6): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | undefined'.
+@aah/service-compliance:build: src/index.ts(162,31): error TS2769: No overload matches this call.
+@aah/service-compliance:build:   Overload 1 of 2, '(key: never): unknown', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build:   Overload 2 of 2, '(key: never): never', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build: src/index.ts(181,31): error TS2769: No overload matches this call.
+@aah/service-compliance:build:   Overload 1 of 2, '(key: never): unknown', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build:   Overload 2 of 2, '(key: never): never', gave the following error.
+@aah/service-compliance:build:     Argument of type '"correlationId"' is not assignable to parameter of type 'never'.
+@aah/service-compliance:build: 
+@aah/service-compliance:build: [31mError: error occurred in dts build
+@aah/service-compliance:build:     at Worker.<anonymous> (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\node_modules\.pnpm\tsup@8.5.0_tsx@4.20.6_typescript@5.9.3\node_modules\tsup\dist\index.js:1545:26)
+@aah/service-compliance:build:     at Worker.emit (node:events:507:28)
+@aah/service-compliance:build:     at MessagePort.<anonymous> (node:internal/worker:268:53)
+@aah/service-compliance:build:     at [nodejs.internal.kHybridDispatch] (node:internal/event_target:827:20)
+@aah/service-compliance:build:     at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)[39m
+@aah/service-compliance:build: [31mDTS[39m [31mBuild error[39m
+@aah/service-compliance:build: ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
+@aah/service-compliance:build: ERROR: command finished with error: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\compliance) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run build exited (1)
+@aah/service-compliance#build: command (C:\Users\dgorn\My Gemini Code\academic-athletics-saas\services\compliance) C:\Users\dgorn\AppData\Local\pnpm\.tools\pnpm\8.15.0\bin\pnpm.CMD run build exited (1)
+
+ Tasks:    2 successful, 10 total
+Cached:    0 cached, 10 total
+  Time:    4.073s 
+Failed:    @aah/service-compliance#build
+
+ ERROR  run failed: command  exited (1)
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
