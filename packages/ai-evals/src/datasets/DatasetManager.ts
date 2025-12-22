@@ -16,7 +16,7 @@ import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
 import { join, dirname } from 'path';
 import { existsSync } from 'fs';
 import { nanoid } from 'nanoid';
-import { format, parseISO } from 'date-fns';
+import { format as formatDate, parseISO } from 'date-fns';
 import { z } from 'zod';
 import type {
   Dataset,
@@ -391,7 +391,7 @@ export class DatasetManager {
     };
 
     // Generate export path
-    const timestamp = format(new Date(), 'yyyy-MM-dd-HHmmss');
+    const timestamp = formatDate(new Date(), 'yyyy-MM-dd-HHmmss');
     const exportDir = join(this.datasetsDir, 'exports');
     await mkdir(exportDir, { recursive: true });
 

@@ -14,57 +14,59 @@ import { PIIDetection, PIIType, PIIScoreResult, Severity } from '../types';
 /**
  * Regex patterns for PII detection
  * Based on OWASP recommendations and FERPA requirements
+ * 
+ * Note: Using string keys to avoid circular dependency issues at module initialization
  */
-const PII_PATTERNS: Record<PIIType, RegExp[]> = {
-  [PIIType.EMAIL]: [
+const PII_PATTERNS: Record<string, RegExp[]> = {
+  EMAIL: [
     // Standard email format
     /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
   ],
-  [PIIType.PHONE]: [
+  PHONE: [
     // US phone formats: (123) 456-7890, 123-456-7890, 1234567890
     /\b(?:\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})\b/g,
   ],
-  [PIIType.SSN]: [
+  SSN: [
     // Social Security Number: XXX-XX-XXXX
     /\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b/g,
     // SSN without hyphens
     /\b(?!000|666|9\d{2})(?!00)(?!0000)\d{9}\b/g,
   ],
-  [PIIType.STUDENT_ID]: [
+  STUDENT_ID: [
     // Student ID patterns (customize per institution)
     /\b(?:student[-\s]?id|sid|banner[-\s]?id)[-:\s]*([A-Z0-9]{6,12})\b/gi,
     /\b[A-Z]\d{8}\b/g, // Example: A12345678
   ],
-  [PIIType.ADDRESS]: [
+  ADDRESS: [
     // Street address patterns
     /\b\d{1,5}\s+(?:[A-Za-z]+\s+){1,3}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way)\b/gi,
     // ZIP code
     /\b\d{5}(?:-\d{4})?\b/g,
   ],
-  [PIIType.DATE_OF_BIRTH]: [
+  DATE_OF_BIRTH: [
     // Various date formats
     /\b(?:0[1-9]|1[0-2])[-\/](?:0[1-9]|[12]\d|3[01])[-\/](?:19|20)\d{2}\b/g,
     /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(?:0?[1-9]|[12]\d|3[01]),?\s+(?:19|20)\d{2}\b/gi,
   ],
-  [PIIType.NAME]: [
+  NAME: [
     // Names with common titles (requires context analysis)
     /\b(?:Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b/g,
     // Full names (requires NER for better accuracy)
     /\b[A-Z][a-z]+\s+[A-Z]\.\s+[A-Z][a-z]+\b/g, // John Q. Doe
   ],
-  [PIIType.MEDICAL_INFO]: [
+  MEDICAL_INFO: [
     // Medical record numbers
     /\b(?:MRN|medical[-\s]?record)[-:\s]*([A-Z0-9]{6,12})\b/gi,
     // Common medical terms requiring context
     /\b(?:diagnosis|prescription|medication|treatment|therapy|injury|condition)[-:\s]/gi,
   ],
-  [PIIType.FINANCIAL_INFO]: [
+  FINANCIAL_INFO: [
     // Credit card patterns (basic Luhn check recommended)
     /\b(?:\d{4}[-\s]?){3}\d{4}\b/g,
     // Bank account indicators
     /\b(?:account[-\s]?number|acct[-\s]?no)[-:\s]*([0-9]{6,17})\b/gi,
   ],
-  [PIIType.ACADEMIC_RECORD]: [
+  ACADEMIC_RECORD: [
     // GPA
     /\b(?:GPA|grade[-\s]?point[-\s]?average)[-:\s]*([0-4]\.\d{1,2})\b/gi,
     // Course grades
@@ -166,18 +168,20 @@ export class PIIDetector {
     let confidence = CONFIDENCE.REGEX_PARTIAL;
 
     // Higher confidence for more specific patterns
-    switch (type) {
-      case PIIType.EMAIL:
-      case PIIType.SSN:
+    // Using string comparisons to avoid enum resolution issues at runtime
+    const typeStr = type as string;
+    switch (typeStr) {
+      case 'EMAIL':
+      case 'SSN':
         confidence = CONFIDENCE.REGEX_EXACT;
         break;
-      case PIIType.PHONE:
-      case PIIType.STUDENT_ID:
+      case 'PHONE':
+      case 'STUDENT_ID':
         confidence = CONFIDENCE.REGEX_EXACT;
         break;
-      case PIIType.NAME:
-      case PIIType.MEDICAL_INFO:
-      case PIIType.ACADEMIC_RECORD:
+      case 'NAME':
+      case 'MEDICAL_INFO':
+      case 'ACADEMIC_RECORD':
         // Lower confidence for context-dependent patterns
         confidence = CONFIDENCE.CONTEXT;
         break;
@@ -268,41 +272,32 @@ export class PIIScorer {
    */
   private determineSeverity(detections: PIIDetection[]): Severity {
     if (detections.length === 0) {
-      return Severity.INFO;
+      return 'INFO' as Severity;
     }
 
     // Check for critical PII types
-    const criticalTypes = [
-      PIIType.SSN,
-      PIIType.MEDICAL_INFO,
-      PIIType.FINANCIAL_INFO,
-    ];
+    const criticalTypes = ['SSN', 'MEDICAL_INFO', 'FINANCIAL_INFO'];
 
     const hasCritical = detections.some((d) =>
-      criticalTypes.includes(d.type)
+      criticalTypes.includes(d.type as string)
     );
 
     if (hasCritical) {
-      return Severity.CRITICAL;
+      return 'CRITICAL' as Severity;
     }
 
     // Check for high-risk PII
-    const highRiskTypes = [
-      PIIType.EMAIL,
-      PIIType.PHONE,
-      PIIType.STUDENT_ID,
-      PIIType.ADDRESS,
-    ];
+    const highRiskTypes = ['EMAIL', 'PHONE', 'STUDENT_ID', 'ADDRESS'];
 
     const hasHighRisk = detections.some((d) =>
-      highRiskTypes.includes(d.type)
+      highRiskTypes.includes(d.type as string)
     );
 
     if (hasHighRisk) {
-      return Severity.HIGH;
+      return 'HIGH' as Severity;
     }
 
-    return Severity.MEDIUM;
+    return 'MEDIUM' as Severity;
   }
 
   /**
@@ -342,21 +337,21 @@ export class PIIScorer {
     ];
 
     // Add specific recommendations based on PII types
-    const types = new Set(detections.map((d) => d.type));
+    const types = new Set(detections.map((d) => d.type as string));
 
-    if (types.has(PIIType.SSN)) {
+    if (types.has('SSN')) {
       recommendations.push(
         'CRITICAL: SSN detected - This is a severe FERPA violation. Investigate data sources immediately.'
       );
     }
 
-    if (types.has(PIIType.STUDENT_ID)) {
+    if (types.has('STUDENT_ID')) {
       recommendations.push(
         'Ensure student IDs are properly anonymized in all contexts'
       );
     }
 
-    if (types.has(PIIType.ACADEMIC_RECORD)) {
+    if (types.has('ACADEMIC_RECORD')) {
       recommendations.push(
         'Academic records detected - Verify user authorization before displaying grades/GPA'
       );

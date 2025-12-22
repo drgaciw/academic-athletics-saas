@@ -193,7 +193,7 @@ describe('Model Comparison', () => {
       expect(summary['gpt-4']).toMatchObject({
         avgLatency: 1100, // (1000 + 1200 + 1100) / 3
         totalCost: 0.016, // 0.005 + 0.006 + 0.005
-        avgScore: 0.95, // (1.0 + 0.90 + 0.95) / 3
+        avgScore: expect.closeTo(0.95, 2), // (1.0 + 0.90 + 0.95) / 3
         winRate: expect.closeTo(66.67, 0.1), // 2 wins out of 3
       });
 

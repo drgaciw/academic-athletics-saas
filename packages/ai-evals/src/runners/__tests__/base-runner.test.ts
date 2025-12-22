@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { BaseRunner } from '../base-runner';
 import { TestCase, RunnerConfig, RunResult } from '../../types';
 
+// Check if API key is available for integration tests
+const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+const itWithApiKey = hasOpenAIKey ? it : it.skip;
+
 // Mock implementation for testing
 class MockRunner extends BaseRunner<{ value: number }, { result: number }> {
   protected preparePrompt(input: { value: number }): string {
@@ -54,7 +58,7 @@ describe('BaseRunner', () => {
   });
 
   describe('runTestCase', () => {
-    it('should execute a test case and return result with metadata', async () => {
+    itWithApiKey('should execute a test case and return result with metadata', async () => {
       const result = await runner.runTestCase(testCase, config);
 
       expect(result).toMatchObject({
@@ -77,7 +81,7 @@ describe('BaseRunner', () => {
       expect(result.metadata.latency).toBeGreaterThan(0);
     });
 
-    it('should handle errors gracefully', async () => {
+    itWithApiKey('should handle errors gracefully', async () => {
       const badConfig = {
         ...config,
         modelId: 'invalid-model',
@@ -90,7 +94,7 @@ describe('BaseRunner', () => {
       expect(result.metadata.cost).toBe(0);
     });
 
-    it('should respect timeout settings', async () => {
+    itWithApiKey('should respect timeout settings', async () => {
       const shortTimeoutConfig = {
         ...config,
         timeout: 1, // 1ms - will definitely timeout
@@ -101,7 +105,7 @@ describe('BaseRunner', () => {
       expect(result.metadata.error).toContain('Timeout');
     }, 15000);
 
-    it('should calculate cost based on token usage', async () => {
+    itWithApiKey('should calculate cost based on token usage', async () => {
       const result = await runner.runTestCase(testCase, config);
 
       // Cost should be greater than 0 if tokens were used
@@ -155,7 +159,7 @@ describe('BaseRunner', () => {
       ];
     });
 
-    it('should execute all test cases sequentially', async () => {
+    itWithApiKey('should execute all test cases sequentially', async () => {
       const results = await runner.runDataset(testCases, config, {
         parallel: false,
       });
@@ -166,7 +170,7 @@ describe('BaseRunner', () => {
       expect(results[2].testCaseId).toBe('test-003');
     });
 
-    it('should execute test cases in parallel', async () => {
+    itWithApiKey('should execute test cases in parallel', async () => {
       const results = await runner.runDataset(testCases, config, {
         parallel: true,
         concurrency: 2,
@@ -180,7 +184,7 @@ describe('BaseRunner', () => {
       expect(ids).toContain('test-003');
     });
 
-    it('should call progress callback', async () => {
+    itWithApiKey('should call progress callback', async () => {
       const progressUpdates: Array<{ completed: number; total: number }> = [];
 
       await runner.runDataset(testCases, config, {
@@ -196,7 +200,7 @@ describe('BaseRunner', () => {
       expect(progressUpdates[2]).toEqual({ completed: 3, total: 3 });
     });
 
-    it('should continue execution even if some tests fail', async () => {
+    itWithApiKey('should continue execution even if some tests fail', async () => {
       const mixedTestCases = [
         testCases[0],
         {
