@@ -287,14 +287,18 @@ describe('TutoringService - Error Handling', () => {
         endTime: '2025-01-15T10:00:00.000Z',
       }
 
-      try {
-        await tutoringService.bookSession(invalidData)
-        fail('Should have thrown an error')
-      } catch (error) {
-        expect(error).toBeInstanceOf(AppError)
-        expect((error as AppError).code).toBe('INVALID_TIME_RANGE')
-        expect((error as AppError).statusCode).toBe(400)
+    it('should throw INVALID_TIME_RANGE for invalid times', async () => {
+      const invalidData = {
+        studentId: 'student-123',
+        tutorId: 'tutor-456',
+        subject: 'Math',
+        startTime: '2025-01-15T11:00:00.000Z',
+        endTime: '2025-01-15T10:00:00.000Z',
       }
+
+      await expect(tutoringService.bookSession(invalidData)).rejects.toThrow(
+        new AppError(400, 'INVALID_TIME_RANGE', 'End time must be after start time')
+      )
     })
 
     it('should throw STUDENT_NOT_FOUND when student does not exist', async () => {
