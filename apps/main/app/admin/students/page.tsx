@@ -121,11 +121,11 @@ const columns: ColumnDef<Student>[] = [
       return (
         <div className="flex items-center gap-2">
           <Link href={`/admin/students/${student.id}`}>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="View student details">
               <Eye className="h-4 w-4" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="More actions">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </div>
