@@ -1,4 +1,5 @@
 import { type Metadata } from 'next'
+import Link from 'next/link'
 import { Inter, Lexend } from 'next/font/google'
 import {
   ClerkProvider,
@@ -7,6 +8,7 @@ import {
   SignInButton,
   UserButton,
 } from '@clerk/nextjs'
+import { Button } from '@aah/ui'
 
 import './globals.css'
 
@@ -128,24 +130,34 @@ export default function RootLayout({
     <ClerkProvider {...(clerkProviderProps as any)}>
       <html lang="en">
         <body
-          className={`${inter.variable} ${lexend.variable} font-sans antialiased`}
+          className={`${inter.variable} ${lexend.variable} font-sans antialiased flex flex-col min-h-screen`}
         >
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:ring-2 focus:ring-ring focus:rounded-md"
+          >
+            Skip to content
+          </a>
           <header className="flex justify-between items-center p-4 border-b h-16">
-            <div className="text-lg font-semibold">Athletic Academics Hub</div>
+            <Link href="/" className="text-lg font-semibold hover:opacity-80 transition-opacity">
+              Athletic Academics Hub
+            </Link>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <SignedIn>
                 <UserButton showName afterSignOutUrl="/" />
               </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="rounded-md border px-3 py-1 font-medium">
+                  <Button variant="outline" size="sm">
                     Sign in
-                  </button>
+                  </Button>
                 </SignInButton>
               </SignedOut>
             </div>
           </header>
-          {children}
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
         </body>
       </html>
     </ClerkProvider>
