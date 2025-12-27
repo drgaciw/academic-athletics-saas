@@ -2,9 +2,11 @@
 
 import { useSignIn } from '@clerk/nextjs'
 import { useState } from 'react'
+import { AlertCircle } from 'lucide-react'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
+import { Alert, AlertDescription } from './alert'
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -37,10 +39,15 @@ export function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoaded) return
+
+    setIsLoading(true)
+    setError(null)
 
     try {
       const result = await signIn.create({
@@ -51,23 +58,37 @@ export function SignIn() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
       } else {
+        // Handle other statuses (e.g., 2FA) if needed, for now just log
         console.log(result)
+        setIsLoading(false)
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      // Extract error message from Clerk error object if possible
+      const errorMessage = err.errors?.[0]?.message || 'An error occurred during sign in. Please try again.'
+      setError(errorMessage)
+      setIsLoading(false)
     }
   }
 
   const handleSocialSignIn = async (provider: 'oauth_google' | 'oauth_apple') => {
     if (!isLoaded) return
+
+    setIsLoading(true)
+    setError(null)
+
     try {
       await signIn.authenticateWithRedirect({
         strategy: provider,
         redirectUrl: '/sso-callback',
         redirectUrlComplete: '/',
       })
+      // No need to set isLoading(false) as page will redirect
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      const errorMessage = err.errors?.[0]?.message || 'An error occurred during social sign in.'
+      setError(errorMessage)
+      setIsLoading(false)
     }
   }
 
@@ -92,6 +113,8 @@ export function SignIn() {
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_google')}
+              disabled={isLoading}
+              loading={isLoading}
             >
               <GoogleIcon />
               <span className="truncate">Sign in with Google</span>
@@ -100,6 +123,8 @@ export function SignIn() {
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_apple')}
+              disabled={isLoading}
+              loading={isLoading}
             >
               <AppleIcon />
               <span className="truncate">Sign in with Apple</span>
@@ -112,23 +137,43 @@ export function SignIn() {
             </p>
             <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
           </div>
+
+          {error && (
+            <Alert variant="error">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Email address</Label>
+              <Label htmlFor="email" className="pb-2">Email address</Label>
               <Input
+                id="email"
                 type="email"
+                name="email"
                 placeholder="Enter your email"
+                autoComplete="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+                error={!!error}
               />
             </div>
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Password</Label>
+              <Label htmlFor="password" className="pb-2">Password</Label>
               <Input
+                id="password"
                 type="password"
+                name="password"
                 placeholder="Enter your password"
+                autoComplete="current-password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                error={!!error}
               />
             </div>
             <div className="flex items-center justify-end">
@@ -136,7 +181,7 @@ export function SignIn() {
                 Forgot password?
               </a>
             </div>
-            <Button type="submit" className="w-full font-bold">
+            <Button type="submit" className="w-full font-bold" loading={isLoading}>
               Sign in
             </Button>
           </form>
