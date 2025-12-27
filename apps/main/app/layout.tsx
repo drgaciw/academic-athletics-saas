@@ -12,7 +12,7 @@ import './globals.css'
 
 type ClerkInitialState = Record<string, unknown>
 
-const buildSeededInitialState = (): ClerkInitialState | undefined => {
+export const buildSeededInitialState = (): ClerkInitialState | undefined => {
   if (process.env.NEXT_PUBLIC_CLERK_SEED_ENABLED !== 'true') {
     return undefined
   }
