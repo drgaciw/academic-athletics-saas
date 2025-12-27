@@ -130,6 +130,12 @@ export default function RootLayout({
         <body
           className={`${inter.variable} ${lexend.variable} font-sans antialiased`}
         >
+          <a
+            href="#main-content"
+            className="absolute left-0 top-0 z-[100] -translate-y-full rounded bg-primary px-4 py-2 text-primary-foreground transition-transform focus:translate-y-0"
+          >
+            Skip to content
+          </a>
           <header className="flex justify-between items-center p-4 border-b h-16">
             <div className="text-lg font-semibold">Athletic Academics Hub</div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -145,7 +151,9 @@ export default function RootLayout({
               </SignedOut>
             </div>
           </header>
-          {children}
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
         </body>
       </html>
     </ClerkProvider>
