@@ -39,7 +39,20 @@
       "Bash(vercel --prod:*)",
       "Bash(git restore:*)",
       "Bash(vercel deploy:*)",
-      "Bash($env:NODE_ENV=\"development\")"
+      "Bash($env:NODE_ENV=\"development\")",
+      "Bash(vercel ls:*)",
+      "Bash(claude mcp add:*)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(vercel inspect:*)",
+      "Bash(echo $VERCEL_TOKEN)",
+      "Bash(vercel login)",
+      "Bash(vercel project:*)",
+      "Bash(git stash:*)",
+      "Bash(gh run view:*)",
+      "Bash(ls:*)",
+      "Bash(gh run list:*)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,6 +6,7 @@
  */
 
 import { createHash } from 'crypto'
+import { Redis } from '@upstash/redis'
 
 /**
  * Cache entry
@@ -141,34 +142,56 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: any // Redis client
+  private client: Redis
 
   constructor(redisUrl?: string) {
-    // In production, initialize Redis client
-    // For now, this is a placeholder
-    console.warn('Redis cache storage not yet implemented, using in-memory fallback')
+    if (redisUrl) {
+      this.client = new Redis({ url: redisUrl, token: process.env.KV_REST_API_TOKEN || '' })
+    } else {
+      this.client = Redis.fromEnv()
+    }
   }
 
   async get<T>(key: string): Promise<T | null> {
-    // TODO: Implement Redis get
-    return null
+    try {
+      return await this.client.get<T>(key)
+    } catch (error) {
+      console.error('Redis get error:', error)
+      return null
+    }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    // TODO: Implement Redis set with TTL
+    try {
+      await this.client.set(key, value, { px: ttl })
+    } catch (error) {
+      console.error('Redis set error:', error)
+    }
   }
 
   async delete(key: string): Promise<void> {
-    // TODO: Implement Redis delete
+    try {
+      await this.client.del(key)
+    } catch (error) {
+      console.error('Redis delete error:', error)
+    }
   }
 
   async clear(): Promise<void> {
-    // TODO: Implement Redis clear
+    try {
+      await this.client.flushdb()
+    } catch (error) {
+      console.error('Redis clear error:', error)
+    }
   }
 
   async keys(): Promise<string[]> {
-    // TODO: Implement Redis keys
-    return []
+    try {
+      return await this.client.keys('*')
+    } catch (error) {
+      console.error('Redis keys error:', error)
+      return []
+    }
   }
 }
 

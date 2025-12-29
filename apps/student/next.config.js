@@ -3,9 +3,6 @@ const nextConfig = {
   basePath: "/student",
   reactStrictMode: true,
   transpilePackages: ["@aah/ui", "@aah/database", "@aah/auth"],
-  experimental: {
-    serverActions: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

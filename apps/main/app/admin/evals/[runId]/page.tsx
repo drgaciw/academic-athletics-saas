@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -50,13 +50,7 @@ export default function EvalRunDetailsPage() {
     "all",
   );
 
-  useEffect(() => {
-    if (runId) {
-      loadRunDetails();
-    }
-  }, [runId]);
-
-  const loadRunDetails = async () => {
+  const loadRunDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -76,7 +70,13 @@ export default function EvalRunDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [runId]);
+
+  useEffect(() => {
+    if (runId) {
+      loadRunDetails();
+    }
+  }, [runId, loadRunDetails]);
 
   const exportResults = (format: "json" | "csv") => {
     if (format === "json") {

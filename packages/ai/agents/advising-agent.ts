@@ -22,8 +22,8 @@ const ADVISING_AGENT_CONFIG: AgentConfig = {
   systemPrompt: ADVISING_AGENT_PROMPT,
   tools: getToolsForAgentType('advising'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.7,
     maxTokens: 4096,
   },

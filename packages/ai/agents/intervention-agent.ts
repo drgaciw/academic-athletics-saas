@@ -22,8 +22,8 @@ const INTERVENTION_AGENT_CONFIG: AgentConfig = {
   systemPrompt: INTERVENTION_AGENT_PROMPT,
   tools: getToolsForAgentType('intervention'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.7,
     maxTokens: 4096,
   },

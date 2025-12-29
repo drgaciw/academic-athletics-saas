@@ -5,7 +5,7 @@ import { z } from 'zod'
 // ============================================================================
 
 export type LLMProvider = 'openai' | 'anthropic'
-export type OpenAIModel = 'gpt-4' | 'gpt-4-turbo' | 'gpt-4o' | 'gpt-4o-mini' | 'gpt-3.5-turbo'
+export type OpenAIModel = 'gpt-4' | 'gpt-4-turbo' | 'gpt-4o' | 'gpt-4o-mini' | 'gpt-3.5-turbo' | 'gpt-5.1-codex-max'
 export type AnthropicModel = 'claude-3-5-sonnet-20241022' | 'claude-3-5-haiku-20241022' | 'claude-3-opus-20240229'
 export type AIModel = OpenAIModel | AnthropicModel
 
@@ -329,7 +329,7 @@ export const ChatMessageSchema = z.object({
   message: z.string().min(1).max(10000),
   conversationId: z.string().optional(),
   userId: z.string(),
-  model: z.enum(['gpt-4', 'gpt-4o-mini', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022']).optional(),
+  model: z.enum(['gpt-4', 'gpt-4o-mini', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'gpt-5.1-codex-max']).optional(),
   stream: z.boolean().optional().default(true),
   context: z.record(z.unknown()).optional(),
 })
