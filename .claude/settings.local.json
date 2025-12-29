@@ -51,7 +51,8 @@
       "Bash(gh run view:*)",
       "Bash(ls:*)",
       "Bash(gh run list:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

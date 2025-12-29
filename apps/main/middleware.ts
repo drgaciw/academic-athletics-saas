@@ -1,13 +1,18 @@
 import { authMiddleware } from '@clerk/nextjs';
 
+// Clerk middleware with public routes configuration
+// This allows unauthenticated access to public pages while protecting others
 export default authMiddleware({
   publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   secretKey: process.env.CLERK_SECRET_KEY,
-  // Routes that can be accessed while signed out
+  // Routes that can be accessed without authentication
   publicRoutes: [
     '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
+    '/sso-callback',
+    '/api/health',
+    '/api/evals/(.*)',
     '/api/webhooks(.*)',
   ],
 });
