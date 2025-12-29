@@ -1,12 +1,18 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { authMiddleware } from '@clerk/nextjs'
 
-// Temporary middleware that bypasses Clerk authentication
-// Replace this with proper Clerk middleware once you have valid API keys
-export function middleware(request: NextRequest) {
-  // Allow all requests through without authentication
-  return NextResponse.next()
-}
+// Clerk middleware with public routes configuration
+// This allows unauthenticated access to public pages while protecting others
+export default authMiddleware({
+  // Routes that can be accessed without authentication
+  publicRoutes: [
+    '/',
+    '/sign-in(.*)',
+    '/sign-up(.*)',
+    '/sso-callback',
+    '/api/health',
+    '/api/evals/(.*)',
+  ],
+})
 
 export const config = {
   matcher: [
