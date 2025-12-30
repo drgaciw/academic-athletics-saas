@@ -37,10 +37,12 @@ export function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoaded) return
+    setIsLoading(true)
 
     try {
       const result = await signIn.create({
@@ -52,14 +54,17 @@ export function SignIn() {
         await setActive({ session: result.createdSessionId })
       } else {
         console.log(result)
+        setIsLoading(false)
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setIsLoading(false)
     }
   }
 
   const handleSocialSignIn = async (provider: 'oauth_google' | 'oauth_apple') => {
     if (!isLoaded) return
+    setIsLoading(true)
     try {
       await signIn.authenticateWithRedirect({
         strategy: provider,
@@ -68,6 +73,7 @@ export function SignIn() {
       })
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setIsLoading(false)
     }
   }
 
@@ -92,6 +98,7 @@ export function SignIn() {
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_google')}
+              loading={isLoading}
             >
               <GoogleIcon />
               <span className="truncate">Sign in with Google</span>
@@ -100,6 +107,7 @@ export function SignIn() {
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_apple')}
+              loading={isLoading}
             >
               <AppleIcon />
               <span className="truncate">Sign in with Apple</span>
@@ -120,6 +128,8 @@ export function SignIn() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
               />
             </div>
             <div className="flex flex-col w-full">
@@ -129,6 +139,8 @@ export function SignIn() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
               />
             </div>
             <div className="flex items-center justify-end">
@@ -136,7 +148,7 @@ export function SignIn() {
                 Forgot password?
               </a>
             </div>
-            <Button type="submit" className="w-full font-bold">
+            <Button type="submit" className="w-full font-bold" loading={isLoading}>
               Sign in
             </Button>
           </form>
