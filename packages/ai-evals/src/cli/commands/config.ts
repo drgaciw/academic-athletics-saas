@@ -15,7 +15,12 @@ import {
   ragEvalConfig,
   modelComparisonConfig,
 } from '../../config/examples';
-import { getDefaultConfig } from '../../config/parser';
+import {
+  getDefaultConfig,
+  parseConfigFile,
+  loadConfig,
+  ConfigValidationError,
+} from '../../config/parser';
 
 /**
  * Config command - Manage configuration files
@@ -110,20 +115,23 @@ async function handleInitConfig(options: {
 /**
  * Validate configuration file
  */
-async function handleValidateConfig(path?: string) {
+export async function handleValidateConfig(path?: string) {
   try {
     section('Validate Configuration');
 
     const configPath = path || './ai-evals.config.yaml';
     info(`Validating: ${configPath}`);
 
-    // TODO: Actually load and validate config
-    // const config = await parseConfigFile(configPath);
+    await parseConfigFile(configPath);
 
     success('Configuration is valid');
   } catch (err) {
     error('Configuration validation failed');
-    logError(err as Error);
+    if (err instanceof ConfigValidationError) {
+      console.error(err.formatErrors());
+    } else {
+      logError(err as Error);
+    }
     process.exit(1);
   }
 }
@@ -138,11 +146,9 @@ async function handleShowConfig(
   try {
     section('Configuration');
 
-    const configPath = path || './ai-evals.config.yaml';
-    info(`Loading: ${configPath}`);
+    info(`Loading: ${path || 'default search paths'}`);
 
-    // TODO: Actually load config
-    const config = getDefaultConfig();
+    const config = await loadConfig(path);
 
     if (options?.format === 'yaml') {
       console.log(stringifyYAML(config));
@@ -151,7 +157,11 @@ async function handleShowConfig(
     }
   } catch (err) {
     error('Failed to load configuration');
-    logError(err as Error);
+    if (err instanceof ConfigValidationError) {
+      console.error(err.formatErrors());
+    } else {
+      logError(err as Error);
+    }
     process.exit(1);
   }
 }

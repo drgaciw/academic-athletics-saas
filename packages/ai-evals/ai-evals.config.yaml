@@ -1,0 +1,23 @@
+name: Default Eval
+version: 1.0.0
+environment: development
+models:
+  - provider: openai
+    modelId: gpt-4-turbo-preview
+    temperature: 0
+runner:
+  timeout: 30000
+  retries: 3
+  concurrency: 5
+scorer:
+  strategy: exact
+datasets: {}
+output:
+  format: table
+  verbose: false
+  showFailuresOnly: false
+  includeMetadata: true
+baseline:
+  enabled: false
+  regressionThreshold: 0.05
+  failOnRegression: true
