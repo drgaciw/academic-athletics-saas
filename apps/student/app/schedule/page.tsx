@@ -7,11 +7,41 @@ import { ScheduleCalendarView } from '@/components/schedule-calendar-view';
 async function getStudentSchedule(userId: string) {
   const user = await prisma.user.findUnique({
     where: { clerkId: userId },
+    include: {
+      studentProfile: {
+        include: {
+          schedules: {
+            where: {
+              status: "ENROLLED"
+            },
+            take: 1,
+            orderBy: {
+              createdAt: 'desc'
+            },
+            include: {
+              sections: {
+                include: {
+                  course: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
-  // TODO: Fetch courses from proper relation when schema is updated
-  // For now, return user with empty courses array
-  return user ? { ...user, courses: [] } : null;
+  if (!user) return null;
+
+  const schedule = user.studentProfile?.schedules[0];
+  const courses = schedule?.sections.map((section) => ({
+    id: section.course.id,
+    name: section.course.courseName,
+    code: section.course.courseCode,
+    schedule: `${section.days.join(', ')} ${section.startTime}-${section.endTime}`,
+  })) || [];
+
+  return { ...user, courses };
 }
 
 export default async function SchedulePage() {
