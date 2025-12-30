@@ -8,6 +8,30 @@ import { TestCase, RunnerConfig, RunResult } from '../../types';
 
 // Mock implementation for testing
 class MockRunner extends BaseRunner<{ value: number }, { result: number }> {
+  // Override executeModel to avoid API calls during testing
+  protected async executeModel(
+    input: { value: number },
+    config: RunnerConfig
+  ): Promise<{ output: { result: number }; tokenUsage: { prompt: number; completion: number; total: number } }> {
+    // Simulate delay for timeout testing
+    if (config.timeout && config.timeout < 100) {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    } else {
+      // Small delay to ensure non-zero latency
+      await new Promise((resolve) => setTimeout(resolve, 1));
+    }
+
+    // Simulate API call check
+    if (config.modelId === 'invalid-model' || config.modelId === 'unknown/model') {
+       throw new Error('Unknown model provider');
+    }
+
+    return {
+      output: { result: input.value * 2 },
+      tokenUsage: { prompt: 10, completion: 5, total: 15 }
+    };
+  }
+
   protected preparePrompt(input: { value: number }): string {
     return `Calculate double of ${input.value}`;
   }
