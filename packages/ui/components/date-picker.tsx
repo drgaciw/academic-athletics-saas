@@ -178,16 +178,27 @@ function Calendar({ selected, onSelect, disabled, className }: CalendarProps) {
         ))}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1
+          const date = new Date(
+            currentMonth.getFullYear(),
+            currentMonth.getMonth(),
+            day
+          )
+          const isToday = new Date().toDateString() === date.toDateString()
+          const selected = isSelected(day)
+
           return (
             <button
               key={day}
               type="button"
               onClick={() => handleDateClick(day)}
               disabled={isDisabled(day)}
+              aria-label={format(date, 'PPP')}
+              aria-selected={selected}
+              aria-current={isToday ? 'date' : undefined}
               className={cn(
                 'h-9 w-9 text-sm rounded-md hover:bg-gray-100',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                isSelected(day) &&
+                selected &&
                   'bg-brand-primary text-white hover:bg-brand-primary'
               )}
             >
