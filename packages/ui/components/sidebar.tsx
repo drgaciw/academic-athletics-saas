@@ -79,6 +79,7 @@ export function Sidebar({
                   collapsed && 'justify-center'
                 )}
                 title={collapsed ? item.label : undefined}
+                aria-label={collapsed ? item.label : undefined}
               >
                 {Icon && <Icon className="h-5 w-5 flex-shrink-0" />}
                 {!collapsed && (
