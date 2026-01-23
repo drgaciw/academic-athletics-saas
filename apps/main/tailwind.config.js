@@ -16,6 +16,7 @@ module.exports = {
                             'background-dark': '#151121',
                             'neutral-light': '#f5f5f5',
                             'muted-foreground': '#6b7280',
+                            error: '#dc2626',
                   },
                   fontFamily: {
                             sans: ['var(--font-inter)', 'sans-serif'],
