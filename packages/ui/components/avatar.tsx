@@ -1,4 +1,6 @@
-import { forwardRef } from 'react';
+'use client';
+
+import { forwardRef, useState, useEffect } from 'react';
 import { cn } from '../utils/cn';
 
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -17,6 +19,12 @@ const sizeClasses = {
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
   ({ src, alt, fallback, size = 'md', className, ...props }, ref) => {
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+      setHasError(false);
+    }, [src]);
+
     const initials = fallback
       ? fallback
           .split(' ')
@@ -36,18 +44,15 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         )}
         {...props}
       >
-        {src ? (
+        {src && !hasError ? (
           <img
             src={src}
             alt={alt || fallback || 'Avatar'}
             className="h-full w-full object-cover"
-            onError={(e) => {
-              // Hide image on error and show fallback
-              e.currentTarget.style.display = 'none';
-            }}
+            onError={() => setHasError(true)}
           />
         ) : null}
-        {!src && (
+        {(!src || hasError) && (
           <span className="font-medium text-muted-foreground" aria-label={alt || fallback}>
             {initials}
           </span>
