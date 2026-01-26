@@ -3,7 +3,7 @@
 import * as React from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '../utils/cn'
 import { Button } from './button'
 
@@ -122,19 +122,7 @@ function Calendar({ selected, onSelect, disabled, className }: CalendarProps) {
           className="p-1 hover:bg-gray-100 rounded"
           aria-label="Previous month"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
         </button>
         <div className="font-semibold">
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
@@ -145,19 +133,7 @@ function Calendar({ selected, onSelect, disabled, className }: CalendarProps) {
           className="p-1 hover:bg-gray-100 rounded"
           aria-label="Next month"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <ChevronRight className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
 
@@ -178,16 +154,25 @@ function Calendar({ selected, onSelect, disabled, className }: CalendarProps) {
         ))}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1
+          const date = new Date(
+            currentMonth.getFullYear(),
+            currentMonth.getMonth(),
+            day
+          )
+          const isSelectedDay = isSelected(day)
+
           return (
             <button
               key={day}
               type="button"
               onClick={() => handleDateClick(day)}
               disabled={isDisabled(day)}
+              aria-label={format(date, 'PPP')}
+              aria-selected={isSelectedDay}
               className={cn(
                 'h-9 w-9 text-sm rounded-md hover:bg-gray-100',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                isSelected(day) &&
+                isSelectedDay &&
                   'bg-brand-primary text-white hover:bg-brand-primary'
               )}
             >
@@ -234,7 +219,7 @@ export function DatePicker({
               error && 'border-error'
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 h-4 w-4" aria-hidden="true" />
             {value ? format(value, 'PPP') : <span>{placeholder}</span>}
           </Button>
         </PopoverTrigger>
