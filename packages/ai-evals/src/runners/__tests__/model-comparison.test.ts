@@ -371,14 +371,21 @@ describe('Model Comparison', () => {
 
       const formatted = formatComparisonReport(report);
 
-      // Verify that gpt-4 (highest score) appears before claude-sonnet-4
-      // which appears before gpt-3.5-turbo
-      const gpt4Index = formatted.indexOf('gpt-4');
-      const claudeIndex = formatted.indexOf('claude-sonhnet-4');
-      const gpt35Index = formatted.indexOf('gpt-3.5-turbo');
+            // Extract the summary table section for index comparison
+            const summaryStart = formatted.indexOf('Summary by Model');
+            const summarySection = formatted.substring(summaryStart);
 
-      expect(gpt4Index).toBeLessThan(claudeIndex);
-      expect(claudeIndex).toBeLessThan(gpt35Index);
+            // Verify that gpt-4 (highest score) appears before claude-sonnet-4
+            // which appears before gpt-3.5-turbo in the summary table
+            const gpt4Index = summarySection.indexOf('gpt-4');
+            const claudeIndex = summarySection.indexOf('claude-sonnet-4');
+            const gpt35Index = summarySection.indexOf('gpt-3.5-turbo');
+
+            expect(gpt4Index).toBeGreaterThanOrEqual(0);
+            expect(claudeIndex).toBeGreaterThanOrEqual(0);
+            expect(gpt35Index).toBeGreaterThanOrEqual(0);
+            expect(gpt4Index).toBeLessThan(claudeIndex);
+            expect(claudeIndex).toBeLessThan(gpt35Index);
     });
   });
 });
