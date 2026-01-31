@@ -1,10 +1,12 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-          "module": "CommonJS",
-          "moduleResolution": "node",
-          "esModuleInterop": true,
-          "isolatedModules": false
-    },
-    "include": ["src/**/*"]
+      "extends": "./tsconfig.json",
+      "compilerOptions": {
+              "module": "CommonJS",
+              "moduleResolution": "node",
+              "esModuleInterop": true,
+              "isolatedModules": false,
+              "skipLibCheck": true,
+              "noEmit": true
+      },
+      "include": ["src/**/*"]
 }
