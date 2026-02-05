@@ -5,3 +5,7 @@
 ## 2025-05-22 - Consistent Form Error States
 **Learning:** The design system tokens for form states (e.g., 'border-error') were implemented in `Input` but missing in `Textarea`, causing visual inconsistency and accessibility gaps (missing `aria-invalid`). `Textarea` was using hardcoded colors instead of semantic tokens.
 **Action:** When working on form components, always check sibling components (e.g., Input vs Textarea) to ensure feature parity (like `error` props) and design token usage consistency.
+
+## 2025-05-23 - Collapsed Navigation Accessibility
+**Learning:** Collapsed sidebars often rely on `title` attributes for tooltips, which are inaccessible to screen reader users. The `Sidebar` component used `title` but lacked `aria-label`, making navigation links "unnamed" in collapsed state.
+**Action:** Always pair `aria-label` with `title` (or custom tooltip) for icon-only buttons/links. Ensure the inner icon is marked `aria-hidden="true"` when the container has an accessible name.
