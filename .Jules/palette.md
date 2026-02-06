@@ -5,3 +5,7 @@
 ## 2025-05-22 - Consistent Form Error States
 **Learning:** The design system tokens for form states (e.g., 'border-error') were implemented in `Input` but missing in `Textarea`, causing visual inconsistency and accessibility gaps (missing `aria-invalid`). `Textarea` was using hardcoded colors instead of semantic tokens.
 **Action:** When working on form components, always check sibling components (e.g., Input vs Textarea) to ensure feature parity (like `error` props) and design token usage consistency.
+
+## 2026-02-06 - Dynamic Aria Roles for Alerts
+**Learning:** Using `role="alert"` for all notifications interrupts screen reader users unnecessarily. Only critical errors should be assertive (`alert`). Success, info, and warning messages should be polite (`status`).
+**Action:** When implementing notification components, dynamically set the role based on severity: `role="alert"` for errors, `role="status"` for others.
