@@ -18,7 +18,13 @@ export interface SidebarProps {
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
   currentPath?: string;
-  LinkComponent?: React.ComponentType<{ href: string; className?: string; title?: string; children: React.ReactNode }>;
+  LinkComponent?: React.ComponentType<{
+    href: string;
+    className?: string;
+    title?: string;
+    'aria-label'?: string;
+    children: React.ReactNode;
+  }>;
   className?: string;
 }
 
@@ -79,8 +85,11 @@ export function Sidebar({
                   collapsed && 'justify-center'
                 )}
                 title={collapsed ? item.label : undefined}
+                aria-label={collapsed ? item.label : undefined}
               >
-                {Icon && <Icon className="h-5 w-5 flex-shrink-0" />}
+                {Icon && (
+                  <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                )}
                 {!collapsed && (
                   <>
                     <span className="flex-1">{item.label}</span>
@@ -91,7 +100,7 @@ export function Sidebar({
                     )}
                   </>
                 )}
-                    </LinkComponent>
+              </LinkComponent>
 
               {/* Nested Items */}
               {!collapsed && item.children && (
@@ -103,10 +112,13 @@ export function Sidebar({
                       className={cn(
                         'flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors',
                         'hover:bg-accent hover:text-accent-foreground',
-                        isActive(child.href) && 'bg-accent text-accent-foreground'
+                        isActive(child.href) &&
+                          'bg-accent text-accent-foreground'
                       )}
                     >
-                      {child.icon && <child.icon className="h-4 w-4" />}
+                      {child.icon && (
+                        <child.icon className="h-4 w-4" aria-hidden="true" />
+                      )}
                       <span>{child.label}</span>
                     </LinkComponent>
                   ))}
