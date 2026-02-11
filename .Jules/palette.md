@@ -5,3 +5,7 @@
 ## 2025-05-22 - Consistent Form Error States
 **Learning:** The design system tokens for form states (e.g., 'border-error') were implemented in `Input` but missing in `Textarea`, causing visual inconsistency and accessibility gaps (missing `aria-invalid`). `Textarea` was using hardcoded colors instead of semantic tokens.
 **Action:** When working on form components, always check sibling components (e.g., Input vs Textarea) to ensure feature parity (like `error` props) and design token usage consistency.
+
+## 2025-05-24 - Icon-Only Link Accessibility
+**Learning:** Icon-only links (like social media icons in footers) are often missing `aria-label`s, making them inaccessible to screen readers. This pattern is easy to miss visually but critical for WCAG compliance.
+**Action:** Always check icon-only links for `aria-label` or visually hidden text. Use Playwright to verify `aria-label` presence even if there is no visual change.
