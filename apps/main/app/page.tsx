@@ -17,7 +17,7 @@ export default function Home() {
               Academic Excellence on the Pitch and in the Classroom
             </h1>
             <p className="mt-6 text-lg text-white/75 max-w-2xl leading-relaxed">
-              The dedicated academic portal for ORU's Men's and Women's Soccer programs.
+              The dedicated academic portal for ORU Soccer programs &mdash; track grades, monitor NCAA eligibility, and stay connected with your academic advisor all in one place.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link href="/sign-up" className="inline-flex items-center justify-center rounded-lg bg-oru-gold px-8 py-3.5 text-base font-semibold text-oru-navy shadow-lg hover:bg-oru-gold-light transition-colors">Get Access</Link>
@@ -34,14 +34,15 @@ export default function Home() {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-oru-navy">
                 <svg className="w-5 h-5 text-oru-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" strokeWidth="2" /></svg>
               </div>
-              <span className="font-bold text-oru-navy text-lg">Men's Soccer</span>
+              <span className="font-bold text-oru-navy text-lg">Men&apos;s Soccer</span>
               <span className="text-oru-navy/60 text-sm font-medium">Golden Eagles</span>
             </div>
+            <div className="hidden sm:block h-6 w-px bg-oru-navy/20" aria-hidden="true" />
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-oru-navy">
                 <svg className="w-5 h-5 text-oru-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" strokeWidth="2" /></svg>
               </div>
-              <span className="font-bold text-oru-navy text-lg">Women's Soccer</span>
+              <span className="font-bold text-oru-navy text-lg">Women&apos;s Soccer</span>
               <span className="text-oru-navy/60 text-sm font-medium">Golden Eagles</span>
             </div>
           </div>
@@ -88,7 +89,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-12">
             {[
-              { step: '1', title: 'Add Your Roster', body: "Import the Men's and Women's Soccer rosters and connect to ORU student records." },
+              { step: '1', title: 'Add Your Roster', body: 'Import the soccer rosters and connect to ORU student records to auto-fill academic data.' },
               { step: '2', title: 'Set Up Alerts', body: 'Configure GPA thresholds, credit-hour checkpoints, and eligibility windows.' },
               { step: '3', title: 'Track and Succeed', body: 'Coaches and advisors get a live dashboard. Athletes see their own progress.' },
             ].map(({ step, title, body }) => (
