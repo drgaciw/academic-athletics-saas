@@ -2,7 +2,7 @@ import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middlew
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const middleware = authMiddleware({
-  publicRoutes: [],
+  publicRoutes: ['/sign-in(.*)', '/sign-up(.*)', '/sso-callback'],
   afterAuth(auth, req) {
     // Ensure user is authenticated
     if (!auth.userId) {

@@ -1,7 +1,7 @@
 import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middleware/nextjs';
 
 export default authMiddleware({
-  publicRoutes: [],
+  publicRoutes: ['/sign-in(.*)', '/sign-up(.*)', '/sso-callback'],
   afterAuth(auth, req) {
     // Ensure user is authenticated
     if (!auth.userId) {
