@@ -288,6 +288,7 @@ export default function DatasetsPage() {
                 <Input
                   id="name"
                   {...datasetForm.register("name")}
+                  error={!!datasetForm.formState.errors.name}
                   placeholder="e.g., NCAA Compliance Tests v2"
                 />
                 {datasetForm.formState.errors.name && (
@@ -305,6 +306,7 @@ export default function DatasetsPage() {
                   error={!!datasetForm.formState.errors.description}
                   placeholder="Describe the purpose and contents of this dataset..."
                   rows={3}
+                  error={!!datasetForm.formState.errors.description}
                 />
                 {datasetForm.formState.errors.description && (
                   <p className="text-sm text-red-600 mt-1">
@@ -432,6 +434,7 @@ export default function DatasetsPage() {
                         <Input
                           id="tc-name"
                           {...testCaseForm.register("name")}
+                          error={!!testCaseForm.formState.errors.name}
                           placeholder="Test case name"
                         />
                         {testCaseForm.formState.errors.name && (
@@ -446,6 +449,7 @@ export default function DatasetsPage() {
                         <Input
                           id="tc-category"
                           {...testCaseForm.register("category")}
+                          error={!!testCaseForm.formState.errors.category}
                           placeholder="e.g., Initial Eligibility"
                         />
                         {testCaseForm.formState.errors.category && (
