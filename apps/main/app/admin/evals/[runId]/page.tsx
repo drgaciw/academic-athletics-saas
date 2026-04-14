@@ -22,6 +22,7 @@ import {
   TableRow,
   TableCell,
   Button,
+  Modal,
 } from "@aah/ui";
 import type { EvalReport, RunResult } from "@/lib/types/evals";
 
@@ -368,22 +369,15 @@ export default function EvalRunDetailsPage() {
         </CardContent>
       </Card>
 
-      {/* Test Case Detail Modal (simplified as full card) */}
+      {/* Test Case Detail Modal */}
       {selectedTest && (
-        <Card className="border-2 border-blue-500">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Test Case: {selectedTest.testCase.id}</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSelectedTest(null)}
-              >
-                Close
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <Modal
+          open={!!selectedTest}
+          onClose={() => setSelectedTest(null)}
+          title={`Test Case: ${selectedTest.testCase.id}`}
+          size="xl"
+        >
+          <div className="space-y-4">
             {/* Input */}
             <div>
               <h3 className="font-semibold mb-2">Input:</h3>
@@ -397,7 +391,11 @@ export default function EvalRunDetailsPage() {
               <h3 className="font-semibold mb-2">Expected vs Actual Output:</h3>
               <div className="border rounded-lg overflow-hidden">
                 <ReactDiffViewer
-                  oldValue={JSON.stringify(selectedTest.score.expected, null, 2)}
+                  oldValue={JSON.stringify(
+                    selectedTest.score.expected,
+                    null,
+                    2,
+                  )}
                   newValue={JSON.stringify(selectedTest.score.actual, null, 2)}
                   splitView={true}
                   leftTitle="Expected"
@@ -431,10 +429,7 @@ export default function EvalRunDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
-                  {format(
-                    new Date(selectedTest.timestamp),
-                    "MMM d, HH:mm:ss",
-                  )}
+                  {format(new Date(selectedTest.timestamp), "MMM d, HH:mm:ss")}
                 </p>
               </div>
             </div>
@@ -448,8 +443,8 @@ export default function EvalRunDetailsPage() {
                 </AlertDescription>
               </Alert>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </Modal>
       )}
     </div>
   );
