@@ -55,10 +55,7 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
           />
         ) : null}
         {(!src || hasError) && (
-          <span
-            className="font-medium text-muted-foreground"
-            aria-label={alt || fallback}
-          >
+          <span className="font-medium text-muted-foreground" aria-label={alt || fallback}>
             {initials}
           </span>
         )}
