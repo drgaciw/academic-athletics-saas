@@ -306,6 +306,7 @@ export default function DatasetsPage() {
                   error={!!datasetForm.formState.errors.description}
                   placeholder="Describe the purpose and contents of this dataset..."
                   rows={3}
+                  error={!!datasetForm.formState.errors.description}
                 />
                 {datasetForm.formState.errors.description && (
                   <p className="text-sm text-red-600 mt-1">
