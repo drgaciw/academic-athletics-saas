@@ -105,7 +105,10 @@ export const generateTravelLetter = createTool({
           meetingTimes: r.meetingTimes || undefined
         }))
       } catch (error) {
-        console.warn('Failed to fetch academic records for travel letter:', error)
+        console.warn(
+          'Failed to fetch academic records for travel letter:',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
         // If we can't get records but specific courses were listed, try to populate with minimal info
         if (params.courses && params.courses.length > 0) {
           courseDetails = params.courses.map(code => ({
@@ -153,7 +156,10 @@ export const generateTravelLetter = createTool({
     } catch (error) {
       // Fallback for development if service fails
       if (process.env.NODE_ENV === 'development') {
-         console.warn('Travel letter generation failed, returning mock response:', error)
+         console.warn(
+          'Travel letter generation failed, returning mock response:',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
          return {
           documentId: `doc-${Date.now()}`,
           studentId: params.studentId,
