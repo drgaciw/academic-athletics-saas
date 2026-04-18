@@ -7,7 +7,7 @@ import {
   calculateComparisonSummary,
   formatComparisonReport,
 } from '../model-comparison';
-import { RunResult, Score, ComparisonResult } from '../../types';
+import { RunResult, Score, ComparisonResult } from '../../types/index';
 
 describe('Model Comparison', () => {
   describe('compareTestCaseResults', () => {

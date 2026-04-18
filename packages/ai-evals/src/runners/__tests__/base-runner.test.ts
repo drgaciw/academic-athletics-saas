@@ -3,7 +3,7 @@
  */
 import { z } from 'zod';
 import { BaseRunner } from '../base-runner';
-import { TestCase, RunnerConfig, RunResult } from '../../types';
+import { TestCase, RunnerConfig, RunResult } from '../../types/index';
 
 const mockGenerateObject = jest.fn();
 const mockGenerateText = jest.fn();
@@ -128,9 +128,9 @@ describe('BaseRunner', () => {
                         it('should calculate cost based on token usage', async () => {
                                   const result = await runner.runTestCase(testCase, config);
 
-                                 if (result.metadata.tokenUsage.total > 0) {
-                                             expect(result.metadata.cost).toBeGreaterThan(0);
-                                 }
+                                  if (result.metadata.tokenUsage.total > 0) {
+                                              expect(result.metadata.cost).toBeGreaterThan(0);
+                                  }
                         });
            });
 
