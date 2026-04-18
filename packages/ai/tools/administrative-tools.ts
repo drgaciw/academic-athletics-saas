@@ -128,15 +128,22 @@ export const scheduleEvent = createTool({
   returnFormat: 'Event creation result with eventId, calendar link, and invitation status',
   execute: async (params, context) => {
     const integrationUrl = process.env.INTEGRATION_SERVICE_URL || 'http://localhost:3006'
+    const allowMockFallback =
+      process.env.NODE_ENV !== 'production' &&
+      process.env.ALLOW_MOCK_CALENDAR_FALLBACK === 'true'
 
     // Check for tokens in context metadata
     const googleToken = context?.metadata?.googleAccessToken
     const outlookToken = context?.metadata?.outlookAccessToken
 
-    // If no tokens are present, return mock data with a warning (or should we fail?)
-    // For now, we'll keep the mock behavior but try to use the integration if tokens exist
     if (!googleToken && !outlookToken) {
-      console.warn('No calendar access tokens found in context. Returning mock data.')
+      if (!allowMockFallback) {
+        throw new Error(
+          'Calendar scheduling requires a Google or Outlook access token in the tool context metadata.'
+        )
+      }
+
+      console.warn('Calendar access tokens missing; returning mock event because mock fallback is enabled.')
       return {
         eventId: `evt-${Date.now()}`,
         title: params.title,
@@ -194,7 +201,10 @@ export const scheduleEvent = createTool({
         provider: result.provider,
       }
     } catch (error) {
-      console.error('Failed to schedule event:', error)
+      console.error(
+        'Failed to schedule event:',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
       throw new Error(`Failed to schedule event: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   },

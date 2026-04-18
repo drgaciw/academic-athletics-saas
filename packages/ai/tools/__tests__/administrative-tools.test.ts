@@ -14,9 +14,38 @@ describe('scheduleEvent', () => {
   afterEach(() => {
     vi.clearAllMocks()
     delete process.env.INTEGRATION_SERVICE_URL
+    delete process.env.ALLOW_MOCK_CALENDAR_FALLBACK
+    delete process.env.NODE_ENV
   })
 
-  it('should return mock data when no tokens are present in context', async () => {
+  it('should fail when no tokens are present in context', async () => {
+    const params = {
+      title: 'Test Event',
+      startTime: '2024-11-15T10:00:00Z',
+      endTime: '2024-11-15T10:30:00Z',
+      attendees: ['test@example.com'],
+      location: 'Room 101',
+      description: 'Test Description',
+    }
+
+    const context = {
+      userId: 'user-123',
+      userRoles: ['student'],
+      agentState: {} as any,
+      metadata: {},
+    }
+
+    await expect(scheduleEvent.execute(params, context)).rejects.toThrow(
+      'Calendar scheduling requires a Google or Outlook access token in the tool context metadata.'
+    )
+
+    expect(globalFetch).not.toHaveBeenCalled()
+  })
+
+  it('should return mock data only when non-production fallback is explicitly enabled', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.ALLOW_MOCK_CALENDAR_FALLBACK = 'true'
+
     const params = {
       title: 'Test Event',
       startTime: '2024-11-15T10:00:00Z',
@@ -37,8 +66,7 @@ describe('scheduleEvent', () => {
 
     expect(result).toHaveProperty('eventId')
     expect(result.title).toBe(params.title)
-    expect(result).toHaveProperty('calendarLink')
-    // Should NOT call fetch
+    expect(result.warning).toContain('mock event')
     expect(globalFetch).not.toHaveBeenCalled()
   })
 
