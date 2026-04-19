@@ -25,7 +25,8 @@
     "@vercel/blob": "^0.22.0",
     "pdfkit": "^0.14.0",
     "canvas-api": "^1.0.0",
-    "axios": "^1.6.7"
+    "axios": "^1.6.7",
+    "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {
     "tsx": "^4.7.0",

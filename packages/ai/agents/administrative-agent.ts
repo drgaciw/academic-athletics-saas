@@ -22,8 +22,8 @@ const ADMINISTRATIVE_AGENT_CONFIG: AgentConfig = {
   systemPrompt: ADMINISTRATIVE_AGENT_PROMPT,
   tools: getToolsForAgentType('administrative'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.5,
     maxTokens: 4096,
   },

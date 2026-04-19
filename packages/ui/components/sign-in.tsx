@@ -2,6 +2,7 @@
 
 import { useSignIn } from '@clerk/nextjs'
 import { useState } from 'react'
+import { Alert, AlertDescription } from './alert'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
@@ -37,10 +38,15 @@ export function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoaded) return
+
+    setLoading(true)
+    setError(null)
 
     try {
       const result = await signIn.create({
@@ -55,6 +61,9 @@ export function SignIn() {
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setError(err.errors?.[0]?.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -113,22 +122,35 @@ export function SignIn() {
             <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="error">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Email address</Label>
+              <Label htmlFor="email" className="pb-2">
+                Email address
+              </Label>
               <Input
+                id="email"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Password</Label>
+              <Label htmlFor="password" className="pb-2">
+                Password
+              </Label>
               <Input
+                id="password"
                 type="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="flex items-center justify-end">
@@ -136,7 +158,7 @@ export function SignIn() {
                 Forgot password?
               </a>
             </div>
-            <Button type="submit" className="w-full font-bold">
+            <Button type="submit" className="w-full font-bold" loading={loading}>
               Sign in
             </Button>
           </form>

@@ -22,8 +22,8 @@ const COMPLIANCE_AGENT_CONFIG: AgentConfig = {
   systemPrompt: COMPLIANCE_AGENT_PROMPT,
   tools: getToolsForAgentType('compliance'),
   model: {
-    provider: 'anthropic',
-    name: 'claude-sonnet-4-20250514',
+    provider: 'openai',
+    name: 'gpt-5.1-codex-max',
     temperature: 0.3, // Lower temperature for more precise compliance answers
     maxTokens: 4096,
   },
