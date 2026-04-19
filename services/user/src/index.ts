@@ -89,7 +89,8 @@ app.use('*', rateLimitMiddleware({
  * Returns service health status
  */
 app.get('/health', (c) => {
-  const correlationId = c.get('correlationId')
+  // @ts-expect-error - correlationId is set by middleware
+  const correlationId = c.get('correlationId') as string | undefined
   
   return c.json(successResponse({
     status: 'healthy',
@@ -105,7 +106,8 @@ app.get('/health', (c) => {
  * Returns service metadata
  */
 app.get('/info', (c) => {
-  const correlationId = c.get('correlationId')
+  // @ts-expect-error - correlationId is set by middleware
+  const correlationId = c.get('correlationId') as string | undefined
   
   return c.json(successResponse({
     name: 'User Service',
@@ -140,7 +142,8 @@ app.route('/api/user', syncRoutes)
  * 404 Not Found handler
  */
 app.notFound((c) => {
-  const correlationId = c.get('correlationId')
+  // @ts-expect-error - correlationId is set by middleware
+  const correlationId = c.get('correlationId') as string | undefined
   
   return c.json({
     success: false,
@@ -159,7 +162,8 @@ app.notFound((c) => {
  * Global error handler
  */
 app.onError((err, c) => {
-  const correlationId = c.get('correlationId')
+  // @ts-expect-error - correlationId is set by middleware
+  const correlationId = c.get('correlationId') as string | undefined
   
   logger.error('Unhandled error', err, {
     correlationId,

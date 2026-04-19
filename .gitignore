@@ -1,42 +1,114 @@
+# ================================
 # Dependencies
-node_modules
+# ================================
+node_modules/
 .pnp
 .pnp.js
+.yarn/
 
+# ================================
 # Testing
-coverage
+# ================================
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
 
+# ================================
 # Next.js
+# ================================
 .next/
 out/
 
-# Production
-build
-dist
+# ================================
+# Production Builds
+# ================================
+build/
+dist/
+.output/
+.nitro/
 
-# Misc
-.DS_Store
-*.pem
+# ================================
+# Vercel & Deployment
+# ================================
+.vercel
+.netlify
 
-# Debug
+# ================================
+# Turbo
+# ================================
+.turbo
+
+# ================================
+# Prisma
+# ================================
+prisma/migrations
+
+# ================================
+# Environment Variables
+# ================================
+.env*.local
+.env
+.env.backup
+.env.*.backup
+
+# ================================
+# Logs & Debug Files
+# ================================
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Local env files
-.env*.local
-.env
+# Temporary build/lint/test output files
+*_log.txt
+*_errors.txt
+build_*.txt
+lint_*.txt
+typescript_errors.txt
 
-# Vercel
-.vercel
+# ================================
+# Operating System
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.pem
 
-# Turbo
-.turbo
+# ================================
+# IDEs & Editors
+# ================================
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
 
-# Prisma
-prisma/migrations
+# ================================
+# Temporary & Cache Files
+# ================================
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.vite/
+.eslintcache
+.tsbuildinfo
+tsconfig.tsbuildinfo
 
-# Python
+# ================================
+# Python (for AI/ML services)
+# ================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -48,3 +120,14 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+venv/
+env/
+ENV/
+
+# ================================
+# Misc Development Files
+# ================================
+.husky/_

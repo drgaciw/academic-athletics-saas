@@ -1,6 +1,7 @@
 import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middleware/nextjs';
 
-export default authMiddleware({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const middleware = authMiddleware({
   publicRoutes: [],
   afterAuth(auth, req) {
     // Ensure user is authenticated
@@ -14,6 +15,9 @@ export default authMiddleware({
     }
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default middleware as any;
 
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
