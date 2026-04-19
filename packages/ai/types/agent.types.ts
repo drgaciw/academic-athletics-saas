@@ -20,6 +20,11 @@ export type AgentType =
   | 'intervention'
   | 'administrative'
   | 'general'
+  | 'data-aggregation'
+  | 'equivalency'
+  | 'transfer-compliance'
+  | 'revision'
+  | 'orchestrator'
 
 /**
  * Agent execution status

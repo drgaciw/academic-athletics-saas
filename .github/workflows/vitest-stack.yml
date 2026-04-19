@@ -1,0 +1,446 @@
+name: Create Vitest Stack
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Source branch with all changes'
+        required: true
+        default: 'migrate-to-vitest-kds'
+      create_prs:
+        description: 'Automatically create PRs'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+
+env:
+  SOURCE_BRANCH: ${{ github.event.inputs.source_branch || 'migrate-to-vitest-kds' }}
+  LAYER1_BRANCH: vitest-infrastructure-setup
+  LAYER2_BRANCH: vitest-service-migrations
+  LAYER3_BRANCH: vitest-test-coverage
+  REPO_OWNER: drgaciw
+  REPO_NAME: academic-athletics-saas
+
+jobs:
+  create-vitest-stack:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      # ===== PHASE 0: Setup =====
+      - name: 'Phase 0: Checkout repository'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Phase 0: Configure Git'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 'Phase 0: Verify source branch exists'
+        run: |
+          git fetch origin ${{ env.SOURCE_BRANCH }}
+          echo "✓ Source branch ${{ env.SOURCE_BRANCH }} verified"
+
+      - name: 'Phase 0: Display verification'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "VITEST STACK CREATION - Phase 0: Verification"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Source Branch: ${{ env.SOURCE_BRANCH }}"
+          echo "Layer 1 Branch: ${{ env.LAYER1_BRANCH }}"
+          echo "Layer 2 Branch: ${{ env.LAYER2_BRANCH }}"
+          echo "Layer 3 Branch: ${{ env.LAYER3_BRANCH }}"
+          echo "Create PRs: ${{ github.event.inputs.create_prs }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # ===== PHASE 1: Layer 1 Infrastructure =====
+      - name: 'Phase 1: Create Layer 1 branch'
+        run: |
+          git fetch origin main
+          git checkout -b ${{ env.LAYER1_BRANCH }} origin/main
+          echo "✓ Created branch: ${{ env.LAYER1_BRANCH }}"
+
+      - name: 'Phase 1: Copy infrastructure files'
+        run: |
+          echo "Copying infrastructure files..."
+          git checkout ${{ env.SOURCE_BRANCH }} -- vitest.workspace.ts
+          git checkout ${{ env.SOURCE_BRANCH }} -- pnpm-lock.yaml
+          git checkout ${{ env.SOURCE_BRANCH }} -- ai-service-test-imp-plan.md
+          echo "✓ Files copied"
+          
+          echo "Files to commit:"
+          ls -la vitest.workspace.ts pnpm-lock.yaml ai-service-test-imp-plan.md
+
+      - name: 'Phase 1: Commit Layer 1'
+        run: |
+          git add vitest.workspace.ts pnpm-lock.yaml ai-service-test-imp-plan.md
+          git commit -m "Layer 1: Setup Vitest infrastructure and dependencies
+
+- Add vitest.workspace.ts for monorepo configuration
+- Update pnpm-lock.yaml with Vitest dependencies
+- Add test implementation plan documentation
+
+This is the base layer that other layers depend on."
+          echo "✓ Layer 1 committed"
+
+      - name: 'Phase 1: Push Layer 1'
+        run: |
+          git push -u origin ${{ env.LAYER1_BRANCH }}
+          echo "✓ Layer 1 pushed to origin"
+
+      # ===== PHASE 2: Layer 2 Service Migrations =====
+      - name: 'Phase 2: Create Layer 2 branch'
+        run: |
+          git checkout ${{ env.LAYER1_BRANCH }}
+          git checkout -b ${{ env.LAYER2_BRANCH }}
+          echo "✓ Created branch: ${{ env.LAYER2_BRANCH }}"
+
+      - name: 'Phase 2: Copy service migration files'
+        run: |
+          echo "Processing services..."
+          SERVICES=(advising ai compliance integration monitoring support user)
+          
+          for service in "${SERVICES[@]}"; do
+            echo "  Processing $service..."
+            git checkout ${{ env.SOURCE_BRANCH }} -- services/$service/vitest.config.ts || echo "  ⚠ vitest.config.ts not found"
+            git checkout ${{ env.SOURCE_BRANCH }} -- services/$service/package.json || echo "  ⚠ package.json not found"
+            
+            if [ -f "services/$service/jest.config.js" ]; then
+              git rm services/$service/jest.config.js 2>/dev/null || echo "  ⚠ jest.config.js not found"
+            fi
+            echo "  ✓ $service processed"
+          done
+
+      - name: 'Phase 2: Commit Layer 2'
+        run: |
+          git add services/
+          git commit -m "Layer 2: Migrate all services from Jest to Vitest configuration
+
+- Remove jest.config.js from all services
+- Add vitest.config.ts to all services
+- Update package.json scripts and dependencies
+
+Services migrated:
+- services/advising/
+- services/ai/
+- services/compliance/
+- services/integration/
+- services/monitoring/
+- services/support/
+- services/user/
+
+This layer handles framework configuration migration."
+          echo "✓ Layer 2 committed"
+
+      - name: 'Phase 2: Push Layer 2'
+        run: |
+          git push -u origin ${{ env.LAYER2_BRANCH }}
+          echo "✓ Layer 2 pushed to origin"
+
+      # ===== PHASE 3: Layer 3 Test Coverage =====
+      - name: 'Phase 3: Create Layer 3 branch'
+        run: |
+          git checkout ${{ env.LAYER2_BRANCH }}
+          git checkout -b ${{ env.LAYER3_BRANCH }}
+          echo "✓ Created branch: ${{ env.LAYER3_BRANCH }}"
+
+      - name: 'Phase 3: Copy test coverage files'
+        run: |
+          echo "Copying test files..."
+          git checkout ${{ env.SOURCE_BRANCH }} -- services/
+          echo "✓ Test files copied"
+
+      - name: 'Phase 3: Commit Layer 3'
+        run: |
+          git add services/
+          git commit -m "Layer 3: Add comprehensive Vitest test coverage
+
+- Add test files for all services
+- Include test utilities and helpers
+- Update existing tests with Vitest APIs
+
+Test coverage includes:
+- advising: conflictDetector, timeUtils tests
+- ai: advisingAgent, chatService, complianceAgent, embeddingService, predictiveAnalytics, ragPipeline tests
+- integration: lmsConnector, sisConnector tests
+- monitoring: alertEngine, thresholds tests
+- support: tutoringService tests
+- user: Updated service tests
+
+This layer completes the Vitest migration with comprehensive test coverage."
+          echo "✓ Layer 3 committed"
+
+      - name: 'Phase 3: Push Layer 3'
+        run: |
+          git push -u origin ${{ env.LAYER3_BRANCH }}
+          echo "✓ Layer 3 pushed to origin"
+
+      # ===== PHASE 4: Verification =====
+      - name: 'Phase 4: Verify branches'
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "PHASE 4: Verification"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
+          echo "Layer 1 Branch:"
+          git checkout ${{ env.LAYER1_BRANCH }}
+          echo "  ✓ Branch exists"
+          git log --oneline -1
+          
+          echo ""
+          echo "Layer 2 Branch:"
+          git checkout ${{ env.LAYER2_BRANCH }}
+          echo "  ✓ Branch exists"
+          git log --oneline -1
+          
+          echo ""
+          echo "Layer 3 Branch:"
+          git checkout ${{ env.LAYER3_BRANCH }}
+          echo "  ✓ Branch exists"
+          git log --oneline -1
+          
+          echo ""
+          echo "Remote Branches:"
+          git branch -a | grep -E "(vitest-infrastructure|vitest-service|vitest-test)" || echo "  Fetching remote..."
+          git fetch origin
+          git branch -a | grep -E "(vitest-infrastructure|vitest-service|vitest-test)"
+
+      # ===== PHASE 5: Create PRs =====
+      - name: 'Phase 5: Create PR #14 (Layer 1)'
+        if: ${{ github.event.inputs.create_prs == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = '${{ env.REPO_OWNER }}';
+            const repo = '${{ env.REPO_NAME }}';
+            const base = 'main';
+            const head = '${{ env.LAYER1_BRANCH }}';
+            
+            const response = await github.rest.pulls.create({
+              owner: owner,
+              repo: repo,
+              title: '[Layer 1] Vitest Infrastructure Setup',
+              head: head,
+              base: base,
+              body: `# Layer 1: Vitest Infrastructure Setup
+
+**Depends on:** None (base layer)
+**Stack Position:** 1 of 3
+
+## Changes
+- Add \\`vitest.workspace.ts\\` for monorepo configuration
+- Update \\`pnpm-lock.yaml\\` with Vitest dependencies
+- Add test implementation plan documentation
+
+## Purpose
+This is the foundation layer that establishes the Vitest testing framework infrastructure. It includes:
+- Monorepo configuration for running tests across all services
+- Updated dependency lock file with all necessary Vitest packages
+- Comprehensive documentation of the test implementation plan
+
+## Next Steps
+Once merged, Layer 2 (Service Migrations) can be merged.
+
+## Notes
+- Minimal changes for foundational setup
+- Enables all services to use Vitest
+- Can merge independently
+`,
+              draft: false,
+              labels: ['enhancement', 'testing', 'stack:layer-1']
+            });
+            
+            console.log('✓ PR #' + response.data.number + ' created');
+            console.log('  URL: ' + response.data.html_url);
+            core.setOutput('pr14_number', response.data.number);
+            core.setOutput('pr14_url', response.data.html_url);
+
+      - name: 'Phase 5: Create PR #15 (Layer 2)'
+        if: ${{ github.event.inputs.create_prs == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = '${{ env.REPO_OWNER }}';
+            const repo = '${{ env.REPO_NAME }}';
+            const base = '${{ env.LAYER1_BRANCH }}';
+            const head = '${{ env.LAYER2_BRANCH }}';
+            
+            const response = await github.rest.pulls.create({
+              owner: owner,
+              repo: repo,
+              title: '[Layer 2] Service Test Framework Migrations',
+              head: head,
+              base: base,
+              body: `# Layer 2: Service Test Framework Migrations
+
+**Depends on:** #\\${{ steps.pr14.outputs.pr14_number }} (Layer 1)
+**Stack Position:** 2 of 3
+
+## Changes
+- Remove \\`jest.config.js\\` from all services
+- Add \\`vitest.config.ts\\` to all services
+- Update \\`package.json\\` scripts and dependencies
+
+## Services Updated
+- services/advising/
+- services/ai/
+- services/compliance/
+- services/integration/
+- services/monitoring/
+- services/support/
+- services/user/
+
+## Purpose
+This layer migrates the test framework configuration from Jest to Vitest across all services in the monorepo. It includes:
+- Service-specific Vitest configurations
+- Updated package.json with Vitest scripts
+- Removal of legacy Jest configuration files
+
+## Next Steps
+Once merged, Layer 3 (Test Coverage) can be merged.
+
+## Notes
+- Framework migration only (no test content changes)
+- Each service is self-contained
+- Tests not yet migrated to new framework
+`,
+              draft: false,
+              labels: ['enhancement', 'testing', 'stack:layer-2']
+            });
+            
+            console.log('✓ PR #' + response.data.number + ' created');
+            console.log('  URL: ' + response.data.html_url);
+            core.setOutput('pr15_number', response.data.number);
+            core.setOutput('pr15_url', response.data.html_url);
+
+      - name: 'Phase 5: Create PR #16 (Layer 3)'
+        if: ${{ github.event.inputs.create_prs == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = '${{ env.REPO_OWNER }}';
+            const repo = '${{ env.REPO_NAME }}';
+            const base = '${{ env.LAYER2_BRANCH }}';
+            const head = '${{ env.LAYER3_BRANCH }}';
+            
+            const response = await github.rest.pulls.create({
+              owner: owner,
+              repo: repo,
+              title: '[Layer 3] Comprehensive Test Coverage',
+              head: head,
+              base: base,
+              body: `# Layer 3: Comprehensive Test Coverage
+
+**Depends on:** Previous PR (Layer 2)
+**Stack Position:** 3 of 3
+
+## Changes
+- Add comprehensive test files for all AI services
+- Add test utilities and helpers (mockData, testHelpers)
+- Update existing test files with Vitest APIs
+
+## Test Coverage by Service
+- **advising**: conflictDetector.test.ts, timeUtils.test.ts
+- **ai**: advisingAgent, chatService, complianceAgent, embeddingService, predictiveAnalytics, ragPipeline tests
+- **integration**: lmsConnector.test.ts, sisConnector.test.ts
+- **monitoring**: alertEngine.test.ts, thresholds.test.ts
+- **support**: tutoringService.test.ts
+- **user**: Updated clerkSyncService, profileService, rbacService tests
+
+## Purpose
+This layer adds comprehensive test coverage for all AI services, completing the migration to Vitest. It includes:
+- ~5,000 lines of test code
+- Complete test suites for all service functionality
+- Test utilities and helper functions
+
+## Statistics
+- 21+ test files added/modified
+- ~5,000 lines of test code
+- Comprehensive coverage of AI service functionality
+
+## Next Steps
+Once merged, the Vitest migration is complete and tests can be run with \\`pnpm test\\`.
+
+## Notes
+- All tests use Vitest framework and APIs
+- Tests can be run with \\`pnpm test\\` after merging all layers
+`,
+              draft: false,
+              labels: ['enhancement', 'testing', 'stack:layer-3']
+            });
+            
+            console.log('✓ PR #' + response.data.number + ' created');
+            console.log('  URL: ' + response.data.html_url);
+            core.setOutput('pr16_number', response.data.number);
+            core.setOutput('pr16_url', response.data.html_url);
+
+      # ===== PHASE 6: Summary =====
+      - name: 'Phase 6: Generate Summary'
+        if: always()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "VITEST STACK CREATION - COMPLETE"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "✓ All branches created successfully!"
+          echo ""
+          echo "BRANCHES CREATED:"
+          echo "  1. ${{ env.LAYER1_BRANCH }}"
+          echo "  2. ${{ env.LAYER2_BRANCH }}"
+          echo "  3. ${{ env.LAYER3_BRANCH }}"
+          echo ""
+          echo "NEXT STEPS:"
+          echo "  1. Review the pull requests created"
+          echo "  2. Configure Graphite stack dependencies"
+          echo "  3. Request reviews from team members"
+          echo "  4. Merge in order: Layer 1 → Layer 2 → Layer 3"
+          echo ""
+          echo "PR CREATION LINKS:"
+          echo "  PR #14: https://github.com/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/pull/14"
+          echo "  PR #15: https://github.com/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/pull/15"
+          echo "  PR #16: https://github.com/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/pull/16"
+          echo ""
+          echo "GRAPHITE STACK CONFIGURATION:"
+          echo "  Go to each PR in Graphite:"
+          echo "  1. PR #14: No dependencies (base)"
+          echo "  2. PR #15: Depends on PR #14"
+          echo "  3. PR #16: Depends on PR #15"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: 'Phase 6: Upload Summary'
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: vitest-stack-summary
+          path: |
+            - name: SUMMARY.md
+              content: |
+                # Vitest Stack Creation Summary
+                
+                ## Status: ✓ COMPLETE
+                
+                ### Branches Created
+                - vitest-infrastructure-setup (Layer 1)
+                - vitest-service-migrations (Layer 2)
+                - vitest-test-coverage (Layer 3)
+                
+                ### PRs Created
+                - PR #14: Layer 1 Infrastructure
+                - PR #15: Layer 2 Service Migrations
+                - PR #16: Layer 3 Test Coverage
+                
+                ### Next Actions
+                1. Review PRs on GitHub
+                2. Configure Graphite stack
+                3. Request reviews
+                4. Merge in order

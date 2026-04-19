@@ -15,6 +15,7 @@ import {
   getComplianceReport,
   type AuditQueryFilters,
 } from '@aah/ai'
+import { isAdmin, isAdminOrStaff } from '../utils/auth'
 
 const app = new Hono()
 

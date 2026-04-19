@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs';
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { redirect } from 'next/navigation';
@@ -48,7 +48,7 @@ async function getProgramData() {
 }
 
 export default async function ProgramsPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');
