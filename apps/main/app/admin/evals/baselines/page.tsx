@@ -392,6 +392,7 @@ export default function BaselinesPage() {
                 <Textarea
                   id="description"
                   {...baselineForm.register("description")}
+                  error={!!baselineForm.formState.errors.description}
                   placeholder="Describe what this baseline represents..."
                   rows={3}
                 />
