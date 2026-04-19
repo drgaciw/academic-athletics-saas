@@ -6,8 +6,7 @@
  */
 
 import { createHash } from 'crypto'
-import { Redis } from '@upstash/redis'
-import { generateEmbedding } from './embeddings'
+import Redis from 'ioredis'
 
 /**
  * Cache entry
@@ -157,103 +156,52 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: Redis
+  private client: Redis | null = null
 
   constructor(redisUrl?: string) {
     if (redisUrl) {
-      this.client = new Redis({ url: redisUrl, token: process.env.KV_REST_API_TOKEN || '' })
+      this.client = new Redis(redisUrl)
+    } else if (process.env.REDIS_URL) {
+      this.client = new Redis(process.env.REDIS_URL)
     } else {
-      this.client = Redis.fromEnv()
+      console.warn('Redis cache storage not yet implemented, using in-memory fallback')
     }
   }
 
   async get<T>(key: string): Promise<T | null> {
+    if (!this.client) return null
+    const value = await this.client.get(key)
+    if (!value) return null
     try {
-      return await this.client.get<T>(key)
-    } catch (error) {
-      console.error('Redis get error:', error)
-      return null
+      return JSON.parse(value) as T
+    } catch (e) {
+      return value as unknown as T
     }
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
-    try {
-      await this.client.set(key, value, { px: ttl })
-    } catch (error) {
-      console.error('Redis set error:', error)
+    if (!this.client) return
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value)
+    if (ttl > 0) {
+      await this.client.set(key, stringValue, 'PX', ttl)
+    } else {
+      await this.client.set(key, stringValue)
     }
   }
 
   async delete(key: string): Promise<void> {
-    try {
-      await this.client.del(key)
-    } catch (error) {
-      console.error('Redis delete error:', error)
-    }
+    if (!this.client) return
+    await this.client.del(key)
   }
 
   async clear(): Promise<void> {
-    try {
-      await this.client.flushdb()
-    } catch (error) {
-      console.error('Redis clear error:', error)
-    }
+    if (!this.client) return
+    await this.client.flushdb()
   }
 
   async keys(): Promise<string[]> {
-    try {
-      const keys: string[] = []
-      let cursor = 0
-
-      do {
-        const [nextCursor, batchKeys] = await this.client.scan(cursor, { count: 100 })
-        cursor = Number(nextCursor)
-        keys.push(...batchKeys)
-      } while (cursor !== 0)
-
-      return keys
-    } catch (error) {
-      console.error('Redis keys error:', error)
-      return []
-    }
-  }
-
-  async entries<T>(prefix?: string): Promise<[string, T][]> {
-    try {
-      const keys: string[] = []
-      let cursor = 0
-      const match = prefix ? `${prefix}*` : '*'
-
-      do {
-        const [nextCursor, batchKeys] = await this.client.scan(cursor, { match, count: 100 })
-        cursor = Number(nextCursor)
-        keys.push(...batchKeys)
-      } while (cursor !== 0)
-
-      if (keys.length === 0) return []
-
-      // Fetch in batches to avoid huge payloads
-      const result: [string, T][] = []
-      const batchSize = 100
-
-      for (let i = 0; i < keys.length; i += batchSize) {
-        const batchKeys = keys.slice(i, i + batchSize)
-        if (batchKeys.length === 0) continue
-
-        const values = await this.client.mget<T[]>(...batchKeys)
-
-        for (let j = 0; j < batchKeys.length; j++) {
-          if (values[j] !== null) {
-            result.push([batchKeys[j], values[j]])
-          }
-        }
-      }
-
-      return result
-    } catch (error) {
-      console.error('Redis entries error:', error)
-      return []
-    }
+    if (!this.client) return []
+    return await this.client.keys('*')
   }
 }
 
