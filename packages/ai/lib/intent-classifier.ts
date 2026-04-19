@@ -131,6 +131,36 @@ const INTENT_PATTERNS: Record<AgentType, {
       'explain'
     ],
     description: 'General questions, platform information, and routing assistance'
+  },
+
+  'data-aggregation': {
+    keywords: ['transcript', 'ocr', 'pdf', 'normalize', 'course code', 'extract', 'aggregation'],
+    phrases: ['parse transcript', 'normalize data', 'extract grades'],
+    description: 'Data aggregation and transcript normalization'
+  },
+
+  equivalency: {
+    keywords: ['equivalency', 'transfer', 'articulation', 'match', 'credit', 'mapping'],
+    phrases: ['transfer credit', 'course equivalency', 'map courses'],
+    description: 'Course equivalency and transfer credit mapping'
+  },
+
+  'transfer-compliance': {
+    keywords: ['transfer eligibility', 'ncaa transfer', 'transfer rules', 'residence'],
+    phrases: ['check transfer eligibility', 'transfer compliance', 'ncaa transfer rules'],
+    description: 'NCAA transfer compliance and eligibility'
+  },
+
+  revision: {
+    keywords: ['audit', 'review', 'quality control', 'verify', 'revision'],
+    phrases: ['audit report', 'verify transfer', 'quality check'],
+    description: 'Audit and revision of transfer evaluations'
+  },
+
+  orchestrator: {
+    keywords: ['workflow', 'process', 'coordinate', 'transfer pipeline'],
+    phrases: ['start transfer workflow', 'manage process'],
+    description: 'Workflow orchestration for transfer credits'
   }
 }
 
@@ -360,6 +390,26 @@ export class IntentClassifier {
         'help': 'help_request',
         'what': 'information_request',
         'how': 'how_to_question'
+      },
+      'data-aggregation': {
+        'transcript': 'parse_transcript',
+        'extract': 'extract_data'
+      },
+      equivalency: {
+        'map': 'map_courses',
+        'match': 'find_matches'
+      },
+      'transfer-compliance': {
+        'eligible': 'check_eligibility',
+        'rules': 'check_rules'
+      },
+      revision: {
+        'audit': 'audit_report',
+        'verify': 'verify_results'
+      },
+      orchestrator: {
+        'workflow': 'manage_workflow',
+        'process': 'start_process'
       }
     }
     

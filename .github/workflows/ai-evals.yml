@@ -193,10 +193,22 @@ jobs:
       - name: Run evaluations - ${{ matrix.eval_suite.name }}
         if: matrix.eval_suite.enabled == 'true'
         id: run-eval
+        # Environment variables mapped from .env file - set these as GitHub repository secrets
+        # See .env for local development values
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL: ${{ secrets.EVAL_DATABASE_URL }}
+          # Primary AI Providers
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}              # .env: OPENAI_API_KEY
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}        # .env: ANTHROPIC_API_KEY
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}              # .env: GOOGLE_API_KEY
+          # Additional AI Providers
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}      # .env: PERPLEXITY_API_KEY
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}            # .env: MISTRAL_API_KEY
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}      # .env: OPENROUTER_API_KEY
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}                    # .env: XAI_API_KEY
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}          # .env: CEREBRAS_API_KEY
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}      # .env: AI_GATEWAY_API_KEY
+          # Database
+          DATABASE_URL: ${{ secrets.EVAL_DATABASE_URL }}             # .env: DATABASE_URL
           NODE_ENV: test
         run: |
           cd packages/ai-evals

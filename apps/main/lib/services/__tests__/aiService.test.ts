@@ -3,12 +3,27 @@
  * Tests for the AI Service client with streaming support
  */
 
-import { aiService } from '../aiService';
-import { ServiceClient } from '../serviceClient';
 import { RequestContext, UserRole } from '../../types/services/common';
 
-// Mock ServiceClient
-jest.mock('../serviceClient');
+// Define mocks at module level so they're available when the singleton is created
+const mockPost = jest.fn();
+const mockGet = jest.fn();
+const mockStream = jest.fn();
+const mockHealthCheck = jest.fn();
+
+// Mock ServiceClient with factory function - must be before import
+jest.mock('../serviceClient', () => ({
+  ServiceClient: jest.fn().mockImplementation(() => ({
+    post: mockPost,
+    get: mockGet,
+    stream: mockStream,
+    healthCheck: mockHealthCheck,
+  })),
+  getServiceUrl: jest.fn().mockReturnValue('http://localhost:3006'),
+}));
+
+// Import after mock is set up
+import { aiService } from '../aiService';
 
 describe('AIService', () => {
   const mockContext: RequestContext = {
@@ -19,26 +34,8 @@ describe('AIService', () => {
     timestamp: new Date(),
   };
 
-  let mockPost: jest.Mock;
-  let mockGet: jest.Mock;
-  let mockStream: jest.Mock;
-  let mockHealthCheck: jest.Mock;
-
   beforeEach(() => {
-    mockPost = jest.fn();
-    mockGet = jest.fn();
-    mockStream = jest.fn();
-    mockHealthCheck = jest.fn();
-
-    (ServiceClient as jest.Mock).mockImplementation(() => ({
-      post: mockPost,
-      get: mockGet,
-      stream: mockStream,
-      healthCheck: mockHealthCheck,
-    }));
-  });
-
-  afterEach(() => {
+    // Clear all mock call history between tests
     jest.clearAllMocks();
   });
 
@@ -71,12 +68,12 @@ describe('AIService', () => {
         stream: true,
       };
 
-      const mockStream = new ReadableStream();
-      mockStream.mockResolvedValueOnce(mockStream);
+      const streamResponse = new ReadableStream();
+      mockStream.mockResolvedValueOnce(streamResponse);
 
       const result = await aiService.chat(chatRequest, mockContext);
 
-      expect(result).toBe(mockStream);
+      expect(result).toBe(streamResponse);
       expect(mockStream).toHaveBeenCalledWith('/chat', chatRequest, mockContext);
     });
 

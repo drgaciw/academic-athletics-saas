@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Base Configuration",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "incremental": false,
+    "paths": {
+      "@aah/auth": ["./packages/auth/index.ts"],
+      "@aah/auth/*": ["./packages/auth/*"],
+      "@aah/database": ["./packages/database/index.ts"],
+      "@aah/database/*": ["./packages/database/*"],
+      "@aah/api-utils": ["./packages/api-utils/src/index.ts"],
+      "@aah/api-utils/*": ["./packages/api-utils/src/*"],
+      "@aah/ui": ["./packages/ui/index.tsx"],
+      "@aah/ui/*": ["./packages/ui/*"],
+      "@aah/ai": ["./packages/ai/index.ts"],
+      "@aah/ai/*": ["./packages/ai/*"],
+      "@aah/config": ["./packages/config/index.js"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}

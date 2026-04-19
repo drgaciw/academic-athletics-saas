@@ -208,6 +208,26 @@ export const monitoringService = {
   ) {
     return makeRequest('monitoring', `/api/monitoring/attendance/${studentId}`, {}, context)
   },
+
+  /**
+   * Get team analytics
+   */
+  async getTeamAnalytics(
+    teamId: string,
+    context?: ToolExecutionContext
+  ) {
+    return makeRequest('monitoring', `/api/monitoring/analytics/team/${teamId}`, {}, context)
+  },
+
+  /**
+   * Get progress reports
+   */
+  async getProgressReports(
+    studentId: string,
+    context?: ToolExecutionContext
+  ) {
+    return makeRequest('monitoring', `/api/monitoring/progress-report/student/${studentId}`, {}, context)
+  },
 }
 
 /**
