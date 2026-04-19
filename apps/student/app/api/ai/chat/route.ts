@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json()
 
   const result = streamText({
-    model: openai('gpt-4-turbo') as any,
+    model: openai('gpt-5.1-codex-max') as any,
     messages,
     tools: {
       searchCourses: tool({

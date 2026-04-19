@@ -1,10 +1,9 @@
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ResponseCache } from '../cache-manager'
 
 // Mock the embeddings module
-vi.mock('../embeddings', () => ({
-  generateEmbedding: vi.fn().mockImplementation(async (text: string) => {
+jest.mock('../embeddings', () => ({
+  generateEmbedding: jest.fn().mockImplementation(async (text: string) => {
     // Return a simple embedding based on text length for testing
     // We create a mock embedding that is somewhat deterministic but simulates similarity
     // Here we use a simple vector where the first element is significant
@@ -19,14 +18,11 @@ describe('ResponseCache Semantic Search', () => {
 
   beforeEach(() => {
     responseCache = new ResponseCache()
-    vi.clearAllMocks()
+    jest.clearAllMocks()
   })
 
   it('should find similar response', async () => {
     const query = 'What is the weather?'
-    const similarQuery = 'Tell me the weather' // Same length 19 chars? No.
-    // 'What is the weather?' length 20.
-    // 'Tell me the weather' length 19.
 
     // Let's use exact match first to verify basic flow
     const agentType = 'weather-agent'
@@ -91,4 +87,54 @@ describe('ResponseCache Semantic Search', () => {
     const result = await responseCache.findSimilarResponse('agent2', query)
     expect(result).toBeNull()
   })
+
+  it('should handle embedding generation failure during caching gracefully', async () => {
+    const { generateEmbedding } = jest.requireMock('../embeddings')
+    generateEmbedding.mockRejectedValueOnce(new Error('Embedding API error'))
+
+    const agentType = 'weather-agent'
+    const context = { userId: '1' }
+    const response = 'It is sunny.'
+    const query = 'What is the weather?'
+
+    // cacheResponse should not throw even if embedding fails
+    await expect(
+      responseCache.cacheResponse(agentType, query, context, response)
+    ).resolves.not.toThrow()
+  })
+
+  it('should return null when embedding generation fails during search', async () => {
+    const { generateEmbedding } = jest.requireMock('../embeddings')
+    generateEmbedding.mockRejectedValueOnce(new Error('Embedding API error'))
+
+    const result = await responseCache.findSimilarResponse('weather-agent', 'some query')
+    expect(result).toBeNull()
+  })
+
+  it('should handle legacy string-only cached values', async () => {
+    const agentType = 'weather-agent'
+    const key = `response:${agentType}:legacykey`
+    // Directly set a legacy string value in the underlying storage
+    const storage = (responseCache as unknown as { storage: { set: (k: string, v: unknown, ttl: number) => Promise<void> } }).storage
+    await storage.set(key, 'legacy string response', 3600000)
+
+    const cached = await responseCache.getCachedResponse(agentType, 'any query')
+    // Should not throw - exact lookup won't match but verifies no error from legacy values
+    expect(cached).toBeNull()
+  })
+
+  it('should select best match when multiple similar entries exist', async () => {
+    const agentType = 'search-agent'
+    const context = { userId: '1' }
+
+    // 10 chars -> embedding [0.1, 0.9, 0.5]
+    await responseCache.cacheResponse(agentType, '1234567890', context, 'response-10-chars')
+    // 20 chars -> embedding [0.2, 0.8, 0.5]
+    await responseCache.cacheResponse(agentType, '12345678901234567890', context, 'response-20-chars')
+
+    // Query with 10 chars should best match the 10-char entry
+    const result = await responseCache.findSimilarResponse(agentType, '0987654321')
+    expect(result).toBe('response-10-chars')
+  })
 })
+

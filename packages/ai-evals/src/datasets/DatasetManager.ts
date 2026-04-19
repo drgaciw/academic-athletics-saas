@@ -373,7 +373,7 @@ export class DatasetManager {
    * ```
    */
   async exportDataset(datasetId: string, options: ExportOptions): Promise<string> {
-    const { format, includeMetadata = true, pretty = false } = options;
+    const { format: exportFormat, includeMetadata = true, pretty = false } = options;
 
     const dataset = await this.loadDataset(datasetId);
 
@@ -398,7 +398,7 @@ export class DatasetManager {
     let exportPath: string;
     let content: string;
 
-    switch (format) {
+    switch (exportFormat) {
       case 'json':
         exportPath = join(exportDir, `${datasetId}-${timestamp}.json`);
         content = pretty ? JSON.stringify(exportData, null, 2) : JSON.stringify(exportData);

@@ -16,7 +16,7 @@ Implemented a complete Coach Management Service for the Academic Athletics Hub p
   - Type-safe service client for coach endpoints
   - Methods: createCoach, getProfile, updateProfile, deleteCoach, listCoaches
   - Student athlete methods: getStudentAthletes, getStudentDetails, getTeamAnalytics
-
+  
 - **apps/main/lib/types/services/coach.ts** (112 lines)
   - CoachProfile, CreateCoachRequest, UpdateCoachRequest types
   - StudentAthleteInfo with alerts and performance data

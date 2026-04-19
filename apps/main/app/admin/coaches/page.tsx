@@ -111,8 +111,8 @@ const columns: ColumnDef<Coach>[] = [
       const coach = row.original as Coach;
       return (
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
+          <Button 
+            variant="ghost" 
             size="sm"
             onClick={() => {
               // TODO: Implement edit functionality
@@ -121,8 +121,8 @@ const columns: ColumnDef<Coach>[] = [
           >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
+          <Button 
+            variant="ghost" 
             size="sm"
             onClick={() => {
               // TODO: Implement delete functionality
