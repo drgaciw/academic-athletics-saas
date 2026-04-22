@@ -1,6 +1,7 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { Inter, Lexend } from 'next/font/google'
+import Link from 'next/link'
 import {
   ClerkProvider,
   SignedIn,
@@ -18,23 +19,14 @@ const buildSeededInitialState = (): ClerkInitialState | undefined => {
   if (process.env.NEXT_PUBLIC_CLERK_SEED_ENABLED !== 'true') {
     return undefined
   }
-
   const baseTimestamp = Math.floor(Date.now() / 1000)
-  const seedUserId =
-    process.env.NEXT_PUBLIC_CLERK_SEED_USER_ID ?? 'user_seeded_aah'
-  const seedSessionId =
-    process.env.NEXT_PUBLIC_CLERK_SEED_SESSION_ID ?? 'sess_seeded_aah'
-  const seedEmail =
-    process.env.NEXT_PUBLIC_CLERK_SEED_EMAIL ?? 'seeded-user@example.com'
-  const seedFirstName =
-    process.env.NEXT_PUBLIC_CLERK_SEED_FIRST_NAME ?? 'Seeded'
-  const seedLastName =
-    process.env.NEXT_PUBLIC_CLERK_SEED_LAST_NAME ?? 'User'
+  const seedUserId = process.env.NEXT_PUBLIC_CLERK_SEED_USER_ID ?? 'user_seeded_aah'
+  const seedSessionId = process.env.NEXT_PUBLIC_CLERK_SEED_SESSION_ID ?? 'sess_seeded_aah'
+  const seedEmail = process.env.NEXT_PUBLIC_CLERK_SEED_EMAIL ?? 'seeded-user@example.com'
+  const seedFirstName = process.env.NEXT_PUBLIC_CLERK_SEED_FIRST_NAME ?? 'Seeded'
+  const seedLastName = process.env.NEXT_PUBLIC_CLERK_SEED_LAST_NAME ?? 'User'
   const seedRole = process.env.NEXT_PUBLIC_CLERK_SEED_ROLE ?? 'admin'
-  const seedAvatarUrl =
-    process.env.NEXT_PUBLIC_CLERK_SEED_AVATAR_URL ??
-    'https://www.gravatar.com/avatar/?d=mp&f=y'
-
+  const seedAvatarUrl = process.env.NEXT_PUBLIC_CLERK_SEED_AVATAR_URL ?? 'https://www.gravatar.com/avatar/?d=mp&f=y'
   return {
     userId: seedUserId,
     sessionId: seedSessionId,
@@ -63,15 +55,8 @@ const buildSeededInitialState = (): ClerkInitialState | undefined => {
       fullName: `${seedFirstName} ${seedLastName}`.trim(),
       imageUrl: seedAvatarUrl,
       primaryEmailAddressId: 'eml_seed_aah',
-      emailAddresses: [
-        {
-          id: 'eml_seed_aah',
-          emailAddress: seedEmail,
-        },
-      ],
-      publicMetadata: {
-        role: seedRole,
-      },
+      emailAddresses: [{ id: 'eml_seed_aah', emailAddress: seedEmail }],
+      publicMetadata: { role: seedRole },
       createdAt: baseTimestamp,
       updatedAt: baseTimestamp,
     },
@@ -94,26 +79,15 @@ const buildSeededInitialState = (): ClerkInitialState | undefined => {
   }
 }
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-})
-
-const lexend = Lexend({
-  subsets: ['latin'],
-  variable: '--font-lexend',
-})
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' })
 
 export const metadata: Metadata = {
-  title: 'Athletic Academics Hub',
-  description: 'Academic support platform for student-athletes',
+  title: 'ORU Soccer | Academic Portal',
+  description: 'Academic support and eligibility management for ORU Soccer student-athletes.',
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   const seededInitialState = buildSeededInitialState()
   const clerkProviderProps: Record<string, unknown> = {
@@ -121,11 +95,9 @@ export default function RootLayout({
     signInUrl: '/sign-in',
     signUpUrl: '/sign-up',
   }
-
   if (seededInitialState) {
     clerkProviderProps.clerkState = { __clerk_client: seededInitialState }
   }
-
   return (
     <ClerkProvider {...(clerkProviderProps as any)}>
       <html lang="en">
