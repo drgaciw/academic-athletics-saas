@@ -6,7 +6,7 @@
  */
 
 import { createHash } from 'crypto'
-import { Redis } from '@upstash/redis'
+import Redis from 'ioredis'
 
 /**
  * Cache entry
@@ -41,6 +41,7 @@ export interface CacheStorage {
   delete(key: string): Promise<void>
   clear(): Promise<void>
   keys(): Promise<string[]>
+  entries<T>(prefix?: string): Promise<[string, T][]>
 }
 
 /**
@@ -105,6 +106,19 @@ export class InMemoryCacheStorage implements CacheStorage {
     return Array.from(this.cache.keys())
   }
 
+  async entries<T>(prefix?: string): Promise<[string, T][]> {
+    // Return entries without modifying LRU
+    const allEntries = Array.from(this.cache.entries());
+
+    if (prefix) {
+      return allEntries
+        .filter(([key]) => key.startsWith(prefix))
+        .map(([key, entry]) => [key, entry.value as T]);
+    }
+
+    return allEntries.map(([key, entry]) => [key, entry.value as T]);
+  }
+
   private estimateSize(value: any): number {
     return JSON.stringify(value).length
   }
@@ -142,19 +156,32 @@ export class InMemoryCacheStorage implements CacheStorage {
  * Redis cache storage (for production)
  */
 export class RedisCacheStorage implements CacheStorage {
-  private client: Redis
+  private client: Redis | null = null
 
   constructor(redisUrl?: string) {
     if (redisUrl) {
-      this.client = new Redis({ url: redisUrl, token: process.env.KV_REST_API_TOKEN || '' })
+      this.client = new Redis(redisUrl)
+
+      this.client.on('error', (err) => {
+        console.warn('Redis connection error:', err)
+      })
     } else {
-      this.client = Redis.fromEnv()
+      console.warn('Redis URL not provided, RedisCacheStorage will not function correctly')
     }
   }
 
   async get<T>(key: string): Promise<T | null> {
+    if (!this.client) return null
+
     try {
-      return await this.client.get<T>(key)
+      const value = await this.client.get(key)
+      if (!value) return null
+
+      try {
+        return JSON.parse(value) as T
+      } catch (e) {
+        return value as unknown as T
+      }
     } catch (error) {
       console.error('Redis get error:', error)
       return null
@@ -162,14 +189,21 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async set<T>(key: string, value: T, ttl: number): Promise<void> {
+    if (!this.client) return
+
     try {
-      await this.client.set(key, value, { px: ttl })
+      const stringValue = typeof value === 'string' ? value : JSON.stringify(value)
+      // Redis TTL is in seconds, but we receive milliseconds
+      const ttlSeconds = Math.ceil(ttl / 1000)
+      await this.client.setex(key, ttlSeconds, stringValue)
     } catch (error) {
       console.error('Redis set error:', error)
     }
   }
 
   async delete(key: string): Promise<void> {
+    if (!this.client) return
+
     try {
       await this.client.del(key)
     } catch (error) {
@@ -178,6 +212,8 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async clear(): Promise<void> {
+    if (!this.client) return
+
     try {
       await this.client.flushdb()
     } catch (error) {
@@ -186,6 +222,8 @@ export class RedisCacheStorage implements CacheStorage {
   }
 
   async keys(): Promise<string[]> {
+    if (!this.client) return []
+
     try {
       return await this.client.keys('*')
     } catch (error) {
@@ -199,7 +237,7 @@ export class RedisCacheStorage implements CacheStorage {
  * Cache Manager Class
  */
 export class CacheManager {
-  private storage: CacheStorage
+  protected storage: CacheStorage
   private stats: CacheStats = {
     hits: 0,
     misses: 0,
@@ -354,6 +392,27 @@ export class ToolResultCache extends CacheManager {
 }
 
 /**
+ * Interface for cached response values
+ */
+export interface CachedResponseValue {
+  response: string
+  query: string
+  embedding?: number[]
+}
+
+/**
+ * Helper to calculate cosine similarity
+ */
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length !== b.length) return 0
+  const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0)
+  const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0))
+  const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0))
+  if (magA === 0 || magB === 0) return 0
+  return dotProduct / (magA * magB)
+}
+
+/**
  * Response Cache
  * 
  * Specialized cache for agent responses
@@ -370,7 +429,22 @@ export class ResponseCache extends CacheManager {
     ttl: number = 600000 // 10 minutes default
   ): Promise<void> {
     const key = this.generateKey(`response:${agentType}`, { query, context })
-    await this.set(key, response, ttl)
+
+    let embedding: number[] | undefined
+    try {
+      embedding = await generateEmbedding(query)
+    } catch (error) {
+      console.warn('Failed to generate embedding for cache:', error)
+      // Continue without embedding
+    }
+
+    const value: CachedResponseValue = {
+      response,
+      query,
+      embedding
+    }
+
+    await this.set(key, value, ttl)
   }
 
   /**
@@ -382,7 +456,15 @@ export class ResponseCache extends CacheManager {
     context: Record<string, any>
   ): Promise<string | null> {
     const key = this.generateKey(`response:${agentType}`, { query, context })
-    return await this.get(key)
+    const value = await this.get<CachedResponseValue | string>(key)
+
+    if (!value) return null
+
+    if (typeof value === 'string') {
+      return value
+    }
+
+    return value.response
   }
 
   /**
@@ -393,9 +475,42 @@ export class ResponseCache extends CacheManager {
     query: string,
     similarityThreshold: number = 0.9
   ): Promise<string | null> {
-    // TODO: Implement semantic similarity search
-    // For now, just do exact match
-    return null
+    let queryEmbedding: number[]
+    try {
+      queryEmbedding = await generateEmbedding(query)
+    } catch (error) {
+      console.warn('Failed to generate embedding for search:', error)
+      return null
+    }
+
+    const prefix = `response:${agentType}`
+
+    // Get entries with matching prefix to search
+    // WARNING: This iterates all keys matching the prefix.
+    // This linear scan (O(N)) is not scalable for production use with large datasets.
+    // Ideally, a vector database or Redis Vector Search should be used.
+    // This implementation is a fallback for small-scale or development environments.
+    const entries = await this.storage.entries<CachedResponseValue | string>(prefix)
+
+    let bestMatch: { response: string; score: number } | null = null
+
+    for (const [key, value] of entries) {
+      // Keys are already filtered by prefix if the storage supports it
+      // But double check just in case
+      if (!key.startsWith(prefix)) continue
+
+      if (typeof value === 'string' || !value.embedding) continue
+
+      const score = cosineSimilarity(queryEmbedding, value.embedding)
+
+      if (score >= similarityThreshold) {
+        if (!bestMatch || score > bestMatch.score) {
+          bestMatch = { response: value.response, score }
+        }
+      }
+    }
+
+    return bestMatch ? bestMatch.response : null
   }
 }
 
