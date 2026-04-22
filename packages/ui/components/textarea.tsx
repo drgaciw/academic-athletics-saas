@@ -15,7 +15,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-50',
           error
-            ? 'border-red-600 focus-visible:ring-red-600'
+            ? 'border-error focus-visible:ring-error'
             : 'border-input',
           className
         )}
