@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { forwardRef, useState, useEffect } from "react";
-import { cn } from "../utils/cn";
+import { forwardRef, useState, useEffect } from 'react';
+import { cn } from '../utils/cn';
 
 export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string;
@@ -18,7 +18,7 @@ const sizeClasses = {
 };
 
 export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
-  ({ src, alt, fallback, size = "md", className, ...props }, ref) => {
+  ({ src, alt, fallback, size = 'md', className, ...props }, ref) => {
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
