@@ -86,6 +86,7 @@ async function example4_orchestrator() {
 
   const result = await executeAgentWorkflow({
     userId: 'S12345',
+    agentType: 'orchestrator',
     message: 'Am I eligible to compete this season?',
   })
 
@@ -107,6 +108,7 @@ async function example5_multiAgent() {
   const result = await orchestrator.executeMultiAgent(
     {
       userId: 'S12345',
+      agentType: 'orchestrator',
       message: 'I want to drop MATH 201. Will I still be eligible? If so, what other courses should I take?',
     },
     ['compliance', 'advising']
@@ -126,6 +128,7 @@ async function example6_smartWorkflow() {
 
   const result = await executeSmartWorkflow({
     userId: 'S12345',
+    agentType: 'general',
     message: 'I need to select courses for next semester but want to make sure I stay eligible',
   })
 
@@ -210,6 +213,7 @@ async function example10_errorHandling() {
     const result = await orchestrator.executeWithRetry(
       {
         userId: 'S12345',
+        agentType: 'orchestrator',
         message: 'Help me plan my courses',
       },
       3 // Max retries

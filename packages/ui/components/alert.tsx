@@ -20,7 +20,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps>(
     return (
       <div
         ref={ref}
-        role="alert"
+        role={variant === 'error' ? 'alert' : 'status'}
         className={cn(
           'relative w-full rounded-lg border p-4',
           variantStyles[variant],

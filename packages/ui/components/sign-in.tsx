@@ -134,6 +134,11 @@ export function SignIn() {
             <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="error">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="flex flex-col w-full">
               <Label htmlFor="email" className="pb-2">
                 Email address

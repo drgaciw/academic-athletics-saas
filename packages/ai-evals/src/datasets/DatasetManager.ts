@@ -16,7 +16,7 @@ import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
 import { join, dirname } from 'path';
 import { existsSync } from 'fs';
 import { nanoid } from 'nanoid';
-import { format, parseISO } from 'date-fns';
+import * as dateFns from 'date-fns';
 import { z } from 'zod';
 import type {
   Dataset,
@@ -88,8 +88,8 @@ export class DatasetManager {
       name: data.name,
       description: data.description,
       version: data.version,
-      createdAt: parseISO(data.createdAt),
-      updatedAt: parseISO(data.updatedAt),
+      createdAt: dateFns.parseISO(data.createdAt),
+      updatedAt: dateFns.parseISO(data.updatedAt),
       metadata: data.metadata,
       schema: {
         // Reconstruct Zod schemas from stored schema definitions
@@ -100,7 +100,7 @@ export class DatasetManager {
         ...tc,
         metadata: {
           ...tc.metadata,
-          createdAt: parseISO(tc.metadata.createdAt),
+          createdAt: dateFns.parseISO(tc.metadata.createdAt),
         },
       })),
     };
@@ -391,7 +391,7 @@ export class DatasetManager {
     };
 
     // Generate export path
-    const timestamp = format(new Date(), 'yyyy-MM-dd-HHmmss');
+    const timestamp = dateFns.format(new Date(), 'yyyy-MM-dd-HHmmss');
     const exportDir = join(this.datasetsDir, 'exports');
     await mkdir(exportDir, { recursive: true });
 
@@ -416,7 +416,7 @@ export class DatasetManager {
         throw new Error('YAML export not yet implemented');
 
       default:
-        throw new Error(`Unsupported export format: ${format}`);
+        throw new Error(`Unsupported export format: ${exportFormat}`);
     }
 
     return exportPath;

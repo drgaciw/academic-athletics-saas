@@ -1,5 +1,5 @@
 /**
- * Unit tests for model comparison functionality
+ * Unit tests for model comparison functionalityh
  */
 
 import {
@@ -7,7 +7,7 @@ import {
   calculateComparisonSummary,
   formatComparisonReport,
 } from '../model-comparison';
-import { RunResult, Score, ComparisonResult } from '../../types';
+import { RunResult, Score, ComparisonResult } from '../../types/index';
 
 describe('Model Comparison', () => {
   describe('compareTestCaseResults', () => {
@@ -193,7 +193,7 @@ describe('Model Comparison', () => {
       expect(summary['gpt-4']).toMatchObject({
         avgLatency: 1100, // (1000 + 1200 + 1100) / 3
         totalCost: 0.016, // 0.005 + 0.006 + 0.005
-        avgScore: 0.95, // (1.0 + 0.90 + 0.95) / 3
+        avgScore: expect.closeTo(0.95, 2), // (1.0 + 0.90 + 0.95) / 3
         winRate: expect.closeTo(66.67, 0.1), // 2 wins out of 3
       });
 
@@ -371,14 +371,21 @@ describe('Model Comparison', () => {
 
       const formatted = formatComparisonReport(report);
 
-      // Verify that gpt-4 (highest score) appears before claude-sonnet-4
-      // which appears before gpt-3.5-turbo
-      const gpt4Index = formatted.indexOf('gpt-4');
-      const claudeIndex = formatted.indexOf('claude-sonnet-4');
-      const gpt35Index = formatted.indexOf('gpt-3.5-turbo');
+            // Extract the summary table section for index comparison
+            const summaryStart = formatted.indexOf('Summary by Model');
+            const summarySection = formatted.substring(summaryStart);
 
-      expect(gpt4Index).toBeLessThan(claudeIndex);
-      expect(claudeIndex).toBeLessThan(gpt35Index);
+            // Verify that gpt-4 (highest score) appears before claude-sonnet-4
+            // which appears before gpt-3.5-turbo in the summary table
+            const gpt4Index = summarySection.indexOf('gpt-4');
+            const claudeIndex = summarySection.indexOf('claude-sonnet-4');
+            const gpt35Index = summarySection.indexOf('gpt-3.5-turbo');
+
+            expect(gpt4Index).toBeGreaterThanOrEqual(0);
+            expect(claudeIndex).toBeGreaterThanOrEqual(0);
+            expect(gpt35Index).toBeGreaterThanOrEqual(0);
+            expect(gpt4Index).toBeLessThan(claudeIndex);
+            expect(claudeIndex).toBeLessThan(gpt35Index);
     });
   });
 });
