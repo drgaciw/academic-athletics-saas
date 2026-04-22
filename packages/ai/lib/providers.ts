@@ -31,8 +31,9 @@ export function selectModel(
       case 'simple':
         return openai(aiConfig.models.openai.gpt4mini)
       case 'moderate':
-      case 'complex':
         return openai(aiConfig.models.openai.gpt4)
+      case 'complex':
+        return openai(aiConfig.models.openai.gpt51codexmax)
     }
   }
 
@@ -54,7 +55,7 @@ export function selectModel(
     case 'moderate':
       return anthropic(aiConfig.models.anthropic.sonnet)
     case 'complex':
-      return anthropic(aiConfig.models.anthropic.opus)
+      return openai(aiConfig.models.openai.gpt51codexmax)
   }
 }
 
