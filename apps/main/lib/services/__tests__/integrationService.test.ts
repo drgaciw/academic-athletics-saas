@@ -3,12 +3,25 @@
  * Tests for the Integration Service client
  */
 
-import { integrationService } from '../integrationService';
-import { ServiceClient } from '../serviceClient';
 import { RequestContext, UserRole } from '../../types/services/common';
 
-// Mock ServiceClient
-jest.mock('../serviceClient');
+// Define mocks at module level so they're available when the singleton is created
+const mockPost = jest.fn();
+const mockGet = jest.fn();
+const mockHealthCheck = jest.fn();
+
+// Mock ServiceClient with factory function - must be before import
+jest.mock('../serviceClient', () => ({
+  ServiceClient: jest.fn().mockImplementation(() => ({
+    post: mockPost,
+    get: mockGet,
+    healthCheck: mockHealthCheck,
+  })),
+  getServiceUrl: jest.fn().mockReturnValue('http://localhost:3007'),
+}));
+
+// Import after mock is set up
+import { integrationService } from '../integrationService';
 
 describe('IntegrationService', () => {
   const mockContext: RequestContext = {
@@ -19,23 +32,8 @@ describe('IntegrationService', () => {
     timestamp: new Date(),
   };
 
-  let mockPost: jest.Mock;
-  let mockGet: jest.Mock;
-  let mockHealthCheck: jest.Mock;
-
   beforeEach(() => {
-    mockPost = jest.fn();
-    mockGet = jest.fn();
-    mockHealthCheck = jest.fn();
-
-    (ServiceClient as jest.Mock).mockImplementation(() => ({
-      post: mockPost,
-      get: mockGet,
-      healthCheck: mockHealthCheck,
-    }));
-  });
-
-  afterEach(() => {
+    // Clear all mock call history between tests
     jest.clearAllMocks();
   });
 

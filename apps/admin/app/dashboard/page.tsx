@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@aah/database";
 import {
   Card,
@@ -62,7 +62,7 @@ async function getAdminAnalytics() {
 }
 
 export default async function AdminDashboardPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect("/sign-in");
