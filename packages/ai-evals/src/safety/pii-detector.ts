@@ -15,7 +15,7 @@ import { PIIDetection, PIIType, PIIScoreResult, Severity } from '../types';
  * Regex patterns for PII detection
  * Based on OWASP recommendations and FERPA requirements
  */
-const PII_PATTERNS: Record<PIIType, RegExp[]> = {
+function getPIIPatterns(): Record<PIIType, RegExp[]> { return {
   [PIIType.EMAIL]: [
     // Standard email format
     /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
@@ -70,7 +70,7 @@ const PII_PATTERNS: Record<PIIType, RegExp[]> = {
     // Course grades
     /\b(?:grade|score)[-:\s]*([A-F][+-]?|\d{1,3}%)\b/gi,
   ],
-};
+}; }
 
 /**
  * Context window size for extracting surrounding text
@@ -115,7 +115,7 @@ export class PIIDetector {
     this.detections = [];
 
     // Run regex-based detection for each PII type
-    for (const [piiType, patterns] of Object.entries(PII_PATTERNS)) {
+    for (const [piiType, patterns] of Object.entries(getPIIPatterns())) {
       for (const pattern of patterns) {
         this.detectWithRegex(text, piiType as PIIType, pattern);
       }

@@ -4,8 +4,13 @@
 
 import { Hono } from "hono";
 import { z } from "zod";
+import { prisma } from "@aah/database";
 import { ConflictDetectorService } from "../services/conflictDetector";
-import type { ApiResponse, ScheduleValidationResponse } from "../types";
+import type {
+  ApiResponse,
+  ScheduleValidationResponse,
+  CourseSectionInfo,
+} from "../types";
 import { CREDIT_HOUR_LIMITS } from "../types";
 
 const app = new Hono();
@@ -31,8 +36,49 @@ app.post("/validate-schedule", async (c) => {
     const body = await c.req.json();
     const validatedData = scheduleValidationRequestSchema.parse(body);
 
-    // TODO: Fetch sections from database
-    const sections = [];
+    // Fetch sections from database
+    const sectionsData = await prisma.courseSection.findMany({
+      where: {
+        id: {
+          in: validatedData.sectionIds,
+        },
+      },
+      include: {
+        course: true,
+      },
+    });
+
+    // Map to CourseSectionInfo to ensure types align
+    const sections: CourseSectionInfo[] = sectionsData.map((section) => ({
+      ...section,
+      course: {
+        ...section.course,
+        prerequisites: (section.course.prerequisites as string[]) || [],
+        corequisites: (section.course.corequisites as string[]) || [],
+        level: section.course.level as any,
+      },
+    }));
+
+    // Verify all sections were found
+    if (sections.length !== validatedData.sectionIds.length) {
+      const foundIds = new Set(sections.map((s) => s.id));
+      const missingIds = validatedData.sectionIds.filter(
+        (id) => !foundIds.has(id),
+      );
+
+      return c.json(
+        {
+          success: false,
+          error: {
+            code: "NOT_FOUND",
+            message: "One or more sections not found",
+            details: { missingIds },
+          },
+          timestamp: new Date().toISOString(),
+        },
+        404,
+      );
+    }
 
     // TODO: Fetch athletic schedule if needed
     const athleticSchedule = undefined;
