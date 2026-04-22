@@ -40,8 +40,8 @@ jobs:
       - name: Validate secrets
         run: |
           set -eu
-          if [ -z "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ]; then
-            echo "::error::CLAUDE_CODE_OAUTH_TOKEN secret is not set"
+          if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret is not set"
             exit 1
           fi
           echo "✓ Required secrets are configured"
@@ -50,7 +50,7 @@ jobs:
         id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: 'dependabot[bot],renovate[bot],google-labs-jules[bot]'
           prompt: |
             REPO: ${{ github.repository }}
