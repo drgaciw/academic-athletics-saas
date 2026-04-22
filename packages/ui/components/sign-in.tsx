@@ -2,6 +2,7 @@
 
 import { useSignIn } from '@clerk/nextjs'
 import { useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { Alert, AlertDescription } from './alert'
 import { Button } from './button'
 import { Input } from './input'
@@ -38,6 +39,7 @@ export function SignIn() {
   const { isLoaded, signIn, setActive } = useSignIn()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -153,17 +155,30 @@ export function SignIn() {
               />
             </div>
             <div className="flex flex-col w-full">
-              <Label htmlFor="password" className="pb-2">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-              />
+              <Label className="pb-2">Password</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="flex items-center justify-end">
               <a className="text-sm font-medium text-primary hover:underline" href="/forgot-password">
