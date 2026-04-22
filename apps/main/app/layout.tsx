@@ -1,4 +1,5 @@
 import { type Metadata } from 'next'
+import Link from 'next/link'
 import { Inter, Lexend } from 'next/font/google'
 import Link from 'next/link'
 import {
@@ -8,6 +9,8 @@ import {
   SignInButton,
   UserButton,
 } from '@clerk/nextjs'
+import { Button } from '@aah/ui'
+
 import './globals.css'
 
 type ClerkInitialState = Record<string, unknown>
@@ -98,44 +101,30 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <ClerkProvider {...(clerkProviderProps as any)}>
       <html lang="en">
-        <body className={`${inter.variable} ${lexend.variable} font-sans antialiased bg-white`}>
-          <a href="#main-content" className="absolute left-0 top-0 z-[100] -translate-y-full rounded bg-oru-navy px-4 py-2 text-white transition-transform focus:translate-y-0">
+        <body
+          className={`${inter.variable} ${lexend.variable} font-sans antialiased flex flex-col min-h-screen`}
+        >
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:ring-2 focus:ring-ring focus:rounded-md"
+          >
             Skip to content
           </a>
-          <header className="sticky top-0 z-50 bg-oru-navy shadow-oru">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16">
-                <Link href="/" className="flex items-center gap-3 group">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-oru-gold shadow-sm group-hover:bg-oru-gold-light transition-colors">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#003057" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-                      <path d="M2 12h20" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col leading-tight">
-                    <span className="text-oru-gold font-bold text-sm tracking-wide uppercase">ORU Soccer</span>
-                    <span className="text-white/70 text-xs font-normal">Academic Portal</span>
-                  </div>
-                </Link>
-                <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
-                  <Link href="#features" className="text-white/80 hover:text-oru-gold text-sm font-medium transition-colors">Features</Link>
-                  <Link href="#how-it-works" className="text-white/80 hover:text-oru-gold text-sm font-medium transition-colors">How it Works</Link>
-                  <Link href="#team" className="text-white/80 hover:text-oru-gold text-sm font-medium transition-colors">Our Teams</Link>
-                </nav>
-                <div className="flex items-center gap-3">
-                  <SignedIn>
-                    <UserButton showName afterSignOutUrl="/" />
-                  </SignedIn>
-                  <SignedOut>
-                    <SignInButton mode="modal">
-                      <button className="rounded-lg border border-oru-gold/60 bg-transparent px-4 py-2 text-sm font-semibold text-oru-gold hover:bg-oru-gold hover:text-oru-navy transition-all">
-                        Sign in
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
-                </div>
-              </div>
+          <header className="flex justify-between items-center p-4 border-b h-16">
+            <Link href="/" className="text-lg font-semibold hover:opacity-80 transition-opacity">
+              Athletic Academics Hub
+            </Link>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <SignedIn>
+                <UserButton showName afterSignOutUrl="/" />
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button variant="outline" size="sm">
+                    Sign in
+                  </Button>
+                </SignInButton>
+              </SignedOut>
             </div>
           </header>
           <main id="main-content" className="flex-1">
