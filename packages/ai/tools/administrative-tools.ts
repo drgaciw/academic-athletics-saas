@@ -246,17 +246,85 @@ export const scheduleEvent = createTool({
   ],
   returnFormat: 'Event creation result with eventId, calendar link, and invitation status',
   execute: async (params, context) => {
-    // TODO: Integrate with Integration Service / Google Calendar API
-    return {
-      eventId: `evt-${Date.now()}`,
-      title: params.title,
-      startTime: params.startTime,
-      endTime: params.endTime,
-      location: params.location,
-      attendees: params.attendees || [],
-      calendarLink: 'https://calendar.google.com/event?eid=...',
-      invitationsSent: params.sendNotifications ? params.attendees?.length || 0 : 0,
-      createdAt: new Date().toISOString(),
+    const integrationUrl = process.env.INTEGRATION_SERVICE_URL || 'http://localhost:3006'
+    const allowMockFallback =
+      process.env.NODE_ENV !== 'production' &&
+      process.env.ALLOW_MOCK_CALENDAR_FALLBACK === 'true'
+
+    // Check for tokens in context metadata
+    const googleToken = context?.metadata?.googleAccessToken
+    const outlookToken = context?.metadata?.outlookAccessToken
+
+    if (!googleToken && !outlookToken) {
+      if (!allowMockFallback) {
+        throw new Error(
+          'Calendar scheduling requires a Google or Outlook access token in the tool context metadata.'
+        )
+      }
+
+      console.warn('Calendar access tokens missing; returning mock event because mock fallback is enabled.')
+      return {
+        eventId: `evt-${Date.now()}`,
+        title: params.title,
+        startTime: params.startTime,
+        endTime: params.endTime,
+        location: params.location,
+        attendees: params.attendees || [],
+        calendarLink: 'https://calendar.google.com/event?eid=mock',
+        invitationsSent: params.sendNotifications ? params.attendees?.length || 0 : 0,
+        createdAt: new Date().toISOString(),
+        warning: 'This is a mock event. Authentication tokens were not provided.',
+      }
+    }
+
+    try {
+      const response = await fetch(`${integrationUrl}/api/integration/calendar/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          provider: googleToken ? 'google' : 'outlook', // Default to google if available
+          googleAccessToken: googleToken,
+          outlookAccessToken: outlookToken,
+          event: {
+            title: params.title,
+            startTime: params.startTime,
+            endTime: params.endTime,
+            location: params.location,
+            description: params.description,
+            attendees: params.attendees,
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || 'Failed to sync calendar event')
+      }
+
+      const result = await response.json()
+
+      return {
+        eventId: result.eventId,
+        title: params.title,
+        startTime: params.startTime,
+        endTime: params.endTime,
+        location: params.location,
+        attendees: params.attendees || [],
+        calendarLink: result.provider === 'google'
+          ? `https://calendar.google.com/calendar/r/eventedit/${result.eventId}` // Approximate link
+          : null,
+        invitationsSent: params.sendNotifications ? params.attendees?.length || 0 : 0,
+        createdAt: new Date().toISOString(),
+        provider: result.provider,
+      }
+    } catch (error) {
+      console.error(
+        'Failed to schedule event:',
+        error instanceof Error ? error.message : 'Unknown error'
+      )
+      throw new Error(`Failed to schedule event: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   },
 })
