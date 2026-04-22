@@ -10,5 +10,6 @@ export { monitoringService } from './monitoringService';
 export { supportService } from './supportService';
 export { integrationService } from './integrationService';
 export { aiService } from './aiService';
+export { coachService } from './coachService';
 
 export { ServiceClient, getServiceUrl } from './serviceClient';
