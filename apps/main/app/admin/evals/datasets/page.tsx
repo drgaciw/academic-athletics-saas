@@ -288,6 +288,7 @@ export default function DatasetsPage() {
                 <Input
                   id="name"
                   {...datasetForm.register("name")}
+                  error={!!datasetForm.formState.errors.name}
                   placeholder="e.g., NCAA Compliance Tests v2"
                 />
                 {datasetForm.formState.errors.name && (
@@ -302,6 +303,7 @@ export default function DatasetsPage() {
                 <Textarea
                   id="description"
                   {...datasetForm.register("description")}
+                  error={!!datasetForm.formState.errors.description}
                   placeholder="Describe the purpose and contents of this dataset..."
                   rows={3}
                   error={!!datasetForm.formState.errors.description}
@@ -432,6 +434,7 @@ export default function DatasetsPage() {
                         <Input
                           id="tc-name"
                           {...testCaseForm.register("name")}
+                          error={!!testCaseForm.formState.errors.name}
                           placeholder="Test case name"
                         />
                         {testCaseForm.formState.errors.name && (
@@ -446,6 +449,7 @@ export default function DatasetsPage() {
                         <Input
                           id="tc-category"
                           {...testCaseForm.register("category")}
+                          error={!!testCaseForm.formState.errors.category}
                           placeholder="e.g., Initial Eligibility"
                         />
                         {testCaseForm.formState.errors.category && (
@@ -461,6 +465,7 @@ export default function DatasetsPage() {
                       <Textarea
                         id="tc-input"
                         {...testCaseForm.register("input")}
+                        error={!!testCaseForm.formState.errors.input}
                         placeholder='{"studentId": "123", "gpa": 3.5, ...}'
                         rows={4}
                         className="font-mono text-sm"
@@ -480,6 +485,7 @@ export default function DatasetsPage() {
                       <Textarea
                         id="tc-expected"
                         {...testCaseForm.register("expected")}
+                        error={!!testCaseForm.formState.errors.expected}
                         placeholder='{"eligible": true, "issues": []}'
                         rows={4}
                         className="font-mono text-sm"
