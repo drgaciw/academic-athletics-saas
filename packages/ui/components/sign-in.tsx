@@ -3,6 +3,7 @@
 import { useSignIn } from '@clerk/nextjs'
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
+import { Alert, AlertDescription } from './alert'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
@@ -39,10 +40,15 @@ export function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoaded) return
+
+    setIsLoading(true)
+    setError(null)
 
     try {
       const result = await signIn.create({
@@ -54,14 +60,20 @@ export function SignIn() {
         await setActive({ session: result.createdSessionId })
       } else {
         console.log(result)
+        setError('Sign in failed. Please check your credentials.')
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setError(err.errors?.[0]?.message || 'An error occurred during sign in')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleSocialSignIn = async (provider: 'oauth_google' | 'oauth_apple') => {
     if (!isLoaded) return
+    setIsLoading(true)
+    setError(null)
     try {
       await signIn.authenticateWithRedirect({
         strategy: provider,
@@ -70,6 +82,8 @@ export function SignIn() {
       })
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2))
+      setError('An error occurred. Please try again.')
+      setIsLoading(false)
     }
   }
 
@@ -89,11 +103,17 @@ export function SignIn() {
           </h2>
         </div>
         <div className="bg-white dark:bg-background-dark/50 rounded-xl shadow-sm p-8 space-y-6">
+          {error && (
+            <Alert variant="error">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-3">
             <Button
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_google')}
+              loading={isLoading}
             >
               <GoogleIcon />
               <span className="truncate">Sign in with Google</span>
@@ -102,6 +122,7 @@ export function SignIn() {
               variant="outline"
               className="w-full gap-3"
               onClick={() => handleSocialSignIn('oauth_apple')}
+              loading={isLoading}
             >
               <AppleIcon />
               <span className="truncate">Sign in with Apple</span>
@@ -115,13 +136,22 @@ export function SignIn() {
             <hr className="flex-grow border-t border-gray-200 dark:border-gray-700" />
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="error">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="flex flex-col w-full">
-              <Label className="pb-2">Email address</Label>
+              <Label htmlFor="email" className="pb-2">
+                Email address
+              </Label>
               <Input
+                id="email"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="flex flex-col w-full">
@@ -155,7 +185,7 @@ export function SignIn() {
                 Forgot password?
               </a>
             </div>
-            <Button type="submit" className="w-full font-bold">
+            <Button type="submit" className="w-full font-bold" loading={isLoading}>
               Sign in
             </Button>
           </form>

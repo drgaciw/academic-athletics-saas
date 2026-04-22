@@ -1,5 +1,5 @@
 {
-  "name": "main",
+  "name": "@aah/main",
   "version": "2.0.0",
   "type": "module",
   "private": true,
