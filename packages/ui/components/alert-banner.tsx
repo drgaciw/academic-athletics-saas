@@ -56,7 +56,7 @@ export function AlertBanner({
 
   return (
     <div
-      role="alert"
+      role={variant === 'error' ? 'alert' : 'status'}
       className={cn(alertBannerVariants({ variant }), className)}
       {...props}
     >

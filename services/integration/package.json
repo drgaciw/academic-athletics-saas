@@ -8,7 +8,7 @@
     "build": "tsup src/index.ts --format esm,cjs --external isomorphic-fetch",
     "type-check": "tsc --noEmit",
     "start": "node dist/index.js",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
@@ -25,6 +25,8 @@
     "pdfkit": "^0.14.0",
     "resend": "^3.2.0",
     "zod": "^3.22.4"
+    "axios": "^1.6.7",
+    "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

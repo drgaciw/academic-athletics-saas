@@ -14,17 +14,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
-    "declarationMap": true,
-    "composite": true,
-    "paths": {
-      "@aah/ai": ["../ai/index.ts"],
-      "@aah/database": ["../database/index.ts"]
-    }
+    "declarationMap": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
-  "references": [
-    { "path": "../ai" },
-    { "path": "../database" }
-  ]
+  "include": ["src/**/*", "cli.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }

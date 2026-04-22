@@ -1,5 +1,5 @@
 {
-  "extends": "../../packages/config/tsconfig/base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
@@ -7,21 +7,7 @@
     "target": "ES2022",
     "lib": ["ES2022"],
     "moduleResolution": "bundler",
-    "types": ["node"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "declaration": true,
-    "declarationMap": true,
-    "paths": {
-      "@aah/auth": ["../../packages/auth/index.ts"],
-      "@aah/database": ["../../packages/database/index.ts"],
-      "@aah/api-utils": ["../../packages/api-utils/src/index.ts"],
-      "@aah/config": ["../../packages/config/index.js"]
-    }
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]

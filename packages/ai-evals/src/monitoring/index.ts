@@ -15,15 +15,14 @@
 // Analytics exports
 export {
   AnalyticsTracker,
-  AnalyticsEventType,
   MetricsAggregator,
   getAnalyticsTracker,
   trackEvalRun,
   trackRegression,
 } from './analytics';
-
 export type {
   AnalyticsConfig,
+  AnalyticsEventType,
   EvalRunMetadata,
   RegressionMetadata,
 } from './analytics';
@@ -31,14 +30,13 @@ export type {
 // Alerting exports
 export {
   AlertManager,
+  getAlertManager,
+} from './alerts';
+export type {
+  AlertConfig,
   AlertSeverity,
   AlertType,
   NotificationChannel,
-  getAlertManager,
-} from './alerts';
-
-export type {
-  AlertConfig,
   SlackConfig,
   EmailConfig,
   WebhookConfig,
@@ -55,7 +53,6 @@ export {
   formatCost,
   formatTokens,
 } from './cost-tracker';
-
 export type {
   CostTrackerConfig,
   BudgetConfig,
