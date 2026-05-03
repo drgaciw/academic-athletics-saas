@@ -9,7 +9,7 @@ import { BaseAgent } from '../lib/base-agent'
 import { globalToolRegistry } from '../lib/tool-registry'
 import { getToolsForAgentType } from '../tools'
 import { ADMINISTRATIVE_AGENT_PROMPT } from '../lib/prompt-templates'
-import type { AgentConfig, AgentRequest, ToolExecutionContext } from '../types/agent.types'
+import type { AgentConfig, AgentRequest, AgentState, ToolExecutionContext } from '../types/agent.types'
 import type { CoreTool } from 'ai'
 
 /**
@@ -62,14 +62,13 @@ export class AdministrativeAgent extends BaseAgent {
   /**
    * Get tools for administrative agent
    */
-  protected getTools(): Record<string, CoreTool> {
-    // Create minimal context for tool registration
-    // Full context will be set during execute()
+  protected getTools(request?: AgentRequest, state?: AgentState): Record<string, CoreTool> {
     const context: ToolExecutionContext = {
-      userId: '',
+      userId: request?.userId ?? '',
       userRoles: this.getUserRoles(),
-      agentState: {} as any,
+      agentState: state ?? ({} as any),
       requestConfirmation: this.requestConfirmation.bind(this),
+      metadata: request?.context ?? state?.metadata ?? {},
     }
 
     return globalToolRegistry.toAISDKTools(this.config.tools, context)
