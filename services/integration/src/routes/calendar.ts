@@ -12,6 +12,7 @@ const calendarEventSchema = z.object({
   endTime: z.string().transform((str) => new Date(str)),
   location: z.string().optional(),
   attendees: z.array(z.string().email()).optional(),
+  sendNotifications: z.boolean().optional(),
   reminders: z
     .object({
       useDefault: z.boolean().optional(),

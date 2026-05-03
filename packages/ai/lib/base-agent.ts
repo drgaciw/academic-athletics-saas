@@ -56,7 +56,7 @@ export abstract class BaseAgent {
    * Get available tools for this agent
    * Must be implemented by subclasses
    */
-  protected abstract getTools(): Record<string, CoreTool>
+  protected abstract getTools(request?: AgentRequest, state?: AgentState): Record<string, CoreTool>
 
   /**
    * Execute agent with streaming
@@ -79,7 +79,7 @@ export abstract class BaseAgent {
 
       // Get tools
       tracer.startSpan('load-tools')
-      const tools = this.getTools()
+      const tools = this.getTools(request, state)
       tracer.endSpan({ toolCount: Object.keys(tools).length })
 
       // Prepare messages
@@ -210,7 +210,7 @@ export abstract class BaseAgent {
 
       // Get tools
       tracer.startSpan('load-tools')
-      const tools = this.getTools()
+      const tools = this.getTools(request, state)
       tracer.endSpan({ toolCount: Object.keys(tools).length })
 
       // Prepare messages

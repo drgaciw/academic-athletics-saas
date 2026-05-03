@@ -1,18 +1,19 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { globalToolRegistry } from '../../lib/tool-registry'
 import { scheduleEvent } from '../administrative-tools'
+import { sendEmail } from '../administrative-tools'
 
 // Mock fetch globally
-const globalFetch = vi.fn()
+const globalFetch = jest.fn()
 global.fetch = globalFetch
 
 describe('scheduleEvent', () => {
   beforeEach(() => {
-    vi.resetAllMocks()
+    jest.resetAllMocks()
     process.env.INTEGRATION_SERVICE_URL = 'http://localhost:3006'
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
+    jest.clearAllMocks()
     delete process.env.INTEGRATION_SERVICE_URL
     delete process.env.ALLOW_MOCK_CALENDAR_FALLBACK
     delete process.env.NODE_ENV
@@ -123,6 +124,72 @@ describe('scheduleEvent', () => {
     expect(result.title).toBe(params.title)
   })
 
+  it('should pass metadata tokens through the AI SDK tool wrapper', async () => {
+    const params = {
+      title: 'Advising Appointment',
+      startTime: '2024-11-15T10:00:00Z',
+      endTime: '2024-11-15T10:30:00Z',
+      attendees: ['student@example.com'],
+    }
+
+    const tools = globalToolRegistry.toAISDKTools([scheduleEvent.name], {
+      userId: 'advisor-123',
+      userRoles: ['write:calendar'],
+      agentState: {} as any,
+      metadata: {
+        googleAccessToken: 'wrapped-token',
+      },
+    })
+
+    globalFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        eventId: 'google-event-id',
+        provider: 'google',
+      }),
+    })
+
+    const result = await tools.scheduleEvent.execute(params)
+    const body = JSON.parse(globalFetch.mock.calls[0][1].body)
+
+    expect(result.success).toBe(true)
+    expect(body.googleAccessToken).toBe('wrapped-token')
+  })
+
+  it('should forward sendNotifications to the integration service', async () => {
+    const params = {
+      title: 'Test Event',
+      startTime: '2024-11-15T10:00:00Z',
+      endTime: '2024-11-15T10:30:00Z',
+      attendees: ['test@example.com'],
+      sendNotifications: true,
+    }
+
+    const context = {
+      userId: 'user-123',
+      userRoles: ['student'],
+      agentState: {} as any,
+      metadata: {
+        googleAccessToken: 'fake-token',
+      },
+    }
+
+    globalFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        eventId: 'google-event-id',
+        provider: 'google',
+      }),
+    })
+
+    await scheduleEvent.execute(params, context)
+
+    const body = JSON.parse(globalFetch.mock.calls[0][1].body)
+    expect(body.event.sendNotifications).toBe(true)
+  })
+
   it('should call integration service when outlookAccessToken is present', async () => {
     const params = {
       title: 'Test Event',
@@ -158,8 +225,6 @@ describe('scheduleEvent', () => {
   })
 })
 
-import { Resend } from 'resend';
-
 // Mock Resend BEFORE importing the tool
 const mockSend = jest.fn();
 
@@ -175,9 +240,6 @@ jest.mock('resend', () => {
     })
   };
 });
-
-// Import the tool AFTER mocking
-import { sendEmail } from '../administrative-tools';
 
 describe('sendEmail Tool', () => {
   const originalEnv = process.env;

@@ -10,6 +10,7 @@ export interface CalendarEvent {
   endTime: Date;
   location?: string;
   attendees?: string[];
+  sendNotifications?: boolean;
   reminders?: {
     useDefault?: boolean;
     overrides?: Array<{
@@ -62,6 +63,7 @@ export class CalendarService {
 
       const response = await calendar.events.insert({
         calendarId,
+        sendUpdates: event.sendNotifications ? 'all' : 'none',
         requestBody: {
           summary: event.title,
           description: event.description,

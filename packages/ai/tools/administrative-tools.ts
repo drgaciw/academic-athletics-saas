@@ -5,13 +5,13 @@
  */
 
 import { z } from 'zod'
-import { createTool } from '../lib/tool-registry'
-import type { ToolExecutionContext } from '../types/agent.types'
 import { Resend } from 'resend'
+import { createTool } from '../lib/tool-registry'
+import { integrationService, userService, monitoringService } from '../lib/service-client'
+import type { ToolExecutionContext } from '../types/agent.types'
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY)
-import { integrationService, userService, monitoringService } from '../lib/service-client'
 
 /**
  * Send Email
@@ -294,6 +294,7 @@ export const scheduleEvent = createTool({
             location: params.location,
             description: params.description,
             attendees: params.attendees,
+            sendNotifications: params.sendNotifications,
           },
         }),
       })
