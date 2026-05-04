@@ -729,7 +729,6 @@ export class EvalRepository {
     if (policy.keepTopPerformers && policy.keepTopPerformers > 0) {
       const topRuns = await this.prisma.evalRun.findMany({
         where: { status: 'completed' },
-        include: { metrics: true },
         orderBy: { metrics: { accuracy: 'desc' } },
         take: policy.keepTopPerformers,
         select: { id: true },

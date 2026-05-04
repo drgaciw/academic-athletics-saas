@@ -1,5 +1,13 @@
 # Tasks 11.1-11.3 Completion Summary
 
+> Verified current status note (2026-04-18): This is a historical completion summary.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Monitoring/alerting implementation described below should not be treated as proof that the current package is fully integrated, type-clean, or production-ready.
+
 ## Overview
 
 Successfully implemented comprehensive monitoring, alerting, and cost tracking system for AI Evals framework (Tasks 11.1, 11.2, and 11.3).

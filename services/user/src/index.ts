@@ -14,6 +14,7 @@
 
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { resolve } from 'node:path'
 import {
   correlationMiddleware,
   rateLimitMiddleware,
@@ -31,6 +32,13 @@ import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
 import profileRoutes from './routes/profile'
 import rolesRoutes from './routes/roles'
 import syncRoutes from './routes/sync'
+
+const loadEnvFile = (process as typeof process & {
+  loadEnvFile?: (path?: string) => void
+}).loadEnvFile
+
+loadEnvFile?.(resolve(process.cwd(), '.env'))
+loadEnvFile?.(resolve(process.cwd(), '../../.env'))
 
 // Validate environment variables
 const env = validateEnv(userServiceEnvSchema)

@@ -21,13 +21,13 @@ cat /proc/sys/fs/inotify/max_user_watches
 
 **Status:** Current limit is 65,536 (needs 524,288)  
 **Impact:** Claude Code crashes, development servers fail  
-**Fix:** See command above or [`fix-file-watchers.md`](fix-file-watchers.md)
+**Fix:** See command above or [`fix-file-watchers.md`](../guides/fix-file-watchers.md)
 
 ### ℹ INFO: Gemini CLI API Error
 
 **Status:** Unrelated to your project  
 **Impact:** None (your project doesn't use Gemini)  
-**Fix:** Can be ignored, or see [`fix-gemini-api-error.md`](fix-gemini-api-error.md)
+**Fix:** Can be ignored, or see [`fix-gemini-api-error.md`](../guides/fix-gemini-api-error.md)
 
 ### ⚠ WARNING: High Process Count
 
@@ -53,8 +53,8 @@ cat /proc/sys/fs/inotify/max_user_watches
 | File | Description |
 |------|-------------|
 | **[FIXES-SUMMARY.md](FIXES-SUMMARY.md)** | **Start here** - Complete overview |
-| [fix-file-watchers.md](fix-file-watchers.md) | File watcher issue documentation |
-| [fix-gemini-api-error.md](fix-gemini-api-error.md) | Gemini API error documentation |
+| [fix-file-watchers.md](../guides/fix-file-watchers.md) | File watcher issue documentation |
+| [fix-gemini-api-error.md](../guides/fix-gemini-api-error.md) | Gemini API error documentation |
 | [quick-fix-watchers.sh](quick-fix-watchers.sh) | Quick fix script for watchers |
 | [quick-fix-gemini-cli.sh](quick-fix-gemini-cli.sh) | Gemini CLI diagnostic |
 | [verify-system-health.sh](verify-system-health.sh) | System health check script |

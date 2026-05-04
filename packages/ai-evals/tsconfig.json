@@ -16,6 +16,32 @@
     "declaration": true,
     "declarationMap": true
   },
-  "include": ["src/**/*", "cli.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "include": [
+    "cli.ts",
+    "src/index.ts",
+    "src/base-runner.ts",
+    "src/dataset-manager.ts",
+    "src/model-comparison.ts",
+    "src/scorers.ts",
+    "src/metrics.ts",
+    "src/types.ts",
+    "src/cli/**/*.ts",
+    "src/config/**/*.ts",
+    "src/db/**/*.ts",
+    "src/errors/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/runners/**/*",
+    "src/datasets/**/*",
+    "src/orchestrator/**/*",
+    "src/monitoring/**/*",
+    "src/performance/**/*",
+    "src/safety/**/*",
+    "src/types/**/*",
+    "src/__tests__/**/*"
+  ]
 }

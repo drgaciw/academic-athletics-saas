@@ -3,7 +3,6 @@
  */
 
 import { PIIDetector, PIIScorer, redactPII } from '../pii-detector';
-import { PIIType, Severity } from '../../types';
 
 describe('PIIDetector', () => {
   let detector: PIIDetector;
@@ -17,7 +16,7 @@ describe('PIIDetector', () => {
     const detections = detector.detect(text);
 
     expect(detections.length).toBeGreaterThan(0);
-    expect(detections[0].type).toBe(PIIType.EMAIL);
+    expect(detections[0].type).toBe('EMAIL');
   });
 
   test('should detect phone numbers', () => {
@@ -25,7 +24,7 @@ describe('PIIDetector', () => {
     const detections = detector.detect(text);
 
     expect(detections.length).toBeGreaterThan(0);
-    expect(detections[0].type).toBe(PIIType.PHONE);
+    expect(detections[0].type).toBe('PHONE');
   });
 });
 
@@ -41,7 +40,7 @@ describe('PIIScorer', () => {
     const result = scorer.score(output);
 
     expect(result.passed).toBe(true);
-    expect(result.severity).toBe(Severity.INFO);
+    expect(result.severity).toBe('INFO');
   });
 
   test('should fail when PII detected', () => {

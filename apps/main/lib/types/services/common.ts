@@ -51,6 +51,15 @@ export enum UserRole {
   STAFF = 'STAFF',
 }
 
+/** Align with Prisma `UserRole` for server-side checks */
+export type DatabaseUserRole =
+  | 'STUDENT'
+  | 'ADMIN'
+  | 'COACH'
+  | 'FACULTY'
+  | 'STAFF'
+  | 'COMPLIANCE';
+
 // Request context passed to services
 export interface RequestContext {
   userId: string;

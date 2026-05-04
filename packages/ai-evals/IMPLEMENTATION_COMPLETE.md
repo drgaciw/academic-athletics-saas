@@ -1,5 +1,13 @@
 # AI Evaluation Framework - Safety Implementation Complete
 
+> Verified current status note (2026-04-18): This is a historical completion report, not a current verification record.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Treat task-level completion statements in this document as implementation-history claims only, not proof of current package health or production readiness.
+
 ## Tasks 10.1, 10.2, and 10.3: COMPLETE
 
 This document confirms successful completion of the safety and compliance components for the AI Evaluation Framework in the Athletic Academics Hub platform.

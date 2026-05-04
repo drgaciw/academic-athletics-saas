@@ -1,17 +1,20 @@
 /**
  * Tool Definitions Index
- * 
+ *
  * Central export and registration point for all agent tools
  */
 
-import { globalToolRegistry } from '../lib/tool-registry'
+import { globalToolRegistry } from "../lib/tool-registry";
 
 // Import all tool categories
-import { studentDataTools } from './student-data-tools'
-import { complianceTools } from './compliance-tools'
-import { advisingTools } from './advising-tools'
-import { administrativeTools } from './administrative-tools'
-import { errorDiagnosticsTools } from './error-diagnostics-tools'
+import { studentDataTools } from "./student-data-tools";
+import { complianceTools } from "./compliance-tools";
+import { advisingTools } from "./advising-tools";
+import { administrativeTools } from "./administrative-tools";
+import { errorDiagnosticsTools } from "./error-diagnostics-tools";
+import { architectureTools } from "./sdlc-architecture-tools";
+import { securityTools } from "./tech-security-tools";
+import { financialTools } from "./business-financial-tools";
 
 /**
  * All available tools organized by category
@@ -22,7 +25,10 @@ export const allTools = {
   advising: advisingTools,
   administrative: administrativeTools,
   errorDiagnostics: errorDiagnosticsTools,
-}
+  architecture: architectureTools,
+  security: securityTools,
+  financial: financialTools,
+};
 
 /**
  * Flat array of all tools
@@ -33,17 +39,22 @@ export const allToolsFlat = [
   ...advisingTools,
   ...administrativeTools,
   ...errorDiagnosticsTools,
-]
+  ...architectureTools,
+  ...securityTools,
+  ...financialTools,
+];
 
 /**
  * Register all tools with the global registry
  */
 export function registerAllTools() {
   for (const tool of allToolsFlat) {
-    globalToolRegistry.register(tool)
+    globalToolRegistry.register(tool);
   }
-  
-  console.log(`Registered ${allToolsFlat.length} tools across ${Object.keys(allTools).length} categories`)
+
+  console.log(
+    `Registered ${allToolsFlat.length} tools across ${Object.keys(allTools).length} categories`,
+  );
 }
 
 /**
@@ -53,96 +64,114 @@ export function getToolsForAgentType(agentType: string): string[] {
   const toolMappings: Record<string, string[]> = {
     advising: [
       // Student data
-      'getStudentProfile',
-      'getAcademicRecords',
-      'getDegreeProgress',
+      "getStudentProfile",
+      "getAcademicRecords",
+      "getDegreeProgress",
       // Advising
-      'searchCourses',
-      'checkConflicts',
-      'getDegreeRequirements',
-      'calculateProgress',
-      'recommendCourses',
-      'getPrerequisites',
+      "searchCourses",
+      "checkConflicts",
+      "getDegreeRequirements",
+      "calculateProgress",
+      "recommendCourses",
+      "getPrerequisites",
       // Compliance (read-only)
-      'checkEligibility',
+      "checkEligibility",
       // Administrative
-      'logInteraction',
+      "logInteraction",
     ],
     compliance: [
       // Student data
-      'getStudentProfile',
-      'getAcademicRecords',
-      'getDegreeProgress',
+      "getStudentProfile",
+      "getAcademicRecords",
+      "getDegreeProgress",
       // Compliance
-      'checkEligibility',
-      'searchNCAARules',
-      'simulateScenario',
-      'getComplianceHistory',
-      'calculateProgressTowardDegree',
+      "checkEligibility",
+      "searchNCAARules",
+      "simulateScenario",
+      "getComplianceHistory",
+      "calculateProgressTowardDegree",
       // Administrative
-      'generateReport',
-      'logInteraction',
+      "generateReport",
+      "logInteraction",
     ],
     intervention: [
       // Student data
-      'getStudentProfile',
-      'getAcademicRecords',
-      'getPerformanceMetrics',
-      'getDegreeProgress',
+      "getStudentProfile",
+      "getAcademicRecords",
+      "getPerformanceMetrics",
+      "getDegreeProgress",
       // Compliance
-      'checkEligibility',
+      "checkEligibility",
       // Advising
-      'recommendCourses',
+      "recommendCourses",
       // Administrative
-      'sendEmail',
-      'scheduleEvent',
-      'createReminder',
-      'logInteraction',
+      "sendEmail",
+      "scheduleEvent",
+      "createReminder",
+      "logInteraction",
     ],
     administrative: [
       // Student data
-      'getStudentProfile',
-      'getAcademicRecords',
-      'getAthleticSchedule',
+      "getStudentProfile",
+      "getAcademicRecords",
+      "getAthleticSchedule",
       // Administrative
-      'sendEmail',
-      'generateTravelLetter',
-      'scheduleEvent',
-      'generateReport',
-      'createReminder',
-      'logInteraction',
+      "sendEmail",
+      "generateTravelLetter",
+      "scheduleEvent",
+      "generateReport",
+      "createReminder",
+      "logInteraction",
     ],
     general: [
       // Student data (read-only)
-      'getStudentProfile',
-      'getAcademicRecords',
-      'getAthleticSchedule',
-      'getDegreeProgress',
+      "getStudentProfile",
+      "getAcademicRecords",
+      "getAthleticSchedule",
+      "getDegreeProgress",
       // Compliance (read-only)
-      'checkEligibility',
-      'searchNCAARules',
+      "checkEligibility",
+      "searchNCAARules",
       // Advising (read-only)
-      'searchCourses',
-      'getDegreeRequirements',
-      'getPrerequisites',
+      "searchCourses",
+      "getDegreeRequirements",
+      "getPrerequisites",
     ],
     error_diagnostics: [
       // Error diagnostics tools
-      'analyzeError',
-      'detectErrorPatterns',
-      'getErrorHistory',
-      'checkFERPACompliance',
-      'assessNCAAComplianceImpact',
-      'generateFixRecommendation',
+      "analyzeError",
+      "detectErrorPatterns",
+      "getErrorHistory",
+      "checkFERPACompliance",
+      "assessNCAAComplianceImpact",
+      "generateFixRecommendation",
       // Student data (for context)
-      'getStudentProfile',
+      "getStudentProfile",
       // Administrative (for logging)
-      'logInteraction',
-      'generateReport',
+      "logInteraction",
+      "generateReport",
     ],
-  }
+    sdlc_architecture: [
+      // Architecture tools
+      "generateADR",
+      "recommendPattern",
+      "analyzeIntegration",
+    ],
+    tech_security: [
+      // Security tools
+      "owaspCheck",
+      "strideModel",
+      "vulnAssessment",
+    ],
+    business_financial: [
+      // Financial tools
+      "forecastScholarships",
+      "titleIxEquityReport",
+      "varianceAnalysis",
+    ],
+  };
 
-  return toolMappings[agentType] || []
+  return toolMappings[agentType] || [];
 }
 
 /**
@@ -151,88 +180,88 @@ export function getToolsForAgentType(agentType: string): string[] {
 export const rolePermissions: Record<string, string[]> = {
   // Student-athletes
   student: [
-    'read:student', // Own data only
-    'read:courses',
-    'read:athletics',
+    "read:student", // Own data only
+    "read:courses",
+    "read:athletics",
   ],
-  
+
   // Academic support staff
   advisor: [
-    'read:student',
-    'read:courses',
-    'read:athletics',
-    'read:grades',
-    'read:performance',
-    'read:degree',
-    'write:interactions',
+    "read:student",
+    "read:courses",
+    "read:athletics",
+    "read:grades",
+    "read:performance",
+    "read:degree",
+    "write:interactions",
   ],
-  
+
   // Compliance officers
   compliance_officer: [
-    'read:student',
-    'read:courses',
-    'read:athletics',
-    'read:grades',
-    'read:compliance',
-    'read:performance',
-    'read:degree',
-    'write:reports',
-    'write:interactions',
+    "read:student",
+    "read:courses",
+    "read:athletics",
+    "read:grades",
+    "read:compliance",
+    "read:performance",
+    "read:degree",
+    "write:reports",
+    "write:interactions",
   ],
-  
+
   // Coaches
   coach: [
-    'read:student', // Team members only
-    'read:athletics',
-    'read:grades',
-    'read:performance',
-    'read:compliance',
+    "read:student", // Team members only
+    "read:athletics",
+    "read:grades",
+    "read:performance",
+    "read:compliance",
   ],
-  
+
   // Faculty
   faculty: [
-    'read:student', // Enrolled students only
-    'read:courses',
+    "read:student", // Enrolled students only
+    "read:courses",
   ],
-  
+
   // Administrators
   admin: [
-    'read:student',
-    'read:courses',
-    'read:athletics',
-    'read:grades',
-    'read:compliance',
-    'read:performance',
-    'read:degree',
-    'write:email',
-    'write:documents',
-    'write:calendar',
-    'write:reports',
-    'write:notifications',
-    'write:interactions',
+    "read:student",
+    "read:courses",
+    "read:athletics",
+    "read:grades",
+    "read:compliance",
+    "read:performance",
+    "read:degree",
+    "write:email",
+    "write:documents",
+    "write:calendar",
+    "write:reports",
+    "write:notifications",
+    "write:interactions",
   ],
-}
+};
 
 /**
  * Get user permissions based on roles
  */
 export function getUserPermissions(userRoles: string[]): string[] {
-  const permissions = new Set<string>()
-  
+  const permissions = new Set<string>();
+
   for (const role of userRoles) {
-    const rolePerms = rolePermissions[role] || []
-    rolePerms.forEach((perm) => permissions.add(perm))
+    const rolePerms = rolePermissions[role] || [];
+    rolePerms.forEach((perm) => permissions.add(perm));
   }
-  
-  return Array.from(permissions)
+
+  return Array.from(permissions);
 }
 
 // Export individual tool categories
-export * from './student-data-tools'
-export * from './compliance-tools'
-export * from './advising-tools'
-export * from './administrative-tools'
-export * from './error-diagnostics-tools'
+export * from "./student-data-tools";
+export * from "./compliance-tools";
+export * from "./advising-tools";
+export * from "./administrative-tools";
+export * from "./error-diagnostics-tools";
 
 // Auto-register tools on import
-registerAllTools()
+registerAllTools();

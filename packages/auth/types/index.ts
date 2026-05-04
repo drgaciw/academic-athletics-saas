@@ -9,6 +9,7 @@ export enum UserRole {
   COACH = 'COACH',
   FACULTY = 'FACULTY',
   MENTOR = 'MENTOR',
+  COMPLIANCE = 'COMPLIANCE',
 }
 
 /**

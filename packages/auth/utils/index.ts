@@ -77,6 +77,16 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'support:write',
     'ai:chat',
   ],
+  [UserRole.COMPLIANCE]: [
+    'user:read',
+    'student:read',
+    'compliance:read',
+    'compliance:write',
+    'compliance:validate',
+    'compliance:admin',
+    'monitoring:read',
+    'ai:chat',
+  ],
 }
 
 /**

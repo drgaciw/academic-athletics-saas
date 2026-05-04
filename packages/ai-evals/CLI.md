@@ -2,24 +2,47 @@
 
 Command-line interface for the AI Evaluation Framework.
 
+Status note:
+- The CLI entrypoint is runnable and `pnpm --filter @aah/ai-evals cli --help` works.
+- The package currently verifies cleanly with:
+  - `pnpm --filter @aah/ai-evals type-check`
+  - `pnpm --filter @aah/ai-evals test -- --runInBand`
+- Some commands still contain mock/demo behavior and are not full production eval execution flows yet.
+- Treat the CLI as a working interface shell around partially implemented command logic.
+
 ## Installation
 
-```bash
-# Install dependencies
-pnpm install
+From the monorepo root:
 
-# Make CLI executable
-chmod +x cli.ts
+```bash
+pnpm install
+```
+
+## Verified Commands
+
+These commands are currently verified:
+
+```bash
+pnpm --filter @aah/ai-evals type-check
+pnpm --filter @aah/ai-evals test -- --runInBand
+pnpm --filter @aah/ai-evals cli --help
+pnpm --filter @aah/ai-evals cli run --help
+pnpm --filter @aah/ai-evals cli compare --help
+pnpm --filter @aah/ai-evals cli report --help
+pnpm --filter @aah/ai-evals cli dataset --help
+pnpm --filter @aah/ai-evals cli config --help
 ```
 
 ## Usage
 
 ```bash
-# Run via pnpm
-pnpm cli <command> [options]
+# Run via package filter from monorepo root
+pnpm --filter @aah/ai-evals cli <command> [options]
 
-# Or after building
-./cli.ts <command> [options]
+# Package-specific helper scripts also exist
+pnpm --filter @aah/ai-evals eval
+pnpm --filter @aah/ai-evals compare
+pnpm --filter @aah/ai-evals report
 ```
 
 ## Commands
@@ -28,30 +51,24 @@ pnpm cli <command> [options]
 
 Run AI evaluations with flexible configuration options.
 
+Important note:
+- The command surface exists and help output works.
+- Current implementation still contains placeholder/skeleton behavior for actual eval execution.
+- `--output` now writes a rendered artifact for the current skeleton/mock execution path.
+- Use `--dry-run` and help output as safer validation paths unless you are intentionally working on CLI internals.
+
 ```bash
-# Interactive mode (recommended for first-time users)
-pnpm cli run --interactive
+# Interactive mode
+pnpm --filter @aah/ai-evals cli run --interactive
 
 # Run with default configuration
-pnpm cli run
+pnpm --filter @aah/ai-evals cli run
 
 # Run with custom config file
-pnpm cli run --config ./my-eval.yaml
-
-# Run specific datasets
-pnpm cli run --dataset compliance-eligibility compliance-gpa
-
-# Run with specific models
-pnpm cli run --model gpt-4-turbo claude-3-opus
-
-# Compare against baseline
-pnpm cli run --baseline run_abc123
-
-# Save results to file
-pnpm cli run --output ./results/eval.json --format json
+pnpm --filter @aah/ai-evals cli run --config ./my-eval.yaml
 
 # Dry run (validate without executing)
-pnpm cli run --dry-run --verbose
+pnpm --filter @aah/ai-evals cli run --dry-run --verbose
 ```
 
 **Options:**
@@ -65,31 +82,21 @@ pnpm cli run --dry-run --verbose
 - `-i, --interactive` - Interactive mode
 - `--dry-run` - Validate configuration without executing
 - `--parallel` - Enable parallel execution
-- `--concurrency <n>` - Set concurrency limit (default: 5)
+- `--concurrency <n>` - Set concurrency limit
 
 ### `compare` - Compare Models
 
 Compare performance of multiple AI models side-by-side.
 
+Important note:
+- Command wiring and help output are live.
+- Verified compare paths now load repository-backed run metrics when persisted completed runs are available for the selected dataset/models.
+- The command still falls back to mock/demo comparison output when qualifying persisted data is unavailable.
+- `--output` now writes the rendered comparison artifact to disk.
+
 ```bash
-# Compare 2+ models
-pnpm cli compare --models gpt-4-turbo claude-3-opus gpt-3.5-turbo
-
-# Compare on specific datasets
-pnpm cli compare \
-  --models gpt-4-turbo claude-3-opus \
-  --dataset compliance-full
-
-# Focus on specific metrics
-pnpm cli compare \
-  --models gpt-4-turbo claude-3-opus \
-  --metric accuracy latency cost
-
-# Output to markdown
-pnpm cli compare \
-  --models gpt-4-turbo claude-3-opus \
-  --format markdown \
-  --output comparison-report.md
+pnpm --filter @aah/ai-evals cli compare --models gpt-4-turbo claude-3-opus
+pnpm --filter @aah/ai-evals cli compare --models gpt-4-turbo claude-3-opus --format markdown
 ```
 
 **Options:**
@@ -103,23 +110,18 @@ pnpm cli compare \
 
 ### `report` - Generate Reports
 
-Generate detailed reports from evaluation runs.
+Generate reports from evaluation runs.
+
+Important note:
+- Help output is verified.
+- Verified report paths now load repository-backed run data and active-baseline comparisons when persisted data is available.
+- The command still falls back to mock/demo report output in verified automated paths when qualifying persisted data is unavailable.
+- Live report execution currently requires repository DB configuration (for example `DATABASE_URL`) because repository access happens before fallback.
+- `--output` now writes the rendered report artifact when the command completes successfully.
 
 ```bash
-# Report for specific run
-pnpm cli report --run-id run_abc123
-
-# Report for latest run
-pnpm cli report --latest
-
-# Generate markdown report
-pnpm cli report --latest --format markdown --output report.md
-
-# Include baseline comparison
-pnpm cli report --run-id run_abc123 --compare-baseline
-
-# Include only failures
-pnpm cli report --latest --include-failures --format table
+pnpm --filter @aah/ai-evals cli report --latest
+pnpm --filter @aah/ai-evals cli report --latest --format markdown
 ```
 
 **Options:**
@@ -127,351 +129,79 @@ pnpm cli report --latest --include-failures --format table
 - `-l, --latest` - Use latest run
 - `-f, --format <format>` - Output format (json|markdown|html|pdf)
 - `-o, --output <path>` - Output file path
-- `--include-failures` - Include failed test details (default: true)
-- `--include-metrics` - Include detailed metrics (default: true)
+- `--include-failures` - Include failed test details
+- `--include-metrics` - Include detailed metrics
 - `--compare-baseline` - Compare with baseline
 
 ### `dataset` - Manage Datasets
 
-Manage test datasets for evaluations.
+Manage datasets used by the package.
+
+Important note:
+- Command structure exists.
+- Some dataset command behaviors remain mock/demo oriented.
 
 ```bash
-# List all datasets
-pnpm cli dataset list
-
-# List with details
-pnpm cli dataset list --verbose
-
-# Show dataset details
-pnpm cli dataset show compliance-eligibility
-
-# Validate dataset schema
-pnpm cli dataset validate compliance-eligibility
-
-# Create new dataset
-pnpm cli dataset create \
-  --name "My Custom Tests" \
-  --description "Custom test cases for feature X" \
-  --file ./my-tests.json
+pnpm --filter @aah/ai-evals cli dataset list
+pnpm --filter @aah/ai-evals cli dataset show compliance-eligibility
+pnpm --filter @aah/ai-evals cli dataset validate compliance-eligibility
 ```
-
-**Subcommands:**
-- `list` - List all available datasets
-- `show <id>` - Show dataset details
-- `validate <id>` - Validate dataset schema
-- `create` - Create new dataset
 
 ### `config` - Manage Configuration
 
 Manage evaluation configuration files.
 
+This is one of the more concrete parts of the CLI surface:
+- config schema/types exist
+- interactive setup path exists
+- examples/config scaffolding is present
+
 ```bash
-# Initialize default config
-pnpm cli config init
-
-# Initialize with template
-pnpm cli config init --template compliance --format yaml
-
-# Available templates:
-# - default: Generic configuration
-# - compliance: NCAA compliance testing
-# - conversational: Chat quality evaluation
-# - rag: RAG pipeline testing
-# - comparison: Multi-model comparison
-
-# Validate configuration
-pnpm cli config validate ./my-eval.yaml
-
-# Display configuration
-pnpm cli config show ./my-eval.yaml
-
-# Display as YAML
-pnpm cli config show ./my-eval.json --format yaml
+pnpm --filter @aah/ai-evals cli config init
+pnpm --filter @aah/ai-evals cli config init --template compliance
+pnpm --filter @aah/ai-evals cli config validate ./my-eval.yaml
+pnpm --filter @aah/ai-evals cli config show ./my-eval.yaml
 ```
-
-**Subcommands:**
-- `init` - Initialize new configuration file
-- `validate <path>` - Validate configuration file
-- `show <path>` - Display configuration
 
 ## Configuration Files
 
-### File Formats
-
-The CLI supports both YAML and JSON formats:
+Supported configuration formats:
 
 ```bash
-# YAML (recommended for readability)
 ai-evals.config.yaml
 ai-evals.config.yml
-
-# JSON (for programmatic generation)
 ai-evals.config.json
 ```
 
-### Configuration Priority
-
-The CLI loads configuration in this order:
-
-1. File specified with `--config` option (highest priority)
-2. `./ai-evals.config.yaml`
-3. `./ai-evals.config.yml`
-4. `./ai-evals.config.json`
-5. `./.ai-evals.yaml`
-6. `./.ai-evals.json`
-7. Default configuration (lowest priority)
-
-### Example Configuration
-
-See `examples/` directory for complete examples:
-
-- `compliance-eval.yaml` - NCAA compliance testing
-- `conversational-eval.yaml` - Chat quality assessment
-- `model-comparison.json` - Multi-model comparison
-
-## Interactive Mode
-
-Interactive mode provides a guided wizard for creating evaluations:
-
-```bash
-pnpm cli run --interactive
-```
-
-**Features:**
-1. **Model Selection** - Choose providers and models with recommendations
-2. **Dataset Selection** - Browse and filter available datasets
-3. **Scorer Configuration** - Configure scoring strategy and thresholds
-4. **Runner Settings** - Set timeout, retries, and concurrency
-5. **Output Options** - Choose format and destination
-6. **Baseline Setup** - Enable baseline comparison
-7. **Configuration Preview** - Review before execution
-
-## Environment Variables
-
-```bash
-# API Keys (required)
-export OPENAI_API_KEY=sk-...
-export ANTHROPIC_API_KEY=sk-ant-...
-
-# Optional
-export NODE_ENV=development
-export DEBUG=true
-```
-
-Configuration files can reference environment variables, or you can set them directly in the config:
-
-```yaml
-apiKeys:
-  openai: ${OPENAI_API_KEY}
-  anthropic: ${ANTHROPIC_API_KEY}
-```
-
-## Output Formats
-
-### Table (Default)
-
-Human-readable table format for terminal viewing:
-
-```bash
-pnpm cli run --format table
-```
-
-### JSON
-
-Machine-readable format for CI/CD integration:
-
-```bash
-pnpm cli run --format json --output results.json
-```
-
-### Markdown
-
-Documentation-friendly format with formatting:
-
-```bash
-pnpm cli run --format markdown --output report.md
-```
-
-### HTML
-
-Web-ready format with styling:
-
-```bash
-pnpm cli run --format html --output report.html
-```
-
-### CSV
-
-Spreadsheet-friendly format for data analysis:
-
-```bash
-pnpm cli run --format csv --output results.csv
-```
-
-## Examples
-
-### Quick Start
-
-```bash
-# Generate config template
-pnpm cli config init --template compliance
-
-# Edit the config file
-# vim ai-evals.config.yaml
-
-# Run evaluation
-pnpm cli run
-
-# View report
-pnpm cli report --latest
-```
-
-### CI/CD Integration
-
-```bash
-# Run in CI with specific config
-pnpm cli run \
-  --config .github/evals/ci.yaml \
-  --format json \
-  --output results.json
-
-# Check exit code
-if [ $? -ne 0 ]; then
-  echo "Evaluation failed"
-  exit 1
-fi
-```
-
-### Model Comparison Workflow
-
-```bash
-# 1. Compare models
-pnpm cli compare \
-  --models gpt-4-turbo claude-3-opus gpt-3.5-turbo \
-  --output comparison.json
-
-# 2. Select best model from results
-# (manual review of comparison.json)
-
-# 3. Run full evaluation with selected model
-pnpm cli run \
-  --model gpt-4-turbo \
-  --output full-eval.json
-
-# 4. Set as baseline
-# (note the run ID from output)
-```
-
-### Regression Testing
-
-```bash
-# 1. Initial run (establish baseline)
-pnpm cli run --output baseline.json
-# Note the run ID: run_abc123
-
-# 2. After code changes, run with baseline comparison
-pnpm cli run --baseline run_abc123
-
-# 3. Check for regressions
-# CLI will fail with exit code 1 if regressions detected
-```
-
-## Troubleshooting
-
-### Configuration Errors
-
-```bash
-# Validate configuration
-pnpm cli config validate ./my-eval.yaml
-
-# Run with verbose output
-pnpm cli run --verbose
-```
-
-### API Rate Limits
-
-Reduce concurrency in your configuration:
-
-```yaml
-runner:
-  concurrency: 3
-  rateLimit:
-    maxRequests: 50
-    perSeconds: 60
-```
-
-### Long Execution Times
-
-Enable parallel execution:
-
-```bash
-pnpm cli run --parallel --concurrency 10
-```
-
-### Missing Datasets
-
-List available datasets:
-
-```bash
-pnpm cli dataset list --verbose
-```
-
-## Advanced Usage
-
-### Custom Scorers
-
-Create a custom scorer module:
-
-```typescript
-// scorers/my-scorer.ts
-export async function scoreResult(expected: any, actual: any) {
-  // Custom scoring logic
-  const score = calculateScore(expected, actual);
-
-  return {
-    passed: score >= 0.8,
-    score,
-    explanation: 'Custom scoring explanation'
-  };
-}
-```
-
-Use in configuration:
-
-```yaml
-scorer:
-  strategy: custom
-  customScorer: ./scorers/my-scorer.ts
-  threshold: 0.8
-```
-
-### Programmatic Usage
-
-Use the CLI commands programmatically:
-
-```typescript
-import { createRunCommand } from '@aah/ai-evals';
-
-const runCommand = createRunCommand();
-await runCommand.parseAsync(['--config', './my-eval.yaml']);
-```
-
-## Getting Help
-
-```bash
-# General help
-pnpm cli --help
-
-# Command-specific help
-pnpm cli run --help
-pnpm cli compare --help
-pnpm cli report --help
-pnpm cli dataset --help
-pnpm cli config --help
-```
-
-## Support
-
-For issues and questions:
-- GitHub Issues: https://github.com/your-org/athletic-academics-hub/issues
-- Documentation: See README.md for full package documentation
+Typical config sections:
+- `models`
+- `runner`
+- `scorer`
+- `datasets`
+- `output`
+- `baseline`
+
+## Current Reality vs Future Scope
+
+Currently verified and working:
+- package type-check passes
+- package tests pass
+- CLI entrypoint and per-command help work
+- CLI/config schemas and interactive scaffolding load successfully
+
+Not yet something this guide should oversell:
+- full end-to-end eval execution
+- full database-backed coverage across every CLI path
+- complete non-mock dataset/report/compare flows
+- production-grade orchestration through the CLI
+
+## Recommended Usage Pattern Right Now
+
+Use the CLI for:
+- help discovery
+- option discovery
+- config scaffolding
+- command-surface verification
+- incremental development of CLI internals
+
+Do not assume every command performs fully integrated production evaluation work unless you verify that path directly.

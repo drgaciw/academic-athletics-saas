@@ -1,5 +1,13 @@
 # Implementation Checklist: Tasks 3.1-3.3
 
+> Verified current status note (2026-04-18): This checklist records intended/historical task completion, but the package is not currently fully verified.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Do not interpret checked boxes below as proof that the current package is type-clean or fully passing.
+
 ## Task 3.1: Base Runner Infrastructure ✅
 
 - [x] Implement `BaseRunner` abstract class

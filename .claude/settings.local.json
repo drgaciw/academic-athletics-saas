@@ -52,7 +52,10 @@
       "Bash(ls:*)",
       "Bash(gh run list:*)",
       "Bash(grep:*)",
-      "Bash(git checkout:*)"
+      "Bash(gh --version)",
+      "Bash(python3 -c \"import yaml,sys; yaml.safe_load\\(open\\('/home/username01/IdeaProjects01/academic-athletics-saas/.github/workflows/codex-code-review.yml'\\)\\); print\\('YAML OK'\\)\")",
+      "Bash(gh auth *)",
+      "Bash(/tmp/actionlint /home/username01/IdeaProjects01/academic-athletics-saas/.github/workflows/codex-code-review.yml)"
     ],
     "deny": [],
     "ask": []

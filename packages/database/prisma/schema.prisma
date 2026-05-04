@@ -46,6 +46,7 @@ model User {
   mentorMatchesAsMentee     MentorMatch[]          @relation("MenteeUser")
   emailLogs                 EmailLog[]
   calendarEvents            CalendarEvent[]
+  regulationAcknowledgements RegulationAcknowledgement[]
 
   @@index([clerkId])
   @@index([email])
@@ -58,6 +59,7 @@ enum UserRole {
   COACH
   FACULTY
   STAFF
+  COMPLIANCE
 }
 
 model StudentProfile {
@@ -195,6 +197,141 @@ model ComplianceViolation {
   @@index([severity])
   @@index([status])
   @@index([detectedAt])
+}
+
+// ============================================================================
+// REGULATION WATCH (federal, state, NCAA, conference)
+// ============================================================================
+
+enum RegulationSourceType {
+  FEDERAL
+  STATE_OK
+  NCAA
+  SUMMIT_LEAGUE
+}
+
+enum RegulationAudience {
+  COMPLIANCE
+  COACH
+}
+
+enum RegulationChangeSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model RegulationSource {
+  id                   String               @id @default(cuid())
+  sourceType           RegulationSourceType
+  name                 String
+  feedUrl              String               @db.Text
+  pollCronMinutes      Int                  @default(1440)
+  isActive             Boolean              @default(true)
+  lastFetchedAt        DateTime?
+  lastSuccessAt        DateTime?
+  lastErrorAt          DateTime?
+  lastErrorSummary     String?              @db.Text
+  consecutiveFailures  Int                  @default(0)
+  circuitBreakerOpenUntil DateTime?
+  parserVersion        String               @default("1")
+  metadata             Json?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  checkRuns   RegulationCheckRun[]
+  snapshots   RegulationDocumentSnapshot[]
+  changes     RegulationChange[]
+
+  @@unique([sourceType, name])
+  @@index([sourceType, isActive])
+}
+
+model RegulationCheckRun {
+  id              String           @id @default(cuid())
+  sourceId        String
+  source          RegulationSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  startedAt       DateTime         @default(now())
+  completedAt     DateTime?
+  status          String // success, partial_failure, failure
+  runKey          String
+  errorSummary    String?          @db.Text
+  itemsFetched    Int              @default(0)
+  changesDetected Int              @default(0)
+
+  @@unique([sourceId, runKey])
+  @@index([sourceId, startedAt])
+}
+
+model RegulationDocumentSnapshot {
+  id                 String           @id @default(cuid())
+  sourceId           String
+  source             RegulationSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  fetchedAt          DateTime         @default(now())
+  contentHash        String
+  rawUrl             String           @db.Text
+  title              String?
+  effectiveDate      DateTime?
+  normalizedBody     String           @db.Text
+  parserVersion      String
+  previousSnapshotId String?
+
+  changes RegulationChange[]
+
+  @@index([sourceId, fetchedAt])
+  @@index([contentHash])
+}
+
+model RegulationChange {
+  id                   String                   @id @default(cuid())
+  sourceId             String
+  source               RegulationSource         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  snapshotId           String?
+  snapshot             RegulationDocumentSnapshot? @relation(fields: [snapshotId], references: [id], onDelete: SetNull)
+  detectedAt           DateTime                 @default(now())
+  severity             RegulationChangeSeverity @default(MEDIUM)
+  summary              String                   @db.Text
+  classification       String
+  impactedDomains      String[]
+  diffMetadata         Json?
+  materialityScore       Float                    @default(0.5)
+  confidenceScore      Float                    @default(1)
+  requiresManualReview Boolean                  @default(false)
+  coachVisible         Boolean                  @default(false)
+  evidenceUrl          String                   @db.Text
+  retrievalDate        DateTime                 @default(now())
+  title                String?
+
+  acknowledgements RegulationAcknowledgement[]
+  audienceMappings   RegulationAudienceMapping[]
+
+  @@index([detectedAt])
+  @@index([severity])
+  @@index([coachVisible])
+  @@index([sourceId, detectedAt])
+}
+
+model RegulationAcknowledgement {
+  id               String           @id @default(cuid())
+  changeId         String
+  change           RegulationChange @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes            String?          @db.Text
+  acknowledgedAt   DateTime         @default(now())
+
+  @@unique([changeId, userId])
+  @@index([userId])
+}
+
+model RegulationAudienceMapping {
+  id       String             @id @default(cuid())
+  changeId String
+  change   RegulationChange   @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  audience RegulationAudience
+
+  @@unique([changeId, audience])
 }
 
 // ============================================================================

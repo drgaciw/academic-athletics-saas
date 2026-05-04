@@ -401,7 +401,11 @@ async function configureBaselineInteractive() {
   ]);
 
   if (!enabled) {
-    return { enabled: false };
+    return {
+      enabled: false,
+      regressionThreshold: 0.05,
+      failOnRegression: true,
+    };
   }
 
   const baseline = await inquirer.prompt([

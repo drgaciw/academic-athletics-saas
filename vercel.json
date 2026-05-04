@@ -40,6 +40,10 @@
     {
       "path": "/api/cron/sync-lms",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/regulation-check",
+      "schedule": "30 */6 * * *"
     }
   ]
 }

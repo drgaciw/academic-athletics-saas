@@ -13,7 +13,15 @@ import {
   AuditLogEntry,
   RequestContext,
   PaginatedResponse,
+  RegulationChangeSummary,
+  RegulationChangeDetail,
+  RegulationSourceStatus,
+  AcknowledgeRegulationChangeRequest,
+  RegulationRunResult,
 } from '../types/services';
+
+/** Compliance microservice wraps payloads with `{ success, data, meta }`. */
+type ServiceEnvelope<T> = { success: boolean; data: T };
 
 class ComplianceServiceClient {
   private client: ServiceClient;
@@ -118,6 +126,73 @@ class ComplianceServiceClient {
    */
   async health() {
     return this.client.healthCheck();
+  }
+
+  /**
+   * List regulation feed changes (compliance/coach scoped server-side).
+   */
+  async getRegulationChanges(
+    query: { page?: number; limit?: number; unacknowledgedOnly?: boolean },
+    context: RequestContext
+  ): Promise<{
+    data: RegulationChangeSummary[];
+    pagination: PaginatedResponse<RegulationChangeSummary>['pagination'];
+  }> {
+    const qs = new URLSearchParams();
+    if (query.page) qs.set('page', String(query.page));
+    if (query.limit) qs.set('limit', String(query.limit));
+    if (query.unacknowledgedOnly) qs.set('unacknowledgedOnly', 'true');
+    const q = qs.toString();
+    const res = await this.client.get<
+      ServiceEnvelope<{
+        data: RegulationChangeSummary[];
+        pagination: PaginatedResponse<RegulationChangeSummary>['pagination'];
+      }>
+    >(`/regulations/changes${q ? `?${q}` : ''}`, context);
+    return res.data;
+  }
+
+  async getRegulationChange(
+    id: string,
+    context: RequestContext
+  ): Promise<RegulationChangeDetail> {
+    const res = await this.client.get<ServiceEnvelope<RegulationChangeDetail>>(
+      `/regulations/changes/${id}`,
+      context
+    );
+    return res.data;
+  }
+
+  async acknowledgeRegulationChange(
+    body: AcknowledgeRegulationChangeRequest,
+    context: RequestContext
+  ): Promise<{ success: boolean }> {
+    const res = await this.client.post<ServiceEnvelope<{ success: boolean }>>(
+      `/regulations/acknowledge`,
+      body,
+      context
+    );
+    return res.data;
+  }
+
+  async getRegulationSources(
+    context: RequestContext
+  ): Promise<{ data: RegulationSourceStatus[] }> {
+    const res = await this.client.get<
+      ServiceEnvelope<{ data: RegulationSourceStatus[] }>
+    >(`/regulations/sources`, context);
+    return res.data;
+  }
+
+  async runRegulationCheckNow(
+    context: RequestContext
+  ): Promise<RegulationRunResult> {
+    const res = await this.client.post<ServiceEnvelope<RegulationRunResult>>(
+      `/regulations/check-now`,
+      {},
+      context
+    );
+    return res.data;
   }
 }
 

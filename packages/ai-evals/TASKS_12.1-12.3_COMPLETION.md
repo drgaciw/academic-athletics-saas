@@ -1,5 +1,13 @@
 # Tasks 12.1-12.3 Implementation Summary
 
+> Verified current status note (2026-04-18): This is a historical implementation summary.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Performance-optimization completion statements below should be read as historical implementation notes, not current package verification evidence.
+
 ## Overview
 
 Successfully implemented Tasks 12.1, 12.2, and 12.3 from the AI Evaluation Framework, adding comprehensive performance optimization capabilities including caching, parallel execution enhancements, and performance monitoring.

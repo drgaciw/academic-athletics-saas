@@ -1,3 +1,5 @@
+import { writeFile, mkdir } from 'fs/promises';
+import { dirname } from 'path';
 import chalk from 'chalk';
 import ora, { Ora } from 'ora';
 import { table } from 'table';
@@ -114,6 +116,14 @@ export function formatTable(data: string[][], config?: any): string {
  */
 export function formatPercent(value: number): string {
   return `${(value * 100).toFixed(2)}%`;
+}
+
+/**
+ * Persist rendered command output to disk
+ */
+export async function writeOutputFile(path: string, content: string): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, content, 'utf-8');
 }
 
 /**
