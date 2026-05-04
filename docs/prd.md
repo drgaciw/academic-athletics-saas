@@ -5,12 +5,12 @@
 | Attribute              | Details                                                                 |
 |------------------------|-------------------------------------------------------------------------|
 | **Product Name**       | Athletic Academics Hub (AAH)                                            |
-| **Version**            | 2.0                                                                     |
-| **Date**               | November 08, 2025                                                       |
+| **Version**            | 2.1                                                                     |
+| **Date**               | May 04, 2026                                                            |
 | **Author**             | Grok 4, IT Business Analyst (built by xAI); Enhanced by Claude (Anthropic) |
 | **Status**             | Draft                                                                   |
 | **Approval**           | Pending                                                                 |
-| **Revision History**   | Version 1.0: Initial draft based on provided information and enhanced with research on best practices, existing solutions, and software features.<br>Version 1.1: Incorporated expanded NCAA compliance details, with a focus on Division I athletics, including initial and continuing eligibility requirements for automated tracking and monitoring.<br>Version 1.2: Enhanced with detailed NCAA compliance integration strategy addressing the absence of public NCAA Eligibility Center API, including hybrid integration model with internal rule engine, data import/export mechanisms, partnership-driven access, and FERPA-compliant workflows.<br>Version 2.0: Major enhancement with comprehensive AI capabilities including 24/7 conversational assistants, intelligent advising agents, predictive analytics, agentic workflows, and RAG-based knowledge systems. Significantly expands problem statement, business goals, functional requirements, and non-functional requirements to position AAH as a leading AI-powered athletic academics platform. |
+| **Revision History**   | Version 1.0: Initial draft based on provided information and enhanced with research on best practices, existing solutions, and software features.<br>Version 1.1: Incorporated expanded NCAA compliance details, with a focus on Division I athletics, including initial and continuing eligibility requirements for automated tracking and monitoring.<br>Version 1.2: Enhanced with detailed NCAA compliance integration strategy addressing the absence of public NCAA Eligibility Center API, including hybrid integration model with internal rule engine, data import/export mechanisms, partnership-driven access, and FERPA-compliant workflows.<br>Version 2.0: Major enhancement with comprehensive AI capabilities including 24/7 conversational assistants, intelligent advising agents, predictive analytics, agentic workflows, and RAG-based knowledge systems. Significantly expands problem statement, business goals, functional requirements, and non-functional requirements to position AAH as a leading AI-powered athletic academics platform.<br>Version 2.1: Incorporated **adopted** NCAA Division I updates effective through 2026 (prospect pre-enrollment eligibility, sport-specific transfer notification windows, transfer immediate-eligibility criteria aligned with 2024 Council actions) and aligned AI/deployment requirements with current Vercel and AI SDK documentation (Marketplace data stores, Functions/streaming, AI SDK versioning). |
 
 ## 2. Introduction
 
@@ -23,7 +23,7 @@ The platform aims to ensure student-athletes maintain NCAA eligibility, progress
 This document outlines the requirements for developing AAH to support student-athletes in achieving academic success amidst athletic demands, particularly in NCAA Division I programs. It uses the provided information on key components and importance of athletic academics, improved with insights from best practices (e.g., mental health integration, peer mentoring) and features from existing SaaS solutions (e.g., Teamworks for mobile task management, dashboards for performance visualization). This version incorporates detailed NCAA compliance requirements for Division I, enabling precise automated eligibility tracking.
 
 ### 2.3 Scope
-- **In Scope**: Core features for advising, tutoring, monitoring, compliance (with Division I-specific NCAA rules), life skills, and faculty liaison; user roles; integrations with university systems (e.g., LMS like Canvas or Blackboard); mobile app for student-athletes; analytics and reporting; AI-powered conversational assistant for 24/7 support; intelligent advising recommendations; automated compliance monitoring; predictive analytics for at-risk identification.
+- **In Scope**: Core features for advising, tutoring, monitoring, compliance (with Division I-specific NCAA rules), **transfer notification windows and Transfer Portal entry alignment**, life skills, and faculty liaison; user roles; integrations with university systems (e.g., LMS like Canvas or Blackboard); mobile app for student-athletes; analytics and reporting; AI-powered conversational assistant for 24/7 support; intelligent advising recommendations; automated compliance monitoring; predictive analytics for at-risk identification; **conference overlay support for Summit League governance, academic-recognition criteria, and championship operations where rules differ from NCAA baselines**.
 - **Out of Scope**: Direct athletic training management (e.g., workout tracking); financial aid processing; hardware provision (e.g., study hall devices); support for Divisions II and III beyond configurable extensions; academic content creation or curriculum design.
 - **Future Enhancements**: Advanced agentic workflows for autonomous administrative tasks; voice-based AI interfaces; sentiment analysis for mental health monitoring; gamification for engagement; expansion to Divisions II and III with full compliance modules; AI-powered recruiting content generation.
 
@@ -110,7 +110,7 @@ Features are grouped by enhanced components from the provided information, incor
   - **Internal Rule Engine**: Custom algorithmic validation of Division I eligibility rules without direct NCAA data pulls, enabling automated internal compliance checks.
   - **Data Import/Export**: Support for standardized file formats (CSV, XML) compatible with NCAA portals and third-party compliance software for seamless data exchange.
   - **Partnership Integration**: Potential collaborations with NCAA-certified vendors (e.g., Teamworks, Honest Game, Spry) for indirect integrations via their APIs or data feeds.
-  - **Semi-Automated Workflows**: Administrative interfaces for manual input of NCAA Eligibility Center certification outcomes, supplemented by automated reminders for portal submissions.
+  - **Semi-Automated Workflows**: Administrative interfaces for manual input of NCAA Eligibility Center certification outcomes, supplemented by automated reminders for portal submissions and **Transfer Portal** entry timestamps for window validation.
   - **Transcript Integration**: Support for electronic transcript services (e.g., Parchment, National Student Clearinghouse) for high school and transfer student data.
 - **Initial Eligibility (High School Certification)**: Features include:
   - Core course tracking: Verify completion of 16 NCAA-approved core courses (e.g., English, math, science) by high school graduation, with approvals via NCAA High School Portal.
@@ -130,6 +130,27 @@ Features are grouped by enhanced components from the provided information, incor
   - Configurable rule updates: Administrative dashboard for updating NCAA rules without system downtime, with version control.
   - Automated report generation: PDF and CSV exports for manual NCAA portal uploads and institutional reporting.
   - Alert system: Email/SMS notifications for administrators when students approach eligibility thresholds.
+- **Versioned NCAA Rule Packs**: Store eligibility, continuing-eligibility, and transfer-related logic as **versioned rule packs** keyed by **effective date**, sport, and student cohort (e.g., enrollment year); support promotion workflows (draft → production) with immutable history; generate compliance reports that cite **rule pack version** used for each determination.
+- **Rule-Change Watch (Operational)**: Administrative workflow to incorporate newly **adopted** NCAA legislation: staff review queue, diff against active packs, acknowledgment before activation, and broadcast alerts to compliance and advising roles (does not auto-conclude legal interpretation—institutional compliance remains authoritative).
+
+##### Prospect (Pre-Enrollment) Eligibility — Adopted Division I Cabinet Actions (2026)
+The following reflect **adopted** NCAA Division I Cabinet actions (not speculative future concepts). Product requirements ensure tracking, documentation, and workflow support; **final eligibility authority remains with the institution and NCAA**.
+
+- **Opt-in professional drafts**: For prospects enrolling in college beginning **2026–27**, support tracking of **opt-in** professional league drafts (including NBA): **one** entry without loss of collegiate eligibility if the prospect **withdraws by legislated deadlines**; effective for opt-in drafts occurring **on or after April 15, 2026**. The system must **not** apply the same workflow to sports where prospects may be drafted **without** opting in (e.g., men's ice hockey, baseball) except where institution configures sport-specific rules consistent with NCAA notices.
+- **Pre-enrollment prize money**: Support documentation and review workflows for **pre-enrollment** prize money acceptance **without impacting eligibility**, distinct from long-standing **post-enrollment** prize-money rules (system stores policy scope: pre- vs post-enrollment).
+- **Pre-enrollment professional agents**: Support registration of agreements with **professional sports agents** prior to college enrollment (parallel concept to NIL agents—**separate** agent type and disclosure fields in the product data model).
+
+##### Transfer Notification Windows, Portal Timing, and Competition Eligibility — Adopted Changes
+Requirements below align with **adopted** Division I actions through 2026; **exact calendar dates** for championship-linked windows must be supplied via configurable **sport calendar** data (NCAA publishes championship timing annually).
+
+- **Sport-specific notification-of-transfer windows (January 2026 Cabinet)**:
+  - **Men's and women's basketball**: **15-day** window opens the **day after** the respective NCAA tournament **championship game**; **additional** **15-day** window opens **five days** after a new head coach is hired or publicly announced when a head coaching change occurs; if no new coach within **30 days** of previous coach departure **and** day **31** is after the championship game, a **15-day** window opens; coaching-change window availability is constrained **after** the basketball transfer window opens **through Jan. 2** (per NCAA notice—implement as configurable season boundaries).
+  - **Basketball mid-year restriction**: If a student-athlete **enrolled** at an NCAA institution during the **first academic term**, they are **not** eligible to compete at a **second** institution as a mid-year transfer regardless of whether they competed at the first institution—**flag** in eligibility engine when sport = basketball and enrollment pattern matches.
+  - **Men's wrestling**: **30-day** window beginning **April 1** each year (replaces prior longer window tied to championship selections).
+  - **Men's ice hockey**: **15-day** window starting the **Monday after** the Division I men's ice hockey championship **final**; **additional** **15-day** coaching-change window **five days** after new coach announcement, with analogous **30-day / day-31** logic where applicable and constraints **through Jan. 2** where NCAA specifies.
+  - **Men's and women's track and field**: **Remove** indoor-season transfer window from configuration; retain **outdoor** championship-linked window and **fall** windows as legislated.
+- **Portal entry validation**: Capture **portal entry timestamp** (manual entry or integration feed); compare to active **notification-of-transfer windows** for the student's sport; surface exceptions only when staff records an allowed exception (e.g., head coach departure, discontinued sport, or other NCAA-permitted cases); block “green” automated eligibility narratives when out-of-window without documented exception.
+- **Immediate eligibility after transfer (Division I Council package, 2024 — effective when adopted/ratified per NCAA process)**: Model **undergraduate** transfer competition eligibility when immediately eligible only if the student-athlete **left the previous institution academically eligible** and **in good standing** (not subject to **disciplinary suspension or dismissal**) and satisfies **progress-toward-degree** requirements at the **new** institution **before competing**. **Graduate** transfers: **degree earned** from previous institution, departed **academically eligible**, enrolled **full-time** in a postgraduate program, continuing to satisfy **minimum academic standards**. Persist **structured evidence** links (degree conferral, standing attestations, PTAD snapshots) for audits and reporting.
 
 #### 6.1.9 AI-Powered Features and Intelligent Assistants
 Leveraging advanced AI technologies to provide intelligent, scalable, and proactive support:
@@ -153,6 +174,7 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 **AI Compliance Copilot for Administrators**:
 - Conversational interface for NCAA rule interpretation and scenario analysis.
 - Natural language eligibility queries: "Will this student be eligible if they drop this course?".
+- **Transfer and prospect scenarios**: When answering portal timing, draft withdrawal, or pre-enrollment prize/agent questions, **ground** responses in the active **rule pack** and linked **NCAA notice** references; never present a final eligibility determination without human sign-off.
 - Automated eligibility report generation with natural language instructions.
 - Proactive monitoring with AI-generated intervention recommendations.
 - Draft compliance documentation (progress reports, NCAA submissions) with one-click generation.
@@ -197,6 +219,31 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - Mobile App: For task lists, appointments, forms, notifications, and embedded AI assistant.
 - Recruiting Module: Showcase program strengths to prospects, highlighting Division I compliance tools and AI-powered support capabilities.
 
+#### 6.1.11 Conference Overlay: Summit League (Distinct from NCAA Baseline)
+- **Conference policy hierarchy model**: Represent Summit League governance authorities and approval paths in workflow configuration:
+  - **Presidents Council (PC)** as ultimate league policy authority.
+  - **Joint Council (JC)** for sports regulations and NCAA/league compliance verification.
+  - **Faculty Athletics Representatives Council (FARC)** for academic standards affecting regular season and championship eligibility.
+- **Conference compliance support workflows**: Add Summit League compliance workspace aligned to published conference compliance posture (interpretive support + institutional coordination), including:
+  - Institution-level compliance contact directory and escalation paths.
+  - Conference-specific interpretation notes linked to NCAA base rules.
+  - Staff attestation logs when institutional interpretations diverge from default templates.
+- **Summit League academic-recognition rule set (conference-specific awards, not NCAA eligibility)**:
+  - **Academic Honor Roll** eligibility checks: minimum **3.2 cumulative GPA** for award year and student-athlete has **used a season of competition** in nominated sport.
+  - **Academic All-League** eligibility checks: minimum **3.30 cumulative GPA**, **one full academic year** at current institution, and **participation in at least 50%** of team competitions.
+  - Support nomination/voting workflow metadata fields used by the conference process (e.g., SID/FAR review stages) without replacing institutional authority.
+- **Conference championship operations configuration**:
+  - Store Summit League championship calendars and host-site metadata by sport/year (importable from conference announcements and championship schedule pages).
+  - Support conference tournament format settings where they differ from NCAA defaults (e.g., conference seeding/round structure and member participation rules for league championships).
+  - Keep conference competition ops as a **separate rule domain** from NCAA transfer/eligibility packs to prevent accidental cross-application.
+- **Policy-source confidence and evidence requirements**:
+  - Mark conference rules as `public-confirmed`, `institution-confirmed`, or `internal-manual-required`.
+  - Require citation URL and retrieval date for every Summit League rule assertion displayed in AI or reporting outputs.
+  - Block automated “final” conference compliance determinations when source confidence is below `public-confirmed` and no institutional sign-off exists.
+- **Non-public conference manual handling**:
+  - Because Summit League references a Policies and Procedures Manual that is not publicly available, provide secure upload/versioning for institution-provided conference manual excerpts and map them to conference rule packs.
+  - Enforce restricted access and audit logs for private conference policy documents.
+
 ### 6.2 Integrations
 - **University Systems**:
   - LMS/ERP (e.g., Canvas, Blackboard) via RESTful APIs for grade and credit hour syncing.
@@ -206,12 +253,17 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
   - NCAA Eligibility Center: Structured data exchange via file uploads/downloads (CSV, XML) in absence of public API.
   - NCAA-certified vendor APIs (e.g., Teamworks, Honest Game, Spry) for enhanced compliance tracking when partnerships are established.
   - Electronic transcript services (Parchment, National Student Clearinghouse) for automated transcript retrieval.
+  - NCAA Division I legislative summaries and official notices (human-ingested or linked) as inputs to **rule pack** updates; optional subscriptions/feeds where institution licenses them.
+  - Summit League public pages (compliance, executive councils, championships, academic awards) as conference-rule evidence sources for **conference overlay packs**.
+  - Institution-provided Summit League policy manual extracts as private-source inputs for conference-specific requirements not available on public web pages.
 - **AI and Machine Learning Infrastructure**:
-  - **LLM Providers**: OpenAI (GPT-4, GPT-4-mini), Anthropic (Claude Opus, Claude Sonnet, Claude Haiku) via Vercel AI SDK for conversational interfaces and intelligent agents.
-  - **Vector Database**: Vercel Postgres with pgvector extension for semantic search and RAG (Retrieval Augmented Generation); scalable to Pinecone or Qdrant for high-volume deployments.
-  - **Embedding Models**: OpenAI text-embedding-3-large or open-source alternatives for document vectorization.
-  - **Real-time Streaming**: Vercel Edge Functions for low-latency AI response streaming.
-  - **Knowledge Base**: Centralized repository for NCAA rules, institutional policies, historical data, and learning resources, vectorized for AI retrieval.
+  - **AI SDK / providers**: Implement conversational and agent features using the **Vercel AI SDK** (`ai` package) at a supported major version (e.g., **6.x** line when adopted), with provider adapters (**OpenAI**, **Anthropic**, others). Prefer **string model IDs** (including **`provider/model`** forms) and **Vercel AI Gateway** where deployment targets Vercel, to simplify routing and failover without hard-coding to a single vendor SDK surface.
+  - **LLM models**: Treat model names as **configurable** (e.g., OpenAI `gpt-4.1-mini`, Anthropic Claude families); pin versions per environment; avoid embedding obsolete marketing names in application logic—use configuration.
+  - **Vector database / embeddings store**: Use **managed Postgres with pgvector** via **Vercel Marketplace** integrations (e.g., **Neon**, **Supabase**, **AWS Aurora Postgres**, **Prisma Postgres**) or equivalent self-hosted Postgres; alternatively Pinecone, Qdrant, or other vector stores for high-volume deployments. Do **not** assume a proprietary “Vercel Postgres” SKU—provision Postgres through Marketplace or external managed DB.
+  - **Embedding Models**: OpenAI text-embedding-3-large or open-source alternatives for document vectorization (configurable).
+  - **Streaming and compute**: Prefer **Vercel Functions** on the **default Node.js runtime** (and platform defaults such as **Fluid Compute** where enabled) for AI routes requiring full Node APIs; use **Edge** only when justified by latency/platform constraints. Meet streaming latency NFRs regardless of runtime choice.
+  - **Project configuration**: Support **`vercel.ts`** (typed Vercel configuration via `@vercel/config`) as the deployment/config pattern alongside conventional `vercel.json`, where the repo uses Vercel for hosting.
+  - **Knowledge Base**: Centralized repository for NCAA rules, institutional policies, historical data, and learning resources, vectorized for AI retrieval; content versioning aligned with **rule packs**.
   - **Model Monitoring**: AI observability platforms for tracking accuracy, latency, token usage, and bias metrics.
 - **Communication and Notifications**:
   - Email services (Resend, SendGrid) for automated alerts and progress reports.
@@ -265,6 +317,7 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - Modular architecture for agentic development (e.g., microservices), with separate modules for Division I compliance and AI services.
 - API documentation for extensions.
 - Version control for AI prompts, models, and knowledge bases to enable rollbacks and A/B testing.
+- **Compliance configuration**: **Rule pack** and **sport calendar** data (championship dates, window boundaries) are versioned, testable, and separable from application code; support dry-run or shadow mode when evaluating pack changes.
 
 ### 7.6 AI Quality and Reliability
 - **Accuracy Requirements**: AI responses achieve >90% accuracy validated through user feedback and expert review.
@@ -285,6 +338,9 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - As faculty, I want a simple form to submit progress reports without manual emails.
 - As a mentor, I want to schedule peer sessions to support life skills development.
 - As an incoming freshman, I want initial eligibility verification tools to confirm core courses and GPA meet Division I standards.
+- As a compliance administrator, I want **sport-specific transfer window** dates and **portal entry** checks so I can see when a student-athlete entered the portal relative to legislated windows.
+- As a compliance administrator, I want **coaching-change** and **championship-linked** window rules applied per sport so we do not miss an allowed notification period.
+- As a compliance administrator, I want **evidence records** (academic standing, degree conferral for graduates, PTAD at the new school) attached to **transfer eligibility** determinations for audit export.
 
 ### AI-Enhanced User Stories
 - As a student-athlete practicing late at night, I want to ask the AI assistant "Am I eligible to play next semester?" and get an instant answer with explanations.
@@ -303,7 +359,9 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
   - Universities have existing digital infrastructure (e.g., email, LMS); users have basic tech literacy and willingness to interact with AI assistants.
   - Focus on Division I with extensibility to other divisions.
   - No public NCAA Eligibility Center API available; integration relies on structured data exchange and potential vendor partnerships.
-  - Administrators will perform manual verification workflows when automated integration is not feasible.
+  - Summit League-specific operational policies may be partially non-public; institutions can provide conference manual excerpts or internal compliance guidance for implementation.
+  - **NCAA legislation and interpretations change**; sport-specific **notification-of-transfer windows** and transfer eligibility criteria require **configurable** calendars and rule packs, not hard-coded dates.
+  - Administrators will perform manual verification workflows when automated integration is not feasible; **institutional compliance offices** remain the authority on eligibility interpretations.
   - User consent obtained for all data imports and AI processing in compliance with FERPA.
   - LLM providers offer FERPA-compliant data processing agreements and meet security standards.
   - AI models will continuously improve through user feedback and knowledge base updates.
@@ -313,17 +371,20 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
   - Potential partnerships with NCAA-certified compliance vendors for enhanced automation.
   - Third-party integrations (e.g., calendar APIs, transcript services, email/SMS providers).
   - Availability of standardized file formats from NCAA portals.
+  - **Transfer and disciplinary data**: Ability to record or import attestations of **academic good standing**, **disciplinary** status (where legally permissible), **degree conferral** for graduate transfers, and **portal entry** timestamps.
   - **AI-Specific Dependencies**:
     - Reliable access to LLM provider APIs (OpenAI, Anthropic) with acceptable pricing and rate limits.
-    - Vector database infrastructure for knowledge base storage and semantic search.
+    - **Postgres or other vector-capable** datastore for embeddings (via **Vercel Marketplace** or equivalent managed DB).
     - Sufficient training data for predictive models (historical student performance, intervention outcomes).
     - Knowledge base content (NCAA rules, institutional policies, learning resources) properly curated and maintained.
-    - Integration with Vercel AI SDK and deployment infrastructure.
+    - **Vercel AI SDK** (`ai`) at a pinned major version and compatible `@ai-sdk/*` packages; optional **Vercel AI Gateway** for unified routing when hosted on Vercel.
 - **Risks**:
   - Data privacy regulations (FERPA, GDPR) may evolve, requiring system updates including AI data handling.
   - Integration delays with legacy university systems.
   - NCAA rule changes requiring rapid compliance module updates and AI knowledge base synchronization.
+  - **Sport-specific transfer windows** misconfigured (wrong dates or coaching-change triggers) leading to incorrect staff alerts—mitigate with configurable calendars, reviews, and audit logs.
   - Absence of direct NCAA API may limit real-time synchronization capabilities.
+  - Conference-policy documentation gaps (e.g., non-public Summit League manual content) could cause incomplete automation unless institutions provide authoritative internal policy text.
   - Vendor partnership negotiations may extend implementation timelines.
   - **AI-Specific Risks**:
     - LLM API costs may exceed budget projections with high usage volumes.
@@ -354,11 +415,26 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
   - Token (Unit of text processed by AI models, roughly equivalent to 0.75 words)
   - Prompt (Input text given to AI model to generate a response)
   - Fine-tuning (Process of training an AI model on specific data to improve performance for particular tasks)
+  - Transfer Portal (NCAA system for student-athletes to provide written notification of intent to transfer; product records portal **entry timing** for window validation)
+  - Rule Pack (Versioned, effective-dated set of compliance rules and parameters used by the eligibility engine)
 - **References**: 
   - Provided user information
   - Web research on components, best practices, and existing SaaS (e.g., Teamworks, AthleticSOS, Honest Game, Spry)
-  - NCAA official guidelines for Division I eligibility (as of 2025)
-  - NCAA Eligibility Center portal documentation
+  - NCAA Division I — Summary of Key NCAA Regulations (2024–25 academic year PDF): `https://ncaaorg.s3.amazonaws.com/compliance/d1/2024-25/2024-25D1Comp_SummaryofNCAARegulations.pdf`
+  - NCAA.org — Division I Cabinet adopts changes to eligibility rules for prospects (April 15, 2026): `https://www.ncaa.org/news/2026/4/15/media-center-di-cabinet-adopts-changes-to-eligibility-rules-for-prospects.aspx`
+  - NCAA.org — Division I Cabinet adopts new transfer windows in several sports (January 14, 2026): `https://www.ncaa.org/news/2026/1/14/media-center-division-i-cabinet-adopts-new-transfer-windows-in-several-sports.aspx`
+  - NCAA.org — Division I Council approves changes to transfer rules (April 17, 2024): `https://www.ncaa.org/news/2024/4/17/media-center-division-i-council-approves-changes-to-transfer-rules.aspx`
+  - The Summit League — Compliance index: `https://thesummitleague.org/sports/2020/5/6/compliance-index.aspx`
+  - The Summit League — Executive Councils (PC/JC/FARC governance responsibilities): `https://thesummitleague.org/sports/2024/9/19/executivecouncils.aspx`
+  - The Summit League — Academic Honor Roll qualifications (2021-22 announcement): `https://thesummitleague.org/news/2022/7/20/general-league-unveils-2021-22-academic-honor-roll.aspx`
+  - The Summit League — Academic All-League eligibility criteria example (2025-26 WBB): `https://thesummitleague.org/news/2026/4/7/womens-basketball-2025-26-summitwbb-academic-all-league-team-announced.aspx`
+  - The Summit League — 2025-26 Championships schedule: `https://thesummitleague.org/sports/2025/8/27/2526champ.aspx`
+  - The Summit League — 2025/2026 Basketball Championship format update: `https://thesummitleague.org/news/2024/7/17/mens-basketball-summit-league-announces-updates-for-2025-and-2026-basketball-championships.aspx`
+  - NCAA Eligibility Center portal documentation (official enrollment/certification processes)
   - FERPA compliance guidelines
   - Best practices for SaaS compliance software integration
+  - Vercel — Marketplace storage / Postgres integrations overview: `https://vercel.com/docs/marketplace-storage`
+  - Vercel — Project configuration (`vercel.ts`): `https://vercel.com/docs/project-configuration/vercel-ts`
+  - Vercel — Functions / runtime configuration (Edge vs Node): `https://vercel.com/docs/functions/runtimes/edge-runtime` and `https://vercel.com/docs/functions/functions-api-reference`
+  - Vercel AI SDK — Migration guides (e.g., v6): `https://github.com/vercel/ai/blob/main/content/docs/08-migration-guides/24-migration-guide-6-0.mdx`
 - **Approval Signatures**: [Placeholder for stakeholders].

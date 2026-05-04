@@ -454,8 +454,8 @@ academic-athletics-saas/
 - [CLAUDE.md](CLAUDE.md) - Guidance for Claude Code
 - [README.md](README.md) - Project overview
 - [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - This file
-- [docs/prd.md](docs/prd.md) - Product Requirements
-- [docs/tech-spec.md](docs/tech-spec.md) - Technical Specification
+- [docs/prd.md](../prd.md) - Product Requirements
+- [docs/tech-spec.md](../tech-spec.md) - Technical Specification
 - [.kiro/specs/](/.kiro/specs/) - Implementation specifications
 
 ---

@@ -200,25 +200,69 @@ describe('BaseRunner', () => {
       expect(progressUpdates[2]).toEqual({ completed: 3, total: 3 });
     });
 
-    itWithApiKey('should continue execution even if some tests fail', async () => {
+    it('should continue execution even if some tests fail', async () => {
       const mixedTestCases = [
         testCases[0],
         {
           ...testCases[1],
-          // This will cause an error during execution
           id: 'test-error',
         },
         testCases[2],
       ];
+
+      const runTestCaseSpy = jest.spyOn(runner, 'runTestCase');
+      runTestCaseSpy
+        .mockResolvedValueOnce({
+          testCaseId: 'test-001',
+          input: mixedTestCases[0].input,
+          expected: mixedTestCases[0].expected,
+          actual: { result: 10 },
+          metadata: {
+            modelId: 'gpt-4',
+            latency: 10,
+            tokenUsage: { prompt: 1, completion: 1, total: 2 },
+            cost: 0.001,
+            timestamp: new Date(),
+          },
+        })
+        .mockResolvedValueOnce({
+          testCaseId: 'test-error',
+          input: mixedTestCases[1].input,
+          expected: mixedTestCases[1].expected,
+          actual: {} as { result: number },
+          metadata: {
+            modelId: 'gpt-4',
+            latency: 5,
+            tokenUsage: { prompt: 0, completion: 0, total: 0 },
+            cost: 0,
+            timestamp: new Date(),
+            error: 'synthetic failure',
+          },
+        })
+        .mockResolvedValueOnce({
+          testCaseId: 'test-003',
+          input: mixedTestCases[2].input,
+          expected: mixedTestCases[2].expected,
+          actual: { result: 30 },
+          metadata: {
+            modelId: 'gpt-4',
+            latency: 10,
+            tokenUsage: { prompt: 1, completion: 1, total: 2 },
+            cost: 0.001,
+            timestamp: new Date(),
+          },
+        });
 
       const results = await runner.runDataset(mixedTestCases, config, {
         parallel: false,
       });
 
       expect(results).toHaveLength(3);
-      // At least some tests should succeed
+      expect(runTestCaseSpy).toHaveBeenCalledTimes(3);
       const successfulTests = results.filter((r) => !r.metadata.error);
       expect(successfulTests.length).toBeGreaterThan(0);
+      const failedTests = results.filter((r) => !!r.metadata.error);
+      expect(failedTests).toHaveLength(1);
     });
   });
 

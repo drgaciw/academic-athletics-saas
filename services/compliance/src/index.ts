@@ -15,6 +15,8 @@
 
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import {
   correlationMiddleware,
   rateLimitMiddleware,
@@ -35,6 +37,31 @@ import initialEligibilityRoutes from './routes/initial-eligibility'
 import continuingEligibilityRoutes from './routes/continuing'
 import violationsRoutes from './routes/violations'
 import auditLogRoutes from './routes/audit-log'
+import regulationsRoutes from './routes/regulations'
+import { runAllRegulationChecks } from './regulation/service'
+
+const loadEnvFile = (filePath: string) => {
+  if (!existsSync(filePath)) return
+
+  const content = readFileSync(filePath, 'utf8')
+  for (const rawLine of content.split('\n')) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+
+    const separatorIndex = line.indexOf('=')
+    if (separatorIndex === -1) continue
+
+    const key = line.slice(0, separatorIndex).trim()
+    const value = line.slice(separatorIndex + 1).trim().replace(/^['"]|['"]$/g, '')
+
+    if (key && process.env[key] === undefined) {
+      process.env[key] = value
+    }
+  }
+}
+
+loadEnvFile(resolve(process.cwd(), '.env'))
+loadEnvFile(resolve(process.cwd(), '../../.env'))
 
 // Validate environment variables
 const env = validateEnv(complianceServiceEnvSchema)
@@ -134,8 +161,67 @@ app.get('/info', (c) => {
       continuingEligibility: '/api/compliance/continuing',
       violations: '/api/compliance/violations/:studentId',
       auditLog: '/api/compliance/audit-log/:studentId',
+      regulations: '/api/compliance/regulations/changes',
+      regulationCron: '/internal/cron/regulation-check',
     },
   }, correlationId))
+})
+
+/**
+ * Scheduled regulation ingestion (secret header). Not under /api — bypasses user JWT.
+ */
+app.post('/internal/cron/regulation-check', async (c) => {
+  const correlationId = c.get('correlationId') as string | undefined
+  const secret = c.req.header('X-Regulation-Cron-Secret')
+
+  if (env.NODE_ENV === 'production' && !env.REGULATION_CRON_SECRET) {
+    logger.error('REGULATION_CRON_SECRET is required in production')
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Regulation cron not configured',
+        },
+      },
+      503
+    )
+  }
+
+  const allowed =
+    env.REGULATION_CRON_SECRET === undefined ||
+    env.REGULATION_CRON_SECRET === '' ||
+    secret === env.REGULATION_CRON_SECRET
+
+  if (!allowed) {
+    return c.json(
+      {
+        success: false,
+        error: { code: 'UNAUTHORIZED', message: 'Invalid cron secret' },
+      },
+      401
+    )
+  }
+
+  try {
+    const result = await runAllRegulationChecks()
+    return c.json(successResponse(result, correlationId))
+  } catch (err) {
+    logger.error('regulation cron failed', err as Error)
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: 'REGULATION_CRON_FAILED',
+          message:
+            env.NODE_ENV === 'production'
+              ? 'Regulation check failed'
+              : (err as Error).message,
+        },
+      },
+      500
+    )
+  }
 })
 
 // =============================================================================
@@ -152,6 +238,7 @@ app.route('/api/compliance', initialEligibilityRoutes)
 app.route('/api/compliance', continuingEligibilityRoutes)
 app.route('/api/compliance', violationsRoutes)
 app.route('/api/compliance', auditLogRoutes)
+app.route('/api/compliance', regulationsRoutes)
 
 // =============================================================================
 // ERROR HANDLING

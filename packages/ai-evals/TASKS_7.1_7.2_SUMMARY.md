@@ -1,5 +1,11 @@
 # Tasks 7.1 and 7.2 Implementation Summary
 
+> Verified current status note (2026-04-18): This is a historical implementation summary.
+>
+> Fresh repo verification during the requirements audit found that current CLI/package status does not fully match the completion language in this document. In particular, `pnpm --filter @aah/ai-evals type-check` fails and `pnpm --filter @aah/ai-evals test` fails.
+>
+> Treat CLI/config support claims below as implementation-history notes, not as proof that the current CLI is fully runnable as documented.
+
 ## Overview
 
 This document summarizes the implementation of Tasks 7.1 (Create command-line interface) and 7.2 (Add configuration file support) for the AI Evaluation Framework.

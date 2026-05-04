@@ -1,11 +1,11 @@
 /**
  * Agent Types and Interfaces
- * 
+ *
  * Core type definitions for AI agents, tools, and workflows
  */
 
-import { z } from 'zod'
-import type { CoreMessage, CoreTool } from 'ai'
+import { z } from "zod";
+import type { CoreMessage, CoreTool } from "ai";
 
 // ============================================================================
 // Agent Types
@@ -14,33 +14,36 @@ import type { CoreMessage, CoreTool } from 'ai'
 /**
  * Supported agent types in the system
  */
-export type AgentType = 
-  | 'advising'
-  | 'compliance'
-  | 'intervention'
-  | 'administrative'
-  | 'general'
+export type AgentType =
+  | "advising"
+  | "compliance"
+  | "intervention"
+  | "administrative"
+  | "general"
+  | `business_${"strategic" | "operations" | "financial" | "hr" | "sales" | "cx" | "marketing"}`
+  | `sdlc_${"requirements" | "architecture" | "dev_workflow" | "qa" | "devops" | "release" | "docs_km"}`
+  | `tech_${"frontend" | "backend" | "database" | "cloud" | "devops_automation" | "mobile" | "ai_ml" | "security" | "analytics"}`;
 
 /**
  * Agent execution status
  */
-export type AgentStatus = 
-  | 'pending'
-  | 'running'
-  | 'paused'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
+export type AgentStatus =
+  | "pending"
+  | "running"
+  | "paused"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 /**
  * Task complexity levels for model selection
  */
-export type TaskComplexity = 'simple' | 'moderate' | 'complex'
+export type TaskComplexity = "simple" | "moderate" | "complex";
 
 /**
  * LLM provider options
  */
-export type LLMProvider = 'openai' | 'anthropic'
+export type LLMProvider = "openai" | "anthropic";
 
 // ============================================================================
 // Agent Request/Response
@@ -51,34 +54,34 @@ export type LLMProvider = 'openai' | 'anthropic'
  */
 export interface AgentRequest {
   /** Unique request ID */
-  id?: string
-  
+  id?: string;
+
   /** User making the request */
-  userId: string
-  
+  userId: string;
+
   /** Type of agent to execute */
-  agentType: AgentType
-  
+  agentType: AgentType;
+
   /** User's message or query */
-  message: string
-  
+  message: string;
+
   /** Conversation ID for context */
-  conversationId?: string
-  
+  conversationId?: string;
+
   /** Additional context */
-  context?: Record<string, any>
-  
+  context?: Record<string, any>;
+
   /** Streaming enabled */
-  streaming?: boolean
-  
+  streaming?: boolean;
+
   /** Maximum steps for agent execution */
-  maxSteps?: number
-  
+  maxSteps?: number;
+
   /** Model preference */
   modelPreference?: {
-    provider?: LLMProvider
-    complexity?: TaskComplexity
-  }
+    provider?: LLMProvider;
+    complexity?: TaskComplexity;
+  };
 }
 
 /**
@@ -86,41 +89,41 @@ export interface AgentRequest {
  */
 export interface AgentResponse {
   /** Request ID */
-  requestId: string
-  
+  requestId: string;
+
   /** Agent type that handled the request */
-  agentType: AgentType
-  
+  agentType: AgentType;
+
   /** Response content */
-  content: string
-  
+  content: string;
+
   /** Steps executed */
-  steps: AgentStep[]
-  
+  steps: AgentStep[];
+
   /** Tools invoked */
-  toolInvocations: ToolInvocation[]
-  
+  toolInvocations: ToolInvocation[];
+
   /** Token usage */
   usage: {
-    promptTokens: number
-    completionTokens: number
-    totalTokens: number
-  }
-  
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+
   /** Cost in USD */
-  cost: number
-  
+  cost: number;
+
   /** Execution time in ms */
-  duration: number
-  
+  duration: number;
+
   /** Status */
-  status: AgentStatus
-  
+  status: AgentStatus;
+
   /** Error if failed */
-  error?: AgentError
-  
+  error?: AgentError;
+
   /** Metadata */
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>;
 }
 
 // ============================================================================
@@ -132,43 +135,43 @@ export interface AgentResponse {
  */
 export interface AgentState {
   /** Unique state ID */
-  id: string
-  
+  id: string;
+
   /** User ID */
-  userId: string
-  
+  userId: string;
+
   /** Agent type */
-  agentType: AgentType
-  
+  agentType: AgentType;
+
   /** Current status */
-  status: AgentStatus
-  
+  status: AgentStatus;
+
   /** Current step number */
-  currentStep: number
-  
+  currentStep: number;
+
   /** Maximum steps allowed */
-  maxSteps: number
-  
+  maxSteps: number;
+
   /** Conversation messages */
-  messages: CoreMessage[]
-  
+  messages: CoreMessage[];
+
   /** Tool results from execution */
-  toolResults: ToolResult[]
-  
+  toolResults: ToolResult[];
+
   /** Step history */
-  stepHistory: AgentStep[]
-  
+  stepHistory: AgentStep[];
+
   /** Additional metadata */
-  metadata: Record<string, any>
-  
+  metadata: Record<string, any>;
+
   /** Created timestamp */
-  createdAt: Date
-  
+  createdAt: Date;
+
   /** Last updated timestamp */
-  updatedAt: Date
-  
+  updatedAt: Date;
+
   /** Completed timestamp */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 // ============================================================================
@@ -180,28 +183,28 @@ export interface AgentState {
  */
 export interface AgentStep {
   /** Step number */
-  stepNumber: number
-  
+  stepNumber: number;
+
   /** Step type */
-  type: 'thinking' | 'tool_call' | 'response' | 'error'
-  
+  type: "thinking" | "tool_call" | "response" | "error";
+
   /** Step description */
-  description: string
-  
+  description: string;
+
   /** Tool calls in this step */
-  toolCalls?: ToolCall[]
-  
+  toolCalls?: ToolCall[];
+
   /** Response generated */
-  response?: string
-  
+  response?: string;
+
   /** Error if step failed */
-  error?: AgentError
-  
+  error?: AgentError;
+
   /** Timestamp */
-  timestamp: Date
-  
+  timestamp: Date;
+
   /** Duration in ms */
-  duration?: number
+  duration?: number;
 }
 
 // ============================================================================
@@ -213,64 +216,70 @@ export interface AgentStep {
  */
 export interface ToolDefinition {
   /** Unique tool identifier */
-  id: string
-  
+  id: string;
+
   /** Tool name */
-  name: string
-  
+  name: string;
+
   /** Tool description for LLM */
-  description: string
-  
+  description: string;
+
   /** Zod schema for parameters */
-  parameters: z.ZodType<any>
-  
+  parameters: z.ZodType<any>;
+
   /** Tool execution function */
-  execute: (params: any, context?: ToolExecutionContext) => Promise<any>
-  
+  execute: (params: any, context?: ToolExecutionContext) => Promise<any>;
+
   /** Required permissions */
-  requiredPermissions?: string[]
-  
+  requiredPermissions?: string[];
+
   /** Whether tool requires user confirmation */
-  requiresConfirmation?: boolean
-  
+  requiresConfirmation?: boolean;
+
   /** Tool category */
-  category?: ToolCategory
-  
+  category?: ToolCategory;
+
   /** Metadata */
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>;
 }
 
 /**
  * Tool categories
  */
 export type ToolCategory =
-  | 'student_data'
-  | 'compliance'
-  | 'advising'
-  | 'integration'
-  | 'analytics'
-  | 'administrative'
-  | 'error_diagnostics'
-  | 'monitoring'
+  | "student_data"
+  | "compliance"
+  | "advising"
+  | "integration"
+  | "analytics"
+  | "administrative"
+  | "error_diagnostics"
+  | "monitoring"
+  | "financial"
+  | "security"
+  | "sdlc_release"
+  | "sdlc_architecture"
+  | "database"
+  | "devops";
 
 /**
  * Tool execution context
  */
 export interface ToolExecutionContext {
   /** User making the request */
-  userId: string
-  
+  userId: string;
+
   /** User roles */
-  userRoles: string[]
-  
+  userRoles: string[];
+
   /** Agent state */
-  agentState: AgentState
-  
+  agentState: AgentState;
+
   /** Request confirmation if needed */
-  requestConfirmation?: (message: string) => Promise<boolean>
-  
+  requestConfirmation?: (message: string) => Promise<boolean>;
+
   /** Additional context */
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -278,16 +287,16 @@ export interface ToolExecutionContext {
  */
 export interface ToolCall {
   /** Tool call ID */
-  id: string
-  
+  id: string;
+
   /** Tool name */
-  toolName: string
-  
+  toolName: string;
+
   /** Parameters passed */
-  parameters: Record<string, any>
-  
+  parameters: Record<string, any>;
+
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -295,19 +304,19 @@ export interface ToolCall {
  */
 export interface ToolInvocation extends ToolCall {
   /** Result from tool execution */
-  result?: any
-  
+  result?: any;
+
   /** Error if tool failed */
-  error?: AgentError
-  
+  error?: AgentError;
+
   /** Execution time in ms */
-  latency: number
-  
+  latency: number;
+
   /** Whether confirmation was required */
-  confirmationRequired?: boolean
-  
+  confirmationRequired?: boolean;
+
   /** Whether user confirmed */
-  confirmed?: boolean
+  confirmed?: boolean;
 }
 
 /**
@@ -315,19 +324,19 @@ export interface ToolInvocation extends ToolCall {
  */
 export interface ToolResult {
   /** Tool name */
-  toolName: string
-  
+  toolName: string;
+
   /** Result data */
-  data: any
-  
+  data: any;
+
   /** Success status */
-  success: boolean
-  
+  success: boolean;
+
   /** Error if failed */
-  error?: string
-  
+  error?: string;
+
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -339,43 +348,43 @@ export interface ToolResult {
  */
 export interface AgentConfig {
   /** Agent type */
-  type: AgentType
-  
+  type: AgentType;
+
   /** Agent name */
-  name: string
-  
+  name: string;
+
   /** Agent description */
-  description: string
-  
+  description: string;
+
   /** System prompt template */
-  systemPrompt: string
-  
+  systemPrompt: string;
+
   /** Available tools */
-  tools: string[]
-  
+  tools: string[];
+
   /** Model configuration */
   model: {
-    provider: LLMProvider
-    name: string
-    temperature?: number
-    maxTokens?: number
-    topP?: number
-  }
-  
+    provider: LLMProvider;
+    name: string;
+    temperature?: number;
+    maxTokens?: number;
+    topP?: number;
+  };
+
   /** Maximum steps */
-  maxSteps: number
-  
+  maxSteps: number;
+
   /** Streaming enabled */
-  streaming: boolean
-  
+  streaming: boolean;
+
   /** Memory enabled */
-  memoryEnabled: boolean
-  
+  memoryEnabled: boolean;
+
   /** Rate limits */
   rateLimits?: {
-    requestsPerMinute?: number
-    tokensPerDay?: number
-  }
+    requestsPerMinute?: number;
+    tokensPerDay?: number;
+  };
 }
 
 // ============================================================================
@@ -387,36 +396,36 @@ export interface AgentConfig {
  */
 export interface AgentError {
   /** Error code */
-  code: string
-  
+  code: string;
+
   /** Error message */
-  message: string
-  
+  message: string;
+
   /** Error details */
-  details?: any
-  
+  details?: any;
+
   /** Stack trace */
-  stack?: string
-  
+  stack?: string;
+
   /** Timestamp */
-  timestamp: Date
-  
+  timestamp: Date;
+
   /** Recoverable */
-  recoverable: boolean
+  recoverable: boolean;
 }
 
 /**
  * Error codes
  */
 export enum AgentErrorCode {
-  TOOL_EXECUTION_FAILED = 'TOOL_EXECUTION_FAILED',
-  PLANNING_FAILED = 'PLANNING_FAILED',
-  CONTEXT_WINDOW_EXCEEDED = 'CONTEXT_WINDOW_EXCEEDED',
-  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
-  PERMISSION_DENIED = 'PERMISSION_DENIED',
-  INVALID_INPUT = 'INVALID_INPUT',
-  TIMEOUT = 'TIMEOUT',
-  UNKNOWN = 'UNKNOWN',
+  TOOL_EXECUTION_FAILED = "TOOL_EXECUTION_FAILED",
+  PLANNING_FAILED = "PLANNING_FAILED",
+  CONTEXT_WINDOW_EXCEEDED = "CONTEXT_WINDOW_EXCEEDED",
+  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
+  PERMISSION_DENIED = "PERMISSION_DENIED",
+  INVALID_INPUT = "INVALID_INPUT",
+  TIMEOUT = "TIMEOUT",
+  UNKNOWN = "UNKNOWN",
 }
 
 // ============================================================================
@@ -426,35 +435,35 @@ export enum AgentErrorCode {
 /**
  * Memory types
  */
-export type MemoryType = 'short_term' | 'long_term' | 'working'
+export type MemoryType = "short_term" | "long_term" | "working";
 
 /**
  * Agent memory entry
  */
 export interface AgentMemory {
   /** Memory ID */
-  id: string
-  
+  id: string;
+
   /** User ID */
-  userId: string
-  
+  userId: string;
+
   /** Memory type */
-  memoryType: MemoryType
-  
+  memoryType: MemoryType;
+
   /** Content */
-  content: string
-  
+  content: string;
+
   /** Vector embedding */
-  embedding?: number[]
-  
+  embedding?: number[];
+
   /** Metadata */
-  metadata: Record<string, any>
-  
+  metadata: Record<string, any>;
+
   /** Expiration date */
-  expiresAt?: Date
-  
+  expiresAt?: Date;
+
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
@@ -462,19 +471,19 @@ export interface AgentMemory {
  */
 export interface ConversationMemory {
   /** Conversation ID */
-  conversationId: string
-  
+  conversationId: string;
+
   /** Messages */
-  messages: CoreMessage[]
-  
+  messages: CoreMessage[];
+
   /** Context */
-  context: Record<string, any>
-  
+  context: Record<string, any>;
+
   /** Created timestamp */
-  createdAt: Date
-  
+  createdAt: Date;
+
   /** Expires timestamp */
-  expiresAt: Date
+  expiresAt: Date;
 }
 
 // ============================================================================
@@ -486,31 +495,31 @@ export interface ConversationMemory {
  */
 export interface AgentMetrics {
   /** Task ID */
-  taskId: string
-  
+  taskId: string;
+
   /** Agent type */
-  agentType: AgentType
-  
+  agentType: AgentType;
+
   /** Duration in ms */
-  duration: number
-  
+  duration: number;
+
   /** Token usage */
-  tokenUsage: number
-  
+  tokenUsage: number;
+
   /** Cost in USD */
-  cost: number
-  
+  cost: number;
+
   /** Number of tool invocations */
-  toolInvocations: number
-  
+  toolInvocations: number;
+
   /** Success status */
-  success: boolean
-  
+  success: boolean;
+
   /** Error type if failed */
-  errorType?: string
-  
+  errorType?: string;
+
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -518,28 +527,28 @@ export interface AgentMetrics {
  */
 export interface AgentFeedback {
   /** Feedback ID */
-  id: string
-  
+  id: string;
+
   /** Task ID */
-  taskId: string
-  
+  taskId: string;
+
   /** User ID */
-  userId: string
-  
+  userId: string;
+
   /** Rating (1-5) */
-  rating: number
-  
+  rating: number;
+
   /** Feedback text */
-  feedbackText?: string
-  
+  feedbackText?: string;
+
   /** Was helpful */
-  wasHelpful: boolean
-  
+  wasHelpful: boolean;
+
   /** Flagged as issue */
-  flaggedIssue: boolean
-  
+  flaggedIssue: boolean;
+
   /** Created timestamp */
-  createdAt: Date
+  createdAt: Date;
 }
 
 // ============================================================================
@@ -550,27 +559,27 @@ export interface AgentFeedback {
  * Stream event types
  */
 export type StreamEventType =
-  | 'start'
-  | 'thinking'
-  | 'tool_call'
-  | 'tool_result'
-  | 'text_delta'
-  | 'step_finish'
-  | 'finish'
-  | 'error'
+  | "start"
+  | "thinking"
+  | "tool_call"
+  | "tool_result"
+  | "text_delta"
+  | "step_finish"
+  | "finish"
+  | "error";
 
 /**
  * Stream event
  */
 export interface StreamEvent {
   /** Event type */
-  type: StreamEventType
-  
+  type: StreamEventType;
+
   /** Event data */
-  data: any
-  
+  data: any;
+
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 // ============================================================================
@@ -582,25 +591,25 @@ export interface StreamEvent {
  */
 export interface MultiAgentWorkflow {
   /** Workflow ID */
-  id: string
-  
+  id: string;
+
   /** Workflow name */
-  name: string
-  
+  name: string;
+
   /** Agents involved */
-  agents: AgentType[]
-  
+  agents: AgentType[];
+
   /** Current agent */
-  currentAgent: AgentType
-  
+  currentAgent: AgentType;
+
   /** Workflow state */
-  state: Record<string, any>
-  
+  state: Record<string, any>;
+
   /** Steps completed */
-  stepsCompleted: number
-  
+  stepsCompleted: number;
+
   /** Status */
-  status: AgentStatus
+  status: AgentStatus;
 }
 
 /**
@@ -608,14 +617,14 @@ export interface MultiAgentWorkflow {
  */
 export interface AgentCollaborationContext {
   /** Workflow ID */
-  workflowId: string
-  
+  workflowId: string;
+
   /** Previous agent results */
-  previousResults: Record<AgentType, any>
-  
+  previousResults: Record<AgentType, any>;
+
   /** Shared context */
-  sharedContext: Record<string, any>
-  
+  sharedContext: Record<string, any>;
+
   /** Coordination strategy */
-  strategy: 'sequential' | 'parallel' | 'hierarchical'
+  strategy: "sequential" | "parallel" | "hierarchical";
 }

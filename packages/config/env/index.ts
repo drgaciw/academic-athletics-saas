@@ -65,6 +65,8 @@ export const complianceServiceEnvSchema = baseEnvSchema.extend({
   SERVICE_NAME: z.string().default('compliance-service'),
   NCAA_RULE_VERSION: z.string().default('2024-2025'),
   NCAA_API_ENABLED: z.coerce.boolean().default(false),
+  /** Shared secret for POST /internal/cron/regulation-check (also used by apps/main cron route) */
+  REGULATION_CRON_SECRET: z.string().min(16).optional(),
 })
 
 export const monitoringServiceEnvSchema = baseEnvSchema.extend({

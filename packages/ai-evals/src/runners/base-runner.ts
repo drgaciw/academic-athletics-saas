@@ -124,12 +124,22 @@ async function executeWithTimeout<T>(
   fn: () => Promise<T>,
   timeoutMs: number
 ): Promise<T> {
-  return Promise.race([
-    fn(),
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs)
-    ),
-  ]);
+  let timeoutHandle: NodeJS.Timeout | undefined;
+
+  try {
+    return await Promise.race([
+      fn(),
+      new Promise<T>((_, reject) => {
+        timeoutHandle = setTimeout(() => {
+          reject(new Error(`Timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutHandle) {
+      clearTimeout(timeoutHandle);
+    }
+  }
 }
 
 /**

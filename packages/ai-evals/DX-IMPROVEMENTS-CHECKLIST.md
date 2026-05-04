@@ -2,7 +2,15 @@
 
 This checklist tracks the implementation of developer experience improvements for the ai-evals package.
 
-## Phase 1: Immediate Fixes (P0) ✅ COMPLETE
+> Verified current status note (2026-04-18): This checklist contains historical completion claims that no longer match the current package state.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Some items marked complete below remain incomplete or have regressed in the current repo state.
+
+## Phase 1: Immediate Fixes (P0) ⚠️ HISTORICAL CLAIM / NOT CURRENTLY VERIFIED
 
 - [x] **Add Missing Type Exports** (15 min)
   - [x] Export `ValidationResult`, `ValidationError`, `ValidationWarning`

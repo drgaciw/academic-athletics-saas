@@ -9,6 +9,7 @@ export default authMiddleware({
     '/sign-in(.*)',
     '/sign-up(.*)',
     '/api/webhooks(.*)',
+    '/api/cron/regulation-check',
   ],
 });
 

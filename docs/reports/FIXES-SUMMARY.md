@@ -40,7 +40,7 @@ cat /proc/sys/fs/inotify/max_user_watches
 ./quick-fix-watchers.sh
 ```
 
-**Documentation:** See [`fix-file-watchers.md`](fix-file-watchers.md)
+**Documentation:** See [`fix-file-watchers.md`](../guides/fix-file-watchers.md)
 
 ---
 
@@ -82,9 +82,9 @@ gcloud services enable aiplatform.googleapis.com
 ```
 
 **Option 3: Add Gemini to Your Project (optional)**
-See detailed steps in [`fix-gemini-api-error.md`](fix-gemini-api-error.md)
+See detailed steps in [`fix-gemini-api-error.md`](../guides/fix-gemini-api-error.md)
 
-**Documentation:** See [`fix-gemini-api-error.md`](fix-gemini-api-error.md)
+**Documentation:** See [`fix-gemini-api-error.md`](../guides/fix-gemini-api-error.md)
 
 ---
 
@@ -129,9 +129,9 @@ You currently have many processes consuming system resources:
 
 | File | Purpose |
 |------|---------|
-| [`fix-file-watchers.md`](fix-file-watchers.md) | Complete guide to file watcher issue |
+| [`fix-file-watchers.md`](../guides/fix-file-watchers.md) | Complete guide to file watcher issue |
 | [`quick-fix-watchers.sh`](quick-fix-watchers.sh) | Script for quick relief |
-| [`fix-gemini-api-error.md`](fix-gemini-api-error.md) | Complete guide to Gemini API error |
+| [`fix-gemini-api-error.md`](../guides/fix-gemini-api-error.md) | Complete guide to Gemini API error |
 | [`quick-fix-gemini-cli.sh`](quick-fix-gemini-cli.sh) | Gemini CLI diagnostic script |
 | [`FIXES-SUMMARY.md`](FIXES-SUMMARY.md) | This file - overall summary |
 

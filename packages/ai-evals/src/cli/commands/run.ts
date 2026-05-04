@@ -17,6 +17,7 @@ import {
   colorStatus,
   formatDuration,
   formatCost,
+  writeOutputFile,
 } from '../utils';
 
 /**
@@ -39,6 +40,42 @@ export function createRunCommand(): Command {
     .action(handleRunCommand);
 
   return command;
+}
+
+function renderRunOutput(mockResults: {
+  runId: string;
+  totalTests: number;
+  passed: number;
+  failed: number;
+  accuracy: number;
+  avgLatency: number;
+  totalCost: number;
+  duration: number;
+}, format: string, verbose: boolean): string {
+  if (format === 'json') {
+    return JSON.stringify(mockResults, null, 2);
+  }
+
+  if (format === 'markdown') {
+    return `# Eval Results\n\n| Metric | Value |\n|--------|-------|\n| Run ID | ${mockResults.runId} |\n| Total Tests | ${mockResults.totalTests} |\n| Passed | ${mockResults.passed} |\n| Failed | ${mockResults.failed} |\n| Accuracy | ${mockResults.accuracy} |\n| Avg Latency | ${mockResults.avgLatency} |\n| Total Cost | ${mockResults.totalCost} |\n| Duration | ${mockResults.duration} |\n`;
+  }
+
+  const sections = [
+    `Run ID: ${mockResults.runId}`,
+    `Total Tests: ${mockResults.totalTests}`,
+    `Passed: ${mockResults.passed}`,
+    `Failed: ${mockResults.failed}`,
+    `Accuracy: ${mockResults.accuracy}`,
+    `Avg Latency: ${mockResults.avgLatency}`,
+    `Total Cost: ${mockResults.totalCost}`,
+    `Duration: ${mockResults.duration}`,
+  ];
+
+  if (verbose) {
+    sections.push('Detailed results included in console output');
+  }
+
+  return sections.join('\n');
 }
 
 /**
@@ -159,6 +196,10 @@ async function handleRunCommand(options: RunCommandOptions) {
 
     // Save to file if specified
     if (config.output.outputFile) {
+      await writeOutputFile(
+        config.output.outputFile,
+        renderRunOutput(mockResults, config.output.format, config.output.verbose)
+      );
       info(`Results saved to: ${config.output.outputFile}`);
     }
   } catch (err) {

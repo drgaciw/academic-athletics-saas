@@ -1,6 +1,14 @@
 # AI Evaluation Framework - Tasks 4.1-4.5 Completion Report
 
-## Status: ✅ COMPLETE
+> Verified current status note (2026-04-18): This is a historical completion report.
+>
+> Fresh repo verification performed during the requirements audit found:
+> - `pnpm --filter @aah/ai-evals type-check` fails
+> - `pnpm --filter @aah/ai-evals test` fails (1 failed suite, 110/111 tests passing)
+>
+> Treat scorer-completion language below as implementation-history context, not current proof that the package is fully healthy or fully integrated.
+
+## Status: ⚠️ HISTORICAL COMPLETION CLAIM / NOT CURRENTLY FULLY VERIFIED
 
 All tasks from the AI evaluation framework (Tasks 4.1-4.5) have been successfully implemented, tested, and documented.
 

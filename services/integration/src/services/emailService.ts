@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dev_placeholder_key_for_local_boot');
 
 export interface EmailOptions {
   to: string | string[];

@@ -217,5 +217,7 @@ export const modelComparisonConfig: EvalConfig = {
 
   baseline: {
     enabled: false,
+    regressionThreshold: 0.05,
+    failOnRegression: true,
   },
 };

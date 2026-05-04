@@ -17,6 +17,7 @@ module.exports = {
     },
   },
   moduleNameMapper: {
+    '^@aah/database$': '<rootDir>/../database/index.ts',
     '^@aah/(.*)$': '<rootDir>/../$1/src',
   },
   globals: {
