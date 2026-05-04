@@ -10,9 +10,13 @@ export default authMiddleware({
     '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
+    '/sso-callback',
+    '/api/health',
+    '/api/evals/(.*)',
     '/api/webhooks(.*)',
     '/api/cron/regulation-check',
   ],
+  ignoredRoutes: ['/api/health'],
 });
 
 export const config = {
