@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono'
-import { Webhook } from '@clerk/backend'
+import { createHmac, timingSafeEqual } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
@@ -13,7 +13,7 @@ import {
   ServerError,
   AuthError,
 } from '@aah/api-utils'
-import { prisma } from '@aah/database'
+import { prisma, UserRole } from '@aah/database'
 import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
 
 const loadEnvFile = (filePath: string) => {
@@ -41,6 +41,64 @@ loadEnvFile(resolve(process.cwd(), '../../.env'))
 
 const sync = new Hono()
 const env = validateEnv(userServiceEnvSchema)
+const WEBHOOK_TOLERANCE_SECONDS = 5 * 60
+
+function resolveUserRole(role: unknown): UserRole {
+  if (
+    typeof role === 'string' &&
+    Object.values(UserRole).includes(role as UserRole)
+  ) {
+    return role as UserRole
+  }
+
+  return UserRole.STUDENT
+}
+
+function verifySvixSignature(
+  payload: string,
+  headers: {
+    'svix-id': string
+    'svix-timestamp': string
+    'svix-signature': string
+  },
+  secret: string
+): boolean {
+  const timestamp = Number(headers['svix-timestamp'])
+  if (!headers['svix-id'] || !Number.isFinite(timestamp)) {
+    return false
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000)
+  if (Math.abs(nowSeconds - timestamp) > WEBHOOK_TOLERANCE_SECONDS) {
+    return false
+  }
+
+  const secretBytes = Buffer.from(
+    secret.startsWith('whsec_') ? secret.slice('whsec_'.length) : secret,
+    'base64'
+  )
+  const signedContent = `${headers['svix-id']}.${headers['svix-timestamp']}.${payload}`
+  const expected = createHmac('sha256', secretBytes)
+    .update(signedContent)
+    .digest()
+
+  return headers['svix-signature']
+    .split(' ')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .some((part) => {
+      const [version, signature] = part.split(',')
+      if (version !== 'v1' || !signature) {
+        return false
+      }
+
+      const received = Buffer.from(signature, 'base64')
+      return (
+        received.length === expected.length &&
+        timingSafeEqual(received, expected)
+      )
+    })
+}
 
 // =============================================================================
 // WEBHOOK HANDLERS
@@ -51,6 +109,7 @@ const env = validateEnv(userServiceEnvSchema)
  */
 async function handleUserCreated(data: any) {
   const { id, email_addresses, first_name, last_name, public_metadata } = data
+  const role = resolveUserRole(public_metadata?.role)
 
   // Get primary email
   const primaryEmail = email_addresses.find((e: any) => e.id === data.primary_email_address_id)
@@ -63,12 +122,12 @@ async function handleUserCreated(data: any) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || 'STUDENT_ATHLETE',
+      role,
     },
   })
 
-  // If user is a student athlete, create student profile
-  if (user.role === 'STUDENT_ATHLETE' && public_metadata?.studentId) {
+  // If user is a student, create student profile
+  if (user.role === UserRole.STUDENT && public_metadata?.studentId) {
     await prisma.studentProfile.create({
       data: {
         userId: user.id,
@@ -111,12 +170,15 @@ async function handleUserUpdated(data: any) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || existingUser.role,
+      role:
+        public_metadata?.role === undefined
+          ? existingUser.role
+          : resolveUserRole(public_metadata.role),
     },
   })
 
   // Update student profile if exists
-  if (user.role === 'STUDENT_ATHLETE' && public_metadata?.studentId) {
+  if (user.role === UserRole.STUDENT && public_metadata?.studentId) {
     const existingProfile = await prisma.studentProfile.findUnique({
       where: { userId: user.id },
     })
@@ -189,7 +251,7 @@ async function handleUserDeleted(data: any) {
  * It synchronizes the user data with our local database.
  * 
  * Security:
- * - Webhook signature verification using Clerk's Webhook class
+ * - Svix signature verification using Clerk's webhook signing secret
  * - Requires CLERK_WEBHOOK_SECRET environment variable
  */
 sync.post('/sync-clerk', async (c) => {
@@ -211,15 +273,12 @@ sync.post('/sync-clerk', async (c) => {
       throw new ServerError('Webhook secret not configured')
     }
 
-    let webhookData: any
-
-    try {
-      const wh = new Webhook(webhookSecret)
-      webhookData = wh.verify(payload, headers)
-    } catch (error) {
-      console.error('Webhook verification failed:', error)
+    if (!verifySvixSignature(payload, headers, webhookSecret)) {
+      console.error('Webhook verification failed')
       throw new AuthError('Invalid webhook signature', 'INVALID_SIGNATURE')
     }
+
+    const webhookData = JSON.parse(payload)
 
     // Process the webhook based on event type
     const { type, data } = webhookData

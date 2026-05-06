@@ -36,8 +36,6 @@ export async function ensureDefaultRegulationSources(): Promise<void> {
         parserVersion: PARSER_VERSION,
       },
       update: {
-        feedUrl: def.feedUrl,
-        pollCronMinutes: def.pollCronMinutes,
         parserVersion: PARSER_VERSION,
       },
     })

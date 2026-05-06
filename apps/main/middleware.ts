@@ -14,6 +14,7 @@ export default authMiddleware({
     '/api/health',
     '/api/evals/(.*)',
     '/api/webhooks(.*)',
+    '/api/user/sync-clerk',
     '/api/cron/regulation-check',
   ],
   ignoredRoutes: ['/api/health'],

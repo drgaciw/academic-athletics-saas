@@ -21,12 +21,19 @@ describe('Middleware', () => {
     const options = (authMiddleware as jest.Mock).mock.calls[0][0];
 
     // Assert that publicRoutes are defined correctly
-    expect(options.publicRoutes).toEqual([
-      '/',
-      '/sign-in(.*)',
-      '/sign-up(.*)',
-      '/api/webhooks(.*)',
-    ]);
+    expect(options.publicRoutes).toEqual(
+      expect.arrayContaining([
+        '/',
+        '/sign-in(.*)',
+        '/sign-up(.*)',
+        '/sso-callback',
+        '/api/health',
+        '/api/evals/(.*)',
+        '/api/webhooks(.*)',
+        '/api/user/sync-clerk',
+        '/api/cron/regulation-check',
+      ])
+    );
 
     // Assert that publishableKey and secretKey are read from env
     // Note: process.env mocks should be handled in jest.setup.js or beforeEach

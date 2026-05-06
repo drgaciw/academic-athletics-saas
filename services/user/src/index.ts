@@ -134,13 +134,15 @@ app.get('/info', (c) => {
 // PROTECTED ROUTES (require authentication)
 // =============================================================================
 
-// Apply authentication to all /api routes
+// Clerk authenticates this webhook with Svix signatures inside the route.
+app.route('/api/user', syncRoutes)
+
+// Apply authentication to all remaining /api routes
 app.use('/api/*', requireAuth())
 
 // Mount route handlers
 app.route('/api/user/profile', profileRoutes)
 app.route('/api/user/roles', rolesRoutes)
-app.route('/api/user', syncRoutes)
 
 // =============================================================================
 // ERROR HANDLING
