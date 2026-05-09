@@ -72,7 +72,7 @@ const PII_PATTERNS: Record<string, RegExp[]> = {
     // Course grades
     /\b(?:grade|score)[-:\s]*([A-F][+-]?|\d{1,3}%)\b/gi,
   ],
-}; }
+};
 
 /**
  * Context window size for extracting surrounding text
@@ -117,7 +117,7 @@ export class PIIDetector {
     this.detections = [];
 
     // Run regex-based detection for each PII type
-    for (const [piiType, patterns] of Object.entries(getPIIPatterns())) {
+    for (const [piiType, patterns] of Object.entries(PII_PATTERNS)) {
       for (const pattern of patterns) {
         this.detectWithRegex(text, piiType as PIIType, pattern);
       }
