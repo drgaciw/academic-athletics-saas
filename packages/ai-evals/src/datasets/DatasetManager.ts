@@ -88,8 +88,8 @@ export class DatasetManager {
       name: data.name,
       description: data.description,
       version: data.version,
-      createdAt: dateFns.parseISO(data.createdAt),
-      updatedAt: dateFns.parseISO(data.updatedAt),
+      createdAt: parseISO(data.createdAt),
+      updatedAt: parseISO(data.updatedAt),
       metadata: data.metadata,
       schema: {
         // Reconstruct Zod schemas from stored schema definitions
@@ -100,7 +100,7 @@ export class DatasetManager {
         ...tc,
         metadata: {
           ...tc.metadata,
-          createdAt: dateFns.parseISO(tc.metadata.createdAt),
+          createdAt: parseISO(tc.metadata.createdAt),
         },
       })),
     };

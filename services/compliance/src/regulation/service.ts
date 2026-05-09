@@ -36,8 +36,6 @@ export async function ensureDefaultRegulationSources(): Promise<void> {
         parserVersion: PARSER_VERSION,
       },
       update: {
-        feedUrl: def.feedUrl,
-        pollCronMinutes: def.pollCronMinutes,
         parserVersion: PARSER_VERSION,
       },
     })
@@ -172,86 +170,91 @@ export async function runRegulationCheckForSource(
       : sha256Hex(body)
     const contentHash = sha256Hex(normalized)
 
-    const lastSnapshot = await prisma.regulationDocumentSnapshot.findFirst({
-      where: { sourceId: source.id },
-      orderBy: { fetchedAt: 'desc' },
-    })
+    changesCreated = await prisma.$transaction(async (tx) => {
+      const lastSnapshot = await tx.regulationDocumentSnapshot.findFirst({
+        where: { sourceId: source.id },
+        orderBy: { fetchedAt: 'desc' },
+      })
 
-    const snapshot = await prisma.regulationDocumentSnapshot.create({
-      data: {
-        sourceId: source.id,
-        contentHash,
-        rawUrl: source.feedUrl,
-        title: items[0]?.title ?? null,
-        effectiveDate: null,
-        normalizedBody: normalized.slice(0, 50_000),
-        parserVersion: PARSER_VERSION,
-        previousSnapshotId: lastSnapshot?.id ?? null,
-      },
-    })
-
-    await prisma.regulationSource.update({
-      where: { id: source.id },
-      data: {
-        lastFetchedAt: new Date(),
-        lastSuccessAt: new Date(),
-        lastErrorAt: null,
-        lastErrorSummary: null,
-        consecutiveFailures: 0,
-        circuitBreakerOpenUntil: null,
-      },
-    })
-
-    const hasChange = lastSnapshot && lastSnapshot.contentHash !== contentHash
-
-    if (hasChange) {
-      const materiality = Math.min(1, items.length / 50)
-      const coachVisible = shouldCoachSee(source.sourceType, materiality)
-      const summary = classifySummary(source, items.length)
-      const change = await prisma.regulationChange.create({
+      const snapshot = await tx.regulationDocumentSnapshot.create({
         data: {
           sourceId: source.id,
-          snapshotId: snapshot.id,
-          severity: inferSeverity(source.sourceType),
-          summary,
-          classification: 'FEED_UPDATE',
-          impactedDomains: ['GOVERNANCE', 'PUBLICATION'],
-          materialityScore: materiality,
-          confidenceScore: items.length > 0 ? 0.9 : 0.6,
-          requiresManualReview: items.length === 0,
-          coachVisible,
-          evidenceUrl: source.feedUrl,
-          retrievalDate: new Date(),
-          title: items[0]?.title ?? source.name,
-          diffMetadata: {
-            previousHash: lastSnapshot?.contentHash,
-            newHash: contentHash,
-            topTitles: items.slice(0, 5).map((i) => i.title),
-          },
+          contentHash,
+          rawUrl: source.feedUrl,
+          title: items[0]?.title ?? null,
+          effectiveDate: null,
+          normalizedBody: normalized.slice(0, 50_000),
+          parserVersion: PARSER_VERSION,
+          previousSnapshotId: lastSnapshot?.id ?? null,
         },
       })
 
-      await prisma.regulationAudienceMapping.create({
-        data: { changeId: change.id, audience: 'COMPLIANCE' },
+      await tx.regulationSource.update({
+        where: { id: source.id },
+        data: {
+          lastFetchedAt: new Date(),
+          lastSuccessAt: new Date(),
+          lastErrorAt: null,
+          lastErrorSummary: null,
+          consecutiveFailures: 0,
+          circuitBreakerOpenUntil: null,
+        },
       })
-      if (coachVisible) {
-        await prisma.regulationAudienceMapping.create({
-          data: { changeId: change.id, audience: 'COACH' },
+
+      const hasChange = lastSnapshot && lastSnapshot.contentHash !== contentHash
+      let transactionChangesCreated = 0
+
+      if (hasChange) {
+        const materiality = Math.min(1, items.length / 50)
+        const coachVisible = shouldCoachSee(source.sourceType, materiality)
+        const summary = classifySummary(source, items.length)
+        const change = await tx.regulationChange.create({
+          data: {
+            sourceId: source.id,
+            snapshotId: snapshot.id,
+            severity: inferSeverity(source.sourceType),
+            summary,
+            classification: 'FEED_UPDATE',
+            impactedDomains: ['GOVERNANCE', 'PUBLICATION'],
+            materialityScore: materiality,
+            confidenceScore: items.length > 0 ? 0.9 : 0.6,
+            requiresManualReview: items.length === 0,
+            coachVisible,
+            evidenceUrl: source.feedUrl,
+            retrievalDate: new Date(),
+            title: items[0]?.title ?? source.name,
+            diffMetadata: {
+              previousHash: lastSnapshot?.contentHash,
+              newHash: contentHash,
+              topTitles: items.slice(0, 5).map((i) => i.title),
+            },
+          },
         })
+
+        await tx.regulationAudienceMapping.create({
+          data: { changeId: change.id, audience: 'COMPLIANCE' },
+        })
+        if (coachVisible) {
+          await tx.regulationAudienceMapping.create({
+            data: { changeId: change.id, audience: 'COACH' },
+          })
+        }
+
+        transactionChangesCreated = 1
       }
 
-      changesCreated = 1
-    }
+      await tx.regulationCheckRun.update({
+        where: { id: runRow.id },
+        data: {
+          status: 'success',
+          completedAt: new Date(),
+          itemsFetched: items.length,
+          changesDetected: transactionChangesCreated,
+          errorSummary: null,
+        },
+      })
 
-    await prisma.regulationCheckRun.update({
-      where: { id: runRow.id },
-      data: {
-        status: 'success',
-        completedAt: new Date(),
-        itemsFetched: items.length,
-        changesDetected: changesCreated,
-        errorSummary: null,
-      },
+      return transactionChangesCreated
     })
 
     return changesCreated

@@ -8,6 +8,7 @@ import {
   getUser,
   checkPermission,
   UserRole,
+  type UserContext,
 } from '@aah/auth'
 import {
   successResponse,
@@ -42,6 +43,23 @@ function canViewRegulations(role: UserRole): boolean {
   )
 }
 
+async function resolveAcknowledgementUserId(user: UserContext): Promise<string> {
+  const dbUser = await prisma.user.findUnique({
+    where: { clerkId: user.clerkId },
+    select: { id: true },
+  })
+
+  if (dbUser) {
+    return dbUser.id
+  }
+
+  if (user.userId && user.userId !== user.clerkId) {
+    return user.userId
+  }
+
+  throw new ForbiddenError('Authenticated user is not synced')
+}
+
 /**
  * GET /api/compliance/regulations/changes
  */
@@ -66,15 +84,19 @@ routes.get('/regulations/changes', async (c) => {
   })
 
   const where: Prisma.RegulationChangeWhereInput = {}
+  const acknowledgementUserId =
+    user.role === UserRole.COACH
+      ? null
+      : await resolveAcknowledgementUserId(user)
 
   if (user.role === UserRole.COACH) {
     where.coachVisible = true
   }
 
-  if (q.unacknowledgedOnly && user.role !== UserRole.COACH) {
+  if (q.unacknowledgedOnly && acknowledgementUserId) {
     where.NOT = {
       acknowledgements: {
-        some: { userId: user.userId },
+        some: { userId: acknowledgementUserId },
       },
     }
   }
@@ -93,7 +115,9 @@ routes.get('/regulations/changes', async (c) => {
           select: { id: true, name: true, sourceType: true, feedUrl: true },
         },
         acknowledgements: {
-          where: { userId: user.userId },
+          where: acknowledgementUserId
+            ? { userId: acknowledgementUserId }
+            : { userId: '' },
           select: { id: true },
         },
       },
@@ -153,6 +177,11 @@ routes.get('/regulations/changes/:id', async (c) => {
     throw new ForbiddenError('Missing compliance:read permission')
   }
 
+  const acknowledgementUserId =
+    user.role === UserRole.COACH
+      ? null
+      : await resolveAcknowledgementUserId(user)
+
   const row = await prisma.regulationChange.findUnique({
     where: { id },
     include: {
@@ -168,7 +197,9 @@ routes.get('/regulations/changes/:id', async (c) => {
         },
       },
       acknowledgements: {
-        where: { userId: user.userId },
+        where: acknowledgementUserId
+          ? { userId: acknowledgementUserId }
+          : { userId: '' },
       },
       audienceMappings: true,
     },
@@ -245,13 +276,15 @@ routes.post(
       throw new NotFoundError('Change not found', 'regulationChange')
     }
 
+    const acknowledgementUserId = await resolveAcknowledgementUserId(user)
+
     await prisma.regulationAcknowledgement.upsert({
       where: {
-        changeId_userId: { changeId, userId: user.userId },
+        changeId_userId: { changeId, userId: acknowledgementUserId },
       },
       create: {
         changeId,
-        userId: user.userId,
+        userId: acknowledgementUserId,
         notes: notes ?? null,
       },
       update: {
