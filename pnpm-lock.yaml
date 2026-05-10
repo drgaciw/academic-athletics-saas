@@ -744,6 +744,9 @@ importers:
       '@vercel/blob':
         specifier: ^0.22.0
         version: 0.22.3
+      axios:
+        specifier: ^1.6.7
+        version: 1.13.2(debug@4.4.3)
       canvas-api:
         specifier: ^1.0.0
         version: 1.0.3
