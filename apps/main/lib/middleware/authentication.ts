@@ -3,7 +3,7 @@
  * Validates Clerk JWT tokens and extracts user context
  */
 
-import { auth, currentUser } from '@clerk/nextjs';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextRequest } from 'next/server';
 import { RequestContext, UserRole } from '../types/services';
 
