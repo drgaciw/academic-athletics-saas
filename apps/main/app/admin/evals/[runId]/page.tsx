@@ -91,8 +91,8 @@ export default function EvalRunDetailsPage() {
       URL.revokeObjectURL(url);
     } else if (format === "csv") {
       const headers = ["Test ID", "Passed", "Score", "Latency (ms)", "Cost"];
-      const rows = results.map((r) => [
-        r.testCase.id,
+      const rows = results.map((r: any) => [
+        r.testCaseId,
         r.score.passed ? "true" : "false",
         r.score.value.toFixed(2),
         r.score.latencyMs.toFixed(0),
