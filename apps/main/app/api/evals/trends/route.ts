@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { TrendDataPoint } from '@/lib/types/evals';
+import { requireEvalAdmin } from '../auth';
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
 
 // Mock data - replace with actual database queries
 export async function GET(request: Request) {
+  const authResponse = await requireEvalAdmin();
+  if (authResponse) return authResponse;
+
   try {
     const { searchParams } = new URL(request.url);
     const datasetId = searchParams.get('datasetId');

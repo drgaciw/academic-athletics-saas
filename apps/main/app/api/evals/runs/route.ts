@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@aah/database';
 import type { EvalRunListItem } from '@/lib/types/evals';
+import { requireEvalAdmin } from '../auth';
 
 // Revalidate every 30 seconds
 export const revalidate = 30;
 
 export async function GET() {
+  const authResponse = await requireEvalAdmin();
+  if (authResponse) return authResponse;
+
   try {
     const runs = await prisma.evalRun.findMany({
       orderBy: { createdAt: 'desc' },

@@ -1,7 +1,7 @@
 
 import { GET } from '../route';
 import { prisma } from '@aah/database';
-import { NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs';
 
 // Mock the prisma client
 jest.mock('@aah/database', () => ({
@@ -12,14 +12,40 @@ jest.mock('@aah/database', () => ({
   },
 }));
 
-// Mock NextResponse to make it easier to test if needed,
-// but standard Response object methods like .json() should work if environment is correct.
-// However, in Jest environment node, Request/Response are available via global or setup.
-// If not, we might need polyfills or just inspect the result.
+jest.mock('@clerk/nextjs', () => ({
+  currentUser: jest.fn(),
+}));
 
 describe('GET /api/evals/runs', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (currentUser as jest.Mock).mockResolvedValue({
+      publicMetadata: { role: 'ADMIN' },
+    });
+  });
+
+  it('rejects unauthenticated requests before querying eval runs', async () => {
+    (currentUser as jest.Mock).mockResolvedValue(null);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe('Authentication required');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-admin requests before querying eval runs', async () => {
+    (currentUser as jest.Mock).mockResolvedValue({
+      publicMetadata: { role: 'STUDENT' },
+    });
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(data.error).toBe('Forbidden');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
   });
 
   it('returns formatted eval runs from database', async () => {

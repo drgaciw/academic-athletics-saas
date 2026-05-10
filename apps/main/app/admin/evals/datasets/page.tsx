@@ -274,7 +274,7 @@ export default function DatasetsPage() {
                   datasetForm.reset();
                 }}
               >
-                Cancel
+     rows={3}           Cancel
               </Button>
             </div>
           </CardHeader>
@@ -306,7 +306,6 @@ export default function DatasetsPage() {
                   error={!!datasetForm.formState.errors.description}
                   placeholder="Describe the purpose and contents of this dataset..."
                   rows={3}
-                  error={!!datasetForm.formState.errors.description}
                 />
                 {datasetForm.formState.errors.description && (
                   <p className="text-sm text-red-600 mt-1">
@@ -469,7 +468,6 @@ export default function DatasetsPage() {
                         placeholder='{"studentId": "123", "gpa": 3.5, ...}'
                         rows={4}
                         className="font-mono text-sm"
-                        error={!!testCaseForm.formState.errors.input}
                       />
                       {testCaseForm.formState.errors.input && (
                         <p className="text-sm text-red-600 mt-1">
@@ -489,7 +487,6 @@ export default function DatasetsPage() {
                         placeholder='{"eligible": true, "issues": []}'
                         rows={4}
                         className="font-mono text-sm"
-                        error={!!testCaseForm.formState.errors.expected}
                       />
                       {testCaseForm.formState.errors.expected && (
                         <p className="text-sm text-red-600 mt-1">
