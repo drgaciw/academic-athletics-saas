@@ -19,14 +19,14 @@
     "@aah/database": "workspace:*",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@vercel/blob": "^0.22.0",
+    "axios": "^1.16.0",
     "canvas-api": "^1.0.0",
     "googleapis": "^133.0.0",
     "hono": "^4.0.0",
+    "isomorphic-fetch": "^3.0.0",
     "pdfkit": "^0.14.0",
     "resend": "^3.2.0",
-    "zod": "^3.22.4",
-    "axios": "^1.6.7",
-    "isomorphic-fetch": "^3.0.0"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
