@@ -1,7 +1,6 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { Inter, Lexend } from 'next/font/google'
-import Link from 'next/link'
 import {
   ClerkProvider,
   SignedIn,
