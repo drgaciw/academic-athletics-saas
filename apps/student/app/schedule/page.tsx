@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
 import { redirect } from 'next/navigation';
