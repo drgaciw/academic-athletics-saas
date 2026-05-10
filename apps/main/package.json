@@ -21,7 +21,7 @@
     "@aah/database": "*",
     "@aah/ui": "*",
     "@ai-sdk/openai": "^0.0.66",
-    "@clerk/nextjs": "^4.29.0",
+        "@clerk/nextjs": "^5.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@opentelemetry/api-logs": "^0.208.0",
     "@opentelemetry/instrumentation": "^0.208.0",
