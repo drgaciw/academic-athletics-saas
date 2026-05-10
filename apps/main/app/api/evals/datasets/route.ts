@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { DatasetListItem } from '@/lib/types/evals';
+import { requireEvalAdmin } from '../auth';
 
 // Mock data - replace with actual @aah/ai-evals DatasetManager
 export async function GET() {
+  const authResponse = await requireEvalAdmin();
+  if (authResponse) return authResponse;
+
   try {
     // TODO: Use DatasetManager from @aah/ai-evals
     const mockDatasets: DatasetListItem[] = [
@@ -46,6 +50,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authResponse = await requireEvalAdmin();
+  if (authResponse) return authResponse;
+
   try {
     const body = await request.json();
 

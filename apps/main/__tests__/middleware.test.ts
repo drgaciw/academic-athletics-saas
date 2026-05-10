@@ -25,7 +25,10 @@ describe('Middleware', () => {
       '/',
       '/sign-in(.*)',
       '/sign-up(.*)',
+      '/sso-callback',
+      '/api/health',
       '/api/webhooks(.*)',
+      '/api/cron/regulation-check',
     ]);
 
     // Assert that publishableKey and secretKey are read from env

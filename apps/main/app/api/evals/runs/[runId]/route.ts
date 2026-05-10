@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import type { EvalReport } from "@aah/ai-evals";
+import { requireEvalAdmin } from "../../auth";
 
 // Mock data - replace with actual database queries
 export async function GET(
   request: Request,
   { params }: { params: { runId: string } },
 ) {
+  const authResponse = await requireEvalAdmin();
+  if (authResponse) return authResponse;
+
   try {
     const { runId } = params;
 
