@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@aah/database";
 import { redirect } from "next/navigation";
 import { addDays } from "date-fns";
