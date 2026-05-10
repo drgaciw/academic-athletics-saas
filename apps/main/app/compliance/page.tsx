@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@aah/database';
-import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle, Button } from '@aah/ui';
+import { Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@aah/ui';
 import { ExternalLink, Shield } from 'lucide-react';
 
 export default async function ComplianceRegulationPage() {
@@ -149,15 +149,21 @@ export default async function ComplianceRegulationPage() {
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/compliance/changes/${c.id}`}>Details</Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild>
-                    <a href={c.evidenceUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-1 h-4 w-4" />
-                      Evidence
-                    </a>
-                  </Button>
+                  <Link
+                    href={`/compliance/changes/${c.id}`}
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-transparent px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  >
+                    Details
+                  </Link>
+                  <a
+                    href={c.evidenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  >
+                    <ExternalLink className="mr-1 h-4 w-4" />
+                    Evidence
+                  </a>
                 </div>
               </div>
             ))
