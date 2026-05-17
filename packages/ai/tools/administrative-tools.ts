@@ -6,12 +6,12 @@
 
 import { z } from 'zod'
 import { createTool } from '../lib/tool-registry'
+import { integrationService, userService, monitoringService } from '../lib/service-client'
 import type { ToolExecutionContext } from '../types/agent.types'
 import { Resend } from 'resend'
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY)
-import { integrationService, userService, monitoringService } from '../lib/service-client'
 
 /**
  * Send Email
