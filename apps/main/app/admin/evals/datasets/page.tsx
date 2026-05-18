@@ -471,6 +471,7 @@ export default function DatasetsPage() {
                       />
                       {testCaseForm.formState.errors.input && (
                         <p className="text-sm text-red-600 mt-1">
+                          {testCaseForm.formState.errors.input.message}
                         </p>
                       )}
                     </div>
