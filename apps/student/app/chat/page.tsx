@@ -13,12 +13,13 @@ export default function ChatPage() {
       <header className="border-b border-gray-200 p-4 bg-white">
         <h1 className="text-xl font-semibold text-gray-900">AI Assistant</h1>
         <p className="text-sm text-gray-500">
-          Get help with courses, eligibility, and academic planning
+          Preliminary guidance only—official eligibility comes from your athletics compliance office.
         </p>
       </header>
 
       <div className="flex-1 relative">
         <ChatWidget
+          showStudentEligibilityDisclaimer
           messages={messages.map((m) => ({
             id: m.id,
             role: m.role as 'user' | 'assistant',

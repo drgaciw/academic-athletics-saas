@@ -7,6 +7,7 @@ import { Button } from '../button'
 import { ChatHeader } from './chat-header'
 import { MessageList } from './message-list'
 import { ChatInput } from './chat-input'
+import { StudentEligibilityDisclaimer } from './student-eligibility-disclaimer'
 
 export interface ChatWidgetProps {
   messages: Array<{
@@ -31,6 +32,8 @@ export interface ChatWidgetProps {
   onSubmit: (e: React.FormEvent) => void
   onStop?: () => void
   className?: string
+  /** PRD v2.2 — show persistent compliance authority banner (student-facing AI). */
+  showStudentEligibilityDisclaimer?: boolean
 }
 
 export function ChatWidget({
@@ -41,6 +44,7 @@ export function ChatWidget({
   onSubmit,
   onStop,
   className,
+  showStudentEligibilityDisclaimer = false,
 }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [isFullscreen, setIsFullscreen] = React.useState(false)
@@ -67,6 +71,11 @@ export function ChatWidget({
     return (
       <button
         onClick={() => setIsOpen(true)}
+        title={
+          showStudentEligibilityDisclaimer
+            ? 'Preliminary guidance only. Official eligibility comes from your athletics compliance office.'
+            : undefined
+        }
         className={cn(
           'fixed bottom-4 right-4 md:bottom-6 md:right-6',
           'h-14 w-14 rounded-full bg-brand-primary text-white shadow-lg',
@@ -102,6 +111,8 @@ export function ChatWidget({
         onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
         isFullscreen={isFullscreen}
       />
+
+      {showStudentEligibilityDisclaimer ? <StudentEligibilityDisclaimer /> : null}
 
       <MessageList messages={messages} isLoading={isLoading} />
 

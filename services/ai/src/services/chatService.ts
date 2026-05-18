@@ -1,12 +1,15 @@
-import { streamText, generateText } from 'ai'
+import { streamText, generateText, type CoreMessage } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { prisma } from '@aah/database'
-import { AIMessage, AIModel, StreamChunk } from '../types'
+import { AIMessage, AIModel } from '../types'
 import { AI_CONFIG, calculateCost } from '../config'
 import { countMessageTokens, optimizeMessages } from '../utils/tokens'
 import { sanitizeInput, sanitizeOutput, encryptConversation } from '../utils/security'
 import { ragPipeline } from './ragPipeline'
+import { isEligibilityIntent } from './eligibilityIntent'
+import { eligibilityResponseGuard } from './eligibilityResponseGuard'
+import { loadStudentEligibilityGate, resolveDbUserId } from './studentEligibilityContext'
 
 export class ChatService {
   /**
@@ -116,6 +119,54 @@ export class ChatService {
     return openai(model)
   }
 
+  /** Maps optimized chat messages to CoreMessage for the Vercel AI SDK. */
+  private toCoreMessages(optimized: AIMessage[]): CoreMessage[] {
+    return optimized.map((m) => ({
+      role: m.role as 'system' | 'user' | 'assistant',
+      content: m.content,
+    })) as CoreMessage[]
+  }
+
+  private async attachRagContext(
+    optimizedMessages: AIMessage[],
+    sanitizedMessage: string,
+    model: AIModel,
+    useRag: boolean
+  ): Promise<void> {
+    if (useRag === false) return
+    try {
+      const ragResult = await ragPipeline.query(sanitizedMessage, {
+        model,
+        validate: true,
+      })
+
+      if (ragResult.sources.length > 0) {
+        const ragContext = `\n\nRelevant Information:\n${ragResult.sources
+          .map((s, i) => `[${i + 1}] ${s.title}: ${s.excerpt}`)
+          .join('\n')}\n`
+        optimizedMessages[0].content += ragContext
+      }
+    } catch (error) {
+      console.warn('RAG retrieval failed, continuing without context:', error)
+    }
+  }
+
+  /**
+   * UTF-8 stream of plain text for the BFF route (decodes per chunk).
+   */
+  private static textToUtf8Stream(text: string): ReadableStream<Uint8Array> {
+    const encoder = new TextEncoder()
+    const chunkSize = 64
+    return new ReadableStream({
+      start(controller) {
+        for (let i = 0; i < text.length; i += chunkSize) {
+          controller.enqueue(encoder.encode(text.slice(i, i + chunkSize)))
+        }
+        controller.close()
+      },
+    })
+  }
+
   /**
    * Chat with streaming response
    */
@@ -128,6 +179,9 @@ export class ChatService {
       useRAG?: boolean
       systemPrompt?: string
       temperature?: number
+      /** From BFF `X-User-Role` — drives PRD v2.2 student eligibility policy. */
+      userRole?: string
+      correlationId?: string
     } = {}
   ) {
     // Sanitize input
@@ -140,17 +194,30 @@ export class ChatService {
       )
     }
 
+    const dbUserId = await resolveDbUserId(userId)
+    const effectiveUserId = dbUserId ?? userId
+
+    const gate =
+      dbUserId && options.userRole === 'STUDENT'
+        ? await loadStudentEligibilityGate(dbUserId)
+        : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
+
     // Get or create conversation
-    const conversationId = await this.getOrCreateConversation(userId, options.conversationId)
+    const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
     const history = await this.getConversationHistory(conversationId, 20)
+
+    let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
+    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+      systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
+    }
 
     // Build messages array
     const messages: AIMessage[] = [
       {
         role: 'system',
-        content: options.systemPrompt || AI_CONFIG.systemPrompts.default,
+        content: systemContent,
       },
       ...history,
       { role: 'user', content: sanitizedMessage },
@@ -159,7 +226,7 @@ export class ChatService {
     // Optimize messages to fit context window
     const model = options.model || AI_CONFIG.models.default
     const maxTokens = AI_CONFIG.tokenLimits[model] || 8192
-    const optimizedMessages = optimizeMessages(messages, maxTokens * 0.8, model)
+    const optimizedMessages = optimizeMessages(messages, maxTokens * 0.8, model) as AIMessage[]
 
     // Save user message
     await this.saveMessage(conversationId, 'user', sanitizedMessage, {
@@ -171,42 +238,62 @@ export class ChatService {
       await this.updateConversationTitle(conversationId, sanitizedMessage)
     }
 
-    // Get RAG context if needed
-    let ragContext = ''
-    if (options.useRAG !== false) {
-      try {
-        const ragResult = await ragPipeline.query(sanitizedMessage, {
-          model,
-          validate: true,
-        })
-
-        if (ragResult.sources.length > 0) {
-          ragContext = `\n\nRelevant Information:\n${ragResult.sources
-            .map((s, i) => `[${i + 1}] ${s.title}: ${s.excerpt}`)
-            .join('\n')}\n`
-
-          // Prepend RAG context to system message
-          optimizedMessages[0].content += ragContext
-        }
-      } catch (error) {
-        console.warn('RAG retrieval failed, continuing without context:', error)
-      }
-    }
+    await this.attachRagContext(optimizedMessages, sanitizedMessage, model, options.useRAG !== false)
 
     // Get model provider
     const modelProvider = this.getModelProvider(model)
 
-    // Stream response
+    // All STUDENT traffic: full response + guard before any bytes hit the client (PRD v2.2 / no live token leak).
+    const bufferStudentResponse = options.userRole === 'STUDENT'
+
+    if (bufferStudentResponse) {
+      const temperature =
+        isEligibilityIntent(sanitizedMessage) ? options.temperature ?? 0.45 : options.temperature || 0.7
+      const gen = await generateText({
+        model: modelProvider,
+        messages: this.toCoreMessages(optimizedMessages),
+        temperature,
+        maxTokens: 2000,
+      })
+
+      const guarded = eligibilityResponseGuard(gen.text, {
+        userRole: 'STUDENT',
+        hasRecordedComplianceReview: gate.hasRecordedComplianceReview,
+      })
+      const assistantMessage = sanitizeOutput(guarded.text)
+
+      const tokenUsage = {
+        prompt: gen.usage.promptTokens,
+        completion: gen.usage.completionTokens,
+        total: gen.usage.totalTokens,
+      }
+      const cost = calculateCost(model, tokenUsage.prompt, tokenUsage.completion)
+
+      await this.saveMessage(conversationId, 'assistant', assistantMessage, {
+        model,
+        tokenCount: tokenUsage.total,
+        cost,
+      })
+
+      const corr = options.correlationId ? ` | corr=${options.correlationId}` : ''
+      console.log(
+        `Chat completed (student buffered + guard) | Model: ${model} | Tokens: ${tokenUsage.total} | Cost: $${cost.toFixed(6)}${corr}`
+      )
+
+      return {
+        conversationId,
+        stream: ChatService.textToUtf8Stream(assistantMessage),
+        model,
+      }
+    }
+
+    // Non-student: token streaming
     const result = await streamText({
       model: modelProvider,
-      messages: optimizedMessages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
+      messages: this.toCoreMessages(optimizedMessages),
       temperature: options.temperature || 0.7,
       maxTokens: 2000,
       onFinish: async (event) => {
-        // Save assistant message
         const assistantMessage = event.text
 
         const tokenUsage = {
@@ -223,8 +310,8 @@ export class ChatService {
           cost,
         })
 
-        // Log metrics
-        console.log(`Chat completed | Model: ${model} | Tokens: ${tokenUsage.total} | Cost: $${cost.toFixed(6)}`)
+        const corr = options.correlationId ? ` | corr=${options.correlationId}` : ''
+        console.log(`Chat completed | Model: ${model} | Tokens: ${tokenUsage.total} | Cost: $${cost.toFixed(6)}${corr}`)
       },
     })
 
@@ -247,6 +334,8 @@ export class ChatService {
       useRAG?: boolean
       systemPrompt?: string
       temperature?: number
+      userRole?: string
+      correlationId?: string
     } = {}
   ): Promise<{
     conversationId: string
@@ -262,17 +351,30 @@ export class ChatService {
     // Sanitize input
     const sanitizedMessage = sanitizeInput(message)
 
+    const dbUserId = await resolveDbUserId(userId)
+    const effectiveUserId = dbUserId ?? userId
+
+    const gate =
+      dbUserId && options.userRole === 'STUDENT'
+        ? await loadStudentEligibilityGate(dbUserId)
+        : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
+
     // Get or create conversation
-    const conversationId = await this.getOrCreateConversation(userId, options.conversationId)
+    const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
     const history = await this.getConversationHistory(conversationId, 20)
+
+    let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
+    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+      systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
+    }
 
     // Build messages array
     const messages: AIMessage[] = [
       {
         role: 'system',
-        content: options.systemPrompt || AI_CONFIG.systemPrompts.default,
+        content: systemContent,
       },
       ...history,
       { role: 'user', content: sanitizedMessage },
@@ -281,41 +383,37 @@ export class ChatService {
     // Optimize messages
     const model = options.model || AI_CONFIG.models.default
     const maxTokens = AI_CONFIG.tokenLimits[model] || 8192
-    const optimizedMessages = optimizeMessages(messages, maxTokens * 0.8, model)
+    const optimizedMessages = optimizeMessages(messages, maxTokens * 0.8, model) as AIMessage[]
 
     // Save user message
     await this.saveMessage(conversationId, 'user', sanitizedMessage)
 
-    // Get RAG context if needed
-    if (options.useRAG !== false) {
-      try {
-        const ragResult = await ragPipeline.query(sanitizedMessage, { model })
-        if (ragResult.sources.length > 0) {
-          const ragContext = `\n\nRelevant Information:\n${ragResult.sources
-            .map((s, i) => `[${i + 1}] ${s.title}: ${s.excerpt}`)
-            .join('\n')}\n`
-          optimizedMessages[0].content += ragContext
-        }
-      } catch (error) {
-        console.warn('RAG retrieval failed:', error)
-      }
-    }
+    await this.attachRagContext(optimizedMessages, sanitizedMessage, model, options.useRAG !== false)
 
     // Get model provider
     const modelProvider = this.getModelProvider(model)
 
+    const temperature =
+      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+        ? options.temperature ?? 0.45
+        : options.temperature || 0.7
+
     // Generate response
     const result = await generateText({
       model: modelProvider,
-      messages: optimizedMessages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
-      temperature: options.temperature || 0.7,
+      messages: this.toCoreMessages(optimizedMessages),
+      temperature,
       maxTokens: 2000,
     })
 
-    const response = result.text
+    let response = result.text
+    if (options.userRole === 'STUDENT') {
+      const guarded = eligibilityResponseGuard(response, {
+        userRole: 'STUDENT',
+        hasRecordedComplianceReview: gate.hasRecordedComplianceReview,
+      })
+      response = guarded.text
+    }
 
     // Calculate usage and cost
     const tokenUsage = {

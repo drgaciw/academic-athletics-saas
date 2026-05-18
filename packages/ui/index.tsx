@@ -46,6 +46,7 @@ export {
   ThinkingIndicator,
   ToolExecutionCard,
   CitationFooter,
+  StudentEligibilityDisclaimer,
   type Message,
 } from './components/chat';
 

@@ -15,6 +15,8 @@ chatRouter.post('/', zValidator('json', ChatMessageSchema), async (c) => {
 
     // Get auth user (would come from middleware in production)
     const authUserId = c.req.header('X-User-Id') || userId
+    const userRole = c.req.header('X-User-Role') || ''
+    const correlationId = c.req.header('X-Correlation-Id') || undefined
 
     if (!authUserId) {
       return c.json({ error: { code: 'UNAUTHORIZED', message: 'User ID required' } }, 401)
@@ -26,6 +28,8 @@ chatRouter.post('/', zValidator('json', ChatMessageSchema), async (c) => {
         conversationId,
         model,
         useRAG: true,
+        userRole,
+        correlationId,
       })
 
       // Return Server-Sent Events stream
@@ -64,6 +68,8 @@ chatRouter.post('/', zValidator('json', ChatMessageSchema), async (c) => {
       conversationId,
       model,
       useRAG: true,
+      userRole,
+      correlationId,
     })
 
     return c.json({

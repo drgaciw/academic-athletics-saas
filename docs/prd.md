@@ -5,12 +5,12 @@
 | Attribute              | Details                                                                 |
 |------------------------|-------------------------------------------------------------------------|
 | **Product Name**       | Athletic Academics Hub (AAH)                                            |
-| **Version**            | 2.1                                                                     |
+| **Version**            | 2.2                                                                     |
 | **Date**               | May 04, 2026                                                            |
 | **Author**             | Grok 4, IT Business Analyst (built by xAI); Enhanced by Claude (Anthropic) |
 | **Status**             | Draft                                                                   |
 | **Approval**           | Pending                                                                 |
-| **Revision History**   | Version 1.0: Initial draft based on provided information and enhanced with research on best practices, existing solutions, and software features.<br>Version 1.1: Incorporated expanded NCAA compliance details, with a focus on Division I athletics, including initial and continuing eligibility requirements for automated tracking and monitoring.<br>Version 1.2: Enhanced with detailed NCAA compliance integration strategy addressing the absence of public NCAA Eligibility Center API, including hybrid integration model with internal rule engine, data import/export mechanisms, partnership-driven access, and FERPA-compliant workflows.<br>Version 2.0: Major enhancement with comprehensive AI capabilities including 24/7 conversational assistants, intelligent advising agents, predictive analytics, agentic workflows, and RAG-based knowledge systems. Significantly expands problem statement, business goals, functional requirements, and non-functional requirements to position AAH as a leading AI-powered athletic academics platform.<br>Version 2.1: Incorporated **adopted** NCAA Division I updates effective through 2026 (prospect pre-enrollment eligibility, sport-specific transfer notification windows, transfer immediate-eligibility criteria aligned with 2024 Council actions) and aligned AI/deployment requirements with current Vercel and AI SDK documentation (Marketplace data stores, Functions/streaming, AI SDK versioning). |
+| **Revision History**   | Version 1.0: Initial draft based on provided information and enhanced with research on best practices, existing solutions, and software features.<br>Version 1.1: Incorporated expanded NCAA compliance details, with a focus on Division I athletics, including initial and continuing eligibility requirements for automated tracking and monitoring.<br>Version 1.2: Enhanced with detailed NCAA compliance integration strategy addressing the absence of public NCAA Eligibility Center API, including hybrid integration model with internal rule engine, data import/export mechanisms, partnership-driven access, and FERPA-compliant workflows.<br>Version 2.0: Major enhancement with comprehensive AI capabilities including 24/7 conversational assistants, intelligent advising agents, predictive analytics, agentic workflows, and RAG-based knowledge systems. Significantly expands problem statement, business goals, functional requirements, and non-functional requirements to position AAH as a leading AI-powered athletic academics platform.<br>Version 2.1: Incorporated **adopted** NCAA Division I updates effective through 2026 (prospect pre-enrollment eligibility, sport-specific transfer notification windows, transfer immediate-eligibility criteria aligned with 2024 Council actions) and aligned AI/deployment requirements with current Vercel and AI SDK documentation (Marketplace data stores, Functions/streaming, AI SDK versioning).<br>Version 2.2: Aligned **student-facing AI eligibility guidance** with **human oversight** and institutional authority—preliminary, rule-grounded responses only; explicit acceptance criteria block final eligible/ineligible language without recorded compliance approval. |
 
 ## 2. Introduction
 
@@ -157,11 +157,12 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 
 **AI Academic Assistant (Conversational Interface)**:
 - 24/7 chatbot accessible via web and mobile for instant student support.
-- Natural language queries for eligibility status, schedules, resource availability, and NCAA rule clarifications.
+- Natural language queries for **preliminary eligibility guidance** (non-binding), schedules, resource availability, and NCAA rule clarifications—grounded in the **active rule pack** and the student’s known record where available.
+- **Student-facing eligibility policy**: Responses must be framed as **decision support**, not **final** athletic eligibility; **no** definitive **eligible** / **ineligible** / **cleared to compete** language unless an **authorized compliance** user has **recorded** that determination in AAH. Surface citations, missing evidence, and escalation to compliance staff.
 - Context-aware conversations that remember user history and current page context.
 - Multi-modal support: text, voice input (mobile), and file uploads for questions.
 - Seamless escalation to human staff when issues require personal attention.
-- Quick action buttons for common tasks: "Check my eligibility", "Book a tutor", "View my schedule".
+- Quick action buttons for common tasks: "Review my eligibility picture (preliminary)", "Book a tutor", "View my schedule".
 - Persistent chat widget embedded across all platform pages.
 
 **Intelligent Advising Agent**:
@@ -285,7 +286,7 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 ### 7.1 Performance
 - Load times < 2 seconds for core pages.
 - Support concurrent users up to 5,000.
-- AI response times: < 2 seconds for simple queries (e.g., "What is my eligibility status?"), < 5 seconds for complex agent operations (e.g., generating comprehensive compliance reports).
+- AI response times: < 2 seconds for simple queries (e.g., "What does my file suggest about eligibility next term?" framed as preliminary guidance), < 5 seconds for complex agent operations (e.g., generating comprehensive compliance reports).
 - AI streaming responses begin within 500ms for improved perceived performance.
 - Vector search query times < 200ms for RAG retrieval operations.
 - Token usage optimization: intelligent caching to reduce API costs by 40%+.
@@ -324,7 +325,7 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - **Hallucination Prevention**: Fact-checking layer validates critical information (eligibility determinations, NCAA rules) against source data before presentation.
 - **Bias Monitoring**: Regular audits ensure AI responses are fair across demographics (sports, gender, ethnicity, major) with documented mitigation strategies.
 - **Explainability**: AI provides confidence scores and source citations for compliance-related recommendations.
-- **Human Oversight**: Critical decisions (final eligibility determinations, intervention plans) require human review despite AI assistance.
+- **Human Oversight**: Critical decisions (final eligibility determinations, intervention plans) require human review despite AI assistance. **Student-facing** AI must not assert **final** competition eligibility; it may summarize **system flags**, **RAG-backed** rule excerpts, **data gaps**, and **next steps** pending compliance review.
 - **Continuous Improvement**: User feedback collection (thumbs up/down, corrections) feeds into model optimization and knowledge base updates.
 - **Fallback Mechanisms**: Graceful degradation to human support when AI confidence is low or errors are detected.
 - **Observability**: Complete tracing of AI interactions with unique IDs, latency monitoring, token usage tracking, and error rate alerts.
@@ -343,7 +344,7 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - As a compliance administrator, I want **evidence records** (academic standing, degree conferral for graduates, PTAD at the new school) attached to **transfer eligibility** determinations for audit export.
 
 ### AI-Enhanced User Stories
-- As a student-athlete practicing late at night, I want to ask the AI assistant "Am I eligible to play next semester?" and get an instant answer with explanations.
+- As a student-athlete practicing late at night, I want to ask how my academic file aligns with eligibility expectations for next term and receive **immediate preliminary guidance** (rule-pack citations, missing items, and risk factors)—clearly labeled **not a final determination**—with a **clear path to compliance staff** for an authoritative answer.
 - As a freshman, I want to tell the AI "I need help with calculus" and have it recommend specific tutors, resources, and study materials without navigating complex menus.
 - As an academic coordinator, I want to ask "Which students are at risk this week?" and receive a prioritized list with AI-generated intervention strategies.
 - As an administrator, I want to type "Generate the compliance report for basketball team" and have the AI create a comprehensive NCAA-ready document in minutes.
@@ -351,8 +352,14 @@ Leveraging advanced AI technologies to provide intelligent, scalable, and proact
 - As a student-athlete traveling to an away game, I want to use voice commands on my phone to ask about assignment deadlines without typing.
 - As faculty, I want the AI to draft progress reports based on attendance and grade data so I only need to review and approve rather than write from scratch.
 - As an advisor, I want the AI to suggest optimal course schedules for a student by saying "Find 15 credits for spring semester with no morning classes and meets engineering requirements."
-- As a student worried about eligibility, I want the AI to explain "What happens if I drop this course?" with clear consequences and alternatives.
+- As a student worried about eligibility, I want the AI to explain "What happens if I drop this course?" with **preliminary**, rule-grounded consequences and alternatives—not a final eligibility determination until **compliance** confirms.
 - As a new staff member, I want an AI onboarding agent to guide me through system setup and answer my questions without waiting for training sessions.
+
+### Acceptance criteria (student-facing eligibility AI)
+- Student-facing surfaces **must not** present **final** outcomes using phrases such as **"you are eligible"**, **"you are ineligible"**, **"cleared to compete"**, or equivalent unless tied to a **recorded determination** by an **authorized compliance role** in AAH.
+- Default behavior presents **preliminary** status, **known gaps** in data, **rule excerpts** with sources, and **uncertainty** when inputs are incomplete or confidence is low.
+- Every eligibility-related AI response includes **visible copy** that **institutional compliance** is authoritative and the assistant provides **decision support only**.
+- **Low-confidence** or **incomplete-record** scenarios **block** definitive eligibility language and **prompt** scheduling or contact with compliance (aligned with **Fallback Mechanisms** in §7.6).
 
 ## 9. Assumptions and Dependencies
 - **Assumptions**:
