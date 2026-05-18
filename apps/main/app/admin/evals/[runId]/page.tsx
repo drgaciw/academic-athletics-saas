@@ -92,7 +92,7 @@ export default function EvalRunDetailsPage() {
     } else if (format === "csv") {
       const headers = ["Test ID", "Passed", "Score", "Latency (ms)", "Cost"];
       const rows = results.map((r) => [
-        r.testCase.id,
+        r.testCaseId,
         r.score.passed ? "true" : "false",
         r.score.value.toFixed(2),
         r.score.latencyMs.toFixed(0),
