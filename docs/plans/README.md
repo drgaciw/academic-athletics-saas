@@ -5,6 +5,7 @@ Planning documents for proposed or future work.
 ## Active Plan Areas
 
 - [Transfer Credit System](./transfer-credit-system/README.md)
+- [Student-facing eligibility AI (PRD v2.2)](./student-facing-eligibility-ai/README.md)
 
 ## Usage
 

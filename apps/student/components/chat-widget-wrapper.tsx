@@ -11,6 +11,7 @@ export function ChatWidgetWrapper() {
 
   return (
     <ChatWidget
+      showStudentEligibilityDisclaimer
       messages={messages.map((m) => ({
         id: m.id,
         role: m.role as 'user' | 'assistant',

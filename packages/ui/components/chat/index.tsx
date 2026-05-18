@@ -1,4 +1,5 @@
 export { ChatWidget } from './chat-widget'
+export { StudentEligibilityDisclaimer } from './student-eligibility-disclaimer'
 export { ChatHeader } from './chat-header'
 export { MessageList } from './message-list'
 export { MessageBubble } from './message-bubble'
