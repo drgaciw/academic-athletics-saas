@@ -1,35 +1,63 @@
+jest.mock('@clerk/nextjs/server', () => ({
+  createRouteMatcher: jest.fn((patterns: string[]) => {
+    const publicRoutePatterns = [
+      { pattern: '/', test: (pathname: string) => pathname === '/' },
+      { pattern: '/sign-in(.*)', test: (pathname: string) => pathname.startsWith('/sign-in') },
+      { pattern: '/sign-up(.*)', test: (pathname: string) => pathname.startsWith('/sign-up') },
+      { pattern: '/sso-callback', test: (pathname: string) => pathname === '/sso-callback' },
+      { pattern: '/api/health', test: (pathname: string) => pathname === '/api/health' },
+      { pattern: '/api/webhooks/(.*)', test: (pathname: string) => pathname.startsWith('/api/webhooks/') },
+      { pattern: '/api/cron/regulation-check', test: (pathname: string) => pathname === '/api/cron/regulation-check' },
+    ];
 
-import { authMiddleware } from '@clerk/nextjs';
-import middleware, { config } from '../middleware';
+    expect(patterns).toEqual(publicRoutePatterns.map(({ pattern }) => pattern));
 
-// Mock @clerk/nextjs
-jest.mock('@clerk/nextjs', () => ({
-  authMiddleware: jest.fn().mockImplementation((options) => {
-    return (req: any, evt: any) => {
-      // Mock middleware execution
-      return 'middleware executed';
+    return (request: Request) => {
+      const pathname = new URL(request.url).pathname;
+      return publicRoutePatterns.some(({ test }) => test(pathname));
     };
+  }),
+  clerkMiddleware: jest.fn((handler) => {
+    const auth = jest.fn(() => ({ protect: clerkMocks.protect }));
+    clerkMocks.auth = auth;
+
+    return (request: Request) => handler(auth, request);
   }),
 }));
 
+const clerkMocks = {
+  auth: jest.fn(),
+  protect: jest.fn(),
+};
+
+const { default: middleware, config } = require('../middleware');
+
 describe('Middleware', () => {
-  it('should configure authMiddleware correctly', () => {
-    // Check if authMiddleware was called
-    expect(authMiddleware).toHaveBeenCalled();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    clerkMocks.auth.mockClear();
+    clerkMocks.protect.mockClear();
+  });
 
-    // Get the options passed to authMiddleware
-    const options = (authMiddleware as jest.Mock).mock.calls[0][0];
+  it('protects non-public routes with the Clerk v5 auth function API', async () => {
+    await middleware(new Request('https://aah.test/coach/dashboard'));
 
-    // Assert that publicRoutes are defined correctly
-    expect(options.publicRoutes).toEqual([
-      '/',
-      '/sign-in(.*)',
-      '/sign-up(.*)',
-      '/api/webhooks(.*)',
-    ]);
+    expect(clerkMocks.auth).toHaveBeenCalledTimes(1);
+    expect(clerkMocks.protect).toHaveBeenCalledTimes(1);
+  });
 
-    // Assert that publishableKey and secretKey are read from env
-    // Note: process.env mocks should be handled in jest.setup.js or beforeEach
+  it('requires authentication for eval API routes', async () => {
+    await middleware(new Request('https://aah.test/api/evals/runs'));
+
+    expect(clerkMocks.auth).toHaveBeenCalledTimes(1);
+    expect(clerkMocks.protect).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not protect explicitly public health checks', async () => {
+    await middleware(new Request('https://aah.test/api/health'));
+
+    expect(clerkMocks.auth).not.toHaveBeenCalled();
+    expect(clerkMocks.protect).not.toHaveBeenCalled();
   });
 
   it('should define matcher config', () => {
