@@ -22,6 +22,18 @@ describe('eligibilityResponseGuard', () => {
     expect(text).toContain('preliminary decision support')
   })
 
+  it('STUDENT: strips every repeated definitive eligibility phrase', () => {
+    const raw = 'You are eligible for fall. You are eligible for spring. You are ineligible for winter.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/\byou are eligible\b/)
+    expect(text.toLowerCase()).not.toMatch(/\byou are ineligible\b/)
+    expect(text).toContain('preliminary decision support')
+  })
+
   it('STUDENT: handles cleared to compete', () => {
     const raw = 'You are cleared to compete.'
     const { text, wasModified } = eligibilityResponseGuard(raw, {

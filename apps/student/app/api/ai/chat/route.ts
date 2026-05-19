@@ -41,23 +41,21 @@ export async function POST(req: Request) {
         },
       }),
       checkEligibility: tool({
-        description: 'Check NCAA eligibility status and requirements',
+        description:
+          'Explain that official NCAA eligibility status must be confirmed by athletics compliance staff',
         parameters: z.object({
           studentId: z.string().optional().describe('Student ID to check'),
         }),
         // @ts-ignore - AI SDK tool execute type compatibility
         execute: async ({ studentId }: { studentId?: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
+          // Student-facing chat must never return a final eligibility determination.
           return {
-            status: 'eligible',
-            gpa: 3.45,
-            creditsEarned: 64,
-            creditsRequired: 120,
-            nextCheckDate: '2025-08-15',
-            requirements: [
-              { name: 'Minimum GPA', met: true, value: '3.45 / 2.0' },
-              { name: 'Credit Hours', met: true, value: '64 / 60' },
-              { name: 'Progress Toward Degree', met: true, value: '53%' },
+            officialDeterminationAvailable: false,
+            message:
+              'I cannot provide an official eligibility determination. Please contact your athletics compliance office for confirmed eligibility status.',
+            nextSteps: [
+              'Ask your compliance office to review your current academic and athletics record.',
+              'Use AAH guidance as preliminary decision support only.',
             ],
           }
         },
@@ -101,7 +99,7 @@ You can help with:
 - Study resources and tutoring
 - Academic policies and procedures
 
-Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.`,
+Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies. Do not tell a student-athlete that they are eligible, ineligible, cleared to compete, or cleared for competition; direct them to athletics compliance staff for official determinations.`,
   })
 
   return result.toTextStreamResponse()
