@@ -115,6 +115,7 @@ export interface RunResult<TOutput = any> {
     timestamp: Date;
     error?: string;
   };
+    score?: Score;
 }
 
 export interface RunSummary {
