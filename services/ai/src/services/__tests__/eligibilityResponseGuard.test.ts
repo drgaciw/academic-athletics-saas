@@ -42,4 +42,28 @@ describe('eligibilityResponseGuard', () => {
     expect(text.toLowerCase()).not.toMatch(/\byou'?re eligible\b/)
     expect(text).toContain('compliance office')
   })
+
+  it('STUDENT: strips status-label eligibility determinations', () => {
+    const raw = 'Eligibility status: eligible for competition.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/eligibility status:\s*eligible/)
+    expect(text).toContain('preliminary decision support')
+  })
+
+  it('STUDENT: strips third-person definitive determinations', () => {
+    const raw = 'The student remains ineligible until credit-hour requirements are met.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toContain('student remains ineligible')
+    expect(text).toContain('preliminary decision support')
+  })
 })

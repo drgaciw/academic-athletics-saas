@@ -5,7 +5,7 @@ import { ChatWidget } from '@aah/ui'
 
 export default function ChatPage() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat({
-    api: '/api/ai/chat',
+    api: '/student/api/ai/chat',
   })
 
   return (

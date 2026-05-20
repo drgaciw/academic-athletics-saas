@@ -1,13 +1,20 @@
-import { streamText, tool } from 'ai'
+import { auth } from '@clerk/nextjs/server'
+import { generateText, tool } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
+import { guardStudentEligibilityResponse } from '@/lib/student-eligibility-guard'
 
 export const runtime = 'edge'
 
 export async function POST(req: Request) {
+  const { userId } = await auth()
+  if (!userId) {
+    return new Response('Unauthorized', { status: 401 })
+  }
+
   const { messages } = await req.json()
 
-  const result = streamText({
+  const result = await generateText({
     model: openai('gpt-5.1-codex-max') as any,
     messages,
     tools: {
@@ -36,28 +43,6 @@ export async function POST(req: Request) {
                 available: true,
                 prerequisites: ['MATH 201'],
               },
-            ],
-          }
-        },
-      }),
-      checkEligibility: tool({
-        description: 'Check NCAA eligibility status and requirements',
-        parameters: z.object({
-          studentId: z.string().optional().describe('Student ID to check'),
-        }),
-        // @ts-ignore - AI SDK tool execute type compatibility
-        execute: async ({ studentId }: { studentId?: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
-          return {
-            status: 'eligible',
-            gpa: 3.45,
-            creditsEarned: 64,
-            creditsRequired: 120,
-            nextCheckDate: '2025-08-15',
-            requirements: [
-              { name: 'Minimum GPA', met: true, value: '3.45 / 2.0' },
-              { name: 'Credit Hours', met: true, value: '64 / 60' },
-              { name: 'Progress Toward Degree', met: true, value: '53%' },
             ],
           }
         },
@@ -101,8 +86,14 @@ You can help with:
 - Study resources and tutoring
 - Academic policies and procedures
 
-Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.`,
+Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.
+
+For student eligibility questions, provide preliminary guidance only. Never state that the student is eligible, ineligible, cleared, or not cleared to compete. Direct the student to athletics compliance staff for official determinations.`,
   })
 
-  return result.toTextStreamResponse()
+  return new Response(guardStudentEligibilityResponse(result.text), {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
 }
