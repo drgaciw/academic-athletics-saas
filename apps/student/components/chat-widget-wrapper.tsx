@@ -7,6 +7,7 @@ export function ChatWidgetWrapper() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
     useChat({
       api: '/student/api/ai/chat',
+      streamProtocol: 'text',
     })
 
   return (

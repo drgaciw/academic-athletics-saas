@@ -66,4 +66,16 @@ describe('eligibilityResponseGuard', () => {
     expect(text.toLowerCase()).not.toContain('student remains ineligible')
     expect(text).toContain('preliminary decision support')
   })
+
+  it('STUDENT: strips prompt-style eligibility status echoes', () => {
+    const raw = 'Profile flags show eligibilityStatus=ELIGIBLE.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/eligibilitystatus\s*=\s*eligible/)
+    expect(text).toContain('preliminary decision support')
+  })
 })
