@@ -1,23 +1,16 @@
-import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middleware/nextjs';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const middleware = authMiddleware({
-  publicRoutes: [],
-  afterAuth(auth, req) {
-    // Ensure user is authenticated
-    if (!auth.userId) {
-      return redirectToSignIn({ returnBackUrl: req.url });
-    }
-    
-    // Ensure user has staff or admin role
-    if (!requireRole(['admin', 'staff'])(auth)) {
-      return new Response('Forbidden - Admin or staff access only', { status: 403 });
-    }
-  },
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/health',
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
 });
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default middleware as any;
 
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],

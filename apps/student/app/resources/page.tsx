@@ -1,12 +1,15 @@
 import { auth } from '@clerk/nextjs/server'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { redirect } from 'next/navigation';
+import { requireStudentPageAccess } from '@/lib/student-auth';
 import { TutoringSection } from '@/components/tutoring-section';
 import { StudyHallSection } from '@/components/study-hall-section';
 import { WorkshopsSection } from '@/components/workshops-section';
 import { MentorCard } from '@/components/mentor-card';
 
 export default async function ResourcesPage() {
+  await requireStudentPageAccess();
+
   const { userId } = auth();
 
   if (!userId) {

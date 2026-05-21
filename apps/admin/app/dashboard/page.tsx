@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@aah/database";
 import {
   Card,
@@ -7,7 +6,7 @@ import {
   CardDescription,
   CardContent,
 } from "@aah/ui";
-import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 
 async function getAdminAnalytics() {
   // Get total students
@@ -62,11 +61,7 @@ async function getAdminAnalytics() {
 }
 
 export default async function AdminDashboardPage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
+  await requireAdminPageAccess();
 
   const analytics = await getAdminAnalytics();
 

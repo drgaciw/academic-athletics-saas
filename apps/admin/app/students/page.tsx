@@ -1,7 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@aah/database";
 import { Card, CardHeader, CardTitle, CardContent } from "@aah/ui";
-import { redirect } from "next/navigation";
+import { requireAdminPageAccess } from "@/lib/admin-auth";
 
 async function getStudents() {
   const students = await prisma.user.findMany({
@@ -23,11 +22,7 @@ async function getStudents() {
 }
 
 export default async function StudentsPage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect("/sign-in");
-  }
+  await requireAdminPageAccess();
 
   const students = await getStudents();
 
