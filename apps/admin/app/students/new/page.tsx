@@ -1,15 +1,10 @@
-import { auth as clerkAuth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@aah/ui';
 import { createStudent } from '../actions';
 import { StudentForm } from '../../../components/students/StudentForm';
+import { requireAdminPageAccess } from '@/lib/admin-auth';
 
 export default async function NewStudentPage() {
-  const { userId } = await clerkAuth();
-
-  if (!userId) {
-    redirect('/sign-in');
-  }
+  await requireAdminPageAccess();
 
   return (
     <div className="container mx-auto p-6">

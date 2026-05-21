@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server"
 import { prisma } from "@aah/database";
 import { redirect } from "next/navigation";
 import { addDays } from "date-fns";
+import { requireStudentPageAccess } from "@/lib/student-auth";
 import { AcademicOverviewCard } from "@/components/academic-overview-card";
 import {
   EligibilityStatusCard,
@@ -23,6 +24,8 @@ async function getStudentData(userId: string) {
 }
 
 export default async function DashboardPage() {
+  await requireStudentPageAccess();
+
   const { userId } = auth();
 
   if (!userId) {

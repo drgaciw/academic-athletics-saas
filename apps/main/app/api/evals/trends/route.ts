@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { TrendDataPoint } from '@/lib/types/evals';
+import { requireEvalApiAccess } from '../auth';
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
@@ -7,6 +8,11 @@ export const dynamic = 'force-dynamic';
 // Mock data - replace with actual database queries
 export async function GET(request: Request) {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     const { searchParams } = new URL(request.url);
     const datasetId = searchParams.get('datasetId');
     const days = parseInt(searchParams.get('days') || '30');

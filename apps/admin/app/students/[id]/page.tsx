@@ -1,20 +1,16 @@
-import { auth as clerkAuth } from '@clerk/nextjs/server';
-import { redirect, notFound } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { getStudent, deleteStudent } from '../actions';
 import { DeleteStudentButton } from '../../../components/students/DeleteStudentButton';
 import { format } from 'date-fns';
+import { requireAdminPageAccess } from '@/lib/admin-auth';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
 export default async function StudentDetailPage({ params }: Props) {
-  const { userId } = await clerkAuth();
-
-  if (!userId) {
-    redirect('/sign-in');
-  }
+  await requireAdminPageAccess();
 
   const { id } = await params;
 

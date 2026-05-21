@@ -1,18 +1,15 @@
-import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middleware/nextjs';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default authMiddleware({
-  publicRoutes: [],
-  afterAuth(auth, req) {
-    // Ensure user is authenticated
-    if (!auth.userId) {
-      return redirectToSignIn({ returnBackUrl: req.url });
-    }
-    
-    // Ensure user has student-athlete role
-    if (!requireRole(['student'])(auth)) {
-      return new Response('Unauthorized - Student access only', { status: 403 });
-    }
-  },
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/health',
+]);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth().protect();
+  }
 });
 
 export const config = {

@@ -1,15 +1,22 @@
 
 import { GET } from '../route';
 import { prisma } from '@aah/database';
-import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 
 // Mock the prisma client
 jest.mock('@aah/database', () => ({
   prisma: {
+    user: {
+      findUnique: jest.fn(),
+    },
     evalRun: {
       findMany: jest.fn(),
     },
   },
+}));
+
+jest.mock('@clerk/nextjs/server', () => ({
+  auth: jest.fn(),
 }));
 
 // Mock NextResponse to make it easier to test if needed,
@@ -20,6 +27,30 @@ jest.mock('@aah/database', () => ({
 describe('GET /api/evals/runs', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (auth as unknown as jest.Mock).mockResolvedValue({ userId: 'clerk_admin' });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' });
+  });
+
+  it('rejects unauthenticated requests before reading eval data', async () => {
+    (auth as unknown as jest.Mock).mockResolvedValue({ userId: null });
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe('Unauthorized');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
+  });
+
+  it('rejects authenticated non-compliance users before reading eval data', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'COACH' });
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(data.error).toBe('Forbidden');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
   });
 
   it('returns formatted eval runs from database', async () => {

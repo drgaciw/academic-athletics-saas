@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { EvalReport } from "@aah/ai-evals";
+import { requireEvalApiAccess } from "../../auth";
 
 // Mock data - replace with actual database queries
 export async function GET(
@@ -7,6 +8,11 @@ export async function GET(
   { params }: { params: { runId: string } },
 ) {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     const { runId } = params;
 
     // TODO: Replace with actual database query

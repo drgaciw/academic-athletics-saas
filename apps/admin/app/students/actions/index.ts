@@ -1,9 +1,9 @@
 'use server'
 
-import { auth as clerkAuth } from '@clerk/nextjs/server'
 import { prisma } from '@aah/database'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { requireAdminActionAccess } from '@/lib/admin-auth'
 
 export type StudentFormData = {
   email: string
@@ -28,11 +28,7 @@ export async function getStudents(filters?: {
   eligibilityStatus?: string
   search?: string
 }) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   const where: any = {
     role: 'STUDENT',
@@ -87,11 +83,7 @@ export async function getStudents(filters?: {
 }
 
 export async function getStudent(id: string) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   const student = await prisma.user.findUnique({
     where: { id },
@@ -123,11 +115,7 @@ export async function getStudent(id: string) {
 }
 
 export async function createStudent(data: StudentFormData) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   try {
     const user = await prisma.user.create({
@@ -165,11 +153,7 @@ export async function createStudent(data: StudentFormData) {
 }
 
 export async function updateStudent(id: string, data: Partial<StudentFormData>) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   try {
     const studentProfile = data.studentId ? {
@@ -211,11 +195,7 @@ export async function updateStudent(id: string, data: Partial<StudentFormData>) 
 }
 
 export async function deleteStudent(id: string) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   try {
     await prisma.user.delete({
@@ -231,11 +211,7 @@ export async function deleteStudent(id: string) {
 }
 
 export async function bulkUpdateEligibility(studentIds: string[], eligibilityStatus: string) {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   try {
     await prisma.studentProfile.updateMany({
@@ -256,11 +232,7 @@ export async function bulkUpdateEligibility(studentIds: string[], eligibilitySta
 }
 
 export async function exportStudents(format: 'csv' | 'json') {
-  const { userId } = await clerkAuth()
-
-  if (!userId) {
-    throw new Error('Unauthorized')
-  }
+  await requireAdminActionAccess()
 
   const students = await getStudents()
 

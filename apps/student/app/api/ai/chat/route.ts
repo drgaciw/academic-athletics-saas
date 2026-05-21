@@ -1,13 +1,88 @@
-import { streamText, tool } from 'ai'
+import { generateText, tool } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
+import { auth } from '@clerk/nextjs/server'
+import { prisma } from '@aah/database'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
+
+const BLOCKED_ELIGIBILITY_PHRASES = [
+  /\byou are eligible\b/gi,
+  /\byou'?re eligible\b/gi,
+  /\byou are ineligible\b/gi,
+  /\byou'?re ineligible\b/gi,
+  /\bcleared to compete\b/gi,
+  /\byou are cleared\b/gi,
+  /\bcleared for competition\b/gi,
+]
+
+const STUDENT_ELIGIBILITY_DISCLAIMER =
+  '\n\n---\nThis is preliminary decision support only. Institutional compliance staff make official eligibility determinations. Contact your athletics compliance office for an authoritative answer.'
+
+const STUDENT_ELIGIBILITY_REPLACEMENT =
+  'Based on the information available here, I cannot provide a final competition eligibility determination. Your athletics compliance office must confirm official status.'
+
+function guardStudentEligibilityText(text: string): string {
+  let out = text
+  let wasModified = false
+
+  for (const pattern of BLOCKED_ELIGIBILITY_PHRASES) {
+    const next = out.replace(pattern, STUDENT_ELIGIBILITY_REPLACEMENT)
+    if (next !== out) {
+      out = next
+      wasModified = true
+    }
+  }
+
+  const lower = out.toLowerCase()
+  const shouldAddDisclaimer =
+    wasModified ||
+    lower.includes('eligib') ||
+    lower.includes('ncaa') ||
+    (lower.includes('compliance') && lower.includes('elig')) ||
+    lower.includes('progress toward')
+
+  if (shouldAddDisclaimer && !out.includes('preliminary decision support')) {
+    return out.trimEnd() + STUDENT_ELIGIBILITY_DISCLAIMER
+  }
+
+  return out
+}
+
+function toTextStreamResponse(text: string): Response {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(text))
+      controller.close()
+    },
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
+}
 
 export async function POST(req: Request) {
+  const { userId } = await auth()
+  if (!userId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId: userId },
+    select: { role: true },
+  })
+
+  if (!user || user.role !== 'STUDENT') {
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { messages } = await req.json()
 
-  const result = streamText({
+  const result = await generateText({
     model: openai('gpt-5.1-codex-max') as any,
     messages,
     tools: {
@@ -104,5 +179,5 @@ You can help with:
 Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.`,
   })
 
-  return result.toTextStreamResponse()
+  return toTextStreamResponse(guardStudentEligibilityText(result.text))
 }

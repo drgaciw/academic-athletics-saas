@@ -6,14 +6,13 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/sso-callback',
   '/api/health',
-  '/api/evals/(.*)',
   '/api/webhooks/(.*)',
   '/api/cron/regulation-check',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
-    await auth.protect();
+    await auth().protect();
   }
 });
 

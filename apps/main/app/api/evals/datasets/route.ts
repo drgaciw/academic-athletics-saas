@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { DatasetListItem } from '@/lib/types/evals';
+import { requireEvalApiAccess } from '../auth';
 
 // Mock data - replace with actual @aah/ai-evals DatasetManager
 export async function GET() {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     // TODO: Use DatasetManager from @aah/ai-evals
     const mockDatasets: DatasetListItem[] = [
       {
@@ -47,6 +53,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     const body = await request.json();
 
     // TODO: Use DatasetManager to create dataset

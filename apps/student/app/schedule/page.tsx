@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
 import { redirect } from 'next/navigation';
+import { requireStudentPageAccess } from '@/lib/student-auth';
 import { ScheduleCalendarView } from '@/components/schedule-calendar-view';
 
 async function getStudentSchedule(userId: string) {
@@ -45,6 +46,8 @@ async function getStudentSchedule(userId: string) {
 }
 
 export default async function SchedulePage() {
+  await requireStudentPageAccess();
+
   const { userId } = auth();
 
   if (!userId) {

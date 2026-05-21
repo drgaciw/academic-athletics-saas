@@ -1,7 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
-import { redirect } from 'next/navigation';
+import { requireAdminPageAccess } from '@/lib/admin-auth';
 
 async function getProgramData() {
   // Get upcoming sessions
@@ -48,11 +47,7 @@ async function getProgramData() {
 }
 
 export default async function ProgramsPage() {
-  const { userId } = await auth();
-
-  if (!userId) {
-    redirect('/sign-in');
-  }
+  await requireAdminPageAccess();
 
   const programData = await getProgramData();
 

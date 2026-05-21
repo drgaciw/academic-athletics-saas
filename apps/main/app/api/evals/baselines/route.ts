@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { BaselineListItem } from '@/lib/types/evals';
+import { requireEvalApiAccess } from '../auth';
 
 // Mock data - replace with actual database queries
 export async function GET() {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     // TODO: Replace with actual database query
     const mockBaselines: BaselineListItem[] = [
       {
@@ -44,6 +50,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authError = await requireEvalApiAccess();
+    if (authError) {
+      return authError;
+    }
+
     const body = await request.json();
 
     // TODO: Create baseline in database
