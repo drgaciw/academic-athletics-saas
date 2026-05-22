@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { config } from '../middleware';
 
-let mockMiddlewareHandler: any;
+var mockMiddlewareHandler: any;
 
 // Mock @clerk/nextjs/server
 jest.mock('@clerk/nextjs/server', () => ({
