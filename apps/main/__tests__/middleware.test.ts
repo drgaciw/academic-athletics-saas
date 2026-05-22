@@ -1,35 +1,63 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { config } from '../middleware';
 
-import { authMiddleware } from '@clerk/nextjs';
-import middleware, { config } from '../middleware';
+var mockMiddlewareHandler: any;
 
-// Mock @clerk/nextjs
-jest.mock('@clerk/nextjs', () => ({
-  authMiddleware: jest.fn().mockImplementation((options) => {
-    return (req: any, evt: any) => {
-      // Mock middleware execution
-      return 'middleware executed';
+// Mock @clerk/nextjs/server
+jest.mock('@clerk/nextjs/server', () => ({
+  clerkMiddleware: jest.fn().mockImplementation((handler) => {
+    mockMiddlewareHandler = handler;
+    return handler;
+  }),
+  createRouteMatcher: jest.fn().mockImplementation((routes) => {
+    return (request: { nextUrl?: { pathname?: string }; url?: string }) => {
+      const pathname = request.nextUrl?.pathname || request.url || '';
+      return routes.some((route: string) => {
+        const pattern = new RegExp(`^${route.replace('(.*)', '.*')}$`);
+        return pattern.test(pathname);
+      });
     };
   }),
 }));
 
 describe('Middleware', () => {
-  it('should configure authMiddleware correctly', () => {
-    // Check if authMiddleware was called
-    expect(authMiddleware).toHaveBeenCalled();
-
-    // Get the options passed to authMiddleware
-    const options = (authMiddleware as jest.Mock).mock.calls[0][0];
-
-    // Assert that publicRoutes are defined correctly
-    expect(options.publicRoutes).toEqual([
+  it('should configure clerkMiddleware with public routes', () => {
+    expect(createRouteMatcher).toHaveBeenCalledWith([
       '/',
       '/sign-in(.*)',
       '/sign-up(.*)',
-      '/api/webhooks(.*)',
+      '/sso-callback',
+      '/api/health',
+      '/api/evals/(.*)',
+      '/api/webhooks/(.*)',
+      '/api/cron/regulation-check',
     ]);
 
-    // Assert that publishableKey and secretKey are read from env
-    // Note: process.env mocks should be handled in jest.setup.js or beforeEach
+    expect(clerkMiddleware).toHaveBeenCalled();
+  });
+
+  it('should protect non-public routes', async () => {
+    const protect = jest.fn();
+
+    await mockMiddlewareHandler(
+      () => ({ protect }),
+      { nextUrl: { pathname: '/coach/dashboard' } } as any,
+      {} as any
+    );
+
+    expect(protect).toHaveBeenCalled();
+  });
+
+  it('should skip protection for public routes', async () => {
+    const protect = jest.fn();
+
+    await mockMiddlewareHandler(
+      () => ({ protect }),
+      { nextUrl: { pathname: '/api/health' } } as any,
+      {} as any
+    );
+
+    expect(protect).not.toHaveBeenCalled();
   });
 
   it('should define matcher config', () => {
