@@ -1,9 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { config } from '../middleware';
 
+let mockMiddlewareHandler: any;
+
 // Mock @clerk/nextjs/server
 jest.mock('@clerk/nextjs/server', () => ({
-  clerkMiddleware: jest.fn().mockImplementation((handler) => handler),
+  clerkMiddleware: jest.fn().mockImplementation((handler) => {
+    mockMiddlewareHandler = handler;
+    return handler;
+  }),
   createRouteMatcher: jest.fn().mockImplementation((routes) => {
     return (request: { nextUrl?: { pathname?: string }; url?: string }) => {
       const pathname = request.nextUrl?.pathname || request.url || '';
@@ -33,9 +38,8 @@ describe('Middleware', () => {
 
   it('should protect non-public routes', async () => {
     const protect = jest.fn();
-    const handler = (clerkMiddleware as jest.Mock).mock.calls[0][0];
 
-    await handler(
+    await mockMiddlewareHandler(
       () => ({ protect }),
       { nextUrl: { pathname: '/coach/dashboard' } } as any,
       {} as any
@@ -46,9 +50,8 @@ describe('Middleware', () => {
 
   it('should skip protection for public routes', async () => {
     const protect = jest.fn();
-    const handler = (clerkMiddleware as jest.Mock).mock.calls[0][0];
 
-    await handler(
+    await mockMiddlewareHandler(
       () => ({ protect }),
       { nextUrl: { pathname: '/api/health' } } as any,
       {} as any
