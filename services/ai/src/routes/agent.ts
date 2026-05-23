@@ -15,6 +15,7 @@ import {
   type AgentType,
   type WorkflowResult,
 } from '@aah/ai'
+import { applyAgentEligibilityGuard } from '../services/agentEligibilityGuard'
 
 export const agentRouter = new Hono()
 
@@ -39,14 +40,15 @@ const TransferWorkflowSchema = AgentExecutionSchema.omit({ agentType: true }).ex
 
 function formatWorkflowResponse(
   result: WorkflowResult,
-  conversationId: string
+  conversationId: string,
+  responseOverride?: string
 ) {
   return {
     success: result.success,
     workflow: result.workflowState?.name ?? 'single-agent',
     agentsUsed: result.agentsUsed,
     agentType: result.agentsUsed[result.agentsUsed.length - 1],
-    response: result.response.content,
+    response: responseOverride ?? result.response.content,
     steps: result.response.steps,
     toolInvocations: result.response.toolInvocations,
     usage: result.response.usage,
@@ -118,6 +120,11 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
     )
 
     const result = await globalOrchestrator.executeSmartWorkflow(agentRequest)
+    const userRole = c.req.header('X-User-Role')
+    const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+      authUserId,
+      userRole,
+    })
 
     // Log agent execution for audit trail
     await logAgentResponse(
@@ -126,11 +133,11 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       {
         message: request.message,
         conversationId: agentRequest.conversationId,
-        userRole: c.req.header('X-User-Role'),
+        userRole,
         ipAddress: c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP'),
         userAgent: c.req.header('User-Agent'),
       },
-      result.response
+      { ...result.response, content: guardedResponse }
     ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
     // Extract and save facts from conversation
@@ -142,7 +149,7 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       ).catch((err: unknown) => console.warn('Failed to extract facts:', err))
     }
 
-    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!))
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
   } catch (error) {
     console.error('Agent execution error:', error)
     return c.json(
@@ -215,11 +222,16 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
         )
 
         const result = await globalOrchestrator.executeSmartWorkflow(agentRequest)
+        const userRole = c.req.header('X-User-Role')
+        const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+          authUserId,
+          userRole,
+        })
 
         // Stream response content
         await stream.writeln(`data: ${JSON.stringify({
           type: 'response',
-          content: result.response.content
+          content: guardedResponse
         })}\n`)
 
         // Stream tool invocations
@@ -250,11 +262,11 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
           {
             message: request.message,
             conversationId,
-            userRole: c.req.header('X-User-Role'),
+            userRole,
             ipAddress: c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP'),
             userAgent: c.req.header('User-Agent'),
           },
-          result.response
+          { ...result.response, content: guardedResponse }
         ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
         // Extract facts in background
@@ -316,6 +328,11 @@ agentRouter.post('/workflow/transfer', zValidator('json', TransferWorkflowSchema
     }
 
     const result = await globalOrchestrator.executeTransferCreditWorkflow(agentRequest)
+    const userRole = c.req.header('X-User-Role')
+    const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+      authUserId,
+      userRole,
+    })
 
     await logAgentResponse(
       authUserId,
@@ -323,12 +340,12 @@ agentRouter.post('/workflow/transfer', zValidator('json', TransferWorkflowSchema
       {
         message: request.message,
         conversationId: agentRequest.conversationId,
-        userRole: c.req.header('X-User-Role'),
+        userRole,
       },
-      result.response
+      { ...result.response, content: guardedResponse }
     ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
-    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!))
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
   } catch (error) {
     console.error('Transfer workflow error:', error)
     return c.json(

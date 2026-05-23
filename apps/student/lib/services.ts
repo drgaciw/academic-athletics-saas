@@ -1,13 +1,27 @@
 /**
- * Resolve AI microservice URL for the student BFF.
+ * Resolve microservice URL for the student BFF.
  */
-export function getAiServiceUrl(): string {
-  const url = process.env.AI_SERVICE_URL;
+function getServiceUrl(envKey: string, defaultPort: number): string {
+  const url = process.env[envKey];
   if (url) {
     return url;
   }
 
-  return 'http://localhost:3007';
+  return `http://localhost:${defaultPort}`;
+}
+
+/**
+ * Resolve AI microservice URL for the student BFF.
+ */
+export function getAiServiceUrl(): string {
+  return getServiceUrl('AI_SERVICE_URL', 3007);
+}
+
+/**
+ * Resolve support microservice URL for the student BFF.
+ */
+export function getSupportServiceUrl(): string {
+  return getServiceUrl('SUPPORT_SERVICE_URL', 3005);
 }
 
 /**

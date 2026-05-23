@@ -2,74 +2,41 @@
 
 import { useState } from 'react'
 import { CalendarView, type CalendarEvent, Button, AlertBanner } from '@aah/ui'
-import { Download, Calendar as CalendarIcon } from 'lucide-react'
-
-interface Course {
-  id: string
-  name: string
-  code: string | null
-  schedule: string | null
-}
+import { Download } from 'lucide-react'
+import {
+  buildAthleticScheduleEvents,
+  buildClassScheduleEvents,
+  mergeScheduleEvents,
+  type CourseSectionInput,
+} from '@/lib/schedule-utils'
+import type { ScheduleEvent } from '@/components/week-schedule-list'
 
 interface ScheduleCalendarViewProps {
-  courses: Course[]
+  courses: CourseSectionInput[]
+  athleticSchedule?: unknown
 }
 
-// Mock function to convert courses to calendar events
-// In production, this would parse actual schedule data
-function coursesToEvents(courses: Course[]): CalendarEvent[] {
-  const events: CalendarEvent[] = []
-  
-  // Mock schedule data - replace with actual parsing
-  const mockSchedules = [
-    { day: 1, hour: 9, duration: 1.5 }, // Monday 9am
-    { day: 3, hour: 9, duration: 1.5 }, // Wednesday 9am
-    { day: 5, hour: 9, duration: 1.5 }, // Friday 9am
-  ]
-
-  courses.forEach((course, index) => {
-    const schedule = mockSchedules[index % mockSchedules.length]
-    const today = new Date()
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()))
-    
-    const eventDate = new Date(startOfWeek)
-    eventDate.setDate(eventDate.getDate() + schedule.day)
-    eventDate.setHours(schedule.hour, 0, 0, 0)
-    
-    const endDate = new Date(eventDate)
-    endDate.setHours(eventDate.getHours() + Math.floor(schedule.duration))
-    endDate.setMinutes((schedule.duration % 1) * 60)
-
-    events.push({
-      id: course.id,
-      title: `${course.code || course.name}`,
-      start: eventDate,
-      end: endDate,
-      type: 'class',
-      location: 'TBD',
-      description: course.name,
-    })
-  })
-
-  // Add mock practice events
-  const practiceDate = new Date()
-  practiceDate.setHours(15, 0, 0, 0)
-  events.push({
-    id: 'practice-1',
-    title: 'Team Practice',
-    start: practiceDate,
-    end: new Date(practiceDate.getTime() + 2 * 60 * 60 * 1000),
-    type: 'practice',
-    location: 'Athletic Center',
-    description: 'Regular team practice',
-  })
-
-  return events
+function scheduleEventsToCalendarEvents(events: ScheduleEvent[]): CalendarEvent[] {
+  return events.map((event) => ({
+    id: event.id,
+    title: event.title,
+    start: event.startTime,
+    end: event.endTime,
+    type: event.type,
+    location: event.location,
+    description: event.title,
+  }))
 }
 
-export function ScheduleCalendarView({ courses }: ScheduleCalendarViewProps) {
+function coursesToEvents(courses: CourseSectionInput[], athleticSchedule?: unknown): CalendarEvent[] {
+  const classEvents = buildClassScheduleEvents(courses)
+  const athleticEvents = buildAthleticScheduleEvents(athleticSchedule)
+  return scheduleEventsToCalendarEvents(mergeScheduleEvents(classEvents, athleticEvents))
+}
+
+export function ScheduleCalendarView({ courses, athleticSchedule }: ScheduleCalendarViewProps) {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
-  const events = coursesToEvents(courses)
+  const events = coursesToEvents(courses, athleticSchedule)
   const hasConflicts = events.some((e) => e.conflict)
 
   const handleExportCalendar = () => {
