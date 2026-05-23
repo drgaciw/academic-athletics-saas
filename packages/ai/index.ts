@@ -36,6 +36,9 @@ export * from './lib/agent-utils'
 // Agent Orchestrator (NEW)
 export * from './lib/agent-orchestrator'
 
+// Transfer credit workflow
+export * from './lib/transfer-workflow'
+
 // Prompt Templates (NEW)
 export * from './lib/prompt-templates'
 
