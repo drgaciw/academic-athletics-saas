@@ -1,15 +1,14 @@
 import { authMiddleware, redirectToSignIn, requireRole } from '@aah/auth/middleware/nextjs';
 
 export default authMiddleware({
-  publicRoutes: [],
+  basePath: '/student',
+  publicRoutes: ['/sign-in(.*)', '/sign-up(.*)', '/api/health'],
   afterAuth(auth, req) {
-    // Ensure user is authenticated
     if (!auth.userId) {
-      return redirectToSignIn({ returnBackUrl: req.url });
+      return redirectToSignIn({ returnBackUrl: req.url, basePath: '/student' });
     }
-    
-    // Ensure user has student-athlete role
-    if (!requireRole(['student'])(auth)) {
+
+    if (!requireRole(['STUDENT'])(auth)) {
       return new Response('Unauthorized - Student access only', { status: 403 });
     }
   },

@@ -1,83 +1,106 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import { useChat } from '@ai-sdk/react'
-import { DefaultChatTransport, type UIMessage } from 'ai'
+import { useCallback, useRef, useState } from 'react'
 
-function getMessageContent(message: UIMessage): string {
-  return message.parts
-    .filter((part) => part.type === 'text')
-    .map((part) => part.text)
-    .join('')
+const API_BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? '/student'
+
+type ChatMessage = {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  toolCalls: []
 }
 
-function getToolCalls(message: UIMessage) {
-  return message.parts.flatMap((part) => {
-    if (part.type === 'dynamic-tool') {
-      return [{
-        toolName: part.toolName,
-        toolInput: (part.input ?? {}) as Record<string, unknown>,
-        toolOutput: 'output' in part ? part.output : undefined,
-        status:
-          part.state === 'output-available'
-            ? ('success' as const)
-            : part.state === 'output-error'
-              ? ('error' as const)
-              : ('running' as const),
-      }]
-    }
-
-    if (part.type.startsWith('tool-')) {
-      const toolPart = part as {
-        type: string
-        input?: unknown
-        output?: unknown
-        state?: string
-      }
-      return [{
-        toolName: toolPart.type.replace(/^tool-/, ''),
-        toolInput: (toolPart.input ?? {}) as Record<string, unknown>,
-        toolOutput: toolPart.output,
-        status:
-          toolPart.state === 'output-available'
-            ? ('success' as const)
-            : toolPart.state === 'output-error'
-              ? ('error' as const)
-              : ('running' as const),
-      }]
-    }
-
-    return []
-  })
+type ChatApiResponse = {
+  conversationId?: string
+  response?: string
+  error?: { message?: string }
 }
 
 export function useStudentChat() {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
-  const { messages, sendMessage, status, stop } = useChat({
-    transport: new DefaultChatTransport({ api: '/api/ai/chat' }),
-  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [conversationId, setConversationId] = useState<string | undefined>()
+  const abortRef = useRef<AbortController | null>(null)
 
-  const isLoading = status === 'streaming' || status === 'submitted'
+  const stop = useCallback(() => {
+    abortRef.current?.abort()
+    abortRef.current = null
+    setIsLoading(false)
+  }, [])
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-      if (!input.trim() || isLoading) return
+      const text = input.trim()
+      if (!text || isLoading) return
 
-      const text = input
+      const userMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: text,
+        toolCalls: [],
+      }
+
+      setMessages((prev) => [...prev, userMessage])
       setInput('')
-      await sendMessage({ text })
+      setIsLoading(true)
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const response = await fetch(`${API_BASE}/api/ai/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, conversationId }),
+          signal: controller.signal,
+        })
+
+        const data = (await response.json()) as ChatApiResponse
+        if (!response.ok) {
+          throw new Error(data.error?.message ?? 'Chat request failed')
+        }
+
+        if (data.conversationId) {
+          setConversationId(data.conversationId)
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: data.response ?? '',
+            toolCalls: [],
+          },
+        ])
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') {
+          return
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content:
+              'Sorry, something went wrong. Please try again or contact your athletics compliance office for official eligibility guidance.',
+            toolCalls: [],
+          },
+        ])
+      } finally {
+        setIsLoading(false)
+        abortRef.current = null
+      }
     },
-    [input, isLoading, sendMessage]
+    [conversationId, input, isLoading]
   )
 
   return {
-    messages: messages.map((message) => ({
-      id: message.id,
-      role: message.role as 'user' | 'assistant',
-      content: getMessageContent(message),
-      toolCalls: getToolCalls(message),
-    })),
+    messages,
     input,
     isLoading,
     onInputChange: setInput,

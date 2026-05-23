@@ -4,6 +4,9 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@aah/ui", "@aah/database", "@aah/auth"],
   serverExternalPackages: ["pg", "@prisma/adapter-pg"],
+  env: {
+    NEXT_PUBLIC_BASE_PATH: "/student",
+  },
   async rewrites() {
     return {
       beforeFiles: [

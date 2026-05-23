@@ -26,6 +26,8 @@
     "test": "turbo run test",
     "test:watch": "turbo run test -- --watch",
     "test:coverage": "turbo run test -- --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:student": "playwright test tests/e2e/student-smoke.spec.ts",
     "type-check": "turbo run type-check",
     "db:generate": "cd packages/database && pnpm run db:generate",
     "db:push": "cd packages/database && pnpm run db:push",
@@ -37,6 +39,7 @@
     "postinstall": "pnpm run db:generate"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@types/node": "^22.8.6",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",

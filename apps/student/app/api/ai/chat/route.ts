@@ -1,108 +1,84 @@
-import { streamText, tool } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { z } from 'zod'
+import { auth, currentUser } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAiServiceUrl, toAiUserRole } from '@/lib/services';
 
-export const runtime = 'edge'
+export const runtime = 'nodejs';
 
-export async function POST(req: Request) {
-  const { messages } = await req.json()
+interface ChatRequestBody {
+  message?: string;
+  conversationId?: string;
+  messages?: Array<{ role: string; content?: string; parts?: Array<{ type: string; text?: string }> }>;
+}
 
-  const result = streamText({
-    model: openai('gpt-5.1-codex-max') as any,
-    messages,
-    tools: {
-      searchCourses: tool({
-        description: 'Search for available courses by subject or course code',
-        parameters: z.object({
-          query: z.string().describe('The search query (subject or course code)'),
-          semester: z.string().optional().describe('The semester to search in'),
-        }),
-        // @ts-ignore - AI SDK tool execute type compatibility
-        execute: async ({ query, semester }: { query: string; semester?: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
-          return {
-            courses: [
-              {
-                code: 'MATH 301',
-                title: 'Advanced Calculus',
-                credits: 3,
-                available: true,
-                prerequisites: ['MATH 201'],
-              },
-              {
-                code: 'MATH 302',
-                title: 'Linear Algebra',
-                credits: 3,
-                available: true,
-                prerequisites: ['MATH 201'],
-              },
-            ],
-          }
-        },
-      }),
-      checkEligibility: tool({
-        description: 'Check NCAA eligibility status and requirements',
-        parameters: z.object({
-          studentId: z.string().optional().describe('Student ID to check'),
-        }),
-        // @ts-ignore - AI SDK tool execute type compatibility
-        execute: async ({ studentId }: { studentId?: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
-          return {
-            status: 'eligible',
-            gpa: 3.45,
-            creditsEarned: 64,
-            creditsRequired: 120,
-            nextCheckDate: '2025-08-15',
-            requirements: [
-              { name: 'Minimum GPA', met: true, value: '3.45 / 2.0' },
-              { name: 'Credit Hours', met: true, value: '64 / 60' },
-              { name: 'Progress Toward Degree', met: true, value: '53%' },
-            ],
-          }
-        },
-      }),
-      getSchedule: tool({
-        description: 'Get student schedule for a specific week or month',
-        parameters: z.object({
-          startDate: z.string().describe('Start date in YYYY-MM-DD format'),
-          endDate: z.string().describe('End date in YYYY-MM-DD format'),
-        }),
-        // @ts-ignore - AI SDK tool execute type compatibility
-        execute: async ({ startDate, endDate }: { startDate: string; endDate: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
-          return {
-            events: [
-              {
-                title: 'MATH 301 - Lecture',
-                type: 'class',
-                start: '2025-01-20T09:00:00',
-                end: '2025-01-20T10:30:00',
-                location: 'Science Hall 201',
-              },
-              {
-                title: 'Basketball Practice',
-                type: 'practice',
-                start: '2025-01-20T15:00:00',
-                end: '2025-01-20T17:00:00',
-                location: 'Athletic Center',
-              },
-            ],
-          }
-        },
-      }),
+function extractMessage(body: ChatRequestBody): string | null {
+  if (body.message?.trim()) {
+    return body.message.trim();
+  }
+
+  const lastUser = [...(body.messages ?? [])].reverse().find((message) => message.role === 'user');
+  if (!lastUser) {
+    return null;
+  }
+
+  if (lastUser.content?.trim()) {
+    return lastUser.content.trim();
+  }
+
+  const textPart = lastUser.parts?.find((part) => part.type === 'text' && part.text?.trim());
+  return textPart?.text?.trim() ?? null;
+}
+
+export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
+  }
+
+  const user = await currentUser();
+  const role = toAiUserRole(user?.publicMetadata?.role as string | undefined);
+
+  let body: ChatRequestBody;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: { code: 'INVALID_JSON', message: 'Invalid request body' } }, { status: 400 });
+  }
+
+  const message = extractMessage(body);
+  if (!message) {
+    return NextResponse.json({ error: { code: 'VALIDATION', message: 'Message is required' } }, { status: 400 });
+  }
+
+  const correlationId = crypto.randomUUID();
+  const serviceUrl = getAiServiceUrl();
+
+  const response = await fetch(`${serviceUrl}/api/ai/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Id': userId,
+      'X-User-Role': role,
+      'X-Correlation-Id': correlationId,
     },
-    system: `You are an AI assistant for the Athletic Academics Hub, helping NCAA Division I student-athletes with their academic journey. 
-    
-You can help with:
-- Course selection and prerequisites
-- NCAA eligibility requirements
-- Academic scheduling and planning
-- Study resources and tutoring
-- Academic policies and procedures
+    body: JSON.stringify({
+      message,
+      userId,
+      conversationId: body.conversationId,
+      stream: false,
+    }),
+  });
 
-Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.`,
-  })
+  let data: unknown = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = { error: { code: 'UPSTREAM', message: 'AI service returned a non-JSON response' } };
+  }
 
-  return result.toTextStreamResponse()
+  return NextResponse.json(data, {
+    status: response.status,
+    headers: {
+      'X-Request-Id': correlationId,
+    },
+  });
 }
