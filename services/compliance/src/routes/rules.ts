@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getUser } from '@aah/auth'
 import {
   updateRuleConfig,
   getAllRuleConfigs,
@@ -16,7 +17,7 @@ const app = new Hono()
 
 const updateRulesSchema = z.object({
   ruleId: z.string(),
-  parameters: z.record(z.any()),
+  parameters: z.record(z.string(), z.any()),
   effectiveDate: z.string().datetime().optional(),
   reason: z.string().min(10),
 })
@@ -30,11 +31,10 @@ app.post('/update', async (c) => {
     const { ruleId, parameters, effectiveDate, reason } =
       updateRulesSchema.parse(body)
 
-    const userId = c.get('userId')
-    const userRole = c.get('userRole')
+    const user = getUser(c)
 
     // Check if user is admin (this should be done by middleware)
-    if (userRole !== 'ADMIN' && userRole !== 'COMPLIANCE_OFFICER') {
+    if (user.role !== 'ADMIN' && user.role !== 'COMPLIANCE') {
       return c.json({ error: 'Unauthorized - Admin access required' }, 403)
     }
 
@@ -54,7 +54,7 @@ app.post('/update', async (c) => {
     const config = await updateRuleConfig(
       ruleId,
       parameters,
-      userId || 'unknown',
+      user.userId,
       effectiveDate ? new Date(effectiveDate) : undefined
     )
 
@@ -67,7 +67,7 @@ app.post('/update', async (c) => {
   } catch (error) {
     console.error('Error updating rule configuration:', error)
     if (error instanceof z.ZodError) {
-      return c.json({ error: 'Invalid request data', details: error.errors }, 400)
+      return c.json({ error: 'Invalid request data', details: error.issues }, 400)
     }
     return c.json({ error: 'Internal server error' }, 500)
   }

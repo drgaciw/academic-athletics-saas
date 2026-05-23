@@ -43,7 +43,7 @@ export const METRIC_BENCHMARKS = {
 }
 
 export function determineMetricStatus(
-  metricType: 'GPA' | 'ATTENDANCE' | 'CREDIT_HOURS',
+  metricType: 'GPA' | 'ATTENDANCE' | 'CREDIT_HOURS' | 'STUDY_HOURS',
   value: number
 ): 'ABOVE_TARGET' | 'ON_TARGET' | 'BELOW_TARGET' | 'AT_RISK' {
   switch (metricType) {

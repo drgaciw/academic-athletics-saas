@@ -51,7 +51,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     c.set('auth', {
       userId: payload.sub,
       clerkId: payload.sub,
-      role: payload.metadata?.role as string,
+      role: (payload as { metadata?: { role?: string } }).metadata?.role as string,
     })
 
     await next()

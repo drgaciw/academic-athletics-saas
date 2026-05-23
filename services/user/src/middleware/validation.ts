@@ -17,7 +17,7 @@ export const validateRequest = (schema: ZodSchema): MiddlewareHandler => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: error.errors.map(e => ({
+            details: error.issues.map(e => ({
               field: e.path.join('.'),
               message: e.message,
             })),

@@ -45,7 +45,7 @@ async function getStudentSchedule(userId: string) {
 }
 
 export default async function SchedulePage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');

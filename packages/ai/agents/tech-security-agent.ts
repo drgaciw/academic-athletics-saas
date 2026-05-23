@@ -17,7 +17,7 @@ import type {
   ToolExecutionContext,
   AgentType,
 } from "../types/agent.types";
-import type { CoreTool } from "ai";
+import type { Tool } from "ai";
 
 /**
  * Security Agent Configuration
@@ -58,7 +58,7 @@ export class SecurityAgent extends BaseAgent {
     return this.config.systemPrompt;
   }
 
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     const context: ToolExecutionContext = {
       userId: "",
       userRoles: this.getUserRoles(),

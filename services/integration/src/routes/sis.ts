@@ -38,7 +38,7 @@ app.post('/import', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -119,7 +119,7 @@ app.post('/import/student', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -182,7 +182,7 @@ app.post('/import/enrollments', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -246,7 +246,7 @@ app.post('/import/transcript', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -309,7 +309,7 @@ app.post('/import/batch', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -359,7 +359,7 @@ app.post('/import/term', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -422,7 +422,7 @@ app.post('/verify-eligibility', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },

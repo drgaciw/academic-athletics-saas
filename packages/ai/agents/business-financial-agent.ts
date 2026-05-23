@@ -18,7 +18,7 @@ import type {
   AgentRequest,
   ToolExecutionContext,
 } from "../types/agent.types";
-import type { CoreTool } from "ai";
+import type { Tool } from "ai";
 
 /**
  * Financial Agent Configuration
@@ -59,7 +59,7 @@ export class FinancialAgent extends BaseAgent {
     return this.config.systemPrompt;
   }
 
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     const context: ToolExecutionContext = {
       userId: "",
       userRoles: this.getUserRoles(),

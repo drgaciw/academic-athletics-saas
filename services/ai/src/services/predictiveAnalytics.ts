@@ -43,18 +43,22 @@ export class PredictiveAnalyticsService {
         : []
 
     // Store prediction in database
-    await prisma.studentPrediction.create({
-      data: {
-        userId: studentData.userId,
-        predictionType: 'risk_assessment',
-        result: {
-          overallRisk,
-          riskScore: this.calculateRiskScore(factors),
-          factors,
-          predictions,
-        },
-      },
+    const activeModel = await prisma.predictionModel.findFirst({
+      where: { active: true },
     })
+
+    if (activeModel) {
+      await prisma.studentPrediction.create({
+        data: {
+          studentId: studentData.userId,
+          modelId: activeModel.id,
+          predictionType: 'ELIGIBILITY',
+          riskScore: this.calculateRiskScore(factors),
+          confidence: 0.8,
+          factors: factors as object,
+        },
+      })
+    }
 
     return {
       studentId,
@@ -76,7 +80,7 @@ export class PredictiveAnalyticsService {
       include: {
         user: true,
         complianceRecords: {
-          orderBy: { checkedAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
           take: 5,
         },
         performanceMetrics: {

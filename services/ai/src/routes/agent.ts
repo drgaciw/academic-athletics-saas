@@ -23,7 +23,7 @@ const AgentExecutionSchema = z.object({
   userId: z.string(),
   agentType: z.enum(['advising', 'compliance', 'intervention', 'administrative', 'general']).optional(),
   conversationId: z.string().optional(),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
   streaming: z.boolean().optional().default(true),
   maxSteps: z.number().min(1).max(20).optional().default(10),
 })
@@ -62,7 +62,7 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       conversationId: request.conversationId || `conv-${Date.now()}`,
       context: {
         ...request.context,
-        memories: memories.map(m => m.content)
+        memories: memories.map((m: { content: string }) => m.content)
       },
       streaming: request.streaming,
       maxSteps: request.maxSteps
@@ -83,7 +83,7 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
         userAgent: c.req.header('User-Agent'),
       },
       result.response
-    ).catch((err) => console.warn('Failed to log audit:', err))
+    ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
     // Extract and save facts from conversation
     if (agentRequest.conversationId) {
@@ -91,7 +91,7 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
         authUserId,
         agentRequest.conversationId,
         agentType
-      ).catch((err) => console.warn('Failed to extract facts:', err))
+      ).catch((err: unknown) => console.warn('Failed to extract facts:', err))
     }
 
     return c.json({
@@ -177,7 +177,7 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
           conversationId,
           context: {
             ...request.context,
-            memories: memories.map(m => m.content)
+            memories: memories.map((m: { content: string }) => m.content)
           },
           streaming: true,
           maxSteps: request.maxSteps
@@ -223,11 +223,11 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
             userAgent: c.req.header('User-Agent'),
           },
           result.response
-        ).catch((err) => console.warn('Failed to log audit:', err))
+        ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
         // Extract facts in background
         extractAndSaveFacts(authUserId, conversationId, agentType)
-          .catch((err) => console.warn('Failed to extract facts:', err))
+          .catch((err: unknown) => console.warn('Failed to extract facts:', err))
 
       } catch (error) {
         console.error('Streaming error:', error)

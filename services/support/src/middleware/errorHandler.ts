@@ -31,7 +31,7 @@ export const errorHandler: MiddlewareHandler = async (c, next) => {
           requestId,
         },
       }
-      return c.json(response, error.statusCode)
+      return c.json(response, error.statusCode as 400)
     }
 
     // Handle unexpected errors

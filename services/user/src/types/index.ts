@@ -19,7 +19,7 @@ export const syncClerkUserSchema = z.object({
     })),
     first_name: z.string().nullable(),
     last_name: z.string().nullable(),
-    public_metadata: z.record(z.any()).optional(),
+    public_metadata: z.record(z.string(), z.any()).optional(),
   }),
 })
 

@@ -21,7 +21,7 @@ export const analyzeError = createTool({
     stackTrace: z.string().optional().describe('Stack trace if available'),
     service: z.string().describe('Service where error occurred (user, advising, compliance, monitoring, support, integration, ai)'),
     correlationId: z.string().optional().describe('Correlation ID for distributed tracing'),
-    metadata: z.record(z.any()).optional().describe('Additional error context'),
+    metadata: z.record(z.string(), z.any()).optional().describe('Additional error context'),
   }),
   category: 'error_diagnostics',
   requiredPermissions: ['read:errors', 'read:logs'],
@@ -236,7 +236,7 @@ export const checkFERPACompliance = createTool({
     errorLogs: z.array(z.object({
       message: z.string(),
       stackTrace: z.string().optional(),
-      metadata: z.record(z.any()).optional(),
+      metadata: z.record(z.string(), z.any()).optional(),
     })).describe('Error logs to validate'),
     service: z.string().describe('Service that generated the logs'),
   }),
@@ -428,7 +428,7 @@ datasource db {
 }
 
 // Update Prisma client with timeout
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@aah/database'
 
 export const prisma = new PrismaClient({
   datasources: {

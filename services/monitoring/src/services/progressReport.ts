@@ -1,10 +1,8 @@
 // Progress report service - faculty progress report management
-import { PrismaClient } from '@aah/database'
+import { prisma } from '@aah/database'
 import { ProgressReportData } from '../types'
 import { sendProgressReportNotification } from '../lib/pusher'
 import { generateAlertsForStudent } from './alertEngine'
-
-const prisma = new PrismaClient()
 
 export async function submitProgressReport(data: ProgressReportData) {
   // Create progress report
@@ -30,8 +28,8 @@ export async function submitProgressReport(data: ProgressReportData) {
   await sendProgressReportNotification(data.studentId, {
     id: report.id,
     courseName: report.courseName,
-    currentGrade: report.currentGrade,
-    concerns: report.concerns,
+    currentGrade: report.currentGrade ?? undefined,
+    concerns: report.concerns ?? [],
   })
 
   // Generate alerts if there are concerns

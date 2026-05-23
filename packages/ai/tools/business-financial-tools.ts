@@ -23,7 +23,7 @@ export const financialTools: ToolDefinition[] = [
       assumptions: z
         .object({
           tuitionInflationRate: z.number().min(0).max(1).default(0.035),
-          rosterGrowth: z.record(z.number()).optional(),
+          rosterGrowth: z.record(z.string(), z.number()).optional(),
           newSports: z.array(z.string()).optional(),
         })
         .optional(),

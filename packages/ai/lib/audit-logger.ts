@@ -6,6 +6,7 @@
  */
 
 import type { AgentType, AgentResponse, ToolInvocation } from '../types/agent.types'
+import { prisma } from '@aah/database'
 
 /**
  * Audit log entry for agent execution
@@ -89,9 +90,6 @@ export class AuditLogger {
    * Log agent execution
    */
   async logAgentExecution(entry: AgentAuditEntry): Promise<void> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
     try {
       await prisma.aIAuditLog.create({
         data: {
@@ -120,8 +118,6 @@ export class AuditLogger {
     } catch (error) {
       console.error('Failed to log agent execution:', error)
       // Don't throw - audit logging should not break the application
-    } finally {
-      await prisma.$disconnect()
     }
   }
 
@@ -129,9 +125,6 @@ export class AuditLogger {
    * Log tool invocation
    */
   async logToolInvocation(entry: ToolAuditEntry): Promise<void> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
     try {
       await prisma.aIAuditLog.create({
         data: {
@@ -160,8 +153,6 @@ export class AuditLogger {
       })
     } catch (error) {
       console.error('Failed to log tool invocation:', error)
-    } finally {
-      await prisma.$disconnect()
     }
   }
 
@@ -234,10 +225,6 @@ export class AuditLogger {
    * Query audit logs
    */
   async queryLogs(filters: AuditQueryFilters): Promise<any[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const where: any = {}
 
       if (filters.userId) where.userId = filters.userId
@@ -261,19 +248,12 @@ export class AuditLogger {
       })
 
       return logs
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
    * Get audit statistics
    */
   async getStatistics(filters: AuditQueryFilters): Promise<AuditStatistics> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const where: any = {}
 
       if (filters.userId) where.userId = filters.userId
@@ -338,9 +318,6 @@ export class AuditLogger {
         toolsByName,
         errorsByCode,
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -401,10 +378,6 @@ export class AuditLogger {
     failedActions: number
     averageResponseTime: number
   }> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const logs = await prisma.aIAuditLog.findMany({
         where: {
           timestamp: {
@@ -444,19 +417,12 @@ export class AuditLogger {
         failedActions,
         averageResponseTime,
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
    * Delete old audit logs (for GDPR compliance)
    */
   async deleteOldLogs(olderThanDays: number = 365): Promise<number> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const cutoffDate = new Date()
       cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
 
@@ -469,9 +435,6 @@ export class AuditLogger {
       })
 
       return result.count
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   // Helper methods

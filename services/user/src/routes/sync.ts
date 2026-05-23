@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono'
-import { Webhook } from '@clerk/backend'
+import { verifyWebhook } from '@clerk/backend/webhooks'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
@@ -63,12 +63,12 @@ async function handleUserCreated(data: any) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || 'STUDENT_ATHLETE',
+      role: public_metadata?.role || 'STUDENT',
     },
   })
 
   // If user is a student athlete, create student profile
-  if (user.role === 'STUDENT_ATHLETE' && public_metadata?.studentId) {
+  if (user.role === 'STUDENT' && public_metadata?.studentId) {
     await prisma.studentProfile.create({
       data: {
         userId: user.id,
@@ -116,7 +116,7 @@ async function handleUserUpdated(data: any) {
   })
 
   // Update student profile if exists
-  if (user.role === 'STUDENT_ATHLETE' && public_metadata?.studentId) {
+  if (user.role === 'STUDENT' && public_metadata?.studentId) {
     const existingProfile = await prisma.studentProfile.findUnique({
       where: { userId: user.id },
     })
@@ -198,27 +198,25 @@ sync.post('/sync-clerk', async (c) => {
   try {
     // Get the raw body and headers for webhook verification
     const payload = await c.req.text()
-    const headers = {
-      'svix-id': c.req.header('svix-id') || '',
-      'svix-timestamp': c.req.header('svix-timestamp') || '',
-      'svix-signature': c.req.header('svix-signature') || '',
-    }
 
-    // Verify the webhook signature
-    const webhookSecret = env.CLERK_WEBHOOK_SECRET
-
-    if (!webhookSecret) {
+    if (!env.CLERK_WEBHOOK_SECRET) {
       throw new ServerError('Webhook secret not configured')
     }
 
-    let webhookData: any
+    let webhookData: Awaited<ReturnType<typeof verifyWebhook>>
 
     try {
-      const wh = new Webhook(webhookSecret)
-      webhookData = wh.verify(payload, headers)
+      const request = new Request(c.req.url, {
+        method: c.req.method,
+        headers: c.req.raw.headers,
+        body: payload,
+      })
+      webhookData = await verifyWebhook(request, {
+        signingSecret: env.CLERK_WEBHOOK_SECRET,
+      })
     } catch (error) {
       console.error('Webhook verification failed:', error)
-      throw new AuthError('Invalid webhook signature', 'INVALID_SIGNATURE')
+      throw new AuthError('Invalid webhook signature', 'AUTH_UNAUTHORIZED')
     }
 
     // Process the webhook based on event type

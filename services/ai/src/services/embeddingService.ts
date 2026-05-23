@@ -11,6 +11,35 @@ const openai = new OpenAI({
 })
 
 export class EmbeddingService {
+  private async insertEmbeddingRecord(input: {
+    contentType: string
+    contentHash: string
+    embedding: number[]
+    metadata: Record<string, unknown>
+    source?: string
+  }): Promise<string> {
+    const rows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+      `INSERT INTO "VectorEmbedding" (id, "contentType", "contentHash", embedding, metadata, source, "createdAt")
+       VALUES (gen_random_uuid()::text, $1, $2, $3::vector, $4::jsonb, $5, NOW())
+       RETURNING id`,
+      input.contentType,
+      input.contentHash,
+      `[${input.embedding.join(',')}]`,
+      JSON.stringify(input.metadata),
+      input.source ?? null
+    )
+
+    return rows[0].id
+  }
+
+  private async updateEmbeddingVector(id: string, embedding: number[]): Promise<void> {
+    await prisma.$executeRawUnsafe(
+      `UPDATE "VectorEmbedding" SET embedding = $1::vector WHERE id = $2`,
+      `[${embedding.join(',')}]`,
+      id
+    )
+  }
+
   /**
    * Generate embeddings for text array
    */
@@ -93,22 +122,21 @@ export class EmbeddingService {
     })
 
     // Store in database
-    const vectorEmbedding = await prisma.vectorEmbedding.create({
-      data: {
-        contentType: metadata.contentType,
-        contentHash,
-        embedding: embeddings[0],
-        metadata: {
-          source: metadata.source,
-          title: metadata.title,
-          section: metadata.section,
-          content: content.substring(0, 500), // Store preview
-          fullLength: content.length,
-        },
+    const vectorEmbeddingId = await this.insertEmbeddingRecord({
+      contentType: metadata.contentType,
+      contentHash,
+      embedding: embeddings[0],
+      metadata: {
+        source: metadata.source,
+        title: metadata.title,
+        section: metadata.section,
+        content: content.substring(0, 500),
+        fullLength: content.length,
       },
+      source: metadata.source,
     })
 
-    return vectorEmbedding.id
+    return vectorEmbeddingId
   }
 
   /**
@@ -158,19 +186,18 @@ export class EmbeddingService {
 
         // Store all embeddings
         const createPromises = newItems.map((item, idx) =>
-          prisma.vectorEmbedding.create({
-            data: {
-              contentType: item.metadata.contentType,
-              contentHash: hashContent(item.content),
-              embedding: embeddings[idx],
-              metadata: {
-                source: item.metadata.source,
-                title: item.metadata.title,
-                section: item.metadata.section,
-                content: item.content.substring(0, 500),
-                fullLength: item.content.length,
-              },
+          this.insertEmbeddingRecord({
+            contentType: item.metadata.contentType,
+            contentHash: hashContent(item.content),
+            embedding: embeddings[idx],
+            metadata: {
+              source: item.metadata.source,
+              title: item.metadata.title,
+              section: item.metadata.section,
+              content: item.content.substring(0, 500),
+              fullLength: item.content.length,
             },
+            source: item.metadata.source,
           })
         )
 
@@ -364,10 +391,7 @@ export class EmbeddingService {
 
         // Update embeddings
         const updatePromises = batch.map((embedding, idx) =>
-          prisma.vectorEmbedding.update({
-            where: { id: embedding.id },
-            data: { embedding: newEmbeddings[idx] },
-          })
+          this.updateEmbeddingVector(embedding.id, newEmbeddings[idx])
         )
 
         await Promise.all(updatePromises)

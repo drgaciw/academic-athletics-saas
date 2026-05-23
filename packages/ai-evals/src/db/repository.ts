@@ -5,7 +5,7 @@
  * query historical data for analysis, and implement data retention policies.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@aah/database';
 import type {
   CreateEvalRunInput,
   CreateEvalResultInput,

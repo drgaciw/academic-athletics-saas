@@ -15,7 +15,7 @@ jest.mock('@aah/database', () => ({
     },
   },
   UserRole: {
-    STUDENT_ATHLETE: 'STUDENT_ATHLETE',
+    STUDENT: 'STUDENT',
     ADMIN: 'ADMIN',
     COACH: 'COACH',
     FACULTY: 'FACULTY',
@@ -38,7 +38,7 @@ describe('ClerkSyncService', () => {
         email_addresses: [{ email_address: 'test@example.com' }],
         first_name: 'Test',
         last_name: 'User',
-        public_metadata: { role: 'STUDENT_ATHLETE' },
+        public_metadata: { role: 'STUDENT' },
       },
       type: 'user.created',
     }
@@ -50,7 +50,7 @@ describe('ClerkSyncService', () => {
         email: 'test@example.com',
         firstName: 'Test',
         lastName: 'User',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
         createdAt: new Date(),
         updatedAt: new Date(),
         studentProfile: {
@@ -110,7 +110,7 @@ describe('ClerkSyncService', () => {
       )
     })
 
-    it('should default to STUDENT_ATHLETE role if not provided', async () => {
+    it('should default to STUDENT role if not provided', async () => {
       const dataWithoutRole = {
         data: {
           ...mockClerkData.data,
@@ -120,7 +120,7 @@ describe('ClerkSyncService', () => {
 
       const mockUser = {
         id: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
         email: 'test@example.com',
       }
       ;(prisma.user.upsert as jest.Mock).mockResolvedValue(mockUser)
@@ -130,7 +130,7 @@ describe('ClerkSyncService', () => {
       expect(prisma.user.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
           create: expect.objectContaining({
-            role: UserRole.STUDENT_ATHLETE,
+            role: UserRole.STUDENT,
           }),
         })
       )

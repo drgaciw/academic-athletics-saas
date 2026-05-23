@@ -51,7 +51,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -165,7 +165,7 @@ app.put('/:reportId/review', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },

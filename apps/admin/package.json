@@ -6,29 +6,30 @@
     "dev": "next dev -p 3002",
     "build": "next build",
     "start": "next start -p 3002",
-    "lint": "next lint",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-        "@clerk/nextjs": "^5.0.0",
-    "@aah/ui": "*",
-    "@aah/database": "*",
-    "@aah/auth": "*",
-    "zustand": "^4.4.0",
-    "@tanstack/react-query": "^5.0.0",
-    "recharts": "^2.10.0"
+    "@aah/auth": "workspace:*",
+    "@aah/database": "workspace:*",
+    "@aah/ui": "workspace:*",
+    "@clerk/nextjs": "^7.4.1",
+    "@tanstack/react-query": "^5.90.12",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "recharts": "^2.15.4",
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.2.0",
-    "typescript": "^5.3.0",
-    "tailwindcss": "^3.4.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0",
-    "eslint-config-next": "^14.0.0",
-    "eslint": "^8.0.0"
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^22.8.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "16.2.6",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5.9.3"
   }
 }

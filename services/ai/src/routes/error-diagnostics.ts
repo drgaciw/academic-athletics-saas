@@ -17,7 +17,7 @@ errorDiagnosticsRouter.post(
       stackTrace: z.string().optional().describe('Stack trace if available'),
       service: z.string().describe('Service where error occurred'),
       correlationId: z.string().optional().describe('Correlation ID for tracing'),
-      metadata: z.record(z.any()).optional().describe('Additional error context'),
+      metadata: z.record(z.string(), z.any()).optional().describe('Additional error context'),
       userId: z.string().optional().describe('User ID if error is user-specific'),
     })
   ),
@@ -136,7 +136,7 @@ errorDiagnosticsRouter.post(
       errorCode: z.string().describe('Error code or type'),
       errorMessage: z.string().describe('Error message'),
       service: z.string().describe('Service where error occurred'),
-      context: z.record(z.any()).optional().describe('Additional context'),
+      context: z.record(z.string(), z.any()).optional().describe('Additional context'),
     })
   ),
   async (c) => {
@@ -305,7 +305,7 @@ errorDiagnosticsRouter.post(
       errorLogs: z.array(
         z.object({
           message: z.string(),
-          metadata: z.record(z.any()).optional(),
+          metadata: z.record(z.string(), z.any()).optional(),
         })
       ),
       service: z.string(),

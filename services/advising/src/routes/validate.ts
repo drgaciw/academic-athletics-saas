@@ -49,15 +49,19 @@ app.post("/validate-schedule", async (c) => {
     });
 
     // Map to CourseSectionInfo to ensure types align
-    const sections: CourseSectionInfo[] = sectionsData.map((section) => ({
+    const sections = sectionsData.map((section) => ({
       ...section,
       course: {
         ...section.course,
         prerequisites: (section.course.prerequisites as string[]) || [],
         corequisites: (section.course.corequisites as string[]) || [],
-        level: section.course.level as any,
+        level: section.course.level as CourseSectionInfo['course'] extends infer C
+          ? C extends { level?: infer L }
+            ? L
+            : never
+          : never,
       },
-    }));
+    })) as CourseSectionInfo[];
 
     // Verify all sections were found
     if (sections.length !== validatedData.sectionIds.length) {
@@ -179,7 +183,7 @@ app.post("/validate-schedule", async (c) => {
           error: {
             code: "VALIDATION_ERROR",
             message: "Invalid request data",
-            details: error.errors,
+            details: error.issues,
           },
           timestamp: new Date().toISOString(),
         },

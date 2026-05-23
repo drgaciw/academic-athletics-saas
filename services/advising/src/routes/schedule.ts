@@ -8,6 +8,7 @@ import { getUser, checkPermission } from "@aah/auth";
 import {
   successResponse,
   validateRequest,
+  getValidated,
   ForbiddenError,
 } from "@aah/api-utils";
 import { z } from "zod";
@@ -40,7 +41,7 @@ const scheduleSchema = z.object({
 routes.post("/schedule", validateRequest(scheduleSchema, "json"), async (c) => {
   const _currentUser = getUser(c);
   const correlationId = c.get("correlationId");
-  const data = c.get("validated_json");
+  const data = getValidated<z.infer<typeof scheduleSchema>>(c, "json");
 
   try {
     checkPermission(c, "advising:schedule");

@@ -10,7 +10,7 @@ jest.mock('@aah/database', () => ({
     },
   },
   UserRole: {
-    STUDENT_ATHLETE: 'STUDENT_ATHLETE',
+    STUDENT: 'STUDENT',
     ADMIN: 'ADMIN',
     COACH: 'COACH',
     FACULTY: 'FACULTY',
@@ -30,7 +30,7 @@ describe('RBACService', () => {
     it('should return user roles and permissions', async () => {
       const mockUser = {
         id: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
         studentProfile: {
           id: 'profile_123',
           studentId: 'S12345',
@@ -57,7 +57,7 @@ describe('RBACService', () => {
 
       expect(result).toEqual({
         userId: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
         permissions: expect.arrayContaining(['read:own_profile']),
         studentProfile: mockUser.studentProfile,
       })
@@ -84,7 +84,7 @@ describe('RBACService', () => {
     it('should return true if user has permission', async () => {
       const mockUser = {
         id: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
       }
       ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
 
@@ -96,7 +96,7 @@ describe('RBACService', () => {
     it('should return false if user does not have permission', async () => {
       const mockUser = {
         id: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
       }
       ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
 
@@ -153,7 +153,7 @@ describe('RBACService', () => {
     it('should throw AppError if user does not have allowed role', async () => {
       const mockUserRoles = {
         userId: 'user_123',
-        role: UserRole.STUDENT_ATHLETE,
+        role: UserRole.STUDENT,
         permissions: [],
       }
       jest.spyOn(service, 'getUserRoles').mockResolvedValue(mockUserRoles as any)
@@ -174,7 +174,7 @@ describe('RBACService', () => {
 
   describe('getPermissionsForRole', () => {
     it('should return permissions for role', () => {
-      const permissions = service.getPermissionsForRole(UserRole.STUDENT_ATHLETE)
+      const permissions = service.getPermissionsForRole(UserRole.STUDENT)
       expect(permissions).toContain('read:own_profile')
     })
 

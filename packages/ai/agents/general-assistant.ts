@@ -9,7 +9,7 @@ import { globalToolRegistry } from '../lib/tool-registry'
 import { getToolsForAgentType } from '../tools'
 import { GENERAL_ASSISTANT_PROMPT } from '../lib/prompt-templates'
 import type { AgentConfig, AgentRequest, AgentType, ToolExecutionContext } from '../types/agent.types'
-import type { CoreTool } from 'ai'
+import type { Tool } from 'ai'
 
 /**
  * General Assistant Configuration
@@ -60,7 +60,7 @@ export class GeneralAssistant extends BaseAgent {
   /**
    * Get tools for general assistant
    */
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     const userRoles = this.getUserRoles()
 
     const context: ToolExecutionContext = {

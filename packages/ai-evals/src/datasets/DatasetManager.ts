@@ -25,7 +25,7 @@ import type {
   ValidationResult,
   ValidationError,
   ValidationWarning,
-  ExportOptions,
+  DatasetExportOptions,
   LoadOptions,
 } from '../types';
 
@@ -372,7 +372,7 @@ export class DatasetManager {
    * });
    * ```
    */
-  async exportDataset(datasetId: string, options: ExportOptions): Promise<string> {
+  async exportDataset(datasetId: string, options: DatasetExportOptions): Promise<string> {
     const { format: exportFormat, includeMetadata = true, pretty = false } = options;
 
     const dataset = await this.loadDataset(datasetId);

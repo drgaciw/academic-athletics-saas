@@ -7,7 +7,7 @@
 
 import { generateText } from 'ai'
 import { openai } from '@ai-sdk/openai'
-import type { CoreMessage } from 'ai'
+import type { ModelMessage } from 'ai'
 
 /**
  * Compression strategy
@@ -32,7 +32,7 @@ export interface CompressionOptions {
  * Compression result
  */
 export interface CompressionResult {
-  messages: CoreMessage[]
+  messages: ModelMessage[]
   originalTokens: number
   compressedTokens: number
   compressionRatio: number
@@ -47,7 +47,7 @@ export class PromptCompressor {
    * Compress messages to fit within token limit
    */
   async compress(
-    messages: CoreMessage[],
+    messages: ModelMessage[],
     options: CompressionOptions
   ): Promise<CompressionResult> {
     const originalTokens = this.estimateTokens(messages)
@@ -62,7 +62,7 @@ export class PromptCompressor {
       }
     }
 
-    let compressedMessages: CoreMessage[]
+    let compressedMessages: ModelMessage[]
 
     switch (options.strategy) {
       case 'truncate':
@@ -96,10 +96,10 @@ export class PromptCompressor {
    * Truncate messages (simple strategy)
    */
   private truncateMessages(
-    messages: CoreMessage[],
+    messages: ModelMessage[],
     options: CompressionOptions
-  ): CoreMessage[] {
-    const result: CoreMessage[] = []
+  ): ModelMessage[] {
+    const result: ModelMessage[] = []
     let tokenCount = 0
 
     // Preserve system message if requested
@@ -127,9 +127,9 @@ export class PromptCompressor {
    * Sliding window (keep recent messages)
    */
   private slidingWindowMessages(
-    messages: CoreMessage[],
+    messages: ModelMessage[],
     options: CompressionOptions
-  ): CoreMessage[] {
+  ): ModelMessage[] {
     const preserveCount = options.preserveRecentMessages || 5
     const systemMessage = messages[0]?.role === 'system' ? [messages[0]] : []
     const recentMessages = messages.slice(-preserveCount)
@@ -141,9 +141,9 @@ export class PromptCompressor {
    * Summarize messages using LLM
    */
   private async summarizeMessages(
-    messages: CoreMessage[],
+    messages: ModelMessage[],
     options: CompressionOptions
-  ): Promise<CoreMessage[]> {
+  ): Promise<ModelMessage[]> {
     const systemMessage = messages[0]?.role === 'system' ? [messages[0]] : []
     const preserveCount = options.preserveRecentMessages || 3
     const recentMessages = messages.slice(-preserveCount)
@@ -166,10 +166,10 @@ export class PromptCompressor {
       const { text: summary } = await generateText({
         model: openai('gpt-4o-mini'),
         prompt: `Summarize this conversation concisely, preserving key facts and context:\n\n${conversationText}`,
-        maxTokens: Math.floor(options.maxTokens * 0.3), // Use 30% of budget for summary
+        maxOutputTokens: Math.floor(options.maxTokens * 0.3), // Use 30% of budget for summary
       })
 
-      const summaryMessage: CoreMessage = {
+      const summaryMessage: ModelMessage = {
         role: 'system',
         content: `Previous conversation summary: ${summary}`,
       }
@@ -185,9 +185,9 @@ export class PromptCompressor {
    * Semantic compression (keep important messages)
    */
   private async semanticCompression(
-    messages: CoreMessage[],
+    messages: ModelMessage[],
     options: CompressionOptions
-  ): Promise<CoreMessage[]> {
+  ): Promise<ModelMessage[]> {
     // TODO: Implement semantic importance scoring
     // For now, fall back to sliding window
     return this.slidingWindowMessages(messages, options)
@@ -196,7 +196,7 @@ export class PromptCompressor {
   /**
    * Estimate token count (rough approximation)
    */
-  private estimateTokens(messages: CoreMessage[]): number {
+  private estimateTokens(messages: ModelMessage[]): number {
     const text = messages.map((m) => m.content).join(' ')
     // Rough estimate: 1 token ≈ 4 characters
     return Math.ceil(text.length / 4)
@@ -216,7 +216,7 @@ export class PromptCompressor {
       const { text } = await generateText({
         model: openai('gpt-4o-mini'),
         prompt: `Compress this text to under ${maxTokens} tokens while preserving key information:\n\n${content}`,
-        maxTokens,
+        maxOutputTokens: maxTokens,
       })
 
       return text
@@ -239,7 +239,7 @@ export const globalCompressor = new PromptCompressor()
  * Convenience function for message compression
  */
 export async function compressMessages(
-  messages: CoreMessage[],
+  messages: ModelMessage[],
   options: CompressionOptions
 ): Promise<CompressionResult> {
   return globalCompressor.compress(messages, options)
@@ -259,9 +259,9 @@ export async function compressContent(
  * Auto-compress messages if they exceed context window
  */
 export async function autoCompress(
-  messages: CoreMessage[],
+  messages: ModelMessage[],
   maxContextTokens: number = 8000
-): Promise<CoreMessage[]> {
+): Promise<ModelMessage[]> {
   const result = await compressMessages(messages, {
     strategy: 'summarize',
     maxTokens: maxContextTokens,

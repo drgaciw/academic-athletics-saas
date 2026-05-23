@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import type { CoreMessage, CoreTool } from "ai";
+import type { ModelMessage, Tool } from "ai";
 
 // ============================================================================
 // Agent Types
@@ -20,6 +20,11 @@ export type AgentType =
   | "intervention"
   | "administrative"
   | "general"
+  | "orchestrator"
+  | "data-aggregation"
+  | "equivalency"
+  | "transfer-compliance"
+  | "revision"
   | `business_${"strategic" | "operations" | "financial" | "hr" | "sales" | "cx" | "marketing"}`
   | `sdlc_${"requirements" | "architecture" | "dev_workflow" | "qa" | "devops" | "release" | "docs_km"}`
   | `tech_${"frontend" | "backend" | "database" | "cloud" | "devops_automation" | "mobile" | "ai_ml" | "security" | "analytics"}`;
@@ -153,7 +158,7 @@ export interface AgentState {
   maxSteps: number;
 
   /** Conversation messages */
-  messages: CoreMessage[];
+  messages: ModelMessage[];
 
   /** Tool results from execution */
   toolResults: ToolResult[];
@@ -474,7 +479,7 @@ export interface ConversationMemory {
   conversationId: string;
 
   /** Messages */
-  messages: CoreMessage[];
+  messages: ModelMessage[];
 
   /** Context */
   context: Record<string, any>;

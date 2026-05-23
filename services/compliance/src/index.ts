@@ -120,7 +120,6 @@ app.use('*', rateLimitMiddleware({
  * Returns service health status
  */
 app.get('/health', (c) => {
-  // @ts-expect-error - correlationId is set by middleware
   const correlationId = c.get('correlationId') as string | undefined
   
   return c.json(successResponse({
@@ -138,7 +137,6 @@ app.get('/health', (c) => {
  * Returns service metadata
  */
 app.get('/info', (c) => {
-  // @ts-expect-error - correlationId is set by middleware
   const correlationId = c.get('correlationId') as string | undefined
   
   return c.json(successResponse({
@@ -248,7 +246,6 @@ app.route('/api/compliance', regulationsRoutes)
  * 404 Not Found handler
  */
 app.notFound((c) => {
-  // @ts-expect-error - correlationId is set by middleware
   const correlationId = c.get('correlationId') as string | undefined
   
   return c.json({
@@ -268,7 +265,6 @@ app.notFound((c) => {
  * Global error handler
  */
 app.onError((err, c) => {
-  // @ts-expect-error - correlationId is set by middleware
   const correlationId = c.get('correlationId') as string | undefined
   
   logger.error('Unhandled error', err, {

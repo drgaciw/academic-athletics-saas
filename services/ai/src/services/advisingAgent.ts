@@ -39,7 +39,7 @@ const CourseRecommendationSchema = z.object({
 
 export class AdvisingAgent {
   private llm: ChatOpenAI
-  private parser: StructuredOutputParser<z.infer<typeof CourseRecommendationSchema>>
+  private parser: StructuredOutputParser<any>
 
   constructor() {
     this.llm = new ChatOpenAI({
@@ -48,7 +48,9 @@ export class AdvisingAgent {
       openAIApiKey: AI_CONFIG.openai.apiKey,
     })
 
-    this.parser = StructuredOutputParser.fromZodSchema(CourseRecommendationSchema)
+    this.parser = StructuredOutputParser.fromZodSchema(
+      CourseRecommendationSchema as never
+    )
   }
 
   /**
@@ -100,7 +102,9 @@ export class AdvisingAgent {
       const fullPrompt = `${prompt}\n\n${formatInstructions}`
 
       const result = await this.llm.invoke(fullPrompt)
-      const parsed = await this.parser.parse(result.content.toString())
+      const parsed = (await this.parser.parse(
+        result.content.toString()
+      )) as z.infer<typeof CourseRecommendationSchema>
 
       // Build recommendation object
       const recommendations: CourseRecommendation[] = parsed.courses.map((course) => ({
@@ -212,17 +216,41 @@ export class AdvisingAgent {
    * Get degree requirements
    */
   private async getDegreeRequirements(studentId: string, major: string) {
-    const progress = await prisma.degreeProgress.findFirst({
-      where: { studentProfileId: studentId },
-      orderBy: { assessedAt: 'desc' },
+    const profile = await prisma.studentProfile.findUnique({
+      where: { studentId },
     })
 
+    if (!profile) {
+      return {
+        totalRequired: 120,
+        completed: 0,
+        remaining: 120,
+        requirementsMet: [] as string[],
+        requirementsPending: [] as string[],
+      }
+    }
+
+    const progressRecords = await prisma.degreeProgress.findMany({
+      where: { studentId: profile.id },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const completed = progressRecords
+      .filter((record) => record.status === 'COMPLETED')
+      .reduce((sum, record) => sum + record.credits, 0)
+
+    const totalRequired = 120
+
     return {
-      totalRequired: progress?.totalRequired || 120,
-      completed: progress?.completed || 0,
-      remaining: progress?.remaining || 120,
-      requirementsMet: progress?.requirementsMet || [],
-      requirementsPending: progress?.requirementsPending || [],
+      totalRequired,
+      completed,
+      remaining: Math.max(totalRequired - completed, 0),
+      requirementsMet: progressRecords
+        .filter((record) => record.status === 'COMPLETED' && record.satisfiesRequirement)
+        .map((record) => record.satisfiesRequirement as string),
+      requirementsPending: progressRecords
+        .filter((record) => record.status !== 'COMPLETED' && record.satisfiesRequirement)
+        .map((record) => record.satisfiesRequirement as string),
     }
   }
 

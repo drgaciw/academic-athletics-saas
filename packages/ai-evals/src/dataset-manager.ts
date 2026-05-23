@@ -20,7 +20,7 @@ const TestCaseSchema = z.object({
   category: z.string(),
   difficulty: z.number().min(1).max(5).optional(),
   tags: z.array(z.string()).optional(),
-  context: z.record(z.any()).optional(),
+  context: z.record(z.string(), z.any()).optional(),
   metadata: z.object({
     source: z.string().optional(),
     createdAt: z.string().optional(),
@@ -258,7 +258,7 @@ export class DatasetManager {
       DatasetSchema.parse(dataset)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        throw new Error(`Dataset validation failed: ${error.errors.map(e => e.message).join(', ')}`)
+        throw new Error(`Dataset validation failed: ${error.issues.map(e => e.message).join(', ')}`)
       }
       throw error
     }

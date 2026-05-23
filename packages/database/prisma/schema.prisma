@@ -1,12 +1,11 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
+  output          = "../generated/client"
   previewFeatures = ["postgresqlExtensions"]
-  engineType      = "library"
 }
 
 datasource db {
   provider   = "postgresql"
-  url        = env("DATABASE_URL")
   extensions = [pgvector(map: "vector")]
 }
 

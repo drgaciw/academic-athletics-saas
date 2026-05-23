@@ -41,20 +41,20 @@ export class RAGPipeline {
     const entities: QueryIntent['entities'] = []
 
     // Extract people names
-    const people = doc.people().out('array')
-    people.forEach((person) => {
+    const people = doc.people().out('array') as string[]
+    people.forEach((person: string) => {
       entities.push({ type: 'person', value: person, confidence: 0.9 })
     })
 
     // Extract numbers (could be GPAs, credit hours, etc.)
-    const numbers = doc.numbers().out('array')
-    numbers.forEach((num) => {
+    const numbers = doc.numbers().out('array') as string[]
+    numbers.forEach((num: string) => {
       entities.push({ type: 'number', value: num, confidence: 0.8 })
     })
 
     // Extract dates
-    const dates = doc.dates().out('array')
-    dates.forEach((date) => {
+    const dates = (doc as unknown as { dates: () => { out: (format: string) => string[] } }).dates().out('array')
+    dates.forEach((date: string) => {
       entities.push({ type: 'date', value: date, confidence: 0.85 })
     })
 

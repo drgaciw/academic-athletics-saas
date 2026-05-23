@@ -83,7 +83,7 @@ app.post('/', async (c) => {
       severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
       title: z.string(),
       message: z.string(),
-      metadata: z.record(z.any()).optional(),
+      metadata: z.record(z.string(), z.any()).optional(),
       triggeredBy: z.string().optional(),
       assignedTo: z.string().optional(),
     })
@@ -105,7 +105,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -153,7 +153,7 @@ app.put('/:alertId/acknowledge', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -202,7 +202,7 @@ app.put('/:alertId/resolve', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },

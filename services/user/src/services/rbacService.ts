@@ -4,7 +4,7 @@ import { AppError } from '../middleware/errorHandler'
 
 // Define permissions for each role
 const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  [UserRole.STUDENT_ATHLETE]: [
+  [UserRole.STUDENT]: [
     'read:own_profile',
     'update:own_profile',
     'read:own_schedule',
@@ -40,11 +40,16 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'read:assigned_students',
     'create:absence_notification',
   ],
-  [UserRole.MENTOR]: [
+  [UserRole.STAFF]: [
     'read:mentee_profiles',
     'read:mentee_schedules',
     'create:mentoring_session',
     'read:mentee_compliance',
+  ],
+  [UserRole.COMPLIANCE]: [
+    'read:all_compliance',
+    'update:compliance_rules',
+    'read:all_profiles',
   ],
 }
 

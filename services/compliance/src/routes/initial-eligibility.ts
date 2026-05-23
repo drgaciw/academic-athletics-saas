@@ -8,6 +8,7 @@ import { getUser, checkPermission } from '@aah/auth'
 import {
   successResponse,
   validateRequest,
+  getValidated,
   ForbiddenError,
 } from '@aah/api-utils'
 import { z } from 'zod'
@@ -33,7 +34,7 @@ routes.post(
   async (c) => {
     const currentUser = getUser(c)
     const correlationId = c.get('correlationId')
-    const data = c.get('validated_json')
+    const data = getValidated<z.infer<typeof initialEligibilitySchema>>(c, 'json')
 
     try {
       checkPermission(c, 'compliance:validate')

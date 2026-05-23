@@ -9,9 +9,6 @@
 // Types
 export * from './types'
 
-// Scorers
-export * from './scorers'
-
 // Metrics
 export * from './metrics'
 

@@ -186,7 +186,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Passed</CardDescription>
             <CardTitle className="text-3xl text-green-600">
-              {report.metrics.passedTests}
+              {report.metrics.passed}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -195,7 +195,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Failed</CardDescription>
             <CardTitle className="text-3xl text-red-600">
-              {report.metrics.failedTests}
+              {report.metrics.failed}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -255,7 +255,7 @@ export default function EvalRunDetailsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.entries(report.metrics.categoryBreakdown).map(([categoryName, category]) => (
+              {Object.entries(report.metrics.breakdown).map(([categoryName, category]) => (
                 <TableRow key={categoryName}>
                   <TableCell className="font-medium">
                     {categoryName}
@@ -264,19 +264,19 @@ export default function EvalRunDetailsPage() {
                     {category.totalTests}
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.passedTests}
+                    {category.passed}
                   </TableCell>
                   <TableCell className="text-right">
-                    {(category.passRate * 100).toFixed(1)}%
+                    {(category.accuracy * 100).toFixed(1)}%
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.averageScore.toFixed(2)}
+                    {category.avgScore.toFixed(2)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {category.averageLatencyMs.toFixed(0)}ms
+                    {category.avgLatency.toFixed(0)}ms
                   </TableCell>
                   <TableCell className="text-right">
-                    N/A
+                    ${category.avgCost.toFixed(4)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -425,7 +425,7 @@ export default function EvalRunDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
-                  {format(new Date(selectedTest.metadata.timestamp), "MMM d, HH:mm:ss")}
+                  {format(new Date(selectedTest.metadata.timestamp), 'MMM d, HH:mm:ss')}
                 </p>
               </div>
             </div>

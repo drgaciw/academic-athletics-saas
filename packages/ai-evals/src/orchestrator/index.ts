@@ -33,7 +33,7 @@ import {
   WorkerConfig,
   Metrics,
   BaselineComparison,
-  ExportOptions,
+  ReportExportOptions,
 } from '../types';
 
 export interface EvalOrchestratorConfig {
@@ -232,7 +232,7 @@ export class EvalOrchestrator {
   /**
    * Export report in specified format
    */
-  exportReport(report: EvalReport, options: ExportOptions): string {
+  exportReport(report: EvalReport, options: ReportExportOptions): string {
     return this.reportGenerator.exportReport(report, options);
   }
 

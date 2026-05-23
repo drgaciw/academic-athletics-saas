@@ -7,7 +7,7 @@ import { WorkshopsSection } from '@/components/workshops-section';
 import { MentorCard } from '@/components/mentor-card';
 
 export default async function ResourcesPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');

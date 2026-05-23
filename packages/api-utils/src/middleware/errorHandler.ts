@@ -4,6 +4,7 @@
  */
 
 import type { Context, ErrorHandler } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { AppError, formatErrorResponse, getStatusCode } from '../utils/errors';
 import { Logger } from '../utils/logging';
 
@@ -42,7 +43,7 @@ export function createErrorHandler(logger?: Logger): ErrorHandler {
     const response = formatErrorResponse(error, requestId, path);
 
     // Return error response
-    return c.json(response, statusCode);
+    return c.json(response, statusCode as ContentfulStatusCode);
   };
 }
 

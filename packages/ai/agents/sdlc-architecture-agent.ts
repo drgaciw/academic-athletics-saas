@@ -17,7 +17,7 @@ import type {
   ToolExecutionContext,
   AgentType,
 } from "../types/agent.types";
-import type { CoreTool } from "ai";
+import type { Tool } from "ai";
 
 /**
  * Architecture Agent Configuration
@@ -71,7 +71,7 @@ export class ArchitectureAgent extends BaseAgent {
   /**
    * Get tools
    */
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     const context: ToolExecutionContext = {
       userId: "",
       userRoles: this.getUserRoles(),

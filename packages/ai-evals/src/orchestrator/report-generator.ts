@@ -11,7 +11,7 @@ import {
   RunResult,
   EvalMetrics,
   ExportFormat,
-  ExportOptions,
+  ReportExportOptions,
   EvalJob,
 } from '../types';
 
@@ -307,7 +307,7 @@ export class ReportGenerator {
   /**
    * Export report in specified format
    */
-  exportReport(report: EvalReport, options: ExportOptions): string {
+  exportReport(report: EvalReport, options: ReportExportOptions): string {
     switch (options.format) {
       case 'json':
         return this.exportJSON(report, options);
@@ -323,7 +323,7 @@ export class ReportGenerator {
   /**
    * Export as JSON
    */
-  private exportJSON(report: EvalReport, options: ExportOptions): string {
+  private exportJSON(report: EvalReport, options: ReportExportOptions): string {
     if (!options.includeDetails) {
       return JSON.stringify(
         {
@@ -344,7 +344,7 @@ export class ReportGenerator {
   /**
    * Export as CSV
    */
-  private exportCSV(report: EvalReport, options: ExportOptions): string {
+  private exportCSV(report: EvalReport, options: ReportExportOptions): string {
     let csv = 'Category,Total Tests,Passed,Accuracy,Avg Score,Avg Latency,Avg Cost\n';
 
     csv +=
@@ -407,7 +407,7 @@ export class ReportGenerator {
   /**
    * Export as HTML
    */
-  private exportHTML(report: EvalReport, options: ExportOptions): string {
+  private exportHTML(report: EvalReport, options: ReportExportOptions): string {
     let html = '<!DOCTYPE html>\n<html>\n<head>\n';
     html += '<title>Eval Report - ' + report.jobId + '</title>\n';
     html += '<style>\n';

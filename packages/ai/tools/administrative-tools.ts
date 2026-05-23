@@ -11,7 +11,7 @@ import { Resend } from 'resend'
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY)
-import { integrationService, userService, monitoringService } from '../lib/service-client'
+import { integrationService, userService, monitoringService, serviceClients } from '../lib/service-client'
 
 /**
  * Send Email
@@ -299,11 +299,14 @@ export const scheduleEvent = createTool({
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
+        const errorData = (await response.json()) as { error?: { message?: string } }
         throw new Error(errorData.error?.message || 'Failed to sync calendar event')
       }
 
-      const result = await response.json()
+      const result = (await response.json()) as {
+        eventId?: string
+        provider?: string
+      }
 
       return {
         eventId: result.eventId,

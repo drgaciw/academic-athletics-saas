@@ -19,7 +19,7 @@ export class AuthenticationError extends Error {
  * @throws {AuthenticationError} If authentication fails
  */
 export async function validateAuth(request: NextRequest): Promise<RequestContext> {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     throw new AuthenticationError('No authentication token provided');

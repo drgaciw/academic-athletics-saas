@@ -3,6 +3,8 @@
  * Shared utilities for all microservices
  */
 
+import './types/hono';
+
 // Export all types
 export * from './types/index';
 

@@ -43,7 +43,7 @@ routes.get('/violations/:studentId', async (c) => {
               isEligible: false,
             },
             orderBy: {
-              checkedAt: 'desc',
+              createdAt: 'desc',
             },
           },
         },
@@ -59,7 +59,7 @@ routes.get('/violations/:studentId', async (c) => {
     .filter(record => record.violations)
     .map(record => ({
       recordId: record.id,
-      checkedAt: record.checkedAt,
+      checkedAt: record.createdAt,
       violations: record.violations,
       ruleVersion: record.ruleVersion,
     }))

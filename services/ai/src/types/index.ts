@@ -331,7 +331,7 @@ export const ChatMessageSchema = z.object({
   userId: z.string(),
   model: z.enum(['gpt-4', 'gpt-4o-mini', 'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'gpt-5.1-codex-max']).optional(),
   stream: z.boolean().optional().default(true),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const AdvisingRequestSchema = z.object({
@@ -389,7 +389,7 @@ export const FeedbackSchema = z.object({
 
 export const AgentTaskSchema = z.object({
   type: z.enum(['advising', 'compliance', 'research', 'report', 'analysis']),
-  input: z.record(z.unknown()),
+  input: z.record(z.string(), z.unknown()),
   userId: z.string(),
   priority: z.enum(['low', 'normal', 'high']).optional().default('normal'),
 })

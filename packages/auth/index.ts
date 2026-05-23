@@ -1,3 +1,5 @@
+import './types/hono'
+
 /**
  * @aah/auth - Shared Authentication and Authorization Package
  *

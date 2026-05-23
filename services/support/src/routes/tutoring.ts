@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import { validateRequest, validateQuery } from '../middleware/validation'
 import { bookTutoringSchema, tutoringAvailabilitySchema } from '../types'
 import { tutoringService } from '../services/tutoringService'
@@ -8,7 +9,7 @@ const tutoring = new Hono()
 
 // POST /api/support/tutoring/book - Book a tutoring session
 tutoring.post('/book', validateRequest(bookTutoringSchema), async (c) => {
-  const validatedData = c.get('validatedData')
+  const validatedData = c.get('validatedData') as z.infer<typeof bookTutoringSchema>
 
   const session = await tutoringService.bookSession(validatedData)
 

@@ -1,4 +1,4 @@
-import type { RegulationSourceType } from '@prisma/client'
+import type { RegulationSourceType } from '@aah/database'
 
 export interface DefaultRegulationSourceDef {
   sourceType: RegulationSourceType
