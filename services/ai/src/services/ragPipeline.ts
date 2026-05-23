@@ -1,31 +1,14 @@
-import { ChatOpenAI } from '@langchain/openai'
-import { ChatAnthropic } from '@langchain/anthropic'
-import { PromptTemplate } from '@langchain/core/prompts'
-import { RunnableSequence } from '@langchain/core/runnables'
+import { generateText } from 'ai'
 import nlp from 'compromise'
 import { QueryIntent, RetrievedDocument, RAGContext, RAGResponse } from '../types'
 import { AI_CONFIG } from '../config'
 import { embeddingService } from './embeddingService'
 import { countTokens, truncateToTokenLimit } from '../utils/tokens'
 import { validateResponse } from '../utils/security'
+import { getLanguageModel } from '../utils/modelProvider'
 
 export class RAGPipeline {
-  private openai: ChatOpenAI
-  private anthropic: ChatAnthropic
-
-  constructor() {
-    this.openai = new ChatOpenAI({
-      modelName: AI_CONFIG.models.default,
-      openAIApiKey: AI_CONFIG.openai.apiKey,
-      temperature: 0.3,
-    })
-
-    this.anthropic = new ChatAnthropic({
-      modelName: AI_CONFIG.models.reasoning,
-      anthropicApiKey: AI_CONFIG.anthropic.apiKey,
-      temperature: 0.3,
-    })
-  }
+  constructor() {}
 
   // ============================================================================
   // STEP 1: QUERY UNDERSTANDING
@@ -162,24 +145,22 @@ export class RAGPipeline {
       return query
     }
 
-    const prompt = PromptTemplate.fromTemplate(
-      `Rewrite the following query to be more precise for semantic search.
+    const prompt = `Rewrite the following query to be more precise for semantic search.
 Remove conversational elements, expand abbreviations, and make it more keyword-focused.
-Query type: {intent}
+Query type: ${intent}
 
-Original query: {query}
+Original query: ${query}
 
 Rewritten query:`
-    )
 
     try {
-      const chain = RunnableSequence.from([prompt, this.openai])
-      const result = await chain.invoke({
-        query,
-        intent,
+      const { text } = await generateText({
+        model: getLanguageModel(AI_CONFIG.models.default),
+        prompt,
+        temperature: 0.3,
       })
 
-      return result.content.toString().trim()
+      return text.trim()
     } catch (error) {
       console.warn('Query rewriting failed, using original:', error)
       return query
@@ -335,12 +316,13 @@ Rewritten query:`
 
     // Select model
     const model = options.model || AI_CONFIG.models.default
-    const llm = model.startsWith('claude') ? this.anthropic : this.openai
 
     try {
-      // Generate response
-      const response = await llm.invoke(prompt)
-      const answer = response.content.toString()
+      const { text: answer } = await generateText({
+        model: getLanguageModel(model),
+        prompt,
+        temperature: 0.3,
+      })
 
       // Extract sources
       const sources = this.extractSources(answer, context.documents)

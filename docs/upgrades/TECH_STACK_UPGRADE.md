@@ -31,6 +31,17 @@ pnpm test         # some packages require env keys (OPENAI_API_KEY)
 pnpm lint
 ```
 
+## Deployment / cron smoke
+
+After deploy, confirm only the implemented cron remains in `vercel.json`:
+
+```bash
+curl -i -H "Authorization: Bearer $CRON_SECRET" \
+  "https://<main-host>/api/cron/regulation-check"
+```
+
+Operational guide: `docs/guides/REGULATION_WATCH.md`
+
 ## Notable breaking changes
 
 ### Clerk 7

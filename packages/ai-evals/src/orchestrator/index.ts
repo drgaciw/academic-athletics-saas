@@ -95,6 +95,7 @@ export class EvalOrchestrator {
               id: testCase.id + '-' + runnerConfig.modelId,
               testCase,
               runnerConfig,
+              datasetId: dataset.id,
             });
           }
         }
@@ -283,7 +284,7 @@ export class EvalOrchestrator {
       if (!execResult.result) continue;
 
       const modelId = execResult.task.runnerConfig.modelId;
-      const datasetId = 'default';
+      const datasetId = execResult.task.datasetId ?? 'default';
 
       const runKey = datasetId + '-' + modelId;
 

@@ -1,18 +1,11 @@
-import { ChatOpenAI } from '@langchain/openai'
+import { generateText } from 'ai'
 import { prisma } from '@aah/database'
 import { RiskPrediction } from '../types'
 import { AI_CONFIG } from '../config'
+import { getLanguageModel } from '../utils/modelProvider'
 
 export class PredictiveAnalyticsService {
-  private llm: ChatOpenAI
-
-  constructor() {
-    this.llm = new ChatOpenAI({
-      modelName: AI_CONFIG.models.advanced,
-      temperature: 0.3,
-      openAIApiKey: AI_CONFIG.openai.apiKey,
-    })
-  }
+  constructor() {}
 
   /**
    * Predict student risk based on comprehensive data
@@ -258,10 +251,12 @@ export class PredictiveAnalyticsService {
       .replace('{supportData}', JSON.stringify({ alerts: studentData.activeAlerts.length }))
 
     try {
-      const result = await this.llm.invoke(prompt)
-      const response = result.content.toString()
+      const { text: response } = await generateText({
+        model: getLanguageModel(AI_CONFIG.models.advanced),
+        prompt,
+        temperature: 0.3,
+      })
 
-      // Parse recommendations from response
       return this.parseRecommendations(response, factors)
     } catch (error) {
       console.error('Error generating recommendations:', error)

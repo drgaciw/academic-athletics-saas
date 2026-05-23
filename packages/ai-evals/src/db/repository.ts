@@ -785,6 +785,77 @@ export class EvalRepository {
 
     return result;
   }
+
+  /**
+   * Persist a full orchestrator report to the database.
+   */
+  async persistEvalReport(
+    report: import('../types').EvalReport,
+    datasets: Array<{ id: string; version: string; name: string }>,
+    config: { scorer: CreateEvalRunInput['scorerConfig'] }
+  ): Promise<string[]> {
+    const runIds: string[] = [];
+
+    for (const runSummary of report.runSummaries) {
+      const dataset =
+        datasets.find((entry) => entry.id === runSummary.datasetId) ?? datasets[0];
+
+      if (!dataset) {
+        continue;
+      }
+
+      const run = await this.createRun({
+        datasetId: runSummary.datasetId,
+        datasetVersion: dataset.version,
+        datasetName: dataset.name,
+        modelId: runSummary.config.modelId,
+        modelConfig: runSummary.config,
+        runnerType: inferRunnerType(runSummary.datasetId),
+        scorerConfig: config.scorer,
+        startTime: runSummary.startTime,
+      });
+
+      await this.createResultsBatch(
+        runSummary.results.map((result) => {
+          const scored = report.scoringResults.find(
+            (entry) => entry.testCaseId === result.testCaseId
+          );
+
+          return {
+            runId: run.id,
+            testCaseId: result.testCaseId!,
+            input: result.input,
+            expected: result.expected,
+            actual: result.actual,
+            passed: scored?.score.passed ?? false,
+            score: scored?.score.score ?? scored?.score.value ?? 0,
+            explanation: scored?.score.explanation,
+            latencyMs: result.metadata?.latency ?? 0,
+            tokenUsage: {
+              prompt: result.metadata?.tokenUsage.prompt ?? 0,
+              completion: result.metadata?.tokenUsage.completion ?? 0,
+              total: result.metadata?.tokenUsage.total ?? 0,
+            },
+            cost: result.metadata?.cost ?? 0,
+          };
+        })
+      );
+
+      await this.calculateAndSaveMetrics(run.id);
+      await this.completeRun(run.id, runSummary.endTime ?? new Date());
+      runIds.push(run.id);
+    }
+
+    return runIds;
+  }
+}
+
+function inferRunnerType(datasetId: string): CreateEvalRunInput['runnerType'] {
+  if (datasetId.startsWith('compliance')) return 'COMPLIANCE';
+  if (datasetId.startsWith('advising')) return 'ADVISING';
+  if (datasetId.startsWith('risk')) return 'RISK_PREDICTION';
+  if (datasetId.startsWith('rag')) return 'RAG';
+  return 'CONVERSATIONAL';
 }
 
 /**
