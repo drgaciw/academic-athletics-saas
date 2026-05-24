@@ -7,11 +7,22 @@ export const runtime = 'edge'
 const BLOCKED_ELIGIBILITY_PHRASES: RegExp[] = [
   /\byou are eligible\b/gi,
   /\byou'?re eligible\b/gi,
+  /\byou are not eligible\b/gi,
+  /\byou aren'?t eligible\b/gi,
   /\byou are ineligible\b/gi,
   /\byou'?re ineligible\b/gi,
+  /\beligible to compete\b/gi,
+  /\bineligible to compete\b/gi,
+  /\bnot cleared to compete\b/gi,
   /\bcleared to compete\b/gi,
   /\byou are cleared\b/gi,
+  /\byou are not cleared\b/gi,
+  /\byou aren'?t cleared\b/gi,
+  /\bnot cleared for competition\b/gi,
   /\bcleared for competition\b/gi,
+  /\byou can compete\b/gi,
+  /\byou can'?t compete\b/gi,
+  /\byou cannot compete\b/gi,
 ]
 
 const STUDENT_ELIGIBILITY_REPLACEMENT =

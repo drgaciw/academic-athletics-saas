@@ -54,4 +54,17 @@ describe('eligibilityResponseGuard', () => {
     expect(text.toLowerCase()).not.toMatch(/\byou are eligible\b/)
     expect(text).toContain('preliminary decision support')
   })
+
+  it('STUDENT: strips definitive ineligibility and competition clearance phrases', () => {
+    const raw = 'You are not eligible to compete this term. You cannot compete until reviewed.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/\byou are not eligible\b/)
+    expect(text.toLowerCase()).not.toMatch(/\byou cannot compete\b/)
+    expect(text).toContain('preliminary decision support')
+  })
 })
