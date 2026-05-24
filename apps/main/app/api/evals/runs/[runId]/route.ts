@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { EvalReport } from "@aah/ai-evals";
+import type { EvalRunDetailsReport } from "@/lib/types/evals";
 
 // Mock data - replace with actual database queries
 export async function GET(
@@ -10,40 +10,14 @@ export async function GET(
     const { runId } = params;
 
     // TODO: Replace with actual database query
-    const mockReport: EvalReport = {
+    const mockReport: EvalRunDetailsReport = {
       id: runId,
-      dataset: {
-        id: "dataset-1",
-        name: "NCAA Compliance Test Suite",
-        description: "Comprehensive test cases for NCAA eligibility rules",
-        version: "1.0.0",
-        testCases: [],
-      },
-      modelConfig: {
-        provider: "openai",
-        model: "gpt-4",
-        temperature: 0.7,
-        maxTokens: 1000,
-      },
-      scorerConfig: {
-        type: "llm-judge",
-        threshold: 0.8,
-      },
-      results: [],
       metrics: {
         totalTests: 50,
         passedTests: 47,
         failedTests: 3,
         passRate: 0.94,
-        averageScore: 0.94,
-        medianScore: 0.94,
-        minScore: 0.85,
-        maxScore: 1.0,
-        standardDeviation: 0.08,
-        confidenceInterval: {
-          lower: 0.92,
-          upper: 0.96,
-        },
+        totalCost: 0.45,
         categoryBreakdown: {
           "Initial Eligibility": {
             totalTests: 20,
@@ -70,17 +44,7 @@ export async function GET(
             averageLatencyMs: 1250,
           },
         },
-        totalLatencyMs: 60000,
-        averageLatencyMs: 1200,
-        totalTokens: {
-          input: 25000,
-          output: 15000,
-          total: 40000,
-        },
-        totalCost: 0.45,
       },
-      timestamp: new Date().toISOString(),
-      duration: 60000,
     };
 
     // Mock test results
