@@ -42,4 +42,16 @@ describe('eligibilityResponseGuard', () => {
     expect(text.toLowerCase()).not.toMatch(/\byou'?re eligible\b/)
     expect(text).toContain('compliance office')
   })
+
+  it('STUDENT: strips every repeated definitive eligibility phrase', () => {
+    const raw = 'You are eligible for practice. You are eligible for competition.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/\byou are eligible\b/)
+    expect(text).toContain('preliminary decision support')
+  })
 })

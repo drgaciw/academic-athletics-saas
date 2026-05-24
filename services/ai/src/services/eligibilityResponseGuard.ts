@@ -1,11 +1,11 @@
 const BLOCKED_PHRASE_PATTERNS: RegExp[] = [
-  /\byou are eligible\b/i,
-  /\byou'?re eligible\b/i,
-  /\byou are ineligible\b/i,
-  /\byou'?re ineligible\b/i,
-  /\bcleared to compete\b/i,
-  /\byou are cleared\b/i,
-  /\bcleared for competition\b/i,
+  /\byou are eligible\b/gi,
+  /\byou'?re eligible\b/gi,
+  /\byou are ineligible\b/gi,
+  /\byou'?re ineligible\b/gi,
+  /\bcleared to compete\b/gi,
+  /\byou are cleared\b/gi,
+  /\bcleared for competition\b/gi,
 ]
 
 const STANDARD_DISCLAIMER =
@@ -36,8 +36,9 @@ export function eligibilityResponseGuard(
   let out = text
   let wasModified = false
   for (const re of BLOCKED_PHRASE_PATTERNS) {
-    if (re.test(out)) {
-      out = out.replace(re, replacement)
+    const replaced = out.replace(re, replacement)
+    if (replaced !== out) {
+      out = replaced
       wasModified = true
     }
   }
