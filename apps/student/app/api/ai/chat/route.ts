@@ -1,13 +1,55 @@
-import { streamText, tool } from 'ai'
+import { generateText, tool } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 
 export const runtime = 'edge'
 
+const BLOCKED_ELIGIBILITY_PHRASES: RegExp[] = [
+  /\byou are eligible\b/gi,
+  /\byou'?re eligible\b/gi,
+  /\byou are ineligible\b/gi,
+  /\byou'?re ineligible\b/gi,
+  /\bcleared to compete\b/gi,
+  /\byou are cleared\b/gi,
+  /\bcleared for competition\b/gi,
+]
+
+const STUDENT_ELIGIBILITY_REPLACEMENT =
+  'I cannot provide a final competition eligibility determination. Your athletics compliance office must confirm official status.'
+
+const STUDENT_ELIGIBILITY_DISCLAIMER =
+  '\n\n---\nThis is preliminary decision support only. Institutional compliance staff make official eligibility determinations. Contact your athletics compliance office for an authoritative answer.'
+
+function guardStudentEligibilityResponse(text: string): string {
+  let out = text
+  let wasModified = false
+
+  for (const re of BLOCKED_ELIGIBILITY_PHRASES) {
+    const replaced = out.replace(re, STUDENT_ELIGIBILITY_REPLACEMENT)
+    if (replaced !== out) {
+      out = replaced
+      wasModified = true
+    }
+  }
+
+  const lower = out.toLowerCase()
+  const mentionsEligibility =
+    lower.includes('eligib') ||
+    lower.includes('ncaa') ||
+    (lower.includes('compliance') && lower.includes('elig')) ||
+    lower.includes('progress toward')
+
+  if ((wasModified || mentionsEligibility) && !lower.includes('preliminary decision support')) {
+    out = out.trimEnd() + STUDENT_ELIGIBILITY_DISCLAIMER
+  }
+
+  return out
+}
+
 export async function POST(req: Request) {
   const { messages } = await req.json()
 
-  const result = streamText({
+  const result = await generateText({
     model: openai('gpt-5.1-codex-max') as any,
     messages,
     tools: {
@@ -47,13 +89,15 @@ export async function POST(req: Request) {
         }),
         // @ts-ignore - AI SDK tool execute type compatibility
         execute: async ({ studentId }: { studentId?: string }): Promise<any> => {
-          // Mock implementation - replace with actual API call
+          // Student-facing chat must never present this mock as an official eligibility decision.
           return {
-            status: 'eligible',
+            status: 'requires_compliance_confirmation',
             gpa: 3.45,
             creditsEarned: 64,
             creditsRequired: 120,
             nextCheckDate: '2025-08-15',
+            officialDetermination:
+              'Institutional compliance staff must confirm official competition eligibility.',
             requirements: [
               { name: 'Minimum GPA', met: true, value: '3.45 / 2.0' },
               { name: 'Credit Hours', met: true, value: '64 / 60' },
@@ -101,8 +145,14 @@ You can help with:
 - Study resources and tutoring
 - Academic policies and procedures
 
+For NCAA eligibility questions, provide only preliminary guidance. Never tell a student they are eligible, ineligible, cleared, or not cleared for competition. Official eligibility determinations must come from institutional compliance staff.
+
 Be helpful, accurate, and supportive. Always cite sources when providing information about NCAA rules or academic policies.`,
   })
 
-  return result.toTextStreamResponse()
+  return new Response(guardStudentEligibilityResponse(result.text), {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
 }
