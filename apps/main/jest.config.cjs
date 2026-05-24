@@ -13,6 +13,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^@aah/(.*)$': '<rootDir>/../../packages/$1',
+    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
   },
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',

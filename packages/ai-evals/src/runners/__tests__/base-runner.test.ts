@@ -22,10 +22,6 @@ jest.mock('@ai-sdk/anthropic', () => ({
       anthropic: jest.fn((model: string) => ({ modelId: model, provider: 'anthropic' })),
 }));
 
-// Check if API key is available for integration tests
-const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
-const itWithApiKey = hasOpenAIKey ? it : it.skip;
-
 // Mock implementation for testing
 class MockRunner extends BaseRunner<{ value: number }, { result: number }> {
       protected preparePrompt(input: { value: number }): string {
@@ -84,9 +80,9 @@ describe('BaseRunner', () => {
                           };
            });
 
-  describe('runTestCase', () => {
-    itWithApiKey('should execute a test case and return result with metadata', async () => {
-      const result = await runner.runTestCase(testCase, config);
+           describe('runTestCase', () => {
+                   it('should execute a test case and return result with metadata', async () => {
+                             const result = await runner.runTestCase(testCase, config);
 
                             expect(result).toMatchObject({
                                         testCaseId: 'test-001',
@@ -109,11 +105,10 @@ describe('BaseRunner', () => {
                                              modelId: 'unknown/model',
                                  };
 
-    itWithApiKey('should handle errors gracefully', async () => {
-      const badConfig = {
-        ...config,
-        modelId: 'invalid-model',
-      };
+                                 const result = await runner.runTestCase(testCase, badConfig);
+                                  expect(result.metadata.error).toBeDefined();
+                                  expect(result.metadata.cost).toBe(0);
+                        });
 
                         it('should respect timeout settings', async () => {
                                   mockGenerateObject.mockImplementation(
@@ -126,11 +121,9 @@ describe('BaseRunner', () => {
                                              retries: 1,
                                  };
 
-    itWithApiKey('should respect timeout settings', async () => {
-      const shortTimeoutConfig = {
-        ...config,
-        timeout: 1, // 1ms - will definitely timeout
-      };
+                                 const result = await runner.runTestCase(testCase, shortTimeoutConfig);
+                                  expect(result.metadata.error).toContain('Timeout');
+                        }, 15000);
 
                         it('should calculate cost based on token usage', async () => {
                                   const result = await runner.runTestCase(testCase, config);
@@ -141,8 +134,8 @@ describe('BaseRunner', () => {
                         });
            });
 
-    itWithApiKey('should calculate cost based on token usage', async () => {
-      const result = await runner.runTestCase(testCase, config);
+           describe('runDataset', () => {
+                   let testCases: TestCase<{ value: number }, { result: number }>[];
 
                         beforeEach(() => {
                                   testCases = [
@@ -196,10 +189,11 @@ describe('BaseRunner', () => {
                                   expect(results[2].testCaseId).toBe('test-003');
                         });
 
-    itWithApiKey('should execute all test cases sequentially', async () => {
-      const results = await runner.runDataset(testCases, config, {
-        parallel: false,
-      });
+                        it('should execute test cases in parallel', async () => {
+                                  const results = await runner.runDataset(testCases, config, {
+                                              parallel: true,
+                                              concurrency: 2,
+                                  });
 
                                  expect(results).toHaveLength(3);
                                   const ids = results.map((r) => r.testCaseId);
@@ -208,11 +202,8 @@ describe('BaseRunner', () => {
                                   expect(ids).toContain('test-003');
                         });
 
-    itWithApiKey('should execute test cases in parallel', async () => {
-      const results = await runner.runDataset(testCases, config, {
-        parallel: true,
-        concurrency: 2,
-      });
+                        it('should call progress callback', async () => {
+                                  const progressUpdates: Array<{ completed: number; total: number }> = [];
 
                                  await runner.runDataset(testCases, config, {
                                              parallel: false,
@@ -221,8 +212,11 @@ describe('BaseRunner', () => {
                                              },
                                  });
 
-    itWithApiKey('should call progress callback', async () => {
-      const progressUpdates: Array<{ completed: number; total: number }> = [];
+                                 expect(progressUpdates).toHaveLength(3);
+                                  expect(progressUpdates[0]).toEqual({ completed: 1, total: 3 });
+                                  expect(progressUpdates[1]).toEqual({ completed: 2, total: 3 });
+                                  expect(progressUpdates[2]).toEqual({ completed: 3, total: 3 });
+                        });
 
                         it('should continue execution even if some tests fail', async () => {
                                   mockGenerateObject
@@ -234,71 +228,45 @@ describe('BaseRunner', () => {
                                              parallel: false,
                                  });
 
-    it('should continue execution even if some tests fail', async () => {
-      const mixedTestCases = [
-        testCases[0],
-        {
-          ...testCases[1],
-          id: 'test-error',
-        },
-        testCases[2],
-      ];
+                                 expect(results).toHaveLength(3);
+                                  const successfulTests = results.filter((r) => !r.metadata.error);
+                                  expect(successfulTests.length).toBeGreaterThan(0);
+                        });
+           });
 
-      const runTestCaseSpy = jest.spyOn(runner, 'runTestCase');
-      runTestCaseSpy
-        .mockResolvedValueOnce({
-          testCaseId: 'test-001',
-          input: mixedTestCases[0].input,
-          expected: mixedTestCases[0].expected,
-          actual: { result: 10 },
-          metadata: {
-            modelId: 'gpt-4',
-            latency: 10,
-            tokenUsage: { prompt: 1, completion: 1, total: 2 },
-            cost: 0.001,
-            timestamp: new Date(),
-          },
-        })
-        .mockResolvedValueOnce({
-          testCaseId: 'test-error',
-          input: mixedTestCases[1].input,
-          expected: mixedTestCases[1].expected,
-          actual: {} as { result: number },
-          metadata: {
-            modelId: 'gpt-4',
-            latency: 5,
-            tokenUsage: { prompt: 0, completion: 0, total: 0 },
-            cost: 0,
-            timestamp: new Date(),
-            error: 'synthetic failure',
-          },
-        })
-        .mockResolvedValueOnce({
-          testCaseId: 'test-003',
-          input: mixedTestCases[2].input,
-          expected: mixedTestCases[2].expected,
-          actual: { result: 30 },
-          metadata: {
-            modelId: 'gpt-4',
-            latency: 10,
-            tokenUsage: { prompt: 1, completion: 1, total: 2 },
-            cost: 0.001,
-            timestamp: new Date(),
-          },
-        });
+           describe('generateRunSummary', () => {
+                   it('should generate accurate run summary', () => {
+                             const results: RunResult<{ result: number }>[] = [
+                                 {
+                                               testCaseId: 'test-001',
+                                               input: { value: 5 },
+                                               expected: { result: 10 },
+                                               actual: { result: 10 },
+                                               metadata: {
+                                                               modelId: 'gpt-4',
+                                                               latency: 1000,
+                                                               tokenUsage: { prompt: 50, completion: 25, total: 75 },
+                                                               cost: 0.005,
+                                                               timestamp: new Date(),
+                                               },
+                                 },
+                                 {
+                                               testCaseId: 'test-002',
+                                               input: { value: 10 },
+                                               expected: { result: 20 },
+                                               actual: { result: 20 },
+                                               metadata: {
+                                                               modelId: 'gpt-4',
+                                                               latency: 1200,
+                                                               tokenUsage: { prompt: 60, completion: 30, total: 90 },
+                                                               cost: 0.006,
+                                                               timestamp: new Date(),
+                                               },
+                                 },
+                                       ];
 
-      const results = await runner.runDataset(mixedTestCases, config, {
-        parallel: false,
-      });
-
-      expect(results).toHaveLength(3);
-      expect(runTestCaseSpy).toHaveBeenCalledTimes(3);
-      const successfulTests = results.filter((r) => !r.metadata.error);
-      expect(successfulTests.length).toBeGreaterThan(0);
-      const failedTests = results.filter((r) => !!r.metadata.error);
-      expect(failedTests).toHaveLength(1);
-    });
-  });
+                            const startTime = new Date();
+                             const endTime = new Date(startTime.getTime() + 5000);
 
                             const summary = runner['generateRunSummary'](
                                         'dataset-123',

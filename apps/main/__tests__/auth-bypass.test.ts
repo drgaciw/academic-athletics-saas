@@ -8,15 +8,12 @@ jest.mock('next/font/google', () => ({
 }));
 
 jest.mock('@clerk/nextjs', () => ({
-  ClerkProvider: ({ children }: { children: any }) => children,
+  ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
   SignedIn: () => null,
   SignedOut: () => null,
   SignInButton: () => null,
   UserButton: () => null,
 }));
-
-// Mock CSS import
-jest.mock('../app/globals.css', () => ({}));
 
 describe('Authentication Bypass (Seeding)', () => {
   const originalEnv = process.env;
