@@ -186,7 +186,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Passed</CardDescription>
             <CardTitle className="text-3xl text-green-600">
-              {report.metrics.passed}
+              {report.metrics.passedTests}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -195,7 +195,7 @@ export default function EvalRunDetailsPage() {
           <CardHeader>
             <CardDescription>Failed</CardDescription>
             <CardTitle className="text-3xl text-red-600">
-              {report.metrics.failed}
+              {report.metrics.failedTests}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -255,31 +255,25 @@ export default function EvalRunDetailsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.entries(report.metrics.breakdown).map(([categoryName, category]) => (
-                <TableRow key={categoryName}>
-                  <TableCell className="font-medium">
-                    {categoryName}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.totalTests}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.passed}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {(category.accuracy * 100).toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.avgScore.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.avgLatency.toFixed(0)}ms
-                  </TableCell>
-                  <TableCell className="text-right">
-                    ${category.avgCost.toFixed(4)}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {Object.entries(report.metrics.categoryBreakdown).map(
+                ([categoryName, category]) => (
+                  <TableRow key={categoryName}>
+                    <TableCell className="font-medium">{categoryName}</TableCell>
+                    <TableCell className="text-right">{category.totalTests}</TableCell>
+                    <TableCell className="text-right">{category.passedTests}</TableCell>
+                    <TableCell className="text-right">
+                      {(category.passRate * 100).toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {category.averageScore.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {category.averageLatencyMs.toFixed(0)}ms
+                    </TableCell>
+                    <TableCell className="text-right">—</TableCell>
+                  </TableRow>
+                ),
+              )}
             </TableBody>
           </Table>
         </CardContent>
