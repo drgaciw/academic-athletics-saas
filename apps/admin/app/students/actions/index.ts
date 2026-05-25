@@ -1,7 +1,7 @@
 'use server'
 
 import { auth as clerkAuth } from '@clerk/nextjs/server'
-import { prisma } from '@aah/database'
+import { prisma, Prisma } from '@aah/database'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -34,7 +34,7 @@ export async function getStudents(filters?: {
     throw new Error('Unauthorized')
   }
 
-  const where: any = {
+  const where: Prisma.UserWhereInput = {
     role: 'STUDENT',
   }
 

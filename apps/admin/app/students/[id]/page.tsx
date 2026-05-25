@@ -1,4 +1,5 @@
 import { auth as clerkAuth } from '@clerk/nextjs/server';
+import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { getStudent, deleteStudent } from '../actions';
@@ -37,13 +38,13 @@ export default async function StudentDetailPage({ params }: Props) {
             <p className="text-gray-600 mt-1">{student.email}</p>
           </div>
           <div className="flex gap-2">
-            <a href={`/students/${student.id}/edit`}>
+            <Link href={`/students/${student.id}/edit`}>
               <Button variant="outline">Edit Profile</Button>
-            </a>
+            </Link>
             <DeleteStudentButton studentId={student.id} />
-            <a href="/students">
+            <Link href="/students">
               <Button variant="outline">Back to List</Button>
-            </a>
+            </Link>
           </div>
         </div>
 
