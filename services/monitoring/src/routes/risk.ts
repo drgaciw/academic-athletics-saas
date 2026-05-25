@@ -35,7 +35,12 @@ app.post('/', async (c) => {
       throw new Error(`AI Service returned status ${response.status}`)
     }
 
-    const aiResult = await response.json()
+    const aiResult = (await response.json()) as {
+      riskScore?: number
+      confidence?: number
+      factors?: RiskAssessmentResponse['factors']
+      recommendations?: string[]
+    }
 
     // Transform AI Service response to our format
     const riskAssessment: RiskAssessmentResponse = {
@@ -63,7 +68,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -133,7 +138,12 @@ app.post('/batch', async (c) => {
             }
           }
 
-          const aiResult = await response.json()
+          const aiResult = (await response.json()) as {
+            riskScore?: number
+            confidence?: number
+            factors?: RiskAssessmentResponse['factors']
+            recommendations?: string[]
+          }
 
           return {
             studentId,
@@ -178,7 +188,7 @@ app.post('/batch', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },

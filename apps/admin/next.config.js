@@ -3,9 +3,7 @@ const nextConfig = {
   basePath: "/admin",
   reactStrictMode: true,
   transpilePackages: ["@aah/ui", "@aah/database", "@aah/auth"],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  serverExternalPackages: ["pg", "@prisma/adapter-pg"],
   async rewrites() {
     return {
       beforeFiles: [

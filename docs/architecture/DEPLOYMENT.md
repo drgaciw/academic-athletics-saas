@@ -13,7 +13,7 @@ The AAH platform uses Vercel's multi-zone architecture to deploy multiple micros
 Ensure all required environment variables are configured in Vercel:
 
 #### Database
-- `DATABASE_URL` - Vercel Postgres connection string
+- `DATABASE_URL` - PostgreSQL connection string (Marketplace Postgres / Neon, etc.)
 - `DATABASE_POOL_MIN` - Minimum connection pool size (default: 2)
 - `DATABASE_POOL_MAX` - Maximum connection pool size (default: 10)
 
@@ -79,13 +79,25 @@ vercel link
 
 ### Step 2: Configure Project Settings
 
-In the Vercel dashboard:
+In the Vercel dashboard (or root `vercel.json` for `@aah/main`):
 
-1. **Framework Preset**: Other
-2. **Build Command**: `turbo run build`
-3. **Output Directory**: Leave empty (multi-zone)
+1. **Framework Preset**: Next.js
+2. **Build Command**: `pnpm turbo run build --filter=@aah/main`
+3. **Output Directory**: `apps/main/.next`
 4. **Install Command**: `pnpm install`
 5. **Development Command**: `turbo run dev --parallel`
+
+### Scheduled jobs (crons)
+
+Only one production cron is implemented today:
+
+| Path | Schedule | Secret |
+| --- | --- | --- |
+| `/api/cron/regulation-check` | `30 */6 * * *` | `Authorization: Bearer $CRON_SECRET` (or `$REGULATION_CRON_SECRET`) |
+
+The route is public in Clerk middleware and proxies to the compliance service internal cron. See `docs/guides/REGULATION_WATCH.md` for operational details.
+
+Do not declare `/api/cron/compliance-check`, `/api/cron/risk-assessment`, or `/api/cron/sync-lms` until BFF handlers exist — they previously returned 401/404 in production.
 
 ### Step 3: Set Environment Variables
 

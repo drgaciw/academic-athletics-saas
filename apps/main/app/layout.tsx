@@ -1,14 +1,8 @@
 import { type Metadata } from 'next'
 import Link from 'next/link'
 import { Inter, Lexend } from 'next/font/google'
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from '@clerk/nextjs'
-import { Button } from '@aah/ui'
+import { ClerkProvider } from '@clerk/nextjs'
+import { AuthHeader } from '../components/auth-header'
 
 import './globals.css'
 
@@ -114,16 +108,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               Athletic Academics Hub
             </Link>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <SignedIn>
-                <UserButton showName afterSignOutUrl="/" />
-              </SignedIn>
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button variant="outline" size="sm">
-                    Sign in
-                  </Button>
-                </SignInButton>
-              </SignedOut>
+              <AuthHeader />
             </div>
           </header>
           <main id="main-content" className="flex-1">

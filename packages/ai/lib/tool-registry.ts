@@ -92,8 +92,8 @@ export class ToolRegistry {
       // Create AI SDK tool with enhanced description
       result[name] = tool({
         description: this.enhanceToolDescription(toolDef),
-        parameters: toolDef.parameters,
-        execute: async (params) => {
+        inputSchema: toolDef.parameters,
+        execute: async (params: z.infer<typeof toolDef.parameters>) => {
           try {
             // Validate parameters
             const validated = toolDef.parameters.parse(params)

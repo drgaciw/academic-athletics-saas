@@ -20,7 +20,7 @@ export const ComplianceInputSchema = z.object({
   creditHours: z.number().int().min(0),
   progressTowardDegree: z.number().min(0).max(1),
   semester: z.string(),
-  additionalContext: z.record(z.any()).optional(),
+  additionalContext: z.record(z.string(), z.any()).optional(),
 });
 
 /**
@@ -30,7 +30,7 @@ export const ComplianceOutputSchema = z.object({
   eligible: z.boolean(),
   issues: z.array(z.string()),
   recommendations: z.array(z.string()),
-  details: z.record(z.any()).optional(),
+  details: z.record(z.string(), z.any()).optional(),
 });
 
 // ============================================================================
@@ -154,7 +154,7 @@ export const RiskPredictionOutputSchema = z.object({
  */
 export const RAGInputSchema = z.object({
   query: z.string(),
-  context: z.record(z.any()).optional(),
+  context: z.record(z.string(), z.any()).optional(),
   maxDocuments: z.number().int().positive().optional(),
 });
 
@@ -211,7 +211,7 @@ export const DatasetSchema = z.object({
   testCases: z.array(TestCaseSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 // ============================================================================

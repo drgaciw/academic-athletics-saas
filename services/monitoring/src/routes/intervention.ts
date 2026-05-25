@@ -72,7 +72,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -217,7 +217,7 @@ app.put('/:planId', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -271,7 +271,7 @@ app.put('/:planId/complete', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -319,7 +319,7 @@ app.put('/:planId/cancel', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -420,7 +420,7 @@ app.put('/:planId/goal/:goalId', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },

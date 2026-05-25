@@ -25,7 +25,6 @@ feedbackRouter.post('/', zValidator('json', FeedbackSchema), async (c) => {
         rating: feedback.rating,
         feedbackType: feedback.feedbackType,
         comment: feedback.comment,
-        expectedResponse: feedback.expectedResponse,
       },
     })
 

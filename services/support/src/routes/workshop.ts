@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import { validateRequest } from '../middleware/validation'
 import { workshopRegistrationSchema } from '../types'
 import { workshopService } from '../services/workshopService'
@@ -8,7 +9,7 @@ const workshop = new Hono()
 
 // POST /api/support/workshop/register - Register for a workshop
 workshop.post('/register', validateRequest(workshopRegistrationSchema), async (c) => {
-  const validatedData = c.get('validatedData')
+  const validatedData = c.get('validatedData') as z.infer<typeof workshopRegistrationSchema>
 
   const registration = await workshopService.registerForWorkshop(validatedData)
 

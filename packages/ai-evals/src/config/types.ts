@@ -117,7 +117,7 @@ export const EvalConfigSchema = z.object({
   }).optional(),
 
   // Additional metadata
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });
 
 export type EvalConfig = z.infer<typeof EvalConfigSchema>;

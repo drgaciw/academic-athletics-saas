@@ -71,7 +71,7 @@ export interface LoadOptions {
   version?: string;
 }
 
-export interface ExportOptions {
+export interface DatasetExportOptions {
   format: 'json' | 'csv' | 'yaml';
   includeMetadata?: boolean;
   pretty?: boolean;
@@ -102,16 +102,37 @@ export interface TokenUsage {
   total: number;
 }
 
-export interface RunResult<TOutput = any> {
+export interface RunResultScore<TOutput = any> {
   testCaseId: string;
-  input: any;
+  value: number;
+  passed: boolean;
+  actual: unknown;
   expected: TOutput;
-  actual: TOutput;
-  metadata: {
+  latencyMs: number;
+  cost?: number;
+  tokens?: number | { input: number; output: number; total: number };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+export interface RunResult<TOutput = any> {
+  testCase: TestCase<TOutput>;
+  score: RunResultScore<TOutput>;
+  modelConfig?: RunnerConfig;
+  scorerConfig?: ScorerConfig;
+  timestamp?: string;
+  /** Legacy flat fields retained for repository/export helpers */
+  testCaseId?: string;
+  input?: unknown;
+  expected?: TOutput;
+  actual?: TOutput;
+  metadata?: {
     modelId: string;
-    latency: number; // milliseconds
+    latency: number;
     tokenUsage: TokenUsage;
-    cost: number; // USD
+    cost: number;
     timestamp: Date;
     error?: string;
   };
@@ -135,6 +156,8 @@ export interface ScorerConfig {
   threshold?: number;
   judgeModelId?: string; // For LLM-as-judge
   customScorer?: (expected: any, actual: any) => Promise<Score>;
+  params?: Record<string, unknown>;
+  type?: string;
 }
 
 export interface ScoreBreakdown {
@@ -147,10 +170,21 @@ export interface ScoreBreakdown {
 
 export interface Score {
   passed: boolean;
-  score: number; // 0.0 to 1.0
+  score?: number; // 0.0 to 1.0
+  value?: number;
   confidence?: number;
   explanation?: string;
   breakdown?: ScoreBreakdown;
+  testCaseId?: string;
+  actual?: unknown;
+  expected?: unknown;
+  latencyMs?: number;
+  tokens?: number | { input: number; output: number; total: number };
+  cost?: number;
+  error?: {
+    code: string;
+    message: string;
+  };
 }
 
 export interface ScoringResult {
@@ -438,6 +472,13 @@ export interface EvalMetrics {
   totalCost: number; // USD
   byCategory?: Record<string, CategoryMetrics>;
   byDifficulty?: Record<string, DifficultyMetrics>;
+  /** Legacy aliases used by model-comparison and reporting */
+  averageScore?: number;
+  medianScore?: number;
+  averageLatencyMs?: number;
+  passedTests?: number;
+  failedTests?: number;
+  totalTokens?: { input: number; output: number; total: number };
 }
 
 export interface Metrics {
@@ -505,7 +546,7 @@ export interface Recommendation {
 // Export Types (Task 5.4)
 export type ExportFormat = 'json' | 'csv' | 'html';
 
-export interface ExportOptions {
+export interface ReportExportOptions {
   format: ExportFormat;
   includeDetails?: boolean;
   includeScoringBreakdown?: boolean;
@@ -766,5 +807,5 @@ export const DatasetAuditLogSchema = z.object({
   ipAddress: z.string(),
   success: z.boolean(),
   errorMessage: z.string().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 });

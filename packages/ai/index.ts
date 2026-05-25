@@ -36,6 +36,9 @@ export * from './lib/agent-utils'
 // Agent Orchestrator (NEW)
 export * from './lib/agent-orchestrator'
 
+// Transfer credit workflow
+export * from './lib/transfer-workflow'
+
 // Prompt Templates (NEW)
 export * from './lib/prompt-templates'
 
@@ -70,8 +73,12 @@ export { PromptCompressor, globalCompressor, compressContent, autoCompress } fro
 // Configuration Management (NEW)
 export * from './lib/config-manager'
 
-// Agent Memory (NEW) - Temporarily disabled due to Prisma schema issues
-// export * from './lib/agent-memory'
+// Agent Memory (NEW)
+export {
+  getRelevantMemories,
+  extractAndSaveFacts,
+  globalMemoryStore,
+} from './lib/agent-memory'
 
 // Audit Logging (NEW)
 export * from './lib/audit-logger'

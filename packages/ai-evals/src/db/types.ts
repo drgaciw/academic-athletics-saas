@@ -2,7 +2,7 @@
  * Type definitions for AI Evaluation Framework database operations
  */
 
-import type { EvalRun, EvalResult, EvalMetrics, EvalBaseline } from '@prisma/client';
+import type { EvalRun, EvalResult, EvalMetrics, EvalBaseline } from '@aah/database';
 
 // ============================================================================
 // Core Types

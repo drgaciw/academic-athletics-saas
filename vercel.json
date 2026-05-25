@@ -30,18 +30,6 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/compliance-check",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/risk-assessment",
-      "schedule": "0 3 * * 1"
-    },
-    {
-      "path": "/api/cron/sync-lms",
-      "schedule": "0 */6 * * *"
-    },
-    {
       "path": "/api/cron/regulation-check",
       "schedule": "30 */6 * * *"
     }

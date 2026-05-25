@@ -30,7 +30,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },

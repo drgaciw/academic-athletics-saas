@@ -40,6 +40,12 @@ dist/
 .turbo
 
 # ================================
+# Git worktrees (parallel agent tracks)
+# ================================
+.worktrees/
+worktrees/
+
+# ================================
 # Prisma
 # ================================
 prisma/migrations

@@ -11,6 +11,11 @@ export * from "./intervention-agent";
 export * from "./administrative-agent";
 export * from "./general-assistant";
 export * from "./error-diagnostics-agent";
+export * from "./data-aggregation-agent";
+export * from "./equivalency-agent";
+export * from "./transfer-compliance-agent";
+export * from "./revision-agent";
+export * from "./workflow-orchestrator";
 
 // Import for convenience
 import { createAdvisingAgent, type AdvisingAgent } from "./advising-agent";
@@ -42,6 +47,23 @@ import {
   createFinancialAgent,
   type FinancialAgent,
 } from "./business-financial-agent";
+import {
+  createDataAggregationAgent,
+  type DataAggregationAgent,
+} from "./data-aggregation-agent";
+import {
+  createEquivalencyAgent,
+  type EquivalencyAgent,
+} from "./equivalency-agent";
+import {
+  createTransferComplianceAgent,
+  type TransferComplianceAgent,
+} from "./transfer-compliance-agent";
+import { createRevisionAgent, type RevisionAgent } from "./revision-agent";
+import {
+  createWorkflowOrchestrator,
+  type WorkflowOrchestrator,
+} from "./workflow-orchestrator";
 
 /**
  * Agent factory - creates agent instance by type
@@ -57,7 +79,12 @@ export function createAgent(
   | GeneralAssistant
   | ArchitectureAgent
   | SecurityAgent
-  | FinancialAgent {
+  | FinancialAgent
+  | DataAggregationAgent
+  | EquivalencyAgent
+  | TransferComplianceAgent
+  | RevisionAgent
+  | WorkflowOrchestrator {
   switch (agentType) {
     case "advising":
       return createAdvisingAgent();
@@ -69,6 +96,16 @@ export function createAgent(
       return createAdministrativeAgent();
     case "general":
       return createGeneralAssistant();
+    case "data-aggregation":
+      return createDataAggregationAgent();
+    case "equivalency":
+      return createEquivalencyAgent();
+    case "transfer-compliance":
+      return createTransferComplianceAgent();
+    case "revision":
+      return createRevisionAgent();
+    case "orchestrator":
+      return createWorkflowOrchestrator();
     // MVP SDLC/Tech/Business agents
     case "sdlc_architecture":
       return createArchitectureAgent();
@@ -101,6 +138,11 @@ export const agentRegistry = {
   intervention: createInterventionAgent,
   administrative: createAdministrativeAgent,
   general: createGeneralAssistant,
+  "data-aggregation": createDataAggregationAgent,
+  equivalency: createEquivalencyAgent,
+  "transfer-compliance": createTransferComplianceAgent,
+  revision: createRevisionAgent,
+  orchestrator: createWorkflowOrchestrator,
   sdlc_architecture: createArchitectureAgent,
   tech_security: createSecurityAgent,
   business_financial: createFinancialAgent,
@@ -121,6 +163,16 @@ export function getAgentDescription(agentType: AgentType): string {
       "Automation specialist for email, documents, scheduling, and administrative tasks",
     general:
       "Helpful general assistant for information retrieval and routing to specialized agents",
+    "data-aggregation":
+      "Normalizes transfer transcript data for NCAA compliance processing",
+    equivalency:
+      "Maps transfer courses to host institution catalog equivalents",
+    "transfer-compliance":
+      "Validates transfer credit packages against NCAA Division I rules",
+    revision:
+      "Audits transfer evaluations and produces final eligibility summaries",
+    orchestrator:
+      "Coordinates multi-agent NCAA transfer credit workflows",
     sdlc_architecture:
       "Software architecture specialist for system design, patterns, and technical decision records",
     tech_security:
@@ -172,6 +224,31 @@ export function getAgentCapabilities(agentType: AgentType): string[] {
       "Knowledge base search",
       "Platform guidance",
       "Intent classification and routing",
+    ],
+    "data-aggregation": [
+      "Transcript normalization",
+      "Grade and credit conversion",
+      "Accreditation validation",
+    ],
+    equivalency: [
+      "Course-to-catalog mapping",
+      "Semantic articulation search",
+      "Confidence scoring for matches",
+    ],
+    "transfer-compliance": [
+      "NCAA 6/18/24 credit rules",
+      "Progress-toward-degree validation",
+      "Bylaw citation for transfer cases",
+    ],
+    revision: [
+      "Regression checks against golden cases",
+      "Final audit summaries",
+      "Workflow quality control",
+    ],
+    orchestrator: [
+      "Multi-agent pipeline coordination",
+      "Transfer workflow routing",
+      "Shared context management",
     ],
     sdlc_architecture: [
       "System design and architecture review",

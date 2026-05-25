@@ -1,18 +1,11 @@
-import { ChatOpenAI } from '@langchain/openai'
+import { generateText } from 'ai'
 import { prisma } from '@aah/database'
 import { RiskPrediction } from '../types'
 import { AI_CONFIG } from '../config'
+import { getLanguageModel } from '../utils/modelProvider'
 
 export class PredictiveAnalyticsService {
-  private llm: ChatOpenAI
-
-  constructor() {
-    this.llm = new ChatOpenAI({
-      modelName: AI_CONFIG.models.advanced,
-      temperature: 0.3,
-      openAIApiKey: AI_CONFIG.openai.apiKey,
-    })
-  }
+  constructor() {}
 
   /**
    * Predict student risk based on comprehensive data
@@ -43,18 +36,22 @@ export class PredictiveAnalyticsService {
         : []
 
     // Store prediction in database
-    await prisma.studentPrediction.create({
-      data: {
-        userId: studentData.userId,
-        predictionType: 'risk_assessment',
-        result: {
-          overallRisk,
-          riskScore: this.calculateRiskScore(factors),
-          factors,
-          predictions,
-        },
-      },
+    const activeModel = await prisma.predictionModel.findFirst({
+      where: { active: true },
     })
+
+    if (activeModel) {
+      await prisma.studentPrediction.create({
+        data: {
+          studentId: studentData.userId,
+          modelId: activeModel.id,
+          predictionType: 'ELIGIBILITY',
+          riskScore: this.calculateRiskScore(factors),
+          confidence: 0.8,
+          factors: factors as object,
+        },
+      })
+    }
 
     return {
       studentId,
@@ -76,7 +73,7 @@ export class PredictiveAnalyticsService {
       include: {
         user: true,
         complianceRecords: {
-          orderBy: { checkedAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
           take: 5,
         },
         performanceMetrics: {
@@ -254,10 +251,12 @@ export class PredictiveAnalyticsService {
       .replace('{supportData}', JSON.stringify({ alerts: studentData.activeAlerts.length }))
 
     try {
-      const result = await this.llm.invoke(prompt)
-      const response = result.content.toString()
+      const { text: response } = await generateText({
+        model: getLanguageModel(AI_CONFIG.models.advanced),
+        prompt,
+        temperature: 0.3,
+      })
 
-      // Parse recommendations from response
       return this.parseRecommendations(response, factors)
     } catch (error) {
       console.error('Error generating recommendations:', error)

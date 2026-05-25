@@ -8,7 +8,7 @@ import { BaseAgent } from '../lib/base-agent'
 import { globalToolRegistry } from '../lib/tool-registry'
 import { REVISION_AGENT_PROMPT } from '../lib/prompt-templates'
 import type { AgentConfig, AgentRequest, ToolExecutionContext } from '../types/agent.types'
-import type { CoreTool } from 'ai'
+import type { Tool } from 'ai'
 
 const REVISION_AGENT_CONFIG: AgentConfig = {
   type: 'revision' as any,
@@ -35,7 +35,7 @@ export class RevisionAgent extends BaseAgent {
     return this.config.systemPrompt
   }
 
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
      const context: ToolExecutionContext = {
       userId: '',
       userRoles: [],

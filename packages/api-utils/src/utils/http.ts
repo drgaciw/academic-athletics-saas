@@ -144,7 +144,7 @@ export class HttpClient {
         const contentType = response.headers.get('content-type');
 
         if (contentType?.includes('application/json')) {
-          data = await response.json();
+          data = (await response.json()) as T;
         } else {
           data = (await response.text()) as unknown as T;
         }
@@ -348,8 +348,7 @@ export const URLHelpers = {
  * Request interceptor type
  */
 export type RequestInterceptor = (
-  url: string,
-  options: RequestInit
+  request: { url: string; options: RequestInit }
 ) => Promise<{ url: string; options: RequestInit }> | { url: string; options: RequestInit };
 
 /**
@@ -390,7 +389,7 @@ export class InterceptableHttpClient extends HttpClient {
     let result = { url, options };
 
     for (const interceptor of this.requestInterceptors) {
-      result = await interceptor(result.url, result.options);
+      result = await interceptor(result);
     }
 
     return result;

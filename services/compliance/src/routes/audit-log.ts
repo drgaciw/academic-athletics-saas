@@ -60,7 +60,7 @@ routes.get('/audit-log/:studentId', async (c) => {
       studentId: student.studentProfile.id,
     },
     orderBy: {
-      checkedAt: 'desc',
+      createdAt: 'desc',
     },
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -68,7 +68,7 @@ routes.get('/audit-log/:studentId', async (c) => {
 
   const auditLog = records.map(record => ({
     id: record.id,
-    checkedAt: record.checkedAt,
+    checkedAt: record.createdAt,
     isEligible: record.isEligible,
     termGpa: record.termGpa,
     cumulativeGpa: record.cumulativeGpa,

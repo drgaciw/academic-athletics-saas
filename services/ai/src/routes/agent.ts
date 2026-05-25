@@ -9,9 +9,13 @@ import {
   getRelevantMemories,
   extractAndSaveFacts,
   logAgentResponse,
+  isTransferCreditWorkflow,
+  TRANSFER_CREDIT_AGENT_SEQUENCE,
   type AgentRequest,
-  type AgentType
+  type AgentType,
+  type WorkflowResult,
 } from '@aah/ai'
+import { applyAgentEligibilityGuard } from '../services/agentEligibilityGuard'
 
 export const agentRouter = new Hono()
 
@@ -23,10 +27,64 @@ const AgentExecutionSchema = z.object({
   userId: z.string(),
   agentType: z.enum(['advising', 'compliance', 'intervention', 'administrative', 'general']).optional(),
   conversationId: z.string().optional(),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
   streaming: z.boolean().optional().default(true),
   maxSteps: z.number().min(1).max(20).optional().default(10),
 })
+
+const TransferWorkflowSchema = AgentExecutionSchema.omit({ agentType: true }).extend({
+  workflow: z.literal('transfer-credit').optional(),
+  transcriptData: z.unknown().optional(),
+  transferProfile: z.record(z.string(), z.unknown()).optional(),
+})
+
+function formatWorkflowResponse(
+  result: WorkflowResult,
+  conversationId: string,
+  responseOverride?: string
+) {
+  return {
+    success: result.success,
+    workflow: result.workflowState?.name ?? 'single-agent',
+    agentsUsed: result.agentsUsed,
+    agentType: result.agentsUsed[result.agentsUsed.length - 1],
+    response: responseOverride ?? result.response.content,
+    steps: result.response.steps,
+    toolInvocations: result.response.toolInvocations,
+    usage: result.response.usage,
+    cost: result.totalCost,
+    duration: result.totalDuration,
+    conversationId,
+    workflowState: result.workflowState
+      ? {
+          id: result.workflowState.id,
+          status: result.workflowState.status,
+          stepsCompleted: result.workflowState.stepsCompleted,
+          agents: result.workflowState.agents,
+        }
+      : undefined,
+  }
+}
+
+async function buildAgentRequest(
+  request: z.infer<typeof AgentExecutionSchema>,
+  authUserId: string,
+  agentType: AgentType,
+  memories: Array<{ content: string }>
+): Promise<AgentRequest> {
+  return {
+    userId: authUserId,
+    agentType,
+    message: request.message,
+    conversationId: request.conversationId || `conv-${Date.now()}`,
+    context: {
+      ...request.context,
+      memories: memories.map((memory) => memory.content),
+    },
+    streaming: request.streaming,
+    maxSteps: request.maxSteps,
+  }
+}
 
 /**
  * POST /api/ai/agent/execute - Execute agent workflow
@@ -54,22 +112,19 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       limit: 3
     })
 
-    // Build agent request
-    const agentRequest: AgentRequest = {
-      userId: authUserId,
+    const agentRequest = await buildAgentRequest(
+      request,
+      authUserId,
       agentType,
-      message: request.message,
-      conversationId: request.conversationId || `conv-${Date.now()}`,
-      context: {
-        ...request.context,
-        memories: memories.map(m => m.content)
-      },
-      streaming: request.streaming,
-      maxSteps: request.maxSteps
-    }
+      memories
+    )
 
-    // Execute workflow
-    const result = await globalOrchestrator.executeWorkflow(agentRequest)
+    const result = await globalOrchestrator.executeSmartWorkflow(agentRequest)
+    const userRole = c.req.header('X-User-Role')
+    const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+      authUserId,
+      userRole,
+    })
 
     // Log agent execution for audit trail
     await logAgentResponse(
@@ -78,12 +133,12 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       {
         message: request.message,
         conversationId: agentRequest.conversationId,
-        userRole: c.req.header('X-User-Role'),
+        userRole,
         ipAddress: c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP'),
         userAgent: c.req.header('User-Agent'),
       },
-      result.response
-    ).catch((err) => console.warn('Failed to log audit:', err))
+      { ...result.response, content: guardedResponse }
+    ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
     // Extract and save facts from conversation
     if (agentRequest.conversationId) {
@@ -91,20 +146,10 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
         authUserId,
         agentRequest.conversationId,
         agentType
-      ).catch((err) => console.warn('Failed to extract facts:', err))
+      ).catch((err: unknown) => console.warn('Failed to extract facts:', err))
     }
 
-    return c.json({
-      success: result.success,
-      agentType: result.agentsUsed[0],
-      response: result.response.content,
-      steps: result.response.steps,
-      toolInvocations: result.response.toolInvocations,
-      usage: result.response.usage,
-      cost: result.totalCost,
-      duration: result.totalDuration,
-      conversationId: agentRequest.conversationId
-    })
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
   } catch (error) {
     console.error('Agent execution error:', error)
     return c.json(
@@ -169,27 +214,24 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
           })}\n`)
         }
 
-        // Build agent request
-        const agentRequest: AgentRequest = {
-          userId: authUserId,
+        const agentRequest = await buildAgentRequest(
+          request,
+          authUserId,
           agentType,
-          message: request.message,
-          conversationId,
-          context: {
-            ...request.context,
-            memories: memories.map(m => m.content)
-          },
-          streaming: true,
-          maxSteps: request.maxSteps
-        }
+          memories
+        )
 
-        // Execute workflow
-        const result = await globalOrchestrator.executeWorkflow(agentRequest)
+        const result = await globalOrchestrator.executeSmartWorkflow(agentRequest)
+        const userRole = c.req.header('X-User-Role')
+        const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+          authUserId,
+          userRole,
+        })
 
         // Stream response content
         await stream.writeln(`data: ${JSON.stringify({
           type: 'response',
-          content: result.response.content
+          content: guardedResponse
         })}\n`)
 
         // Stream tool invocations
@@ -206,9 +248,11 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
         // Send completion
         await stream.writeln(`data: ${JSON.stringify({
           type: 'done',
+          agentsUsed: result.agentsUsed,
           usage: result.response.usage,
           cost: result.totalCost,
-          duration: result.totalDuration
+          duration: result.totalDuration,
+          workflow: result.workflowState?.name,
         })}\n`)
 
         // Log audit trail in background
@@ -218,16 +262,16 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
           {
             message: request.message,
             conversationId,
-            userRole: c.req.header('X-User-Role'),
+            userRole,
             ipAddress: c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP'),
             userAgent: c.req.header('User-Agent'),
           },
-          result.response
-        ).catch((err) => console.warn('Failed to log audit:', err))
+          { ...result.response, content: guardedResponse }
+        ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
         // Extract facts in background
         extractAndSaveFacts(authUserId, conversationId, agentType)
-          .catch((err) => console.warn('Failed to extract facts:', err))
+          .catch((err: unknown) => console.warn('Failed to extract facts:', err))
 
       } catch (error) {
         console.error('Streaming error:', error)
@@ -249,6 +293,122 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
       500
     )
   }
+})
+
+/**
+ * POST /api/ai/agent/workflow/transfer - Run NCAA transfer credit pipeline
+ */
+agentRouter.post('/workflow/transfer', zValidator('json', TransferWorkflowSchema), async (c) => {
+  try {
+    const request = c.req.valid('json')
+    const authUserId = c.req.header('X-User-Id') || request.userId
+
+    if (!authUserId) {
+      return c.json({ error: { code: 'UNAUTHORIZED', message: 'User ID required' } }, 401)
+    }
+
+    const memories = await getRelevantMemories(authUserId, request.message, {
+      memoryType: ['long_term', 'working'],
+      limit: 3,
+    })
+
+    const agentRequest = await buildAgentRequest(
+      request,
+      authUserId,
+      'orchestrator',
+      memories
+    )
+
+    agentRequest.context = {
+      ...agentRequest.context,
+      workflow: 'transfer-credit',
+      transcriptData: request.transcriptData,
+      transferProfile: request.transferProfile,
+      pipeline: TRANSFER_CREDIT_AGENT_SEQUENCE,
+    }
+
+    const result = await globalOrchestrator.executeTransferCreditWorkflow(agentRequest)
+    const userRole = c.req.header('X-User-Role')
+    const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
+      authUserId,
+      userRole,
+    })
+
+    await logAgentResponse(
+      authUserId,
+      'orchestrator',
+      {
+        message: request.message,
+        conversationId: agentRequest.conversationId,
+        userRole,
+      },
+      { ...result.response, content: guardedResponse }
+    ).catch((err: unknown) => console.warn('Failed to log audit:', err))
+
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
+  } catch (error) {
+    console.error('Transfer workflow error:', error)
+    return c.json(
+      {
+        error: {
+          code: 'WORKFLOW_ERROR',
+          message: error instanceof Error ? error.message : 'Transfer workflow failed',
+        },
+      },
+      500
+    )
+  }
+})
+
+/**
+ * POST /api/ai/agent/workflow/smart - Explicit smart routing (multi-agent when suggested)
+ */
+agentRouter.post('/workflow/smart', zValidator('json', AgentExecutionSchema), async (c) => {
+  const request = c.req.valid('json')
+  const headers = new Headers(c.req.raw.headers)
+  headers.set('Content-Type', 'application/json')
+
+  const executeUrl = c.req.url.replace('/workflow/smart', '/execute')
+  const executeReq = new Request(executeUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      ...request,
+      context: {
+        ...request.context,
+        forceSmartWorkflow: true,
+        suggestedWorkflow: isTransferCreditWorkflow(request.message, request.context)
+          ? TRANSFER_CREDIT_AGENT_SEQUENCE
+          : undefined,
+      },
+    }),
+  })
+
+  return agentRouter.fetch(executeReq)
+})
+
+/**
+ * GET /api/ai/agent/workflows/active - List in-memory active orchestrator workflows
+ */
+agentRouter.get('/workflows/active', async (c) => {
+  const authUserId = c.req.header('X-User-Id')
+  if (!authUserId) {
+    return c.json({ error: { code: 'UNAUTHORIZED', message: 'User ID required' } }, 401)
+  }
+
+  const workflows = globalOrchestrator.getActiveWorkflows()
+
+  return c.json({
+    count: workflows.length,
+    workflows: workflows.map((workflow) => ({
+      id: workflow.id,
+      name: workflow.name,
+      status: workflow.status,
+      agents: workflow.agents,
+      currentAgent: workflow.currentAgent,
+      stepsCompleted: workflow.stepsCompleted,
+    })),
+  })
 })
 
 /**

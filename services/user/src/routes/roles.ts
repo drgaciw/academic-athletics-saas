@@ -4,13 +4,14 @@
  */
 
 import { Hono } from 'hono'
-import { getUser, checkPermission, ROLE_PERMISSIONS } from '@aah/auth'
+import { getUser, checkPermission } from '@aah/auth'
 import {
   successResponse,
   NotFoundError,
   ForbiddenError,
 } from '@aah/api-utils'
 import { prisma } from '@aah/database'
+import { getPermissionsForPrismaRole } from '../utils/roleMapping'
 
 const roles = new Hono()
 
@@ -59,7 +60,7 @@ roles.get('/:id', async (c) => {
   }
 
   // Get permissions for user's role
-  const permissions = ROLE_PERMISSIONS[user.role] || []
+  const permissions = getPermissionsForPrismaRole(user.role)
 
   return c.json(successResponse({
     userId: user.id,
@@ -98,7 +99,7 @@ roles.get('/', async (c) => {
   }
 
   // Get permissions for user's role
-  const permissions = ROLE_PERMISSIONS[user.role] || []
+  const permissions = getPermissionsForPrismaRole(user.role)
 
   return c.json(successResponse({
     userId: user.id,

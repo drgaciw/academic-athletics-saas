@@ -5,6 +5,44 @@
 const mockLoadConfig = jest.fn();
 const mockWriteFile = jest.fn();
 
+jest.mock('@aah/database', () => ({
+  prisma: {},
+}), { virtual: true });
+
+jest.mock('../../db/repository', () => ({
+  createEvalRepository: jest.fn(() => ({
+    persistEvalReport: jest.fn(async () => ['run-test-1']),
+  })),
+}));
+
+jest.mock('../../orchestrator/index', () => ({
+  EvalOrchestrator: jest.fn().mockImplementation(() => ({
+    createJob: jest.fn(() => 'job-1'),
+    executeJob: jest.fn(async () => ({
+      jobId: 'job-1',
+      summary: {
+        totalTests: 1,
+        passed: 1,
+        failed: 0,
+        accuracy: 100,
+        avgLatency: 100,
+        totalCost: 0.01,
+        duration: 1000,
+      },
+      scoringResults: [],
+      runSummaries: [],
+    })),
+  })),
+}));
+
+jest.mock('../../dataset-manager', () => ({
+  loadDataset: jest.fn(async () => ({
+    id: 'compliance-full',
+    testCases: [{ id: 'tc-1', input: {}, expected: {} }],
+  })),
+  listDatasets: jest.fn(async () => [{ id: 'compliance-full' }]),
+}));
+
 jest.mock('../../config/parser', () => ({
   loadConfig: mockLoadConfig,
   ConfigValidationError: class ConfigValidationError extends Error {
@@ -65,6 +103,9 @@ function makeConfig() {
     },
     runner: {
       concurrency: 5,
+    },
+    scorer: {
+      strategy: 'exact',
     },
   };
 }

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import { validateRequest } from '../middleware/validation'
 import { scheduleMentoringSessionSchema } from '../types'
 import { mentoringService } from '../services/mentoringService'
@@ -36,7 +37,7 @@ mentoring.get('/matches', async (c) => {
 
 // POST /api/support/mentoring/session - Schedule a mentoring session
 mentoring.post('/session', validateRequest(scheduleMentoringSessionSchema), async (c) => {
-  const validatedData = c.get('validatedData')
+  const validatedData = c.get('validatedData') as z.infer<typeof scheduleMentoringSessionSchema>
 
   const session = await mentoringService.scheduleSession(validatedData)
 

@@ -134,7 +134,7 @@ export class ExternalServiceError extends AppError {
       'EXTERNAL_SERVICE_ERROR',
       'EXTERNAL' as ErrorCategory,
       502,
-      { service, ...details },
+      { service, ...(typeof details === 'object' && details !== null ? details as Record<string, unknown> : {}) },
       false
     );
   }

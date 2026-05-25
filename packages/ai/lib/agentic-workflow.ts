@@ -7,7 +7,7 @@
  * - Multi-step reasoning with checkpoints
  */
 
-import { generateText, streamText } from 'ai'
+import { generateText, streamText, stepCountIs } from 'ai'
 import type { AgentState, AgentStep, ToolDefinition } from '../types/agent.types'
 import { extractThinking } from './prompt-templates'
 
@@ -270,7 +270,7 @@ Verify the outcome matches the expected result.
         model,
         prompt: stepPrompt,
         tools: this.filterTools(tools, step.toolsNeeded),
-        maxSteps: 5,
+        stopWhen: stepCountIs(5),
       })
 
       const { thinking, output } = extractThinking(result.text)

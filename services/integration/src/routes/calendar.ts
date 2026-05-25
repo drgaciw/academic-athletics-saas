@@ -60,7 +60,7 @@ app.post('/sync', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -189,7 +189,7 @@ app.put('/update', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -273,7 +273,7 @@ app.delete('/delete', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },

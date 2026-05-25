@@ -1,16 +1,29 @@
-import { auth } from '@clerk/nextjs/server'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
+import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
 import { TutoringSection } from '@/components/tutoring-section';
 import { StudyHallSection } from '@/components/study-hall-section';
 import { WorkshopsSection } from '@/components/workshops-section';
 import { MentorCard } from '@/components/mentor-card';
+import { getStudentByClerkId } from '@/lib/student-data';
 
 export default async function ResourcesPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');
+  }
+
+  const student = await getStudentByClerkId(userId);
+  const studentProfileId = student?.studentProfile?.id;
+
+  if (!studentProfileId) {
+    return (
+      <div className="container mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Profile incomplete</h1>
+        <p>Your student athletic profile has not been set up yet. Contact your compliance office.</p>
+      </div>
+    );
   }
 
   return (
@@ -23,19 +36,14 @@ export default async function ResourcesPage() {
           </p>
         </div>
 
-        {/* Mentor Card */}
         <MentorCard />
 
-        {/* Tutoring Services */}
-        <TutoringSection />
+        <TutoringSection studentProfileId={studentProfileId} />
 
-        {/* Study Hall */}
-        <StudyHallSection />
+        <StudyHallSection studentProfileId={studentProfileId} />
 
-        {/* Workshops */}
-        <WorkshopsSection />
+        <WorkshopsSection studentProfileId={studentProfileId} />
 
-        {/* Resource Library */}
         <Card>
           <CardHeader>
             <CardTitle>Resource Library</CardTitle>

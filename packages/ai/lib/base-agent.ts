@@ -4,7 +4,7 @@
  * Abstract base class for all AI agents with common functionality
  */
 
-import { streamText, generateText, type CoreMessage, type CoreTool } from 'ai'
+import { streamText, generateText, stepCountIs, type ModelMessage, type Tool } from 'ai'
 import type {
   AgentType,
   AgentRequest,
@@ -56,7 +56,7 @@ export abstract class BaseAgent {
    * Get available tools for this agent
    * Must be implemented by subclasses
    */
-  protected abstract getTools(): Record<string, CoreTool>
+  protected abstract getTools(): Record<string, Tool>
 
   /**
    * Execute agent with streaming
@@ -83,7 +83,7 @@ export abstract class BaseAgent {
       tracer.endSpan({ toolCount: Object.keys(tools).length })
 
       // Prepare messages
-      const messages: CoreMessage[] = [
+      const messages: ModelMessage[] = [
         { role: 'system', content: this.getSystemPrompt() },
         ...state.messages,
         { role: 'user', content: request.message },
@@ -95,7 +95,7 @@ export abstract class BaseAgent {
         model,
         messages,
         tools,
-        maxSteps: request.maxSteps || this.config.maxSteps,
+        stopWhen: stepCountIs(request.maxSteps || this.config.maxSteps),
         onStepFinish: async (step) => {
           await this.onStepFinish(state, step)
           // Track each step as it completes
@@ -214,7 +214,7 @@ export abstract class BaseAgent {
       tracer.endSpan({ toolCount: Object.keys(tools).length })
 
       // Prepare messages
-      const messages: CoreMessage[] = [
+      const messages: ModelMessage[] = [
         { role: 'system', content: this.getSystemPrompt() },
         ...state.messages,
         { role: 'user', content: request.message },
@@ -226,12 +226,16 @@ export abstract class BaseAgent {
         model,
         messages,
         tools,
-        maxSteps: request.maxSteps || this.config.maxSteps,
+        stopWhen: stepCountIs(request.maxSteps || this.config.maxSteps),
         onStepFinish: async (step) => {
           await this.onStepFinish(state, step)
         },
       })
       tracer.endSpan()
+
+      const inputTokens = result.usage.inputTokens ?? 0
+      const outputTokens = result.usage.outputTokens ?? 0
+      const totalTokens = result.usage.totalTokens ?? inputTokens + outputTokens
 
       // Track generation in Langfuse
       tracer.trackGeneration({
@@ -240,9 +244,9 @@ export abstract class BaseAgent {
         input: messages,
         output: result.text,
         usage: {
-          promptTokens: result.usage.promptTokens,
-          completionTokens: result.usage.completionTokens,
-          totalTokens: result.usage.totalTokens,
+          promptTokens: inputTokens,
+          completionTokens: outputTokens,
+          totalTokens,
         },
         metadata: {
           maxSteps: request.maxSteps || this.config.maxSteps,
@@ -254,8 +258,8 @@ export abstract class BaseAgent {
       const duration = Date.now() - startTime
       const cost = calculateCost(
         this.config.model.name,
-        result.usage.promptTokens,
-        result.usage.completionTokens
+        inputTokens,
+        outputTokens
       )
 
       // Validate output
@@ -273,9 +277,9 @@ export abstract class BaseAgent {
         steps: state.stepHistory,
         toolInvocations: this.extractToolInvocations(result),
         usage: {
-          promptTokens: result.usage.promptTokens,
-          completionTokens: result.usage.completionTokens,
-          totalTokens: result.usage.totalTokens,
+          promptTokens: inputTokens,
+          completionTokens: outputTokens,
+          totalTokens,
         },
         cost,
         duration,
@@ -349,30 +353,30 @@ export abstract class BaseAgent {
   /**
    * Prepare messages with caching and compression
    */
-  protected async prepareMessages(request: AgentRequest, state: AgentState): Promise<CoreMessage[]> {
+  protected async prepareMessages(request: AgentRequest, state: AgentState): Promise<ModelMessage[]> {
     const systemPrompt = this.getSystemPrompt()
     const contextStr = request.context ? JSON.stringify(request.context, null, 2) : ''
 
-    const messages: CoreMessage[] = []
+    const messages: ModelMessage[] = []
 
     // For Claude, use prompt caching
     const isClaudeModel = this.config.model.name.includes('claude')
     
     if (isClaudeModel) {
       // System prompt with cache control
-      // Note: cache_control is Anthropic-specific and not in CoreMessage type
+      // Note: cache_control is Anthropic-specific and not in ModelMessage type
       // Using 'as any' to bypass type checking for provider-specific features
       messages.push({
         role: 'system',
         content: systemPrompt,
-      } as CoreMessage)
+      } as ModelMessage)
 
       // Context with cache control if present
       if (contextStr) {
         messages.push({
           role: 'system',
           content: `<context>\n${contextStr}\n</context>`,
-        } as CoreMessage)
+        } as ModelMessage)
       }
       
       // TODO: Implement proper cache_control when AI SDK supports it

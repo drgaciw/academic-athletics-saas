@@ -12,8 +12,8 @@ export class ClerkSyncService implements IClerkSyncService {
         throw new AppError(400, 'INVALID_CLERK_DATA', 'No email address found')
       }
 
-      // Determine role from public metadata or default to STUDENT_ATHLETE
-      const role = (data.public_metadata?.role as UserRole) || UserRole.STUDENT_ATHLETE
+      // Determine role from public metadata or default to STUDENT
+      const role = (data.public_metadata?.role as UserRole) || UserRole.STUDENT
 
       // Upsert user
       const user = await prisma.user.upsert({

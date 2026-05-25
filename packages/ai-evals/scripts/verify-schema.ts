@@ -10,7 +10,7 @@
  *   npx tsx scripts/verify-schema.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@aah/database';
 
 const prisma = new PrismaClient();
 

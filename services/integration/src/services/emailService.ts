@@ -48,13 +48,12 @@ export class EmailService {
         from: options.from || this.defaultFrom,
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,
-        html: options.html,
-        text: options.text,
+        ...(options.html ? { html: options.html } : { text: options.text ?? '' }),
         cc: options.cc ? (Array.isArray(options.cc) ? options.cc : [options.cc]) : undefined,
         bcc: options.bcc ? (Array.isArray(options.bcc) ? options.bcc : [options.bcc]) : undefined,
         reply_to: options.replyTo,
         attachments: options.attachments,
-      });
+      } as Parameters<typeof resend.emails.send>[0]);
 
       if (error) {
         console.error('Email send error:', error);

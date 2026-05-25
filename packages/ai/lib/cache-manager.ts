@@ -232,6 +232,28 @@ export class RedisCacheStorage implements CacheStorage {
       return []
     }
   }
+
+  async entries<T>(prefix?: string): Promise<[string, T][]> {
+    if (!this.client) return []
+
+    try {
+      const pattern = prefix ? `${prefix}*` : '*'
+      const keys = await this.client.keys(pattern)
+      const results: [string, T][] = []
+
+      for (const key of keys) {
+        const value = await this.get<T>(key)
+        if (value !== null) {
+          results.push([key, value])
+        }
+      }
+
+      return results
+    } catch (error) {
+      console.error('Redis entries error:', error)
+      return []
+    }
+  }
 }
 
 /**

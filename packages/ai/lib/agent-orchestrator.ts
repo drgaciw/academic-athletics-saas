@@ -6,7 +6,11 @@
  */
 
 import { createAgent, createGeneralAssistant } from '../agents'
-import { AgentTracer } from './langfuse-client'
+import {
+  TRANSFER_CREDIT_AGENT_SEQUENCE,
+  buildTransferWorkflowContext,
+  isTransferCreditWorkflow,
+} from './transfer-workflow'
 import type {
   AgentType,
   AgentRequest,
@@ -148,6 +152,19 @@ export class AgentOrchestrator {
     ])
 
     return response
+  }
+
+  /**
+   * Execute NCAA transfer credit pipeline (data → equivalency → compliance → revision).
+   */
+  async executeTransferCreditWorkflow(request: AgentRequest): Promise<WorkflowResult> {
+    const workflowRequest: AgentRequest = {
+      ...request,
+      agentType: request.agentType || 'orchestrator',
+      context: buildTransferWorkflowContext(request.context, request.message),
+    }
+
+    return this.executeMultiAgent(workflowRequest, TRANSFER_CREDIT_AGENT_SEQUENCE)
   }
 
   /**
@@ -346,6 +363,11 @@ export class AgentOrchestrator {
   suggestWorkflow(message: string): AgentType[] | null {
     const messageLower = message.toLowerCase()
 
+    // Transfer credit evaluation pipeline
+    if (isTransferCreditWorkflow(message)) {
+      return [...TRANSFER_CREDIT_AGENT_SEQUENCE]
+    }
+
     // Course selection with eligibility check
     if (
       (messageLower.includes('course') || messageLower.includes('class')) &&
@@ -383,6 +405,10 @@ export class AgentOrchestrator {
    * Execute smart workflow (auto-detects if multi-agent is needed)
    */
   async executeSmartWorkflow(request: AgentRequest): Promise<WorkflowResult> {
+    if (isTransferCreditWorkflow(request.message, request.context)) {
+      return this.executeTransferCreditWorkflow(request)
+    }
+
     // Check if multi-agent workflow is suggested
     const suggestedWorkflow = this.suggestWorkflow(request.message)
 
@@ -415,6 +441,12 @@ export async function executeAgentWorkflow(
   request: AgentRequest
 ): Promise<WorkflowResult> {
   return globalOrchestrator.executeWorkflow(request)
+}
+
+export async function executeTransferCreditWorkflow(
+  request: AgentRequest
+): Promise<WorkflowResult> {
+  return globalOrchestrator.executeTransferCreditWorkflow(request)
 }
 
 /**

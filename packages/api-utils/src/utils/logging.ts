@@ -179,7 +179,7 @@ export class Logger {
     const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
 
     this.log(
-      this.createEntry(`${method} ${path}`, {
+      this.createEntry(level, `${method} ${path}`, {
         type: 'response',
         method,
         path,

@@ -26,6 +26,7 @@ export interface ExecutionTask<TInput = any, TOutput = any> {
   id: string;
   testCase: TestCase<TInput, TOutput>;
   runnerConfig: RunnerConfig;
+  datasetId?: string;
   priority?: number;
 }
 

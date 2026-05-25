@@ -8,8 +8,9 @@
 import { embed } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { generateText } from 'ai'
-import type { CoreMessage } from 'ai'
+import type { ModelMessage } from 'ai'
 import type { AgentMemory, MemoryType } from '../types/agent.types'
+import { prisma } from '@aah/database'
 
 /**
  * Memory entry for storage
@@ -66,12 +67,8 @@ export class AgentMemoryStore {
   async saveConversation(
     userId: string,
     conversationId: string,
-    messages: CoreMessage[]
+    messages: ModelMessage[]
   ): Promise<void> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       // Use existing Conversation and Message models
       await prisma.conversation.upsert({
         where: { id: conversationId },
@@ -97,19 +94,12 @@ export class AgentMemoryStore {
           },
         })
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
    * Save fact to long-term memory with embedding
    */
   async saveFact(entry: MemoryEntry): Promise<AgentMemory> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       // Generate embedding for semantic search
       const { embedding } = await embed({
         model: openai.embedding('text-embedding-3-large'),
@@ -124,7 +114,6 @@ export class AgentMemoryStore {
           userId: entry.userId,
           memoryType: entry.memoryType,
           content: entry.content,
-          embedding: `[${embedding.join(',')}]`, // Store as string for pgvector
           metadata: entry.metadata,
           confidence: entry.confidence ?? 1.0,
           importance,
@@ -132,10 +121,12 @@ export class AgentMemoryStore {
         },
       })
 
+      await prisma.$executeRawUnsafe(
+        `UPDATE agent_memory SET embedding = '[${embedding.join(',')}]'::vector WHERE id = $1`,
+        memory.id
+      )
+
       return this.mapToAgentMemory(memory)
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -146,10 +137,6 @@ export class AgentMemoryStore {
     query: string,
     options: MemorySearchOptions = {}
   ): Promise<MemorySearchResult[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       // Generate query embedding
       const { embedding: queryEmbedding } = await embed({
         model: openai.embedding('text-embedding-3-large'),
@@ -226,9 +213,6 @@ export class AgentMemoryStore {
         similarity: r.similarity,
         relevanceScore: r.similarity * r.importance * r.confidence,
       }))
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -237,11 +221,7 @@ export class AgentMemoryStore {
   async getConversationHistory(
     conversationId: string,
     limit?: number
-  ): Promise<CoreMessage[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
+  ): Promise<ModelMessage[]> {
       const messages = await prisma.message.findMany({
         where: { conversationId },
         orderBy: { timestamp: 'asc' },
@@ -252,9 +232,6 @@ export class AgentMemoryStore {
         role: m.role as any,
         content: m.content,
       }))
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -288,7 +265,7 @@ Conversation:
 ${conversationText}
 
 Format your response as JSON with keys: summary, keyPoints, facts, sentiment, topics`,
-      maxTokens: 1000,
+      maxOutputTokens: 1000,
     })
 
     try {
@@ -353,10 +330,6 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
    * Delete expired memories
    */
   async cleanupExpiredMemories(): Promise<number> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const result = await prisma.agentMemory.deleteMany({
         where: {
           expiresAt: {
@@ -366,9 +339,6 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
       })
 
       return result.count
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -378,10 +348,6 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
     threshold: number = 0.2,
     maxAge: number = 30 * 24 * 60 * 60 * 1000 // 30 days
   ): Promise<number> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const cutoffDate = new Date(Date.now() - maxAge)
 
       const result = await prisma.agentMemory.deleteMany({
@@ -392,9 +358,6 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
       })
 
       return result.count
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -407,10 +370,6 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
     oldestMemory: Date | null
     newestMemory: Date | null
   }> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const memories = await prisma.agentMemory.findMany({
         where: { userId },
         select: {
@@ -442,14 +401,11 @@ Format your response as JSON with keys: summary, keyPoints, facts, sentiment, to
         oldestMemory: dates[0] || null,
         newestMemory: dates[dates.length - 1] || null,
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   // Helper methods
 
-  private generateTitle(messages: CoreMessage[]): string {
+  private generateTitle(messages: ModelMessage[]): string {
     const firstUserMessage = messages.find((m) => m.role === 'user')
     if (firstUserMessage) {
       const content = firstUserMessage.content as string
@@ -518,7 +474,7 @@ export const globalMemoryStore = new AgentMemoryStore()
 export async function saveConversation(
   userId: string,
   conversationId: string,
-  messages: CoreMessage[]
+  messages: ModelMessage[]
 ): Promise<void> {
   return globalMemoryStore.saveConversation(userId, conversationId, messages)
 }

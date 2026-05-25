@@ -10,7 +10,7 @@ import { globalToolRegistry } from '../lib/tool-registry'
 import { getToolsForAgentType } from '../tools'
 import { ADVISING_AGENT_PROMPT } from '../lib/prompt-templates'
 import type { AgentConfig, AgentRequest, ToolExecutionContext } from '../types/agent.types'
-import type { CoreTool } from 'ai'
+import type { Tool } from 'ai'
 
 /**
  * Advising Agent Configuration
@@ -61,7 +61,7 @@ export class AdvisingAgent extends BaseAgent {
   /**
    * Get tools for advising agent
    */
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     // Create minimal context for tool registration
     // Full context will be set during execute()
     const context: ToolExecutionContext = {

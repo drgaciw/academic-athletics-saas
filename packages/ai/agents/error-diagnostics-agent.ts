@@ -18,7 +18,7 @@ import { globalToolRegistry } from '../lib/tool-registry'
 import { getToolsForAgentType } from '../tools'
 import { ERROR_DIAGNOSTICS_AGENT_PROMPT } from '../lib/prompt-templates'
 import type { AgentConfig, AgentRequest, ToolExecutionContext } from '../types/agent.types'
-import type { CoreTool } from 'ai'
+import type { Tool } from 'ai'
 
 /**
  * Error Diagnostics Agent Configuration
@@ -70,7 +70,7 @@ export class ErrorDiagnosticsAgent extends BaseAgent {
   /**
    * Get tools for error diagnostics agent
    */
-  protected getTools(): Record<string, CoreTool> {
+  protected getTools(): Record<string, Tool> {
     const context: ToolExecutionContext = {
       userId: '',
       userRoles: this.getUserRoles(),

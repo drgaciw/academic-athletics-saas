@@ -1,6 +1,6 @@
 'use client'
 
-import { useSignIn } from '@clerk/nextjs'
+import { useSignIn } from '@clerk/nextjs/legacy'
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Alert, AlertDescription } from './alert'

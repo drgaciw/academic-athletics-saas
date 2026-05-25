@@ -35,11 +35,11 @@ export interface IntentClassification {
 /**
  * Intent patterns for each agent type
  */
-const INTENT_PATTERNS: Record<AgentType, {
+const INTENT_PATTERNS: Partial<Record<AgentType, {
   keywords: string[]
   phrases: string[]
   description: string
-}> = {
+}>> = {
   advising: {
     keywords: [
       'course', 'class', 'schedule', 'degree', 'major', 'minor',
@@ -342,7 +342,7 @@ export class IntentClassifier {
     }
     
     if (breakdown.semanticScore > 0.6) {
-      reasons.push(`semantically similar to ${pattern.description}`)
+      reasons.push(`semantically similar to ${pattern?.description ?? agentType}`)
     }
     
     if (reasons.length === 0) {
@@ -359,7 +359,7 @@ export class IntentClassifier {
     const messageLower = message.toLowerCase()
     
     // Specific intent labels based on keywords
-    const intentMap: Record<AgentType, Record<string, string>> = {
+    const intentMap: Partial<Record<AgentType, Record<string, string>>> = {
       advising: {
         'course': 'course_selection',
         'schedule': 'schedule_planning',
@@ -413,8 +413,13 @@ export class IntentClassifier {
       }
     }
     
+    const mappings = intentMap[agentType]
+    if (!mappings) {
+      return `${agentType}_general`
+    }
+
     // Find matching intent
-    for (const [keyword, intent] of Object.entries(intentMap[agentType])) {
+    for (const [keyword, intent] of Object.entries(mappings)) {
       if (messageLower.includes(keyword)) {
         return intent
       }

@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@aah/ui', '@aah/database', '@aah/auth', '@aah/ai'],
+  serverExternalPackages: ['pg', '@prisma/adapter-pg'],
   async rewrites() {
     return [
       // Student Portal zone rewrites

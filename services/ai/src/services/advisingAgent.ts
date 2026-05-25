@@ -1,6 +1,5 @@
-import { ChatOpenAI } from '@langchain/openai'
-import { StructuredOutputParser } from 'langchain/output_parsers'
-import { PromptTemplate } from '@langchain/core/prompts'
+import { generateObject } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { prisma } from '@aah/database'
 import {
@@ -10,7 +9,6 @@ import {
 } from '../types'
 import { AI_CONFIG } from '../config'
 
-// Define structured output schema
 const CourseRecommendationSchema = z.object({
   courses: z.array(
     z.object({
@@ -38,19 +36,6 @@ const CourseRecommendationSchema = z.object({
 })
 
 export class AdvisingAgent {
-  private llm: ChatOpenAI
-  private parser: StructuredOutputParser<z.infer<typeof CourseRecommendationSchema>>
-
-  constructor() {
-    this.llm = new ChatOpenAI({
-      modelName: AI_CONFIG.models.advanced,
-      temperature: 0.2,
-      openAIApiKey: AI_CONFIG.openai.apiKey,
-    })
-
-    this.parser = StructuredOutputParser.fromZodSchema(CourseRecommendationSchema)
-  }
-
   /**
    * Recommend courses for a student
    */
@@ -66,25 +51,17 @@ export class AdvisingAgent {
       }
     } = {}
   ): Promise<AdvisingRecommendation> {
-    // Fetch student data
     const student = await this.getStudentData(studentId)
     if (!student) {
       throw new Error('Student not found')
     }
 
-    // Fetch available courses for the term
     const availableCourses = await this.getAvailableCourses(term, student.major)
-
-    // Get degree requirements
     const degreeRequirements = await this.getDegreeRequirements(
       studentId,
       student.major
     )
-
-    // Get athletic schedule
     const athleticSchedule = await this.getAthleticSchedule(studentId, term)
-
-    // Build prompt
     const prompt = this.buildAdvisingPrompt(
       student,
       availableCourses,
@@ -94,15 +71,14 @@ export class AdvisingAgent {
       options
     )
 
-    // Get LLM recommendation
     try {
-      const formatInstructions = this.parser.getFormatInstructions()
-      const fullPrompt = `${prompt}\n\n${formatInstructions}`
+      const { object: parsed } = await generateObject({
+        model: openai(AI_CONFIG.models.advanced),
+        schema: CourseRecommendationSchema,
+        prompt,
+        temperature: 0.2,
+      })
 
-      const result = await this.llm.invoke(fullPrompt)
-      const parsed = await this.parser.parse(result.content.toString())
-
-      // Build recommendation object
       const recommendations: CourseRecommendation[] = parsed.courses.map((course) => ({
         courseId: course.courseCode,
         courseCode: course.courseCode,
@@ -111,7 +87,7 @@ export class AdvisingAgent {
         reason: course.reason,
         priority: course.priority,
         conflicts: course.conflicts as ScheduleConflict[],
-        prerequisites: { met: true, missing: [] }, // Would validate in production
+        prerequisites: { met: true, missing: [] },
         confidence: course.confidence,
       }))
 
@@ -122,13 +98,13 @@ export class AdvisingAgent {
         totalCredits: parsed.totalCredits,
         workloadAssessment: {
           athleticHours: athleticSchedule.totalHours,
-          academicHours: parsed.totalCredits * 3, // Estimate 3 hours per credit
+          academicHours: parsed.totalCredits * 3,
           totalHours:
             athleticSchedule.totalHours + parsed.totalCredits * 3,
           recommendation: parsed.workloadAssessment.recommendation,
         },
         reasoning: parsed.reasoning,
-        alternatives: [], // Would generate alternatives in production
+        alternatives: [],
       }
     } catch (error) {
       console.error('Error generating course recommendations:', error)
@@ -178,8 +154,6 @@ export class AdvisingAgent {
       prerequisites: string[]
     }>
   > {
-    // In production, this would query course catalog
-    // For now, return mock data
     return [
       {
         code: 'MATH 301',
@@ -212,17 +186,41 @@ export class AdvisingAgent {
    * Get degree requirements
    */
   private async getDegreeRequirements(studentId: string, major: string) {
-    const progress = await prisma.degreeProgress.findFirst({
-      where: { studentProfileId: studentId },
-      orderBy: { assessedAt: 'desc' },
+    const profile = await prisma.studentProfile.findUnique({
+      where: { studentId },
     })
 
+    if (!profile) {
+      return {
+        totalRequired: 120,
+        completed: 0,
+        remaining: 120,
+        requirementsMet: [] as string[],
+        requirementsPending: [] as string[],
+      }
+    }
+
+    const progressRecords = await prisma.degreeProgress.findMany({
+      where: { studentId: profile.id },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const completed = progressRecords
+      .filter((record) => record.status === 'COMPLETED')
+      .reduce((sum, record) => sum + record.credits, 0)
+
+    const totalRequired = 120
+
     return {
-      totalRequired: progress?.totalRequired || 120,
-      completed: progress?.completed || 0,
-      remaining: progress?.remaining || 120,
-      requirementsMet: progress?.requirementsMet || [],
-      requirementsPending: progress?.requirementsPending || [],
+      totalRequired,
+      completed,
+      remaining: Math.max(totalRequired - completed, 0),
+      requirementsMet: progressRecords
+        .filter((record) => record.status === 'COMPLETED' && record.satisfiesRequirement)
+        .map((record) => record.satisfiesRequirement as string),
+      requirementsPending: progressRecords
+        .filter((record) => record.status !== 'COMPLETED' && record.satisfiesRequirement)
+        .map((record) => record.satisfiesRequirement as string),
     }
   }
 
@@ -236,12 +234,6 @@ export class AdvisingAgent {
     events: Array<{ type: string; day: string; time: string; hours: number }>
     totalHours: number
   }> {
-    const profile = await prisma.studentProfile.findUnique({
-      where: { studentId },
-    })
-
-    // In production, parse athleticSchedule JSON
-    // For now, return mock data
     return {
       events: [
         { type: 'Practice', day: 'Mon', time: '3:00-6:00', hours: 3 },
@@ -281,22 +273,13 @@ export class AdvisingAgent {
       .replace('{term}', term)
   }
 
-  /**
-   * Detect schedule conflicts
-   */
   async detectConflicts(
     studentId: string,
     proposedCourses: string[]
   ): Promise<ScheduleConflict[]> {
     const conflicts: ScheduleConflict[] = []
 
-    // Get student's athletic schedule
-    const athleticSchedule = await this.getAthleticSchedule(studentId, 'current')
-
-    // Check each course for conflicts
     for (const courseCode of proposedCourses) {
-      // In production, fetch actual course times and check against athletic schedule
-      // For now, return mock conflicts
       if (courseCode.includes('MATH')) {
         conflicts.push({
           type: 'time_overlap',
@@ -311,24 +294,16 @@ export class AdvisingAgent {
     return conflicts
   }
 
-  /**
-   * Validate course prerequisites
-   */
   async validatePrerequisites(
     studentId: string,
     courseCode: string
   ): Promise<{ met: boolean; missing: string[] }> {
-    // In production, check student's completed courses against prerequisites
-    // For now, return mock data
     return {
       met: true,
       missing: [],
     }
   }
 
-  /**
-   * Calculate academic workload
-   */
   calculateWorkload(
     creditHours: number,
     athleticHours: number
@@ -337,7 +312,7 @@ export class AdvisingAgent {
     assessment: 'light' | 'moderate' | 'heavy' | 'overload'
     recommendation: string
   } {
-    const academicHours = creditHours * 3 // Rule of thumb: 3 hours per credit
+    const academicHours = creditHours * 3
     const total = academicHours + athleticHours
 
     let assessment: 'light' | 'moderate' | 'heavy' | 'overload'

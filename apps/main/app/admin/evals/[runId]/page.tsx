@@ -255,31 +255,25 @@ export default function EvalRunDetailsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.entries(report.metrics.categoryBreakdown).map(([categoryName, category]) => (
-                <TableRow key={categoryName}>
-                  <TableCell className="font-medium">
-                    {categoryName}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.totalTests}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.passedTests}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {(category.passRate * 100).toFixed(1)}%
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.averageScore.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {category.averageLatencyMs.toFixed(0)}ms
-                  </TableCell>
-                  <TableCell className="text-right">
-                    N/A
-                  </TableCell>
-                </TableRow>
-              ))}
+              {Object.entries(report.metrics.categoryBreakdown).map(
+                ([categoryName, category]) => (
+                  <TableRow key={categoryName}>
+                    <TableCell className="font-medium">{categoryName}</TableCell>
+                    <TableCell className="text-right">{category.totalTests}</TableCell>
+                    <TableCell className="text-right">{category.passedTests}</TableCell>
+                    <TableCell className="text-right">
+                      {(category.passRate * 100).toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {category.averageScore.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {category.averageLatencyMs.toFixed(0)}ms
+                    </TableCell>
+                    <TableCell className="text-right">—</TableCell>
+                  </TableRow>
+                ),
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -425,7 +419,7 @@ export default function EvalRunDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
-                  {format(new Date(selectedTest.metadata.timestamp), "MMM d, HH:mm:ss")}
+                  {format(new Date(selectedTest.metadata.timestamp), 'MMM d, HH:mm:ss')}
                 </p>
               </div>
             </div>

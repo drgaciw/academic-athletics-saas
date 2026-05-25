@@ -146,11 +146,11 @@ export default function DatasetsPage() {
         input,
         expected,
         metadata: {
-          difficulty: "easy",
+          difficulty: 'easy',
           category: data.category,
           tags,
           createdAt: new Date(),
-          source: "synthetic",
+          source: 'synthetic',
           description: data.name,
         },
       };

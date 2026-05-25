@@ -8,6 +8,7 @@ import { getUser, checkPermission } from '@aah/auth'
 import {
   successResponse,
   validateRequest,
+  getValidated,
   NotFoundError,
   ForbiddenError,
 } from '@aah/api-utils'
@@ -31,7 +32,7 @@ routes.post(
   async (c) => {
     const currentUser = getUser(c)
     const correlationId = c.get('correlationId')
-    const { studentId } = c.get('validated_json')
+    const { studentId } = getValidated<z.infer<typeof continuingEligibilitySchema>>(c, 'json')
 
     try {
       checkPermission(c, 'compliance:validate')

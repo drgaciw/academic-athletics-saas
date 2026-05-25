@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getOptionalUser } from '@aah/auth'
 import { prisma } from '@aah/database'
 import { RuleEngine } from '../services/ruleEngine'
 import { checkInitialEligibility } from '../services/initialEligibility'
@@ -25,7 +26,7 @@ app.post('/', async (c) => {
     const { studentId, checkType } = checkEligibilitySchema.parse(body)
 
     // Get user ID from auth context (assuming middleware sets this)
-    const performedBy = c.get('userId') || 'system'
+    const performedBy = getOptionalUser(c)?.userId || 'system'
 
     // Fetch student data from database
     const studentProfile = await prisma.studentProfile.findUnique({
@@ -45,11 +46,11 @@ app.post('/', async (c) => {
       firstName: studentProfile.user?.firstName || undefined,
       lastName: studentProfile.user?.lastName || undefined,
       sport: studentProfile.sport || undefined,
-      academicYear: studentProfile.academicYear || 1,
+      academicYear: 1,
       cumulativeGpa: studentProfile.gpa || 0,
       totalCreditHours: studentProfile.creditHours || 0,
       degreeRequirementHours: 120, // Default, should come from program
-      progressTowardDegree: studentProfile.progressPercent || 0,
+      progressTowardDegree: Math.round(((studentProfile.creditHours || 0) / 120) * 100),
     }
 
     // Determine which checks to run
@@ -133,13 +134,15 @@ app.post('/', async (c) => {
         creditHours: studentData.totalCreditHours,
         progressPercent: studentData.progressTowardDegree,
         isEligible: result.isEligible,
-        violations: result.violations.length > 0 ? result.violations : null,
+        violations: result.violations.length > 0 ? (result.violations as object) : undefined,
         ruleVersion: '2025.1',
+        term: 'CURRENT',
+        academicYear: '2025-2026',
       },
     })
 
     // Log to audit trail
-    await logComplianceCheck(studentId, checkType, result, performedBy, {
+    await logComplianceCheck(studentId, checkType, result as import('../types').ValidationResult, performedBy, {
       rulesApplied,
     })
 
@@ -154,7 +157,7 @@ app.post('/', async (c) => {
   } catch (error) {
     console.error('Error checking eligibility:', error)
     if (error instanceof z.ZodError) {
-      return c.json({ error: 'Invalid request data', details: error.errors }, 400)
+      return c.json({ error: 'Invalid request data', details: error.issues }, 400)
     }
     return c.json({ error: 'Internal server error' }, 500)
   }

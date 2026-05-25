@@ -141,7 +141,7 @@ export const simulateScenario = createTool({
     scenario: z.object({
       dropCourse: z.string().optional().describe('Course code to drop'),
       addCourse: z.string().optional().describe('Course code to add'),
-      projectedGrades: z.record(z.string()).optional().describe('Projected grades by course code'),
+      projectedGrades: z.record(z.string(), z.string()).optional().describe('Projected grades by course code'),
       withdrawFromSemester: z.boolean().optional().describe('Simulate semester withdrawal'),
     }).describe('Scenario parameters'),
   }),

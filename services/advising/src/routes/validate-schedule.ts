@@ -8,6 +8,7 @@ import { getUser, checkPermission } from "@aah/auth";
 import {
   successResponse,
   validateRequest,
+  getValidated,
   ForbiddenError,
 } from "@aah/api-utils";
 import { z } from "zod";
@@ -39,11 +40,11 @@ routes.post(
   async (c) => {
     const _currentUser = getUser(c);
     const correlationId = c.get("correlationId");
-    const data = c.get("validated_json");
+    const data = getValidated<z.infer<typeof validateSchema>>(c, "json");
 
     try {
       checkPermission(c, "advising:read");
-    } catch (error) {
+    } catch {
       throw new ForbiddenError(
         "You do not have permission to validate schedules",
       );

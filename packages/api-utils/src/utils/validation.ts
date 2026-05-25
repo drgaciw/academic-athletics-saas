@@ -130,7 +130,7 @@ export const CommonSchemas = {
   /**
    * IP address (v4 or v6)
    */
-  ipAddress: z.string().ip('Invalid IP address'),
+  ipAddress: z.string().regex(/^(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$|^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$/, 'Invalid IP address'),
 
   /**
    * Latitude
@@ -157,7 +157,7 @@ export const CommonSchemas = {
 export function createPaginationSchema(maxPageSize = 100) {
   return z.object({
     page: CommonSchemas.page,
-    pageSize: CommonSchemas.pageSize.max(maxPageSize),
+    pageSize: z.coerce.number().int().positive().max(maxPageSize).default(20),
     sortBy: z.string().optional(),
     sortOrder: CommonSchemas.sortOrder,
   });
@@ -195,7 +195,7 @@ export function validateRequest<T extends z.ZodTypeAny>(
       await next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const details = error.errors.map((err) => ({
+        const details = error.issues.map((err) => ({
           path: err.path.join('.'),
           message: err.message,
           code: err.code,
@@ -377,18 +377,16 @@ export const SchemaHelpers = {
   /**
    * Create enum from array
    */
-  enumFromArray<T extends string>(arr: readonly T[]): z.ZodEnum<[T, ...T[]]> {
-    return z.enum(arr as [T, ...T[]]);
+  enumFromArray<T extends string>(arr: readonly [T, ...T[]]): z.ZodEnum<{ [K in T]: K }> {
+    return z.enum(arr);
   },
 
   /**
    * Create discriminated union
    */
-  discriminatedUnion<T extends string, U extends z.ZodDiscriminatedUnionOption<T>[]>(
-    discriminator: T,
-    options: U
-  ): z.ZodDiscriminatedUnion<T, U> {
-    return z.discriminatedUnion(discriminator, options);
+  discriminatedUnion(discriminator: string, options: z.ZodTypeAny[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return z.discriminatedUnion(discriminator, options as any);
   },
 } as const;
 

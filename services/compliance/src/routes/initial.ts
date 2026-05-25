@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getOptionalUser } from '@aah/auth'
 import { checkInitialEligibility, calculateCoreGPA } from '../services/initialEligibility'
 import { logComplianceCheck } from '../services/auditLogger'
 import { StudentData, CoreCourse, CoreCourseCategory } from '../types'
@@ -39,7 +40,7 @@ app.post('/', async (c) => {
     const body = await c.req.json()
     const { studentId, coreCourses, testScores } = initialEligibilitySchema.parse(body)
 
-    const performedBy = c.get('userId') || 'system'
+    const performedBy = getOptionalUser(c)?.userId || 'system'
 
     // Build student data object
     const studentData: StudentData = {
@@ -79,7 +80,7 @@ app.post('/', async (c) => {
   } catch (error) {
     console.error('Error checking initial eligibility:', error)
     if (error instanceof z.ZodError) {
-      return c.json({ error: 'Invalid request data', details: error.errors }, 400)
+      return c.json({ error: 'Invalid request data', details: error.issues }, 400)
     }
     return c.json({ error: 'Internal server error' }, 500)
   }

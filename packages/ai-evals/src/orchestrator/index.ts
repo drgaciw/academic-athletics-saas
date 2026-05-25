@@ -33,7 +33,7 @@ import {
   WorkerConfig,
   Metrics,
   BaselineComparison,
-  ExportOptions,
+  ReportExportOptions,
 } from '../types';
 
 export interface EvalOrchestratorConfig {
@@ -95,6 +95,7 @@ export class EvalOrchestrator {
               id: testCase.id + '-' + runnerConfig.modelId,
               testCase,
               runnerConfig,
+              datasetId: dataset.id,
             });
           }
         }
@@ -232,7 +233,7 @@ export class EvalOrchestrator {
   /**
    * Export report in specified format
    */
-  exportReport(report: EvalReport, options: ExportOptions): string {
+  exportReport(report: EvalReport, options: ReportExportOptions): string {
     return this.reportGenerator.exportReport(report, options);
   }
 
@@ -283,7 +284,7 @@ export class EvalOrchestrator {
       if (!execResult.result) continue;
 
       const modelId = execResult.task.runnerConfig.modelId;
-      const datasetId = 'default';
+      const datasetId = execResult.task.datasetId ?? 'default';
 
       const runKey = datasetId + '-' + modelId;
 

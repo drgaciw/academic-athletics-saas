@@ -14,20 +14,14 @@ export function calculateMetrics(results: RunResult[]): EvalMetrics {
   if (results.length === 0) {
     return {
       totalTests: 0,
-      passedTests: 0,
-      failedTests: 0,
+      passed: 0,
+      failed: 0,
+      accuracy: 0,
       passRate: 0,
-      averageScore: 0,
-      medianScore: 0,
-      minScore: 0,
-      maxScore: 0,
-      standardDeviation: 0,
-      confidenceInterval: { lower: 0, upper: 0 },
-      categoryBreakdown: {},
-      totalLatencyMs: 0,
-      averageLatencyMs: 0,
-      totalTokens: { input: 0, output: 0, total: 0 },
+      avgScore: 0,
+      avgLatency: 0,
       totalCost: 0,
+      byCategory: {},
     }
   }
 
@@ -49,38 +43,57 @@ export function calculateMetrics(results: RunResult[]): EvalMetrics {
   // Category breakdown
   const categoryBreakdown = calculateCategoryBreakdown(results)
 
-  // Performance metrics
   const totalLatencyMs = results.reduce((sum, r) => sum + r.score.latencyMs, 0)
   const averageLatencyMs = totalLatencyMs / totalTests
+  const totalCost = results.reduce((sum, r) => sum + (r.score.cost ?? 0), 0)
 
-  // Token and cost metrics
   const totalTokens = results.reduce(
-    (sum, r) => ({
-      input: sum.input + (r.score.tokens?.input ?? 0),
-      output: sum.output + (r.score.tokens?.output ?? 0),
-      total: sum.total + (r.score.tokens?.total ?? 0),
-    }),
+    (acc, r) => {
+      const tokens = r.score.tokens
+      if (typeof tokens === 'number') {
+        return { input: acc.input, output: acc.output, total: acc.total + tokens }
+      }
+      if (tokens && typeof tokens === 'object') {
+        return {
+          input: acc.input + tokens.input,
+          output: acc.output + tokens.output,
+          total: acc.total + tokens.total,
+        }
+      }
+      return acc
+    },
     { input: 0, output: 0, total: 0 }
   )
 
-  const totalCost = results.reduce((sum, r) => sum + (r.score.cost ?? 0), 0)
-
   return {
     totalTests,
-    passedTests,
-    failedTests,
+    passed: passedTests,
+    failed: failedTests,
+    accuracy: passRate * 100,
     passRate,
+    avgScore: averageScore,
+    avgLatency: averageLatencyMs,
+    totalCost,
     averageScore,
     medianScore,
-    minScore,
-    maxScore,
-    standardDeviation,
-    confidenceInterval,
-    categoryBreakdown,
-    totalLatencyMs,
     averageLatencyMs,
+    passedTests,
+    failedTests,
     totalTokens,
-    totalCost,
+    byCategory: Object.fromEntries(
+      Object.entries(categoryBreakdown).map(([category, breakdown]) => [
+        category,
+        {
+          category,
+          totalTests: breakdown.totalTests,
+          passed: breakdown.passedTests,
+          accuracy: breakdown.passRate,
+          avgScore: breakdown.averageScore,
+          avgLatency: breakdown.averageLatencyMs,
+          avgCost: totalCost / totalTests,
+        },
+      ])
+    ),
   }
 }
 
@@ -184,7 +197,7 @@ function calculateCategoryBreakdown(
 
   // Group results by category
   for (const result of results) {
-    const category = result.testCase.category ?? 'uncategorized'
+    const category = result.testCase.metadata.category ?? 'uncategorized'
     if (!categories.has(category)) {
       categories.set(category, [])
     }
@@ -289,8 +302,8 @@ export function compareMetrics(
   }>
 } {
   const passRateDelta = current.passRate - baseline.passRate
-  const averageScoreDelta = current.averageScore - baseline.averageScore
-  const latencyDelta = current.averageLatencyMs - baseline.averageLatencyMs
+  const averageScoreDelta = current.avgScore - baseline.avgScore
+  const latencyDelta = current.avgLatency - baseline.avgLatency
   const costDelta = current.totalCost - baseline.totalCost
 
   const regressions: Array<{
@@ -316,27 +329,27 @@ export function compareMetrics(
   if (averageScoreDelta < -0.05) {
     regressions.push({
       metric: 'averageScore',
-      current: current.averageScore,
-      baseline: baseline.averageScore,
+      current: current.avgScore,
+      baseline: baseline.avgScore,
       delta: averageScoreDelta,
       severity: averageScoreDelta < -0.15 ? 'critical' : averageScoreDelta < -0.10 ? 'major' : 'minor',
     })
   }
 
   // Check for latency regression (>20% increase)
-  const latencyIncrease = latencyDelta / baseline.averageLatencyMs
+  const latencyIncrease = baseline.avgLatency > 0 ? latencyDelta / baseline.avgLatency : 0
   if (latencyIncrease > 0.20) {
     regressions.push({
-      metric: 'averageLatencyMs',
-      current: current.averageLatencyMs,
-      baseline: baseline.averageLatencyMs,
+      metric: 'avgLatency',
+      current: current.avgLatency,
+      baseline: baseline.avgLatency,
       delta: latencyDelta,
       severity: latencyIncrease > 0.50 ? 'critical' : latencyIncrease > 0.35 ? 'major' : 'minor',
     })
   }
 
   // Check for cost regression (>30% increase)
-  const costIncrease = costDelta / baseline.totalCost
+  const costIncrease = baseline.totalCost > 0 ? costDelta / baseline.totalCost : 0
   if (costIncrease > 0.30) {
     regressions.push({
       metric: 'totalCost',
@@ -364,30 +377,22 @@ export function formatMetrics(metrics: EvalMetrics): string {
     '=== Evaluation Metrics ===',
     '',
     `Total Tests: ${metrics.totalTests}`,
-    `Passed: ${metrics.passedTests} (${(metrics.passRate * 100).toFixed(1)}%)`,
-    `Failed: ${metrics.failedTests}`,
+    `Passed: ${metrics.passed} (${(metrics.passRate * 100).toFixed(1)}%)`,
+    `Failed: ${metrics.failed}`,
     '',
     '--- Score Statistics ---',
-    `Average: ${(metrics.averageScore * 100).toFixed(1)}%`,
-    `Median: ${(metrics.medianScore * 100).toFixed(1)}%`,
-    `Min: ${(metrics.minScore * 100).toFixed(1)}%`,
-    `Max: ${(metrics.maxScore * 100).toFixed(1)}%`,
-    `Std Dev: ${(metrics.standardDeviation * 100).toFixed(1)}%`,
-    `95% CI: [${(metrics.confidenceInterval.lower * 100).toFixed(1)}%, ${(metrics.confidenceInterval.upper * 100).toFixed(1)}%]`,
+    `Average: ${(metrics.avgScore * 100).toFixed(1)}%`,
     '',
     '--- Performance ---',
-    `Total Latency: ${metrics.totalLatencyMs.toFixed(0)}ms`,
-    `Average Latency: ${metrics.averageLatencyMs.toFixed(0)}ms`,
-    `Total Tokens: ${metrics.totalTokens.total.toLocaleString()}`,
+    `Average Latency: ${metrics.avgLatency.toFixed(0)}ms`,
     `Total Cost: $${metrics.totalCost.toFixed(4)}`,
   ]
 
-  // Add category breakdown if available
-  if (Object.keys(metrics.categoryBreakdown).length > 0) {
+  if (metrics.byCategory && Object.keys(metrics.byCategory).length > 0) {
     lines.push('', '--- Category Breakdown ---')
-    for (const [category, breakdown] of Object.entries(metrics.categoryBreakdown)) {
+    for (const [category, breakdown] of Object.entries(metrics.byCategory)) {
       lines.push(
-        `${category}: ${breakdown.passedTests}/${breakdown.totalTests} passed (${(breakdown.passRate * 100).toFixed(1)}%), avg score: ${(breakdown.averageScore * 100).toFixed(1)}%`
+        `${category}: ${breakdown.passed}/${breakdown.totalTests} passed (${(breakdown.accuracy * 100).toFixed(1)}%), avg score: ${(breakdown.avgScore * 100).toFixed(1)}%`
       )
     }
   }
@@ -414,15 +419,15 @@ export function exportMetricsToCSV(results: RunResult[]): string {
 
   const rows = results.map(result => [
     result.testCase.id,
-    result.testCase.category ?? 'uncategorized',
+    result.testCase.metadata.category ?? 'uncategorized',
     result.score.value.toFixed(4),
     result.score.passed ? 'true' : 'false',
     result.score.latencyMs.toFixed(0),
-    result.score.tokens?.input ?? 0,
-    result.score.tokens?.output ?? 0,
-    result.score.tokens?.total ?? 0,
+    0,
+    0,
+    0,
     result.score.cost?.toFixed(6) ?? '0',
-    `"${(result.score.explanation ?? '').replace(/"/g, '""')}"`,
+    '""',
   ])
 
   return [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
@@ -437,13 +442,11 @@ export function exportMetricsToJSON(metrics: EvalMetrics, results: RunResult[]):
       metrics,
       results: results.map(r => ({
         testCaseId: r.testCase.id,
-        category: r.testCase.category,
+        category: r.testCase.metadata.category,
         score: r.score.value,
         passed: r.score.passed,
         latencyMs: r.score.latencyMs,
-        tokens: r.score.tokens,
         cost: r.score.cost,
-        explanation: r.score.explanation,
       })),
     },
     null,

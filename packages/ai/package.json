@@ -9,32 +9,28 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.51",
-    "@ai-sdk/openai": "^0.0.66",
+    "@aah/database": "workspace:*",
+    "@ai-sdk/anthropic": "^3.0.65",
+    "@ai-sdk/openai": "^3.0.65",
     "@anthropic-ai/sdk": "^0.30.0",
-    "@langchain/anthropic": "^0.3.0",
-    "@langchain/community": "^0.3.0",
-    "@langchain/core": "^0.3.0",
-    "@langchain/openai": "^0.3.0",
-    "@prisma/client": "^5.22.0",
-    "ai": "^3.4.0",
+    "@prisma/client": "^7.8.0",
+    "ai": "^6.0.191",
     "ioredis": "^5.8.2",
-    "langchain": "^0.3.0",
     "langfuse": "^3.26.0",
     "langfuse-vercel": "^3.38.6",
     "openai": "^4.67.0",
     "tiktoken": "^1.0.15",
-    "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.0"
+    "zod": "^4.4.3",
+    "zod-to-json-schema": "^3.24.6"
   },
   "devDependencies": {
     "@types/ioredis": "^5.0.0",
-    "@types/jest": "^29.5.0",
-    "@types/node": "^20.0.0",
-    "jest": "^29.7.0",
-    "jest-environment-node": "^29.7.0",
-    "ts-jest": "^29.1.0",
-    "typescript": "^5.3.0",
-    "vitest": "^4.0.16"
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.8.6",
+    "jest": "^30.4.1",
+    "jest-environment-node": "^30.4.1",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.6"
   }
 }

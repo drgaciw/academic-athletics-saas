@@ -62,7 +62,7 @@ export function TransferEligibilityDashboard({
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-2">
-              <Badge variant={statusColor as any} className="w-fit text-lg px-3 py-1">
+              <Badge variant={statusColor as 'default' | 'secondary' | 'destructive' | 'outline'} className="w-fit text-lg px-3 py-1">
                 {eligibilityStatus}
               </Badge>
               <p className="text-xs text-muted-foreground mt-2">

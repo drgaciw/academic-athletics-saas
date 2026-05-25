@@ -90,7 +90,7 @@ export function cors(options: CorsOptions = {}): MiddlewareHandler {
         c.header('Access-Control-Max-Age', opts.maxAge.toString());
       }
 
-      return c.text('', 204);
+      return new Response(null, { status: 204, headers: c.res.headers });
     }
 
     // Set CORS headers for actual requests

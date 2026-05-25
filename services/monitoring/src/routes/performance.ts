@@ -107,7 +107,7 @@ app.post('/:studentId', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
-            details: error.errors,
+            details: error.issues,
             timestamp: new Date().toISOString(),
           },
         },

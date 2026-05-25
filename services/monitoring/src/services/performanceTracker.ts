@@ -1,9 +1,7 @@
 // Performance tracking service - calculates GPA, credit hours, attendance metrics
-import { PrismaClient } from '@aah/database'
+import { prisma } from '@aah/database'
 import { PerformanceMetrics } from '../types'
 import { determineMetricStatus, calculateTrend } from '../lib/thresholds'
-
-const prisma = new PrismaClient()
 
 export async function getPerformanceMetrics(
   studentId: string,
@@ -152,7 +150,7 @@ export async function calculateAttendanceRate(studentId: string) {
 
   if (reports.length === 0) return 100
 
-  const attendanceScores = {
+  const attendanceScores: Record<string, number> = {
     EXCELLENT: 100,
     GOOD: 90,
     FAIR: 75,

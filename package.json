@@ -26,6 +26,8 @@
     "test": "turbo run test",
     "test:watch": "turbo run test -- --watch",
     "test:coverage": "turbo run test -- --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:student": "playwright test tests/e2e/student-smoke.spec.ts",
     "type-check": "turbo run type-check",
     "db:generate": "cd packages/database && pnpm run db:generate",
     "db:push": "cd packages/database && pnpm run db:push",
@@ -37,12 +39,13 @@
     "postinstall": "pnpm run db:generate"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@types/node": "^22.8.6",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.2",
-    "prettier": "^3.3.3",
-    "turbo": "^2.6.0",
-    "typescript": "^5.6.3"
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.7.4",
+    "turbo": "^2.7.1",
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -54,11 +57,16 @@
     ]
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0",
+    "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@10.11.0",
+  "pnpm": {
+    "overrides": {
+      "ai": "^6.0.191"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/athletic-academics-hub"

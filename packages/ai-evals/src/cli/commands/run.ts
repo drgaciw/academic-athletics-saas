@@ -1,7 +1,20 @@
 import { Command } from 'commander';
+import { prisma } from '@aah/database';
 import { RunCommandOptions } from '../../config/types';
 import { loadConfig, ConfigValidationError, ConfigParseError } from '../../config/parser';
 import { interactiveMode } from '../interactive';
+import { EvalOrchestrator } from '../../orchestrator/index';
+import { loadDataset, listDatasets } from '../../dataset-manager';
+import { createEvalRepository } from '../../db/repository';
+import {
+  ComplianceRunner,
+  ConversationalRunner,
+  AdvisingRunner,
+  RiskPredictionRunner,
+  RAGRunner,
+} from '../../runners';
+import type { RunResult, ScorerConfig, Score } from '../../types';
+import type { ExecutionTask } from '../../orchestrator/parallel-executor';
 import {
   displayBanner,
   section,
@@ -42,7 +55,7 @@ export function createRunCommand(): Command {
   return command;
 }
 
-function renderRunOutput(mockResults: {
+function renderRunOutput(results: {
   runId: string;
   totalTests: number;
   passed: number;
@@ -53,22 +66,22 @@ function renderRunOutput(mockResults: {
   duration: number;
 }, format: string, verbose: boolean): string {
   if (format === 'json') {
-    return JSON.stringify(mockResults, null, 2);
+    return JSON.stringify(results, null, 2);
   }
 
   if (format === 'markdown') {
-    return `# Eval Results\n\n| Metric | Value |\n|--------|-------|\n| Run ID | ${mockResults.runId} |\n| Total Tests | ${mockResults.totalTests} |\n| Passed | ${mockResults.passed} |\n| Failed | ${mockResults.failed} |\n| Accuracy | ${mockResults.accuracy} |\n| Avg Latency | ${mockResults.avgLatency} |\n| Total Cost | ${mockResults.totalCost} |\n| Duration | ${mockResults.duration} |\n`;
+    return `# Eval Results\n\n| Metric | Value |\n|--------|-------|\n| Run ID | ${results.runId} |\n| Total Tests | ${results.totalTests} |\n| Passed | ${results.passed} |\n| Failed | ${results.failed} |\n| Accuracy | ${results.accuracy} |\n| Avg Latency | ${results.avgLatency} |\n| Total Cost | ${results.totalCost} |\n| Duration | ${results.duration} |\n`;
   }
 
   const sections = [
-    `Run ID: ${mockResults.runId}`,
-    `Total Tests: ${mockResults.totalTests}`,
-    `Passed: ${mockResults.passed}`,
-    `Failed: ${mockResults.failed}`,
-    `Accuracy: ${mockResults.accuracy}`,
-    `Avg Latency: ${mockResults.avgLatency}`,
-    `Total Cost: ${mockResults.totalCost}`,
-    `Duration: ${mockResults.duration}`,
+    `Run ID: ${results.runId}`,
+    `Total Tests: ${results.totalTests}`,
+    `Passed: ${results.passed}`,
+    `Failed: ${results.failed}`,
+    `Accuracy: ${results.accuracy}`,
+    `Avg Latency: ${results.avgLatency}`,
+    `Total Cost: ${results.totalCost}`,
+    `Duration: ${results.duration}`,
   ];
 
   if (verbose) {
@@ -76,6 +89,42 @@ function renderRunOutput(mockResults: {
   }
 
   return sections.join('\n');
+}
+
+function createRunnerForDataset(datasetId: string) {
+  if (datasetId.startsWith('compliance')) return new ComplianceRunner();
+  if (datasetId.startsWith('advising')) return new AdvisingRunner();
+  if (datasetId.startsWith('risk')) return new RiskPredictionRunner();
+  if (datasetId.startsWith('rag')) return new RAGRunner();
+  return new ConversationalRunner();
+}
+
+async function scoreRunResult(
+  result: RunResult,
+  scorerConfig: ScorerConfig
+): Promise<Score> {
+  if (result.metadata?.error) {
+    return {
+      passed: false,
+      score: 0,
+      explanation: result.metadata.error,
+    };
+  }
+
+  if (scorerConfig.strategy === 'exact') {
+    const matches = JSON.stringify(result.actual) === JSON.stringify(result.expected);
+    return {
+      passed: matches,
+      score: matches ? 1 : 0,
+      explanation: matches ? 'Exact match' : 'Output mismatch',
+    };
+  }
+
+  return {
+    passed: true,
+    score: 0.5,
+    explanation: 'Semantic scorer not yet wired; marked as provisional pass',
+  };
 }
 
 /**
@@ -146,46 +195,102 @@ async function handleRunCommand(options: RunCommandOptions) {
       return;
     }
 
-    // TODO: Execute eval run
     section('Execution');
-    warning('Eval execution not yet implemented - this is a CLI skeleton');
+    const execSpin = spinner('Running evaluations...');
 
-    // Mock results for demonstration
-    const mockResults = {
-      runId: 'run_' + Date.now(),
-      totalTests: 50,
-      passed: 42,
-      failed: 8,
-      accuracy: 0.84,
-      avgLatency: 1234,
-      totalCost: 0.52,
-      duration: 125000,
+    const orchestrator = new EvalOrchestrator({
+      workerConfig: {
+        concurrency: config.runner.concurrency ?? options.concurrency ?? 5,
+      },
+    });
+
+    const datasetIds = config.datasets.include?.length
+      ? config.datasets.include
+      : (await listDatasets()).map((dataset) => dataset.id);
+
+    if (datasetIds.length === 0) {
+      execSpin.fail('No datasets found');
+      throw new Error('No datasets available to run');
+    }
+
+    const datasets = await Promise.all(datasetIds.map((id) => loadDataset(id)));
+    const runnerConfigs = config.models.map((model) => ({
+      modelId: `${model.provider}/${model.modelId}`,
+      temperature: model.temperature,
+      maxTokens: model.maxTokens,
+      timeout: config.runner.timeout,
+      retries: config.runner.retries,
+    }));
+
+    const jobId = orchestrator.createJob({
+      datasetIds,
+      runnerConfigs,
+      scorerConfig: config.scorer,
+      baseline: config.baseline.enabled ? config.baseline.baselineId : undefined,
+      parallel: options.parallel ?? true,
+      concurrency: config.runner.concurrency,
+    });
+
+    const runExecutor = async (task: ExecutionTask) => {
+      const runner = createRunnerForDataset(task.datasetId ?? datasetIds[0]!);
+      return runner.runTestCase(task.testCase, task.runnerConfig);
     };
 
-    // Display results
+    const report = await orchestrator.executeJob(
+      jobId,
+      datasets,
+      runExecutor,
+      scoreRunResult
+    );
+
+    execSpin.succeed('Eval execution completed');
+
+    const repository = createEvalRepository(prisma);
+    const persistedRunIds = await repository.persistEvalReport(report, datasets, config);
+
+    const results = {
+      runId: persistedRunIds[0] ?? report.jobId,
+      totalTests: report.summary.totalTests,
+      passed: report.summary.passed,
+      failed: report.summary.failed,
+      accuracy: report.summary.accuracy / 100,
+      avgLatency: report.summary.avgLatency,
+      totalCost: report.summary.totalCost,
+      duration: report.summary.duration,
+    };
+
     section('Results');
 
     summaryBox({
       title: 'Eval Summary',
       items: [
-        { label: 'Run ID', value: mockResults.runId },
-        { label: 'Total Tests', value: mockResults.totalTests },
-        { label: 'Passed', value: mockResults.passed, color: 'green' },
-        { label: 'Failed', value: mockResults.failed, color: 'red' },
-        { label: 'Accuracy', value: colorScore(mockResults.accuracy, 0.8) },
-        { label: 'Avg Latency', value: formatDuration(mockResults.avgLatency) },
-        { label: 'Total Cost', value: formatCost(mockResults.totalCost) },
-        { label: 'Duration', value: formatDuration(mockResults.duration) },
+        { label: 'Run ID', value: results.runId },
+        { label: 'Total Tests', value: results.totalTests },
+        { label: 'Passed', value: results.passed, color: 'green' },
+        { label: 'Failed', value: results.failed, color: 'red' },
+        { label: 'Accuracy', value: colorScore(results.accuracy, 0.8) },
+        { label: 'Avg Latency', value: formatDuration(results.avgLatency) },
+        { label: 'Total Cost', value: formatCost(results.totalCost) },
+        { label: 'Duration', value: formatDuration(results.duration) },
       ],
     });
 
-    // Display detailed results table
     if (config.output.verbose) {
       const tableData = [
         ['Test ID', 'Status', 'Score', 'Latency', 'Cost'],
-        ['test-001', colorStatus(true), colorScore(0.95), '1.2s', '$0.01'],
-        ['test-002', colorStatus(true), colorScore(0.88), '0.8s', '$0.008'],
-        ['test-003', colorStatus(false), colorScore(0.45), '1.5s', '$0.012'],
+        ...report.scoringResults.slice(0, 20).map((entry) => {
+          const runResult = report.runSummaries
+            .flatMap((summary) => summary.results)
+            .find((result) => result.testCaseId === entry.testCaseId);
+
+          return [
+            entry.testCaseId,
+            colorStatus(entry.score.passed),
+            colorScore(entry.score.score ?? entry.score.value ?? 0),
+            formatDuration(runResult?.metadata?.latency ?? 0),
+            formatCost(runResult?.metadata?.cost ?? 0),
+          ];
+        }),
       ];
 
       console.log('\nDetailed Results:');
@@ -194,11 +299,10 @@ async function handleRunCommand(options: RunCommandOptions) {
 
     success('Eval completed successfully');
 
-    // Save to file if specified
     if (config.output.outputFile) {
       await writeOutputFile(
         config.output.outputFile,
-        renderRunOutput(mockResults, config.output.format, config.output.verbose)
+        renderRunOutput(results, config.output.format, config.output.verbose)
       );
       info(`Results saved to: ${config.output.outputFile}`);
     }

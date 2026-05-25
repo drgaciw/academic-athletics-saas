@@ -83,7 +83,7 @@ export class CalendarService {
 
       return {
         success: true,
-        eventId: response.data.id,
+        eventId: response.data.id ?? undefined,
         provider: 'google',
       };
     } catch (error) {
@@ -141,7 +141,7 @@ export class CalendarService {
 
       return {
         success: true,
-        eventId: response.data.id,
+        eventId: response.data.id ?? undefined,
         provider: 'google',
       };
     } catch (error) {

@@ -11,7 +11,8 @@ import type {
   AgentStep,
   ToolResult,
 } from '../types/agent.types'
-import type { CoreMessage } from 'ai'
+import type { ModelMessage } from 'ai'
+import { prisma } from '@aah/database'
 
 /**
  * State storage interface (can be implemented with different backends)
@@ -52,10 +53,6 @@ export class InMemoryStateStorage implements StateStorage {
 export class DatabaseStateStorage implements StateStorage {
   async save(state: AgentState): Promise<void> {
     // In production, this would use Prisma to save to AgentTask model
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       await prisma.agentTask.upsert({
         where: { id: state.id },
         create: {
@@ -84,16 +81,9 @@ export class DatabaseStateStorage implements StateStorage {
           completedAt: state.completedAt,
         },
       })
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   async load(stateId: string): Promise<AgentState | null> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const task = await prisma.agentTask.findUnique({
         where: { id: stateId },
       })
@@ -118,29 +108,15 @@ export class DatabaseStateStorage implements StateStorage {
         updatedAt: task.updatedAt,
         completedAt: task.completedAt || undefined,
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   async delete(stateId: string): Promise<void> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       await prisma.agentTask.delete({
         where: { id: stateId },
       })
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   async list(userId: string): Promise<AgentState[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const tasks = await prisma.agentTask.findMany({
         where: {
           inputParams: {
@@ -172,9 +148,6 @@ export class DatabaseStateStorage implements StateStorage {
           completedAt: task.completedAt || undefined,
         }
       })
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 }
 
@@ -199,7 +172,7 @@ export class StateManager {
   async initialize(params: {
     userId: string
     agentType: string
-    messages: CoreMessage[]
+    messages: ModelMessage[]
     maxSteps?: number
     metadata?: Record<string, any>
   }): Promise<AgentState> {
@@ -335,10 +308,6 @@ export class StateManager {
    */
   async cleanupOldStates(maxAgeMs: number = 7 * 24 * 60 * 60 * 1000): Promise<number> {
     // Clean up states older than maxAge (default 7 days)
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const cutoffDate = new Date(Date.now() - maxAgeMs)
 
       const result = await prisma.agentTask.deleteMany({
@@ -353,9 +322,6 @@ export class StateManager {
       })
 
       return result.count
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 }
 

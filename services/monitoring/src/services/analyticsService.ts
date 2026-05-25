@@ -1,8 +1,6 @@
 // Analytics service - team-wide analytics aggregation
-import { PrismaClient } from '@aah/database'
+import { prisma } from '@aah/database'
 import { TeamAnalytics } from '../types'
-
-const prisma = new PrismaClient()
 
 export async function getTeamAnalytics(
   teamId: string,

@@ -1,9 +1,7 @@
 // Intervention service - create and track intervention plans
-import { PrismaClient } from '@aah/database'
+import { prisma } from '@aah/database'
 import { InterventionPlanData } from '../types'
 import { sendInterventionUpdate } from '../lib/pusher'
-
-const prisma = new PrismaClient()
 
 export async function createInterventionPlan(data: InterventionPlanData) {
   const plan = await prisma.interventionPlan.create({

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
 import { validateRequest } from '../middleware/validation'
 import { studyHallCheckInSchema } from '../types'
 import { studyHallService } from '../services/studyHallService'
@@ -8,7 +9,7 @@ const studyHall = new Hono()
 
 // POST /api/support/study-hall/checkin - Check in to study hall
 studyHall.post('/checkin', validateRequest(studyHallCheckInSchema), async (c) => {
-  const validatedData = c.get('validatedData')
+  const validatedData = c.get('validatedData') as z.infer<typeof studyHallCheckInSchema>
 
   const attendance = await studyHallService.checkIn(validatedData)
 

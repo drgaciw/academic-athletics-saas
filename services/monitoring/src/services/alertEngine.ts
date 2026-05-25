@@ -1,10 +1,8 @@
 // Alert engine - generates alerts based on performance thresholds
-import { PrismaClient, AlertSeverity } from '@aah/database'
+import { prisma, AlertSeverity } from '@aah/database'
 import { AlertData } from '../types'
 import { DEFAULT_THRESHOLDS } from '../lib/thresholds'
 import { sendAlertNotification } from '../lib/pusher'
-
-const prisma = new PrismaClient()
 
 export async function generateAlertsForStudent(
   studentId: string

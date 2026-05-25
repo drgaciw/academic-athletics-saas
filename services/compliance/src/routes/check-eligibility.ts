@@ -97,8 +97,10 @@ routes.post(
         creditHours: studentData.creditHours,
         progressPercent: (studentData.completedCredits / studentData.degreeRequiredCredits) * 100,
         isEligible: result.isEligible,
-        violations: result.violations.length > 0 ? result.violations : null,
+        violations: result.violations.length > 0 ? (result.violations as object) : undefined,
         ruleVersion: result.ruleVersion,
+        term: 'CURRENT',
+        academicYear: '2025-2026',
       },
     })
 

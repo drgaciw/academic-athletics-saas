@@ -42,7 +42,7 @@ routes.get('/status/:studentId', async (c) => {
         include: {
           complianceRecords: {
             orderBy: {
-              checkedAt: 'desc',
+              createdAt: 'desc',
             },
             take: 1,
           },
@@ -65,7 +65,7 @@ routes.get('/status/:studentId', async (c) => {
     currentGpa: student.studentProfile.gpa,
     creditHours: student.studentProfile.creditHours,
     latestCheck: latestRecord ? {
-      checkedAt: latestRecord.checkedAt,
+      checkedAt: latestRecord.createdAt,
       isEligible: latestRecord.isEligible,
       ruleVersion: latestRecord.ruleVersion,
     } : null,

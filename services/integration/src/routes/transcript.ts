@@ -66,7 +66,7 @@ app.post('/request', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -156,7 +156,7 @@ app.post('/request/electronic', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -222,7 +222,7 @@ app.post('/request/physical', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -289,7 +289,7 @@ app.post('/request/batch', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -480,7 +480,7 @@ app.post('/verify/enrollment', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -542,7 +542,7 @@ app.post('/verify/degree', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },

@@ -15,10 +15,11 @@ import { ArrowLeft } from 'lucide-react';
 import { AcknowledgeForm } from './acknowledge-form';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default async function ComplianceChangeDetailPage({ params }: PageProps) {
+export default async function ComplianceChangeDetailPage(props: PageProps) {
+  const params = await props.params;
   const { userId } = await auth();
   if (!userId) {
     redirect('/sign-in');

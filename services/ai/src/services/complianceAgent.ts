@@ -1,33 +1,21 @@
-import { ChatAnthropic } from '@langchain/anthropic'
-import { PromptTemplate } from '@langchain/core/prompts'
+import { generateText } from 'ai'
 import { ComplianceQuery, ComplianceAnalysis } from '../types'
 import { AI_CONFIG } from '../config'
 import { ragPipeline } from './ragPipeline'
+import { getLanguageModel } from '../utils/modelProvider'
 
 export class ComplianceAgent {
-  private llm: ChatAnthropic
-
-  constructor() {
-    this.llm = new ChatAnthropic({
-      modelName: AI_CONFIG.models.reasoning,
-      temperature: 0.1, // Low temperature for accurate rule interpretation
-      anthropicApiKey: AI_CONFIG.anthropic.apiKey,
-    })
-  }
-
   /**
    * Analyze compliance query with NCAA rules
    */
   async analyzeCompliance(query: ComplianceQuery): Promise<ComplianceAnalysis> {
     const { question, context } = query
 
-    // Use RAG to retrieve relevant NCAA rules
     const ragResult = await ragPipeline.query(question, {
       model: AI_CONFIG.models.reasoning,
       systemPrompt: AI_CONFIG.systemPrompts.compliance,
     })
 
-    // Build comprehensive prompt
     const prompt = this.buildCompliancePrompt(
       question,
       context,
@@ -35,10 +23,12 @@ export class ComplianceAgent {
     )
 
     try {
-      const result = await this.llm.invoke(prompt)
-      const response = result.content.toString()
+      const { text: response } = await generateText({
+        model: getLanguageModel(AI_CONFIG.models.reasoning),
+        prompt,
+        temperature: 0.1,
+      })
 
-      // Parse response into structured format
       const analysis = this.parseComplianceResponse(response, ragResult.sources)
 
       return {
@@ -53,9 +43,6 @@ export class ComplianceAgent {
     }
   }
 
-  /**
-   * Build compliance analysis prompt
-   */
   private buildCompliancePrompt(
     question: string,
     context: ComplianceQuery['context'],
@@ -74,14 +61,10 @@ export class ComplianceAgent {
       .replace('{scenario}', question + scenario)
   }
 
-  /**
-   * Parse compliance response
-   */
   private parseComplianceResponse(
     response: string,
     sources: any[]
   ): Omit<ComplianceAnalysis, 'confidence'> {
-    // Extract sections from response
     const lines = response.split('\n').filter((l) => l.trim())
 
     const interpretation =
@@ -93,7 +76,6 @@ export class ComplianceAgent {
     const applicableRules: ComplianceAnalysis['applicableRules'] = []
     const references: ComplianceAnalysis['references'] = []
 
-    // Parse recommendations
     const recSection = response.match(
       /Recommendations?:([\s\S]*?)(?=\n\n|Warnings?:|$)/i
     )
@@ -106,7 +88,6 @@ export class ComplianceAgent {
       )
     }
 
-    // Parse warnings
     const warnSection = response.match(/Warnings?:([\s\S]*?)(?=\n\n|$)/i)
     if (warnSection) {
       warnings.push(
@@ -117,7 +98,6 @@ export class ComplianceAgent {
       )
     }
 
-    // Map sources to applicable rules
     sources.forEach((source, idx) => {
       if (response.includes(`[${idx + 1}]`)) {
         applicableRules.push({
@@ -145,16 +125,11 @@ export class ComplianceAgent {
     }
   }
 
-  /**
-   * Check eligibility based on NCAA rules
-   */
   async checkEligibility(studentId: string): Promise<{
     eligible: boolean
     issues: string[]
     recommendations: string[]
   }> {
-    // Simplified eligibility check
-    // In production, this would integrate with full compliance service
     const query: ComplianceQuery = {
       question: `Check eligibility requirements for student ${studentId}`,
       context: { studentId },

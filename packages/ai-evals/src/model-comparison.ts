@@ -436,15 +436,15 @@ export function generateComparisonTable(report: ComparisonReport): string {
     },
     {
       name: 'Average Score',
-      values: metrics.map(m => `${(m.averageScore * 100).toFixed(1)}%`),
+      values: metrics.map(m => `${((m.averageScore ?? m.avgScore) * 100).toFixed(1)}%`),
     },
     {
       name: 'Median Score',
-      values: metrics.map(m => `${(m.medianScore * 100).toFixed(1)}%`),
+      values: metrics.map(m => `${((m.medianScore ?? m.avgScore) * 100).toFixed(1)}%`),
     },
     {
       name: 'Avg Latency',
-      values: metrics.map(m => `${m.averageLatencyMs.toFixed(0)}ms`),
+      values: metrics.map(m => `${(m.averageLatencyMs ?? m.avgLatency).toFixed(0)}ms`),
     },
     {
       name: 'Total Cost',
@@ -452,11 +452,11 @@ export function generateComparisonTable(report: ComparisonReport): string {
     },
     {
       name: 'Total Tokens',
-      values: metrics.map(m => m.totalTokens.total.toLocaleString()),
+      values: metrics.map(m => (m.totalTokens?.total ?? 0).toLocaleString()),
     },
     {
       name: 'Passed/Total',
-      values: metrics.map(m => `${m.passedTests}/${m.totalTests}`),
+      values: metrics.map(m => `${m.passedTests ?? m.passed}/${m.totalTests}`),
     },
   ]
 

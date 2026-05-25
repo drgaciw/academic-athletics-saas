@@ -3,8 +3,9 @@ const nextConfig = {
   basePath: "/student",
   reactStrictMode: true,
   transpilePackages: ["@aah/ui", "@aah/database", "@aah/auth"],
-  eslint: {
-    ignoreDuringBuilds: true,
+  serverExternalPackages: ["pg", "@prisma/adapter-pg"],
+  env: {
+    NEXT_PUBLIC_BASE_PATH: "/student",
   },
   async rewrites() {
     return {

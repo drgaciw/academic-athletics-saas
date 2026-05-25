@@ -15,7 +15,7 @@ export const validateRequest = (schema: ZodSchema): MiddlewareHandler => {
           400,
           'VALIDATION_ERROR',
           'Invalid request data',
-          error.errors
+          error.issues
         )
       }
       throw error
@@ -36,10 +36,17 @@ export const validateQuery = (schema: ZodSchema): MiddlewareHandler => {
           400,
           'VALIDATION_ERROR',
           'Invalid query parameters',
-          error.errors
+          error.issues
         )
       }
       throw error
     }
+  }
+}
+
+declare module 'hono' {
+  interface ContextVariableMap {
+    validatedData: unknown
+    validatedQuery: unknown
   }
 }

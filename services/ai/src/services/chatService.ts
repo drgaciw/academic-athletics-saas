@@ -1,4 +1,4 @@
-import { streamText, generateText, type CoreMessage } from 'ai'
+import { streamText, generateText, type ModelMessage } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { anthropic } from '@ai-sdk/anthropic'
 import { prisma } from '@aah/database'
@@ -119,12 +119,12 @@ export class ChatService {
     return openai(model)
   }
 
-  /** Maps optimized chat messages to CoreMessage for the Vercel AI SDK. */
-  private toCoreMessages(optimized: AIMessage[]): CoreMessage[] {
+  /** Maps optimized chat messages to ModelMessage for the Vercel AI SDK. */
+  private toCoreMessages(optimized: AIMessage[]): ModelMessage[] {
     return optimized.map((m) => ({
       role: m.role as 'system' | 'user' | 'assistant',
       content: m.content,
-    })) as CoreMessage[]
+    })) as ModelMessage[]
   }
 
   private async attachRagContext(
@@ -149,6 +149,20 @@ export class ChatService {
     } catch (error) {
       console.warn('RAG retrieval failed, continuing without context:', error)
     }
+  }
+
+  private static textStreamToUtf8Stream(
+    textStream: AsyncIterable<string>
+  ): ReadableStream<Uint8Array> {
+    const encoder = new TextEncoder()
+    return new ReadableStream({
+      async start(controller) {
+        for await (const chunk of textStream) {
+          controller.enqueue(encoder.encode(chunk))
+        }
+        controller.close()
+      },
+    })
   }
 
   /**
@@ -253,7 +267,7 @@ export class ChatService {
         model: modelProvider,
         messages: this.toCoreMessages(optimizedMessages),
         temperature,
-        maxTokens: 2000,
+        maxOutputTokens: 2000,
       })
 
       const guarded = eligibilityResponseGuard(gen.text, {
@@ -263,9 +277,9 @@ export class ChatService {
       const assistantMessage = sanitizeOutput(guarded.text)
 
       const tokenUsage = {
-        prompt: gen.usage.promptTokens,
-        completion: gen.usage.completionTokens,
-        total: gen.usage.totalTokens,
+        prompt: gen.usage.inputTokens ?? 0,
+        completion: gen.usage.outputTokens ?? 0,
+        total: gen.usage.totalTokens ?? 0,
       }
       const cost = calculateCost(model, tokenUsage.prompt, tokenUsage.completion)
 
@@ -292,14 +306,14 @@ export class ChatService {
       model: modelProvider,
       messages: this.toCoreMessages(optimizedMessages),
       temperature: options.temperature || 0.7,
-      maxTokens: 2000,
+      maxOutputTokens: 2000,
       onFinish: async (event) => {
         const assistantMessage = event.text
 
         const tokenUsage = {
-          prompt: event.usage.promptTokens,
-          completion: event.usage.completionTokens,
-          total: event.usage.totalTokens,
+          prompt: event.usage.inputTokens ?? 0,
+          completion: event.usage.outputTokens ?? 0,
+          total: event.usage.totalTokens ?? 0,
         }
 
         const cost = calculateCost(model, tokenUsage.prompt, tokenUsage.completion)
@@ -317,7 +331,7 @@ export class ChatService {
 
     return {
       conversationId,
-      stream: result.toAIStream(),
+      stream: ChatService.textStreamToUtf8Stream(result.textStream),
       model,
     }
   }
@@ -403,7 +417,7 @@ export class ChatService {
       model: modelProvider,
       messages: this.toCoreMessages(optimizedMessages),
       temperature,
-      maxTokens: 2000,
+      maxOutputTokens: 2000,
     })
 
     let response = result.text
@@ -417,9 +431,9 @@ export class ChatService {
 
     // Calculate usage and cost
     const tokenUsage = {
-      prompt: result.usage.promptTokens,
-      completion: result.usage.completionTokens,
-      total: result.usage.totalTokens,
+      prompt: result.usage.inputTokens ?? 0,
+      completion: result.usage.outputTokens ?? 0,
+      total: result.usage.totalTokens ?? 0,
     }
 
     const cost = calculateCost(model, tokenUsage.prompt, tokenUsage.completion)

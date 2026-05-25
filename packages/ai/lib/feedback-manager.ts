@@ -6,6 +6,7 @@
  */
 
 import type { AgentFeedback } from '../types/agent.types'
+import { prisma } from '@aah/database'
 
 /**
  * Feedback category
@@ -56,10 +57,6 @@ export class FeedbackManager {
    * Submit feedback
    */
   async submitFeedback(feedback: Omit<AgentFeedback, 'id' | 'createdAt'>): Promise<AgentFeedback> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const created = await prisma.aIFeedback.create({
         data: {
           userId: feedback.userId,
@@ -81,19 +78,12 @@ export class FeedbackManager {
         flaggedIssue: feedback.flaggedIssue,
         createdAt: created.createdAt,
       }
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
    * Get feedback for task
    */
   async getFeedbackForTask(taskId: string): Promise<AgentFeedback[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const feedback = await prisma.aIFeedback.findMany({
         where: {
           OR: [
@@ -114,9 +104,6 @@ export class FeedbackManager {
         flaggedIssue: ['INACCURATE', 'INAPPROPRIATE'].includes(f.feedbackType),
         createdAt: f.createdAt,
       }))
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -126,10 +113,6 @@ export class FeedbackManager {
     agentType: string,
     limit: number = 100
   ): Promise<AgentFeedback[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       // Get agent tasks
       const tasks = await prisma.agentTask.findMany({
         where: { agentType },
@@ -161,9 +144,6 @@ export class FeedbackManager {
         flaggedIssue: ['INACCURATE', 'INAPPROPRIATE'].includes(f.feedbackType),
         createdAt: f.createdAt,
       }))
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -243,10 +223,6 @@ export class FeedbackManager {
     agentType?: string,
     timeframe: number = 7 * 24 * 60 * 60 * 1000 // 7 days
   ): Promise<FeedbackPattern[]> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       const cutoffDate = new Date(Date.now() - timeframe)
 
       // Get recent feedback
@@ -290,9 +266,6 @@ export class FeedbackManager {
       return Array.from(patterns.values())
         .sort((a, b) => b.frequency - a.frequency)
         .slice(0, 10)
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
@@ -302,17 +275,9 @@ export class FeedbackManager {
     agentType: string,
     minRating: number = 4
   ): Promise<Array<{ input: string; output: string; metadata: any }>> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       // Get high-rated tasks
       const tasks = await prisma.agentTask.findMany({
         where: { agentType },
-        include: {
-          inputParams: true,
-          outputResult: true,
-        },
       })
 
       const dataset: Array<{ input: string; output: string; metadata: any }> = []
@@ -351,28 +316,18 @@ export class FeedbackManager {
       }
 
       return dataset
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   /**
    * Flag problematic responses for review
    */
   async flagForReview(taskId: string, reason: string): Promise<void> {
-    const { PrismaClient } = await import('@prisma/client')
-    const prisma = new PrismaClient()
-
-    try {
       await prisma.agentTask.update({
         where: { id: taskId },
         data: {
           error: `Flagged for review: ${reason}`,
         },
       })
-    } finally {
-      await prisma.$disconnect()
-    }
   }
 
   // Helper methods

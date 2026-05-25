@@ -50,7 +50,7 @@ app.post('/', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -112,7 +112,7 @@ app.post('/preview', async (c) => {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validation.error.errors,
+            details: validation.error.issues,
             timestamp: new Date().toISOString(),
           },
         },
@@ -139,7 +139,7 @@ app.post('/preview', async (c) => {
     }
 
     // Return PDF as binary response
-    return c.body(result.pdfBuffer, 200, {
+    return c.body(new Uint8Array(result.pdfBuffer), 200, {
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'inline; filename="travel-letter-preview.pdf"',
     });
@@ -164,7 +164,7 @@ app.post('/preview', async (c) => {
  */
 app.post('/bulk', async (c) => {
   try {
-    const body = await c.req.json();
+    const body = await c.req.json<{ letters: unknown[] }>();
 
     if (!Array.isArray(body.letters)) {
       return c.json(
@@ -180,13 +180,13 @@ app.post('/bulk', async (c) => {
     }
 
     // Validate all letters
-    const validations = body.letters.map((letter: any) =>
+    const validations = body.letters.map((letter: unknown) =>
       travelLetterSchema.safeParse(letter)
     );
 
     const errors = validations
-      .map((v, i) => (v.success ? null : { index: i, errors: v.error.errors }))
-      .filter((e) => e !== null);
+      .map((v, i) => (v.success ? null : { index: i, errors: v.error.issues }))
+      .filter((e): e is { index: number; errors: z.ZodIssue[] } => e !== null);
 
     if (errors.length > 0) {
       return c.json(

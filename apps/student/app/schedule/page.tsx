@@ -1,57 +1,17 @@
 import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
 import { redirect } from 'next/navigation';
 import { ScheduleCalendarView } from '@/components/schedule-calendar-view';
-
-async function getStudentSchedule(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    include: {
-      studentProfile: {
-        include: {
-          schedules: {
-            where: {
-              status: "ENROLLED"
-            },
-            take: 1,
-            orderBy: {
-              createdAt: 'desc'
-            },
-            include: {
-              sections: {
-                include: {
-                  course: true
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-
-  if (!user) return null;
-
-  const schedule = user.studentProfile?.schedules[0];
-  const courses = schedule?.sections.map((section) => ({
-    id: section.course.id,
-    name: section.course.courseName,
-    code: section.course.courseCode,
-    schedule: `${section.days.join(', ')} ${section.startTime}-${section.endTime}`,
-  })) || [];
-
-  return { ...user, courses };
-}
+import { getEnrolledCourseSections, getStudentByClerkId } from '@/lib/student-data';
 
 export default async function SchedulePage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect('/sign-in');
   }
 
-  const student = await getStudentSchedule(userId);
+  const student = await getStudentByClerkId(userId);
 
   if (!student) {
     return (
@@ -60,6 +20,19 @@ export default async function SchedulePage() {
       </div>
     );
   }
+
+  const profile = student.studentProfile;
+
+  if (!profile) {
+    return (
+      <div className="container mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Profile incomplete</h1>
+        <p>Your student athletic profile has not been set up yet.</p>
+      </div>
+    );
+  }
+
+  const courses = getEnrolledCourseSections(profile);
 
   return (
     <div className="min-h-screen bg-background">
@@ -71,31 +44,31 @@ export default async function SchedulePage() {
           </p>
         </div>
 
-        {/* Calendar View */}
-        <ScheduleCalendarView courses={student.courses || []} />
+        <ScheduleCalendarView
+          courses={courses}
+          athleticSchedule={profile.athleticSchedule}
+        />
 
-        {/* Course List */}
         <Card>
           <CardHeader>
             <CardTitle>Enrolled Courses</CardTitle>
           </CardHeader>
           <CardContent>
-            {student.courses && student.courses.length > 0 ? (
+            {courses.length > 0 ? (
               <div className="space-y-4">
-                {student.courses.map((course: any) => (
+                {courses.map((course) => (
                   <div
                     key={course.id}
                     className="border-l-4 border-blue-500 pl-4 py-2"
                   >
-                    <h3 className="font-semibold text-lg">{course.name}</h3>
+                    <h3 className="font-semibold text-lg">{course.courseName}</h3>
                     <p className="text-sm text-gray-600">
-                      {course.code || 'No course code'}
+                      {course.courseCode || 'No course code'}
                     </p>
-                    {course.schedule && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        Schedule: {course.schedule}
-                      </p>
-                    )}
+                    <p className="text-sm text-gray-500 mt-1">
+                      Schedule: {course.days.join(', ')} {course.startTime}-{course.endTime}
+                      {course.location ? ` • ${course.location}` : ''}
+                    </p>
                   </div>
                 ))}
               </div>
