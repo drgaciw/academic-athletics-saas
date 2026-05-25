@@ -14,49 +14,25 @@ const BLOCKED_PHRASE_PATTERNS: RegExp[] = [
 const STANDARD_DISCLAIMER =
   '\n\n---\nThis is preliminary decision support only. Institutional compliance staff make official eligibility determinations. Contact your athletics compliance office for an authoritative answer.'
 
-const REPLACEMENT_NO_REVIEW =
+const REPLACEMENT =
   'Based on the information available here, I cannot provide a final competition eligibility determination. Your athletics compliance office must confirm official status.'
 
-const REPLACEMENT_WITH_REVIEW =
-  'Official competition eligibility must still be confirmed by your athletics compliance office; recorded reviews in AAH do not replace that authority in this assistant.'
-
-export type EligibilityGuardInput = {
-  userRole: string
-  /** True when a compliance reviewer has recorded a review on file (PRD v2.2). */
-  hasRecordedComplianceReview: boolean
-}
-
-export function eligibilityResponseGuard(
-  text: string,
-  ctx: EligibilityGuardInput
-): { text: string; wasModified: boolean; reason?: string } {
-  if (ctx.userRole !== 'STUDENT') {
-    return { text, wasModified: false }
-  }
-
-  const replacement = ctx.hasRecordedComplianceReview ? REPLACEMENT_WITH_REVIEW : REPLACEMENT_NO_REVIEW
-
+export function guardStudentEligibilityResponse(text: string): string {
   let out = text
   let wasModified = false
+
   for (const re of BLOCKED_PHRASE_PATTERNS) {
     if (re.test(out)) {
-      out = out.replace(re, replacement)
+      out = out.replace(re, REPLACEMENT)
       wasModified = true
     }
   }
 
-  if (wasModified || shouldAppendDisclaimer(out)) {
-    if (!out.includes('preliminary decision support')) {
-      out = out.trimEnd() + STANDARD_DISCLAIMER
-      wasModified = true
-    }
+  if ((wasModified || shouldAppendDisclaimer(out)) && !out.includes('preliminary decision support')) {
+    out = out.trimEnd() + STANDARD_DISCLAIMER
   }
 
-  return {
-    text: out,
-    wasModified,
-    reason: wasModified ? 'student_eligibility_guard' : undefined,
-  }
+  return out
 }
 
 function shouldAppendDisclaimer(text: string): boolean {
