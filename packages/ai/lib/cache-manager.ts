@@ -7,6 +7,7 @@
 
 import { createHash } from 'crypto'
 import Redis from 'ioredis'
+import { generateEmbedding } from './embeddings'
 
 /**
  * Cache entry

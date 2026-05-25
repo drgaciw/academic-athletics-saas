@@ -2,93 +2,76 @@
  * Tests for embeddings module
  */
 
-import { generateEmbedding, generateEmbeddings } from "../embeddings";
-
-describe("embeddings", () => {
-  // Mock OpenAI API
-  const mockOpenAI = {
+jest.mock('../chat', () => ({
+  openai: {
     embeddings: {
       create: jest.fn(),
     },
-  };
+  },
+}))
 
+import { generateEmbedding, generateEmbeddings } from '../embeddings'
+import { openai } from '../chat'
+
+const mockCreate = openai.embeddings.create as jest.Mock
+
+describe('embeddings', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
-  describe("generateEmbedding", () => {
-    it("should generate embedding for a single text", async () => {
-      const mockEmbedding = Array.from({ length: 1536 }, (_, i) => i / 1536);
-      mockOpenAI.embeddings.create.mockResolvedValue({
+  describe('generateEmbedding', () => {
+    it('should generate embedding for a single text', async () => {
+      const mockEmbedding = Array.from({ length: 1536 }, (_, i) => i / 1536)
+      mockCreate.mockResolvedValue({
         data: [{ embedding: mockEmbedding }],
-      });
+      })
 
-      // Mock the openai import
-      jest.mock("../chat", () => ({
-        openai: mockOpenAI,
-      }));
+      const text = 'This is a test text'
+      const result = await generateEmbedding(text)
 
-      const text = "This is a test text";
-      const result = await generateEmbedding(text);
+      expect(result).toBeDefined()
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(1536)
+      expect(mockCreate).toHaveBeenCalledWith({
+        model: 'text-embedding-3-large',
+        input: text,
+        dimensions: 1536,
+      })
+    })
 
-      expect(result).toBeDefined();
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBeGreaterThan(0);
-    });
+    it('should throw error for empty text', async () => {
+      mockCreate.mockRejectedValue(new Error('Invalid input'))
 
-    it("should throw error for empty text", async () => {
-      // This test verifies that the function handles edge cases
-      // In practice, OpenAI API handles empty strings, but we want to ensure the function doesn't crash
-      const text = "";
+      await expect(generateEmbedding('')).rejects.toThrow('Invalid input')
+    })
+  })
 
-      try {
-        await generateEmbedding(text);
-        // If it doesn't throw, that's also acceptable behavior
-        expect(true).toBe(true);
-      } catch (error) {
-        // Error is also acceptable for empty text
-        expect(error).toBeDefined();
-      }
-    });
-  });
-
-  describe("generateEmbeddings", () => {
-    it("should generate embeddings for multiple texts", async () => {
+  describe('generateEmbeddings', () => {
+    it('should generate embeddings for multiple texts', async () => {
       const mockEmbeddings = [
         Array.from({ length: 1536 }, (_, i) => i / 1536),
         Array.from({ length: 1536 }, (_, i) => (i + 1) / 1536),
-      ];
-      mockOpenAI.embeddings.create.mockResolvedValue({
+      ]
+      mockCreate.mockResolvedValue({
         data: mockEmbeddings.map((embedding) => ({ embedding })),
-      });
+      })
 
-      // Mock the openai import
-      jest.mock("../chat", () => ({
-        openai: mockOpenAI,
-      }));
+      const texts = ['First text', 'Second text']
+      const result = await generateEmbeddings(texts)
 
-      const texts = ["First text", "Second text"];
-      const result = await generateEmbeddings(texts);
+      expect(result).toBeDefined()
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(texts.length)
+    })
 
-      expect(result).toBeDefined();
-      expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(texts.length);
-    });
-
-    it("should return empty array for empty input", async () => {
-      mockOpenAI.embeddings.create.mockResolvedValue({
+    it('should return empty array for empty input', async () => {
+      mockCreate.mockResolvedValue({
         data: [],
-      });
+      })
 
-      const texts: string[] = [];
-
-      try {
-        const result = await generateEmbeddings(texts);
-        expect(Array.isArray(result)).toBe(true);
-      } catch (error) {
-        // Error is also acceptable for empty array
-        expect(error).toBeDefined();
-      }
-    });
-  });
-});
+      const result = await generateEmbeddings([])
+      expect(result).toEqual([])
+    })
+  })
+})

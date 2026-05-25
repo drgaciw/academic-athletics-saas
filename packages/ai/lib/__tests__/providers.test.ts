@@ -2,7 +2,6 @@
  * Tests for AI SDK providers
  */
 
-import { describe, it, expect } from 'vitest'
 import { selectModel } from '../providers'
 
 describe('AI Providers', () => {

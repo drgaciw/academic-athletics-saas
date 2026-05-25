@@ -143,11 +143,16 @@ export default function DatasetsPage() {
 
       const testCase: Partial<TestCase> = {
         id: `test-${Date.now()}`,
-        name: data.name,
-        category: data.category,
         input,
         expected,
-        tags,
+        metadata: {
+          difficulty: "easy",
+          category: data.category,
+          tags,
+          createdAt: new Date(),
+          source: "synthetic",
+          description: data.name,
+        },
       };
 
       // TODO: Implement API endpoint for creating test cases
@@ -306,7 +311,6 @@ export default function DatasetsPage() {
                   error={!!datasetForm.formState.errors.description}
                   placeholder="Describe the purpose and contents of this dataset..."
                   rows={3}
-                  error={!!datasetForm.formState.errors.description}
                 />
                 {datasetForm.formState.errors.description && (
                   <p className="text-sm text-red-600 mt-1">
@@ -469,7 +473,6 @@ export default function DatasetsPage() {
                         placeholder='{"studentId": "123", "gpa": 3.5, ...}'
                         rows={4}
                         className="font-mono text-sm"
-                        error={!!testCaseForm.formState.errors.input}
                       />
                       {testCaseForm.formState.errors.input && (
                         <p className="text-sm text-red-600 mt-1">
@@ -489,7 +492,6 @@ export default function DatasetsPage() {
                         placeholder='{"eligible": true, "issues": []}'
                         rows={4}
                         className="font-mono text-sm"
-                        error={!!testCaseForm.formState.errors.expected}
                       />
                       {testCaseForm.formState.errors.expected && (
                         <p className="text-sm text-red-600 mt-1">
@@ -527,11 +529,11 @@ export default function DatasetsPage() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">
-                          {testCase.name}
+                          {testCase.metadata.description ?? testCase.id}
                         </CardTitle>
                         <div className="flex gap-2">
-                          <Badge>{testCase.category}</Badge>
-                          {testCase.tags?.map((tag: string) => (
+                          <Badge>{testCase.metadata.category}</Badge>
+                          {testCase.metadata.tags?.map((tag: string) => (
                             <Badge key={tag} variant="secondary">
                               {tag}
                             </Badge>

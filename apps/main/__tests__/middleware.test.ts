@@ -1,40 +1,41 @@
 
-import { authMiddleware } from '@clerk/nextjs';
-import middleware, { config } from '../middleware';
+const mockClerkMiddleware = jest.fn((handler) => handler)
+const mockCreateRouteMatcher = jest.fn((routes: string[]) => {
+  return (request: { nextUrl?: { pathname?: string } }) => {
+    const pathname = request.nextUrl?.pathname ?? '/'
+    return routes.some((route) => {
+      const pattern = route.replace(/\(\.\*\)/g, '.*').replace(/\//g, '\\/')
+      return new RegExp(`^${pattern}$`).test(pathname)
+    })
+  }
+})
 
-// Mock @clerk/nextjs
-jest.mock('@clerk/nextjs', () => ({
-  authMiddleware: jest.fn().mockImplementation((options) => {
-    return (req: any, evt: any) => {
-      // Mock middleware execution
-      return 'middleware executed';
-    };
-  }),
-}));
+jest.mock('@clerk/nextjs/server', () => ({
+  clerkMiddleware: (handler: unknown) => mockClerkMiddleware(handler),
+  createRouteMatcher: (routes: string[]) => mockCreateRouteMatcher(routes),
+}))
+
+import middleware, { config } from '../middleware'
 
 describe('Middleware', () => {
-  it('should configure authMiddleware correctly', () => {
-    // Check if authMiddleware was called
-    expect(authMiddleware).toHaveBeenCalled();
-
-    // Get the options passed to authMiddleware
-    const options = (authMiddleware as jest.Mock).mock.calls[0][0];
-
-    // Assert that publicRoutes are defined correctly
-    expect(options.publicRoutes).toEqual([
+  it('should configure clerkMiddleware with public routes', () => {
+    expect(mockClerkMiddleware).toHaveBeenCalled()
+    expect(mockCreateRouteMatcher).toHaveBeenCalledWith([
       '/',
       '/sign-in(.*)',
       '/sign-up(.*)',
-      '/api/webhooks(.*)',
-    ]);
-
-    // Assert that publishableKey and secretKey are read from env
-    // Note: process.env mocks should be handled in jest.setup.js or beforeEach
-  });
+      '/sso-callback',
+      '/api/health',
+      '/api/evals/(.*)',
+      '/api/webhooks/(.*)',
+      '/api/cron/regulation-check',
+    ])
+    expect(typeof middleware).toBe('function')
+  })
 
   it('should define matcher config', () => {
-    expect(config).toBeDefined();
-    expect(config.matcher).toBeInstanceOf(Array);
-    expect(config.matcher).toContain('/(api|trpc)(.*)');
-  });
-});
+    expect(config).toBeDefined()
+    expect(config.matcher).toBeInstanceOf(Array)
+    expect(config.matcher).toContain('/(api|trpc)(.*)')
+  })
+})

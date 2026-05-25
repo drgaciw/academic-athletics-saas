@@ -24,7 +24,7 @@ import {
   Button,
   Modal,
 } from "@aah/ui";
-import type { EvalReport, RunResult } from "@/lib/types/evals";
+import type { EvalRunDetailsReport, EvalRunDetailsResult } from "@/lib/types/evals";
 
 /**
  * Task 9.2: Eval Run Details Page
@@ -42,11 +42,11 @@ export default function EvalRunDetailsPage() {
   const params = useParams();
   const runId = params?.runId as string;
 
-  const [report, setReport] = useState<EvalReport | null>(null);
-  const [results, setResults] = useState<RunResult[]>([]);
+  const [report, setReport] = useState<EvalRunDetailsReport | null>(null);
+  const [results, setResults] = useState<EvalRunDetailsResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTest, setSelectedTest] = useState<RunResult | null>(null);
+  const [selectedTest, setSelectedTest] = useState<EvalRunDetailsResult | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "passed" | "failed">(
     "all",
   );
@@ -92,11 +92,11 @@ export default function EvalRunDetailsPage() {
     } else if (format === "csv") {
       const headers = ["Test ID", "Passed", "Score", "Latency (ms)", "Cost"];
       const rows = results.map((r) => [
-        r.testCase.id,
+        r.testCaseId,
         r.score.passed ? "true" : "false",
-        r.score.value.toFixed(2),
-        r.score.latencyMs.toFixed(0),
-        (r.score.cost || 0).toFixed(4),
+        r.score.score.toFixed(2),
+        r.metadata.latency.toFixed(0),
+        (r.metadata.cost || 0).toFixed(4),
       ]);
       const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
       const dataBlob = new Blob([csv], { type: "text/csv" });
@@ -334,9 +334,9 @@ export default function EvalRunDetailsPage() {
               {filteredResults.map((result) => {
                 const passed = result.score.passed;
                 return (
-                  <TableRow key={result.testCase.id}>
+                  <TableRow key={result.testCaseId}>
                     <TableCell className="font-mono text-sm">
-                      {result.testCase.id}
+                      {result.testCaseId}
                     </TableCell>
                     <TableCell>
                       <Badge variant={passed ? "success" : "error"}>
@@ -344,13 +344,13 @@ export default function EvalRunDetailsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {result.score.value.toFixed(2)}
+                      {result.score.score.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {result.score.latencyMs.toFixed(0)}ms
+                      {result.metadata.latency.toFixed(0)}ms
                     </TableCell>
                     <TableCell className="text-right">
-                      ${(result.score.cost || 0).toFixed(4)}
+                      ${(result.metadata.cost || 0).toFixed(4)}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -374,7 +374,7 @@ export default function EvalRunDetailsPage() {
         <Modal
           open={!!selectedTest}
           onClose={() => setSelectedTest(null)}
-          title={`Test Case: ${selectedTest.testCase.id}`}
+          title={`Test Case: ${selectedTest.testCaseId}`}
           size="xl"
         >
           <div className="space-y-4">
@@ -382,7 +382,7 @@ export default function EvalRunDetailsPage() {
             <div>
               <h3 className="font-semibold mb-2">Input:</h3>
               <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm">
-                {selectedTest.testCase.input}
+                {JSON.stringify(selectedTest.input, null, 2)}
               </pre>
             </div>
 
@@ -391,12 +391,8 @@ export default function EvalRunDetailsPage() {
               <h3 className="font-semibold mb-2">Expected vs Actual Output:</h3>
               <div className="border rounded-lg overflow-hidden">
                 <ReactDiffViewer
-                  oldValue={JSON.stringify(
-                    selectedTest.score.expected,
-                    null,
-                    2,
-                  )}
-                  newValue={JSON.stringify(selectedTest.score.actual, null, 2)}
+                  oldValue={JSON.stringify(selectedTest.expected, null, 2)}
+                  newValue={JSON.stringify(selectedTest.actual, null, 2)}
                   splitView={true}
                   leftTitle="Expected"
                   rightTitle="Actual"
@@ -411,35 +407,35 @@ export default function EvalRunDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Model</p>
                 <p className="font-mono text-sm">
-                  {selectedTest.modelConfig.model}
+                  {selectedTest.metadata.modelId}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Latency</p>
                 <p className="font-semibold">
-                  {selectedTest.score.latencyMs.toFixed(0)}ms
+                  {selectedTest.metadata.latency.toFixed(0)}ms
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Cost</p>
                 <p className="font-semibold">
-                  ${(selectedTest.score.cost || 0).toFixed(4)}
+                  ${(selectedTest.metadata.cost || 0).toFixed(4)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Timestamp</p>
                 <p className="text-sm">
-                  {format(new Date(selectedTest.timestamp), "MMM d, HH:mm:ss")}
+                  {format(new Date(selectedTest.metadata.timestamp), "MMM d, HH:mm:ss")}
                 </p>
               </div>
             </div>
 
             {/* Error if any */}
-            {selectedTest.score.error && (
+            {selectedTest.metadata.error && (
               <Alert variant="error">
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-                  {selectedTest.score.error.message}
+                  {selectedTest.metadata.error}
                 </AlertDescription>
               </Alert>
             )}

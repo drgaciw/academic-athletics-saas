@@ -149,15 +149,20 @@ export default async function ComplianceRegulationPage() {
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/compliance/changes/${c.id}`}>Details</Link>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild>
-                    <a href={c.evidenceUrl} target="_blank" rel="noopener noreferrer">
+                  <Link href={`/compliance/changes/${c.id}`}>
+                    <Button variant="outline" size="sm">Details</Button>
+                  </Link>
+                  <a
+                    href={c.evidenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex"
+                  >
+                    <Button variant="ghost" size="sm" type="button">
                       <ExternalLink className="mr-1 h-4 w-4" />
                       Evidence
-                    </a>
-                  </Button>
+                    </Button>
+                  </a>
                 </div>
               </div>
             ))
