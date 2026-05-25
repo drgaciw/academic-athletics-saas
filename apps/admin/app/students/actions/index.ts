@@ -52,20 +52,15 @@ export async function getStudents(filters?: {
     ]
   }
 
-  // Apply sport filter
+  const profileWhere: Prisma.StudentProfileWhereInput = {}
   if (filters?.sport) {
-    where.studentProfile = {
-      ...(where.studentProfile || {}),
-      sport: filters.sport,
-    }
+    profileWhere.sport = filters.sport
   }
-
-  // Apply eligibility filter
   if (filters?.eligibilityStatus) {
-    where.studentProfile = {
-      ...(where.studentProfile || {}),
-      eligibilityStatus: filters.eligibilityStatus,
-    }
+    profileWhere.eligibilityStatus = filters.eligibilityStatus
+  }
+  if (Object.keys(profileWhere).length > 0) {
+    where.studentProfile = { is: profileWhere }
   }
 
   const students = await prisma.user.findMany({
