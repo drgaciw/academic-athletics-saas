@@ -39,7 +39,7 @@ routes.post(
 
     try {
       checkPermission(c, "advising:read");
-    } catch (error) {
+    } catch {
       throw new ForbiddenError(
         "You do not have permission to get recommendations",
       );

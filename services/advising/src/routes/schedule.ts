@@ -45,7 +45,7 @@ routes.post("/schedule", validateRequest(scheduleSchema, "json"), async (c) => {
 
   try {
     checkPermission(c, "advising:schedule");
-  } catch (error) {
+  } catch {
     throw new ForbiddenError(
       "You do not have permission to generate schedules",
     );

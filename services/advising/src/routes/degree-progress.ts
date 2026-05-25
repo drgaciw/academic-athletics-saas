@@ -20,7 +20,7 @@ routes.get("/degree-progress/:id", async (c) => {
 
   try {
     checkPermission(c, "advising:read");
-  } catch (error) {
+  } catch {
     throw new ForbiddenError(
       "You do not have permission to view degree progress",
     );
