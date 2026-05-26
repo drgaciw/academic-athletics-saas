@@ -124,6 +124,8 @@ export class EvalOrchestrator {
           try {
             const score = await scorer(result.result, job.scorerConfig);
             scoringResults.push({
+              datasetId: result.task.datasetId,
+              modelId: result.task.runnerConfig.modelId,
               testCaseId: result.task.testCase.id,
               score,
               scorerConfig: job.scorerConfig,

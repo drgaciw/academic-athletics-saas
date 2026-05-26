@@ -5,7 +5,7 @@ export async function applyAgentEligibilityGuard(
   content: string,
   options: { userRole?: string; authUserId: string }
 ): Promise<string> {
-  if (options.userRole !== 'STUDENT') {
+  if (!isStudentRole(options.userRole)) {
     return content
   }
 
@@ -20,4 +20,9 @@ export async function applyAgentEligibilityGuard(
   })
 
   return guarded.text
+}
+
+function isStudentRole(userRole?: string): boolean {
+  const normalized = userRole?.toUpperCase()
+  return normalized === 'STUDENT' || normalized === 'STUDENT_ATHLETE'
 }

@@ -74,9 +74,11 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
   const isPublicRoute = createRouteMatcher(publicRoutes);
 
   return clerkMiddleware(async (auth, req) => {
-    if (!isPublicRoute(req)) {
-      await auth.protect();
+    if (isPublicRoute(req)) {
+      return;
     }
+
+    await auth.protect();
 
     if (afterAuth) {
       const authContext = await authState(() => auth());
