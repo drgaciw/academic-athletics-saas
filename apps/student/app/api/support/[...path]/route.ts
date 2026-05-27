@@ -7,10 +7,19 @@ export const runtime = 'nodejs';
 type RouteParams = { params: Promise<{ path: string[] }> };
 
 async function proxySupportRequest(req: NextRequest, params: RouteParams['params']) {
-  const { userId } = await auth();
+  const authResult = await auth();
+  const { userId } = authResult;
   if (!userId) {
     return NextResponse.json(
       { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
+      { status: 401 }
+    );
+  }
+
+  const token = await authResult.getToken();
+  if (!token) {
+    return NextResponse.json(
+      { error: { code: 'UNAUTHORIZED', message: 'Authentication token unavailable' } },
       { status: 401 }
     );
   }
@@ -25,6 +34,7 @@ async function proxySupportRequest(req: NextRequest, params: RouteParams['params
 
   const correlationId = crypto.randomUUID();
   const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
     'X-User-Id': userId,
     'X-User-Role': role,
     'X-Correlation-Id': correlationId,

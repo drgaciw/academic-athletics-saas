@@ -48,6 +48,8 @@ async function forwardWithStreaming(
   const authHeader = request.headers.get('authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
+  } else if (context?.authToken) {
+    headers['Authorization'] = `Bearer ${context.authToken}`;
   }
 
   // Make request

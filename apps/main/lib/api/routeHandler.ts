@@ -32,6 +32,7 @@ export function createRouteHandler(
     request: NextRequest,
     { params }: { params: any }
   ): Promise<NextResponse> => {
+    const resolvedParams = await Promise.resolve(params);
     const timer = createTimer();
     const origin = request.headers.get('origin') || undefined;
     let context: RequestContext | null = null;
@@ -58,7 +59,7 @@ export function createRouteHandler(
       }
 
       // Call handler
-      const response = await handler(request, context, params);
+      const response = await handler(request, context, resolvedParams);
 
       // Add CORS headers
       addCorsHeaders(response, origin);
@@ -131,6 +132,8 @@ export async function forwardRequest(
   const authHeader = request.headers.get('authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
+  } else if (context?.authToken) {
+    headers['Authorization'] = `Bearer ${context.authToken}`;
   }
 
   // Add context headers

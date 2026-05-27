@@ -65,6 +65,7 @@ export interface RequestContext {
   userId: string;
   clerkId: string;
   role: UserRole;
+  authToken?: string;
   correlationId: string;
   timestamp: Date;
 }
