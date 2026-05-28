@@ -57,8 +57,11 @@ export function createRouteHandler(
         await checkRateLimit(config.serviceName, context);
       }
 
+      // Next 16 provides dynamic route params asynchronously.
+      const resolvedParams = await params;
+
       // Call handler
-      const response = await handler(request, context, params);
+      const response = await handler(request, context, resolvedParams);
 
       // Add CORS headers
       addCorsHeaders(response, origin);
