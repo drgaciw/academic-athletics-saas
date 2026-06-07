@@ -1,3 +1,11 @@
+jest.mock('@ai-sdk/openai', () => ({
+  openai: jest.fn(),
+}))
+
+jest.mock('@ai-sdk/anthropic', () => ({
+  anthropic: jest.fn(),
+}))
+
 import { generateText } from 'ai'
 import { ChatService } from '../chatService'
 import { loadStudentEligibilityGate, resolveDbUserId } from '../studentEligibilityContext'
