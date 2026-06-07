@@ -25,6 +25,7 @@ import type {
   RetentionPolicy,
   CleanupResult,
 } from './types';
+import type { ScoringResult } from '../types';
 
 /**
  * Repository class for managing eval data persistence
@@ -817,8 +818,12 @@ export class EvalRepository {
 
       await this.createResultsBatch(
         runSummary.results.map((result) => {
-          const scored = report.scoringResults.find(
-            (entry) => entry.testCaseId === result.testCaseId
+          const scored = findScoringResult(
+            report.scoringResults,
+            runSummary.datasetId,
+            runSummary.config.modelId,
+            result.testCaseId,
+            countReportResults(report.runSummaries, result.testCaseId) === 1
           );
 
           return {
@@ -856,6 +861,57 @@ function inferRunnerType(datasetId: string): CreateEvalRunInput['runnerType'] {
   if (datasetId.startsWith('risk')) return 'RISK_PREDICTION';
   if (datasetId.startsWith('rag')) return 'RAG';
   return 'CONVERSATIONAL';
+}
+
+function findScoringResult(
+  scoringResults: ScoringResult[],
+  datasetId: string,
+  modelId: string,
+  testCaseId: string | undefined,
+  allowLegacyFallback: boolean
+) {
+  if (!testCaseId) {
+    return undefined;
+  }
+
+  const exactMatch = scoringResults.find(
+    (entry) =>
+      entry.testCaseId === testCaseId &&
+      entry.datasetId === datasetId &&
+      entry.modelId === modelId
+  );
+
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  if (!allowLegacyFallback) {
+    return undefined;
+  }
+
+  const legacyMatches = scoringResults.filter(
+    (entry) =>
+      entry.testCaseId === testCaseId &&
+      entry.datasetId === undefined &&
+      entry.modelId === undefined
+  );
+
+  return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
+}
+
+function countReportResults(
+  runSummaries: Array<{ results: Array<{ testCaseId?: string }> }>,
+  testCaseId?: string
+): number {
+  if (!testCaseId) {
+    return 0;
+  }
+
+  return runSummaries.reduce(
+    (count, summary) =>
+      count + summary.results.filter((result) => result.testCaseId === testCaseId).length,
+    0
+  );
 }
 
 /**

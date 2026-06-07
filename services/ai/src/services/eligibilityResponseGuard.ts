@@ -1,11 +1,11 @@
 const BLOCKED_PHRASE_PATTERNS: RegExp[] = [
-  /\byou are eligible\b/i,
-  /\byou'?re eligible\b/i,
-  /\byou are ineligible\b/i,
-  /\byou'?re ineligible\b/i,
-  /\bcleared to compete\b/i,
-  /\byou are cleared\b/i,
-  /\bcleared for competition\b/i,
+  /\byou are eligible\b/gi,
+  /\byou'?re eligible\b/gi,
+  /\byou are ineligible\b/gi,
+  /\byou'?re ineligible\b/gi,
+  /\bcleared to compete\b/gi,
+  /\byou are cleared\b/gi,
+  /\bcleared for competition\b/gi,
 ]
 
 const STANDARD_DISCLAIMER =
@@ -27,7 +27,7 @@ export function eligibilityResponseGuard(
   text: string,
   ctx: EligibilityGuardInput
 ): { text: string; wasModified: boolean; reason?: string } {
-  if (ctx.userRole !== 'STUDENT') {
+  if (!isStudentRole(ctx.userRole)) {
     return { text, wasModified: false }
   }
 
@@ -36,8 +36,9 @@ export function eligibilityResponseGuard(
   let out = text
   let wasModified = false
   for (const re of BLOCKED_PHRASE_PATTERNS) {
-    if (re.test(out)) {
-      out = out.replace(re, replacement)
+    const next = out.replace(re, replacement)
+    if (next !== out) {
+      out = next
       wasModified = true
     }
   }
@@ -54,6 +55,11 @@ export function eligibilityResponseGuard(
     wasModified,
     reason: wasModified ? 'student_eligibility_guard' : undefined,
   }
+}
+
+function isStudentRole(userRole: string): boolean {
+  const normalized = userRole.toUpperCase()
+  return normalized === 'STUDENT' || normalized === 'STUDENT_ATHLETE'
 }
 
 function shouldAppendDisclaimer(text: string): boolean {

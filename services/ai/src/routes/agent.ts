@@ -41,16 +41,21 @@ const TransferWorkflowSchema = AgentExecutionSchema.omit({ agentType: true }).ex
 function formatWorkflowResponse(
   result: WorkflowResult,
   conversationId: string,
-  responseOverride?: string
+  responseOverride?: string,
+  options: { userRole?: string } = {}
 ) {
+  const isStudent = isStudentRole(options.userRole)
+
   return {
     success: result.success,
     workflow: result.workflowState?.name ?? 'single-agent',
     agentsUsed: result.agentsUsed,
     agentType: result.agentsUsed[result.agentsUsed.length - 1],
     response: responseOverride ?? result.response.content,
-    steps: result.response.steps,
-    toolInvocations: result.response.toolInvocations,
+    steps: isStudent ? undefined : result.response.steps,
+    toolInvocations: isStudent
+      ? result.response.toolInvocations.map(summarizeToolInvocation)
+      : result.response.toolInvocations,
     usage: result.response.usage,
     cost: result.totalCost,
     duration: result.totalDuration,
@@ -63,6 +68,21 @@ function formatWorkflowResponse(
           agents: result.workflowState.agents,
         }
       : undefined,
+  }
+}
+
+function isStudentRole(userRole?: string) {
+  const normalized = userRole?.toUpperCase()
+  return normalized === 'STUDENT' || normalized === 'STUDENT_ATHLETE'
+}
+
+function summarizeToolInvocation(tool: {
+  toolName?: string
+  latency?: number
+}) {
+  return {
+    toolName: tool.toolName,
+    latency: tool.latency,
   }
 }
 
@@ -149,7 +169,9 @@ agentRouter.post('/execute', zValidator('json', AgentExecutionSchema), async (c)
       ).catch((err: unknown) => console.warn('Failed to extract facts:', err))
     }
 
-    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse, {
+      userRole,
+    }))
   } catch (error) {
     console.error('Agent execution error:', error)
     return c.json(
@@ -207,7 +229,10 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
         })}\n`)
 
         // Send memory context
-        if (memories.length > 0) {
+        const userRole = c.req.header('X-User-Role')
+        const isStudent = isStudentRole(userRole)
+
+        if (!isStudent && memories.length > 0) {
           await stream.writeln(`data: ${JSON.stringify({
             type: 'context',
             memories: memories.map(m => ({ content: m.content }))
@@ -222,7 +247,6 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
         )
 
         const result = await globalOrchestrator.executeSmartWorkflow(agentRequest)
-        const userRole = c.req.header('X-User-Role')
         const guardedResponse = await applyAgentEligibilityGuard(result.response.content, {
           authUserId,
           userRole,
@@ -236,12 +260,17 @@ agentRouter.post('/stream', zValidator('json', AgentExecutionSchema), async (c) 
 
         // Stream tool invocations
         for (const tool of result.response.toolInvocations) {
+          const safeTool = isStudent
+            ? summarizeToolInvocation(tool)
+            : {
+                toolName: tool.toolName,
+                parameters: tool.parameters,
+                result: tool.result,
+                latency: tool.latency
+              }
           await stream.writeln(`data: ${JSON.stringify({
             type: 'tool',
-            toolName: tool.toolName,
-            parameters: tool.parameters,
-            result: tool.result,
-            latency: tool.latency
+            ...safeTool,
           })}\n`)
         }
 
@@ -345,7 +374,9 @@ agentRouter.post('/workflow/transfer', zValidator('json', TransferWorkflowSchema
       { ...result.response, content: guardedResponse }
     ).catch((err: unknown) => console.warn('Failed to log audit:', err))
 
-    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse))
+    return c.json(formatWorkflowResponse(result, agentRequest.conversationId!, guardedResponse, {
+      userRole,
+    }))
   } catch (error) {
     console.error('Transfer workflow error:', error)
     return c.json(

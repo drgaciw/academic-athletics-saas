@@ -22,6 +22,17 @@ describe('eligibilityResponseGuard', () => {
     expect(text).toContain('preliminary decision support')
   })
 
+  it('STUDENT_ATHLETE: applies the same guard as STUDENT', () => {
+    const raw = 'You are eligible to compete.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT_ATHLETE',
+      hasRecordedComplianceReview: false,
+    })
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/\byou are eligible\b/)
+    expect(text).toContain('preliminary decision support')
+  })
+
   it('STUDENT: handles cleared to compete', () => {
     const raw = 'You are cleared to compete.'
     const { text, wasModified } = eligibilityResponseGuard(raw, {
@@ -30,6 +41,16 @@ describe('eligibilityResponseGuard', () => {
     })
     expect(wasModified).toBe(true)
     expect(text.toLowerCase()).not.toContain('cleared to compete')
+  })
+
+  it('STUDENT: removes every repeated definitive eligibility phrase', () => {
+    const raw = 'You are eligible today. You are eligible for competition.'
+    const { text, wasModified } = eligibilityResponseGuard(raw, {
+      userRole: 'STUDENT',
+      hasRecordedComplianceReview: false,
+    })
+    expect(wasModified).toBe(true)
+    expect(text.toLowerCase()).not.toMatch(/\byou are eligible\b/)
   })
 
   it('STUDENT: when compliance review exists, still avoids definitive phrasing', () => {
