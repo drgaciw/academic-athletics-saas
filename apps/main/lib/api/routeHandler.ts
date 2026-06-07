@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { validateAuth, validateOptionalAuth } from '../middleware/authentication';
 import { logRequest, logResponse, createTimer } from '../middleware/logging';
 import { checkRateLimit, addRateLimitHeaders } from '../middleware/rateLimit';
@@ -57,8 +58,11 @@ export function createRouteHandler(
         await checkRateLimit(config.serviceName, context);
       }
 
+      // Next 16 provides dynamic route params asynchronously.
+      const resolvedParams = await params;
+
       // Call handler
-      const response = await handler(request, context, params);
+      const response = await handler(request, context, resolvedParams);
 
       // Add CORS headers
       addCorsHeaders(response, origin);
@@ -131,6 +135,12 @@ export async function forwardRequest(
   const authHeader = request.headers.get('authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
+  } else if (context) {
+    const clerkAuth = await auth();
+    const token = await clerkAuth.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   // Add context headers
