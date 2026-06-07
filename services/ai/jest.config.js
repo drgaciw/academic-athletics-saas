@@ -7,4 +7,5 @@ module.exports = {
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/../../' }),
+  setupFiles: ['<rootDir>/jest.setup.js'],
 }
