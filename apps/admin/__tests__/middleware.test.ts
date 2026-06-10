@@ -5,7 +5,10 @@ const mockAuthMiddleware = jest.fn((config: unknown) => {
   return jest.fn()
 })
 const mockRedirectToSignIn = jest.fn()
-const mockRequireRole = jest.fn((_roles: string[]) => () => true)
+const mockRequireRole = jest.fn((roles: string[]) => {
+  void roles
+  return () => true
+})
 
 jest.mock('@aah/auth/middleware/nextjs', () => ({
   authMiddleware: (config: unknown) => mockAuthMiddleware(config),
