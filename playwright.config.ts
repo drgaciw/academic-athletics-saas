@@ -8,9 +8,9 @@ const mainBaseUrl = process.env.PLAYWRIGHT_MAIN_BASE_URL ?? `http://127.0.0.1:${
 const studentBaseUrl =
   process.env.PLAYWRIGHT_BASE_URL ??
   process.env.PLAYWRIGHT_STUDENT_BASE_URL ??
-  `http://127.0.0.1:${studentPort}/student`;
+  `http://127.0.0.1:${studentPort}/student/`;
 const adminBaseUrl =
-  process.env.PLAYWRIGHT_ADMIN_BASE_URL ?? `http://127.0.0.1:${adminPort}/admin`;
+  process.env.PLAYWRIGHT_ADMIN_BASE_URL ?? `http://127.0.0.1:${adminPort}/admin/`;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,6 +19,28 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'html',
+  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
+    ? undefined
+    : [
+        {
+          command: 'pnpm --filter @aah/main dev',
+          url: `${mainBaseUrl}/sign-in`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+        {
+          command: 'pnpm --filter @aah/student dev',
+          url: new URL('api/health', studentBaseUrl).toString(),
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+        {
+          command: 'pnpm --filter @aah/admin dev',
+          url: new URL('api/health', adminBaseUrl).toString(),
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      ],
   projects: [
     {
       name: 'main',
@@ -27,14 +49,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: mainBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/main dev',
-            url: `${mainBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
     {
       name: 'student',
@@ -43,14 +57,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: studentBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/student dev',
-            url: `${studentBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
     {
       name: 'admin',
@@ -59,14 +65,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: adminBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/admin dev',
-            url: `${adminBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
   ],
 });
