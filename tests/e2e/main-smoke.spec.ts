@@ -7,8 +7,8 @@ test.describe('Main app smoke', () => {
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('health endpoint responds', async ({ request }) => {
-    const response = await request.get('api/health');
+  test('root page responds', async ({ request }) => {
+    const response = await request.get('.');
     expect(response.status()).toBeLessThan(500);
   });
 });

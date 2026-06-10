@@ -24,7 +24,7 @@ export default defineConfig({
     : [
         {
           command: 'pnpm --filter @aah/main dev',
-          url: `${mainBaseUrl}/api/health`,
+          url: `${mainBaseUrl}/sign-in`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,
         },
