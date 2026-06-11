@@ -9,6 +9,13 @@ test.describe('Main app smoke', () => {
 
   test('health endpoint responds', async ({ request }) => {
     const response = await request.get('/api/health');
-    expect(response.status()).toBeLessThan(500);
+    expect([200, 503]).toContain(response.status());
+    const body = await response.json();
+    expect(body).toEqual(
+      expect.objectContaining({
+        zones: expect.any(Array),
+        overall: expect.stringMatching(/healthy|degraded|unhealthy/),
+      })
+    );
   });
 });

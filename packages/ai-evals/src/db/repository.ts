@@ -817,9 +817,19 @@ export class EvalRepository {
 
       await this.createResultsBatch(
         runSummary.results.map((result) => {
-          const scored = report.scoringResults.find(
-            (entry) => entry.testCaseId === result.testCaseId
-          );
+          const scored =
+            report.scoringResults.find(
+              (entry) =>
+                entry.testCaseId === result.testCaseId &&
+                entry.datasetId === runSummary.datasetId &&
+                entry.modelId === runSummary.config.modelId
+            ) ??
+            report.scoringResults.find(
+              (entry) =>
+                entry.testCaseId === result.testCaseId &&
+                entry.datasetId === undefined &&
+                entry.modelId === undefined
+            );
 
           return {
             runId: run.id,

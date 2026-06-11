@@ -1,9 +1,10 @@
-const mockAuthMiddleware = jest.fn((config) => {
-  mockAuthMiddleware.lastConfig = config
+let lastAuthMiddlewareConfig: unknown
+const mockAuthMiddleware = jest.fn((config: unknown) => {
+  lastAuthMiddlewareConfig = config
   return jest.fn()
 })
 const mockRedirectToSignIn = jest.fn()
-const mockRequireRole = jest.fn(() => () => true)
+const mockRequireRole = jest.fn((_roles: string[]) => () => true)
 
 jest.mock('@aah/auth/middleware/nextjs', () => ({
   authMiddleware: (config: unknown) => mockAuthMiddleware(config),
@@ -19,7 +20,7 @@ import middleware, { config } from '../middleware'
 describe('Admin middleware', () => {
   it('configures auth with admin base path and public routes', () => {
     expect(mockAuthMiddleware).toHaveBeenCalled()
-    const passed = mockAuthMiddleware.lastConfig as {
+    const passed = lastAuthMiddlewareConfig as {
       basePath: string
       publicRoutes: string[]
       afterAuth: (auth: unknown, req: unknown) => unknown

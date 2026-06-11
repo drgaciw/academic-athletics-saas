@@ -19,6 +19,28 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'html',
+  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
+    ? undefined
+    : [
+        {
+          command: 'pnpm --filter @aah/main dev',
+          url: `${mainBaseUrl}/sign-in`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+        {
+          command: 'pnpm --filter @aah/student dev',
+          url: `${studentBaseUrl}/api/health`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+        {
+          command: 'pnpm --filter @aah/admin dev',
+          url: `${adminBaseUrl}/api/health`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120_000,
+        },
+      ],
   projects: [
     {
       name: 'main',
@@ -27,14 +49,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: mainBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/main dev',
-            url: `${mainBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
     {
       name: 'student',
@@ -43,14 +57,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: studentBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/student dev',
-            url: `${studentBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
     {
       name: 'admin',
@@ -59,14 +65,6 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: adminBaseUrl,
       },
-      webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-        ? undefined
-        : {
-            command: 'pnpm --filter @aah/admin dev',
-            url: `${adminBaseUrl}/api/health`,
-            reuseExistingServer: !process.env.CI,
-            timeout: 120_000,
-          },
     },
   ],
 });

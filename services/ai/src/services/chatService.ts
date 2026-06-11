@@ -58,6 +58,29 @@ export class ChatService {
     }))
   }
 
+  async getConversationHistoryForUser(
+    conversationId: string,
+    userId: string,
+    limit: number = 50
+  ): Promise<AIMessage[] | null> {
+    const dbUserId = await resolveDbUserId(userId)
+    const effectiveUserId = dbUserId ?? userId
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        userId: effectiveUserId,
+        status: 'active',
+      },
+      select: { id: true },
+    })
+
+    if (!conversation) {
+      return null
+    }
+
+    return this.getConversationHistory(conversationId, limit)
+  }
+
   /**
    * Save message to database
    */
