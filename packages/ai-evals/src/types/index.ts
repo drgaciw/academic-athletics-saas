@@ -188,6 +188,8 @@ export interface Score {
 }
 
 export interface ScoringResult {
+  datasetId?: string;
+  modelId?: string;
   testCaseId: string;
   score: Score;
   scorerConfig: ScorerConfig;

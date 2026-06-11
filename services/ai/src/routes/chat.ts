@@ -105,7 +105,10 @@ chatRouter.get('/history/:conversationId', async (c) => {
       return c.json({ error: { code: 'UNAUTHORIZED', message: 'User ID required' } }, 401)
     }
 
-    const history = await chatService.getConversationHistory(conversationId)
+    const history = await chatService.getConversationHistoryForUser(conversationId, authUserId)
+    if (!history) {
+      return c.json({ error: { code: 'NOT_FOUND', message: 'Conversation not found' } }, 404)
+    }
 
     return c.json({
       conversationId,
