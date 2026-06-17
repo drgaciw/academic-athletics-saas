@@ -1,11 +1,11 @@
 const BLOCKED_PHRASE_PATTERNS: RegExp[] = [
-  /\byou are eligible\b/i,
-  /\byou'?re eligible\b/i,
-  /\byou are ineligible\b/i,
-  /\byou'?re ineligible\b/i,
-  /\bcleared to compete\b/i,
-  /\byou are cleared\b/i,
-  /\bcleared for competition\b/i,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+eligible\b/gi,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+ineligible\b/gi,
+  /\byou (?:can|may)(?:\s+\w+){0,2}\s+(?:play|compete)\b/gi,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+(?:allowed|permitted|authorized|approved) to\s+(?:play|compete)\b/gi,
+  /\bcleared to compete\b/gi,
+  /\byou are cleared\b/gi,
+  /\bcleared for competition\b/gi,
 ]
 
 const STANDARD_DISCLAIMER =
@@ -36,8 +36,9 @@ export function eligibilityResponseGuard(
   let out = text
   let wasModified = false
   for (const re of BLOCKED_PHRASE_PATTERNS) {
-    if (re.test(out)) {
-      out = out.replace(re, replacement)
+    const replaced = out.replace(re, replacement)
+    if (replaced !== out) {
+      out = replaced
       wasModified = true
     }
   }
@@ -62,6 +63,7 @@ function shouldAppendDisclaimer(text: string): boolean {
     lower.includes('eligib') ||
     lower.includes('ncaa') ||
     (lower.includes('compliance') && lower.includes('elig')) ||
-    lower.includes('progress toward')
+    lower.includes('progress toward') ||
+    /\b(?:play|compete)\s+(?:this|next)\s+(?:season|term|semester|year)\b/.test(lower)
   )
 }
