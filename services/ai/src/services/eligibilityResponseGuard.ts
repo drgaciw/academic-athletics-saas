@@ -1,8 +1,8 @@
 const BLOCKED_PHRASE_PATTERNS: RegExp[] = [
-  /\byou are eligible\b/gi,
-  /\byou'?re eligible\b/gi,
-  /\byou are ineligible\b/gi,
-  /\byou'?re ineligible\b/gi,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+eligible\b/gi,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+ineligible\b/gi,
+  /\byou (?:can|may)(?:\s+\w+){0,2}\s+(?:play|compete)\b/gi,
+  /\byou(?:\s+are|(?:'|\u2019)?re)(?:\s+\w+){0,2}\s+(?:allowed|permitted|authorized|approved) to\s+(?:play|compete)\b/gi,
   /\bcleared to compete\b/gi,
   /\byou are cleared\b/gi,
   /\bcleared for competition\b/gi,
@@ -63,6 +63,7 @@ function shouldAppendDisclaimer(text: string): boolean {
     lower.includes('eligib') ||
     lower.includes('ncaa') ||
     (lower.includes('compliance') && lower.includes('elig')) ||
-    lower.includes('progress toward')
+    lower.includes('progress toward') ||
+    /\b(?:play|compete)\s+(?:this|next)\s+(?:season|term|semester|year)\b/.test(lower)
   )
 }
