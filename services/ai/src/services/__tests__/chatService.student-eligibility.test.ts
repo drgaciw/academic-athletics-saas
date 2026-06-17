@@ -135,12 +135,43 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
       usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
     } as Awaited<ReturnType<typeof generateText>>)
 
-    const result = await service.chatSync('clerk-student', 'Can I play this season?', {
+    const result = await service.chatSync('clerk-student', 'Can I still play after changing my schedule?', {
       userRole: 'STUDENT',
     })
 
     expect(result.response.toLowerCase()).not.toContain('cleared to compete')
     expect(result.response).toContain('preliminary decision support')
+  })
+
+  it('STUDENT: natural play-status questions get preliminary guidance and guarded output', async () => {
+    mockLoadGate.mockResolvedValue({
+      hasRecordedComplianceReview: false,
+      snapshotLines: ['No compliance-reviewed eligibility record found yet for recent terms.'],
+    })
+    mockGenerateText.mockImplementation(async (opts) => {
+      const system = opts.messages?.find((m) => m.role === 'system')
+      const systemText =
+        typeof system?.content === 'string' ? system.content : String(system?.content ?? '')
+      expect(systemText).toMatch(/preliminary/i)
+      expect(systemText).toMatch(/compliance staff|athletics compliance/i)
+      return {
+        text: 'Yes, you are approved to compete this season and you can play right away.',
+        usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+      } as Awaited<ReturnType<typeof generateText>>
+    })
+
+    const result = await service.chatSync(
+      'clerk-student',
+      'Am I still authorized to compete after changing my schedule?',
+      {
+        userRole: 'STUDENT',
+      }
+    )
+
+    expect(result.response.toLowerCase()).not.toContain('you are approved to compete')
+    expect(result.response.toLowerCase()).not.toContain('you can play')
+    expect(result.response).toContain('preliminary decision support')
+    expect(mockLoadGate).toHaveBeenCalledWith('db-student-1')
   })
 
   it('COACH: does not apply student forbidden-phrase guard', async () => {
