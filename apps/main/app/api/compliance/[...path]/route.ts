@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { buildServicePath, createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('compliance');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('compliance');
 // GET /api/compliance/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('compliance', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'compliance' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/compliance/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('compliance', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'compliance' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/compliance/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('compliance', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'compliance' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/compliance/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('compliance', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'compliance' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/compliance/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('compliance', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'compliance' }
