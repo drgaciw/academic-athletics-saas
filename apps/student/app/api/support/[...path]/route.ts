@@ -7,7 +7,8 @@ export const runtime = 'nodejs';
 type RouteParams = { params: Promise<{ path: string[] }> };
 
 async function proxySupportRequest(req: NextRequest, params: RouteParams['params']) {
-  const { userId } = await auth();
+  const clerkAuth = await auth();
+  const { userId } = clerkAuth;
   if (!userId) {
     return NextResponse.json(
       { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
@@ -29,6 +30,11 @@ async function proxySupportRequest(req: NextRequest, params: RouteParams['params
     'X-User-Role': role,
     'X-Correlation-Id': correlationId,
   };
+
+  const token = await clerkAuth.getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   const contentType = req.headers.get('content-type');
   if (contentType) {

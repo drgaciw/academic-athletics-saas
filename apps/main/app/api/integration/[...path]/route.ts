@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { buildServicePath, createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('integration');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('integration');
 // GET /api/integration/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('integration', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'integration' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/integration/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('integration', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'integration' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/integration/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('integration', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'integration' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/integration/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('integration', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'integration' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/integration/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('integration', extractPath(params));
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'integration' }
