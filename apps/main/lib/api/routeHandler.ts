@@ -106,6 +106,32 @@ export function extractPath(params: any): string {
 }
 
 /**
+ * Builds the mounted microservice API path for a BFF catch-all route.
+ */
+export function buildServicePath(serviceName: string, path: string): string {
+  const basePath = `/api/${serviceName}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (normalizedPath === '/') {
+    return basePath;
+  }
+
+  if (normalizedPath === basePath || normalizedPath.startsWith(`${basePath}/`)) {
+    return normalizedPath;
+  }
+
+  return `${basePath}${normalizedPath}`;
+}
+
+/**
+ * Builds an upstream URL while preserving the browser request query string.
+ */
+export function buildForwardUrl(serviceUrl: string, path: string, request: NextRequest): string {
+  const normalizedServiceUrl = serviceUrl.endsWith('/') ? serviceUrl.slice(0, -1) : serviceUrl;
+  return `${normalizedServiceUrl}${path}${request.nextUrl.search}`;
+}
+
+/**
  * Forwards request to service with proper headers
  */
 export async function forwardRequest(
@@ -114,7 +140,7 @@ export async function forwardRequest(
   request: NextRequest,
   context: RequestContext | null
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = buildForwardUrl(serviceUrl, path, request);
 
   // Get request body if present
   let body: any = undefined;
