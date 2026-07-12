@@ -31,7 +31,7 @@ jest.mock('@clerk/nextjs/server', () => ({
 }));
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '../routeHandler';
+import { buildServicePath, createRouteHandler, extractPath, forwardRequest } from '../routeHandler';
 
 describe('createRouteHandler', () => {
   beforeEach(() => {
@@ -59,6 +59,17 @@ describe('createRouteHandler', () => {
   });
 });
 
+describe('buildServicePath', () => {
+  it('adds the service API mount prefix once', () => {
+    expect(buildServicePath('compliance', '/status/student-1')).toBe(
+      '/api/compliance/status/student-1'
+    );
+    expect(buildServicePath('compliance', '/api/compliance/status/student-1')).toBe(
+      '/api/compliance/status/student-1'
+    );
+  });
+});
+
 describe('forwardRequest', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -72,18 +83,23 @@ describe('forwardRequest', () => {
   });
 
   it('mints and forwards a Clerk bearer token for authenticated BFF calls', async () => {
-    const request = new NextRequest('http://localhost/api/compliance/status/student-1');
+    const request = new NextRequest('http://localhost/api/compliance/status/student-1?include=rules');
 
-    await forwardRequest('http://compliance.test', '/status/student-1', request, {
-      userId: 'db-user-1',
-      clerkId: 'clerk-user-1',
-      role: 'COMPLIANCE',
-      correlationId: 'corr-1',
-      timestamp: new Date('2026-01-01T00:00:00.000Z'),
-    });
+    await forwardRequest(
+      'http://compliance.test',
+      buildServicePath('compliance', '/status/student-1'),
+      request,
+      {
+        userId: 'db-user-1',
+        clerkId: 'clerk-user-1',
+        role: 'COMPLIANCE',
+        correlationId: 'corr-1',
+        timestamp: new Date('2026-01-01T00:00:00.000Z'),
+      }
+    );
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://compliance.test/status/student-1',
+      'http://compliance.test/api/compliance/status/student-1?include=rules',
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: 'Bearer clerk-token',
