@@ -48,29 +48,32 @@ describe('Integration BFF route', () => {
     global.fetch = jest.fn();
   });
 
-  it('rejects student requests before forwarding to integration service', async () => {
-    mockValidateAuth.mockResolvedValue({
-      userId: 'student-1',
-      clerkId: 'clerk-student-1',
-      role: 'STUDENT',
-      correlationId: 'corr-1',
-      timestamp: new Date('2026-01-01T00:00:00.000Z'),
-    });
+  it.each(['STUDENT', 'STAFF'])(
+    'rejects %s requests before forwarding to integration service',
+    async (role) => {
+      mockValidateAuth.mockResolvedValue({
+        userId: 'student-1',
+        clerkId: 'clerk-student-1',
+        role,
+        correlationId: 'corr-1',
+        timestamp: new Date('2026-01-01T00:00:00.000Z'),
+      });
 
-    const request = new NextRequest('http://localhost/api/integration/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: 'student@example.com',
-        subject: 'Unauthorized send',
-        text: 'This should not be forwarded',
-      }),
-    });
-    const response = await POST(request, {
-      params: Promise.resolve({ path: ['email', 'send'] }),
-    });
+      const request = new NextRequest('http://localhost/api/integration/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'student@example.com',
+          subject: 'Unauthorized send',
+          text: 'This should not be forwarded',
+        }),
+      });
+      const response = await POST(request, {
+        params: Promise.resolve({ path: ['email', 'send'] }),
+      });
 
-    expect(response.status).toBe(403);
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
+      expect(response.status).toBe(403);
+      expect(global.fetch).not.toHaveBeenCalled();
+    }
+  );
 });

@@ -48,23 +48,26 @@ describe('Monitoring BFF route', () => {
     global.fetch = jest.fn();
   });
 
-  it('rejects student requests before forwarding to monitoring service', async () => {
-    mockValidateAuth.mockResolvedValue({
-      userId: 'student-1',
-      clerkId: 'clerk-student-1',
-      role: 'STUDENT',
-      correlationId: 'corr-1',
-      timestamp: new Date('2026-01-01T00:00:00.000Z'),
-    });
+  it.each(['STUDENT', 'STAFF', 'COACH', 'FACULTY'])(
+    'rejects %s requests before forwarding to monitoring service',
+    async (role) => {
+      mockValidateAuth.mockResolvedValue({
+        userId: 'student-1',
+        clerkId: 'clerk-student-1',
+        role,
+        correlationId: 'corr-1',
+        timestamp: new Date('2026-01-01T00:00:00.000Z'),
+      });
 
-    const request = new NextRequest(
-      'http://localhost/api/monitoring/progress-report/student/student-2'
-    );
-    const response = await GET(request, {
-      params: Promise.resolve({ path: ['progress-report', 'student', 'student-2'] }),
-    });
+      const request = new NextRequest(
+        'http://localhost/api/monitoring/progress-report/student/student-2'
+      );
+      const response = await GET(request, {
+        params: Promise.resolve({ path: ['progress-report', 'student', 'student-2'] }),
+      });
 
-    expect(response.status).toBe(403);
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
+      expect(response.status).toBe(403);
+      expect(global.fetch).not.toHaveBeenCalled();
+    }
+  );
 });
