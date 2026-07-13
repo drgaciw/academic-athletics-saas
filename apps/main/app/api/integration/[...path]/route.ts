@@ -4,53 +4,55 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractServicePath, forwardRequest } from '@/lib/api/routeHandler';
+import {
+  createRouteHandler,
+  extractServicePath,
+  forwardRequest,
+  requireServiceRole,
+} from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
+import { RequestContext, UserRole } from '@/lib/types/services';
 
 const serviceUrl = getServiceUrl('integration');
+const allowedRoles = [UserRole.ADMIN, UserRole.COMPLIANCE, UserRole.STAFF] as const;
+
+async function forwardIntegrationRequest(
+  request: NextRequest,
+  context: RequestContext | null,
+  params: any
+) {
+  requireServiceRole(context, allowedRoles, 'integration');
+  const path = extractServicePath('integration', params);
+  return forwardRequest(serviceUrl, path, request, context);
+}
 
 // GET /api/integration/*
 export const GET = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractServicePath('integration', params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardIntegrationRequest,
   { serviceName: 'integration' }
 );
 
 // POST /api/integration/*
 export const POST = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractServicePath('integration', params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardIntegrationRequest,
   { serviceName: 'integration' }
 );
 
 // PUT /api/integration/*
 export const PUT = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractServicePath('integration', params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardIntegrationRequest,
   { serviceName: 'integration' }
 );
 
 // PATCH /api/integration/*
 export const PATCH = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractServicePath('integration', params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardIntegrationRequest,
   { serviceName: 'integration' }
 );
 
 // DELETE /api/integration/*
 export const DELETE = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractServicePath('integration', params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardIntegrationRequest,
   { serviceName: 'integration' }
 );
 
