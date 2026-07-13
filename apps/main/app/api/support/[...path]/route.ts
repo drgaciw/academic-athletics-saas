@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { createRouteHandler, extractServicePath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('support');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('support');
 // GET /api/support/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('support', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'support' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/support/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('support', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'support' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/support/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('support', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'support' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/support/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('support', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'support' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/support/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('support', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'support' }

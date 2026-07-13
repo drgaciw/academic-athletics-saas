@@ -106,6 +106,13 @@ export function extractPath(params: any): string {
 }
 
 /**
+ * Extracts a path using the service's Hono mount prefix.
+ */
+export function extractServicePath(serviceName: string, params: any): string {
+  return `/api/${serviceName}${extractPath(params)}`;
+}
+
+/**
  * Forwards request to service with proper headers
  */
 export async function forwardRequest(
@@ -114,7 +121,7 @@ export async function forwardRequest(
   request: NextRequest,
   context: RequestContext | null
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = `${serviceUrl}${path}${request.nextUrl.search}`;
 
   // Get request body if present
   let body: any = undefined;

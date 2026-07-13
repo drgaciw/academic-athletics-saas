@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandler, extractPath } from '@/lib/api/routeHandler';
+import { createRouteHandler, extractServicePath } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 import { validateAuth } from '@/lib/middleware/authentication';
 import { logServiceCall } from '@/lib/middleware/logging';
@@ -19,7 +19,7 @@ async function forwardWithStreaming(
   request: NextRequest,
   context: any
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = `${serviceUrl}${path}${request.nextUrl.search}`;
 
   // Check if this is a streaming request
   let body: any;
@@ -83,7 +83,7 @@ async function forwardWithStreaming(
 // GET /api/ai/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('ai', params);
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -92,7 +92,7 @@ export const GET = createRouteHandler(
 // POST /api/ai/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('ai', params);
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -101,7 +101,7 @@ export const POST = createRouteHandler(
 // PUT /api/ai/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('ai', params);
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -110,7 +110,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/ai/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('ai', params);
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -119,7 +119,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/ai/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('ai', params);
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
