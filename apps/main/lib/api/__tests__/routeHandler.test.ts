@@ -31,7 +31,12 @@ jest.mock('@clerk/nextjs/server', () => ({
 }));
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '../routeHandler';
+import {
+  createRouteHandler,
+  extractPath,
+  extractServicePath,
+  forwardRequest,
+} from '../routeHandler';
 
 describe('createRouteHandler', () => {
   beforeEach(() => {
@@ -57,6 +62,12 @@ describe('createRouteHandler', () => {
     expect(response.status).toBe(200);
     expect(data).toEqual({ path: '/status/student-1' });
   });
+
+  it('builds service paths with the Hono mount prefix', () => {
+    expect(extractServicePath('compliance', { path: ['status', 'student-1'] })).toBe(
+      '/api/compliance/status/student-1'
+    );
+  });
 });
 
 describe('forwardRequest', () => {
@@ -72,9 +83,11 @@ describe('forwardRequest', () => {
   });
 
   it('mints and forwards a Clerk bearer token for authenticated BFF calls', async () => {
-    const request = new NextRequest('http://localhost/api/compliance/status/student-1');
+    const request = new NextRequest(
+      'http://localhost/api/compliance/status/student-1?limit=10'
+    );
 
-    await forwardRequest('http://compliance.test', '/status/student-1', request, {
+    await forwardRequest('http://compliance.test', '/api/compliance/status/student-1', request, {
       userId: 'db-user-1',
       clerkId: 'clerk-user-1',
       role: 'COMPLIANCE',
@@ -83,7 +96,7 @@ describe('forwardRequest', () => {
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://compliance.test/status/student-1',
+      'http://compliance.test/api/compliance/status/student-1?limit=10',
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: 'Bearer clerk-token',

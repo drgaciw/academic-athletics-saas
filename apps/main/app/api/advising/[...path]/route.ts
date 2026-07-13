@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { createRouteHandler, extractServicePath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('advising');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('advising');
 // GET /api/advising/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('advising', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'advising' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/advising/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('advising', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'advising' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/advising/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('advising', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'advising' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/advising/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('advising', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'advising' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/advising/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('advising', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'advising' }

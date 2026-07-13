@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { createRouteHandler, extractServicePath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('monitoring');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('monitoring');
 // GET /api/monitoring/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('monitoring', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'monitoring' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/monitoring/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('monitoring', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'monitoring' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/monitoring/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('monitoring', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'monitoring' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/monitoring/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('monitoring', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'monitoring' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/monitoring/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('monitoring', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'monitoring' }
