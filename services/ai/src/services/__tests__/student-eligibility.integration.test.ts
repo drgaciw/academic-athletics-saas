@@ -6,10 +6,12 @@ jest.mock('../chatService', () => ({
   chatService: {
     chat: jest.fn(),
     chatSync: jest.fn(),
+    getConversationHistory: jest.fn(),
   },
 }))
 
 const mockChatSync = chatService.chatSync as jest.Mock
+const mockGetConversationHistory = chatService.getConversationHistory as jest.Mock
 
 describe('POST /api/ai/chat student eligibility (G3)', () => {
   const app = new Hono().route('/', chatRouter)
@@ -79,5 +81,19 @@ describe('POST /api/ai/chat student eligibility (G3)', () => {
 
     expect(mockChatSync).toHaveBeenCalled()
     expect(chatService.chat).not.toHaveBeenCalled()
+  })
+
+  it('history lookup is scoped to the authenticated user', async () => {
+    mockGetConversationHistory.mockResolvedValue([{ role: 'user', content: 'hello' }])
+
+    const res = await app.request('/history/conv-1', {
+      method: 'GET',
+      headers: {
+        'X-User-Id': 'student-clerk-id',
+      },
+    })
+
+    expect(res.status).toBe(200)
+    expect(mockGetConversationHistory).toHaveBeenCalledWith('student-clerk-id', 'conv-1')
   })
 })
