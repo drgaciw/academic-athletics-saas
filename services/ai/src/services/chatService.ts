@@ -41,9 +41,23 @@ export class ChatService {
    * Get conversation history
    */
   async getConversationHistory(
+    userId: string,
     conversationId: string,
     limit: number = 50
   ): Promise<AIMessage[]> {
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        userId,
+        status: 'active',
+      },
+      select: { id: true },
+    })
+
+    if (!conversation) {
+      throw new Error('Conversation not found or access denied')
+    }
+
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { timestamp: 'desc' },
@@ -228,7 +242,7 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
     if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
@@ -393,7 +407,7 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
     if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {

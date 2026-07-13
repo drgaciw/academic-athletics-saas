@@ -14,7 +14,7 @@ import { getServiceUrl } from '@/lib/services';
 import { RequestContext, UserRole } from '@/lib/types/services';
 
 const serviceUrl = getServiceUrl('integration');
-const allowedRoles = [UserRole.ADMIN, UserRole.COMPLIANCE, UserRole.STAFF] as const;
+const allowedRoles = [UserRole.ADMIN, UserRole.COMPLIANCE] as const;
 
 async function forwardIntegrationRequest(
   request: NextRequest,
