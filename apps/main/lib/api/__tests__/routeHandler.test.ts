@@ -1,10 +1,20 @@
 const mockValidateOptionalAuth = jest.fn();
 const mockAuth = jest.fn();
 
-jest.mock('../../middleware/authentication', () => ({
-  validateAuth: jest.fn(),
-  validateOptionalAuth: () => mockValidateOptionalAuth(),
-}));
+jest.mock('../../middleware/authentication', () => {
+  class AuthenticationError extends Error {
+    constructor(message: string, public statusCode: number = 401) {
+      super(message);
+      this.name = 'AuthenticationError';
+    }
+  }
+
+  return {
+    AuthenticationError,
+    validateAuth: jest.fn(),
+    validateOptionalAuth: () => mockValidateOptionalAuth(),
+  };
+});
 
 jest.mock('../../middleware/logging', () => ({
   createTimer: () => () => 0,
@@ -31,7 +41,15 @@ jest.mock('@clerk/nextjs/server', () => ({
 }));
 
 import { NextRequest, NextResponse } from 'next/server';
-import { buildServicePath, createRouteHandler, extractPath, forwardRequest } from '../routeHandler';
+import {
+  buildServicePath,
+  createRouteHandler,
+  extractPath,
+  forwardRequest,
+  requireServiceRole,
+} from '../routeHandler';
+import { UserRole } from '../../types/services';
+import { AuthenticationError } from '../../middleware/authentication';
 
 describe('createRouteHandler', () => {
   beforeEach(() => {
@@ -67,6 +85,24 @@ describe('buildServicePath', () => {
     expect(buildServicePath('compliance', '/api/compliance/status/student-1')).toBe(
       '/api/compliance/status/student-1'
     );
+  });
+});
+
+describe('requireServiceRole', () => {
+  it('rejects callers outside the allowed role set', () => {
+    expect(() =>
+      requireServiceRole(
+        {
+          userId: 'student-1',
+          clerkId: 'clerk-student-1',
+          role: UserRole.STUDENT,
+          correlationId: 'corr-1',
+          timestamp: new Date('2026-01-01T00:00:00.000Z'),
+        },
+        [UserRole.ADMIN, UserRole.COMPLIANCE, UserRole.STAFF],
+        'integration'
+      )
+    ).toThrow(AuthenticationError);
   });
 });
 
