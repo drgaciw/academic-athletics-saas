@@ -31,6 +31,7 @@ jest.mock('@aah/database', () => ({
   prisma: {
     conversation: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -45,6 +46,7 @@ const { prisma } = jest.requireMock('@aah/database') as {
   prisma: {
     conversation: {
       findUnique: jest.Mock
+      findFirst: jest.Mock
       create: jest.Mock
       update: jest.Mock
     }
@@ -67,6 +69,7 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
     jest.clearAllMocks()
     mockResolveDbUserId.mockResolvedValue('db-student-1')
     prisma.conversation.findUnique.mockResolvedValue(null)
+    prisma.conversation.findFirst.mockResolvedValue({ id: 'conv-1' })
     prisma.conversation.create.mockResolvedValue({ id: 'conv-1', userId: 'db-student-1' })
     prisma.conversation.update.mockResolvedValue({})
     prisma.message.findMany.mockResolvedValue([])
@@ -160,5 +163,30 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
 
     expect(result.response).toBe(coachText)
     expect(mockLoadGate).not.toHaveBeenCalled()
+  })
+
+  it('scopes history reads to the authenticated conversation owner', async () => {
+    prisma.message.findMany.mockResolvedValue([
+      {
+        role: 'user',
+        content: 'Can I play?',
+      },
+    ])
+
+    await service.getConversationHistory('db-student-1', 'conv-1')
+
+    expect(prisma.conversation.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'conv-1',
+        userId: 'db-student-1',
+        status: 'active',
+      },
+      select: { id: true },
+    })
+    expect(prisma.message.findMany).toHaveBeenCalledWith({
+      where: { conversationId: 'conv-1' },
+      orderBy: { timestamp: 'desc' },
+      take: 50,
+    })
   })
 })

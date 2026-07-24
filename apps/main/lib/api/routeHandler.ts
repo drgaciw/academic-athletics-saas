@@ -5,12 +5,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { validateAuth, validateOptionalAuth } from '../middleware/authentication';
+import {
+  AuthenticationError,
+  validateAuth,
+  validateOptionalAuth,
+} from '../middleware/authentication';
 import { logRequest, logResponse, createTimer } from '../middleware/logging';
 import { checkRateLimit, addRateLimitHeaders } from '../middleware/rateLimit';
 import { handleError } from '../middleware/errorHandler';
 import { addCorsHeaders, handleCorsPreFlight } from '../middleware/cors';
-import { RequestContext } from '../types/services';
+import { RequestContext, UserRole } from '../types/services';
 
 export interface RouteHandlerConfig {
   requireAuth?: boolean;
@@ -129,6 +133,22 @@ export function buildServicePath(serviceName: string, path: string): string {
 export function buildForwardUrl(serviceUrl: string, path: string, request: NextRequest): string {
   const normalizedServiceUrl = serviceUrl.endsWith('/') ? serviceUrl.slice(0, -1) : serviceUrl;
   return `${normalizedServiceUrl}${path}${request.nextUrl.search}`;
+}
+
+/**
+ * Guards BFF proxies when the downstream service lacks route-level RBAC.
+ */
+export function requireServiceRole(
+  context: RequestContext | null,
+  allowedRoles: readonly UserRole[],
+  serviceName: string
+): void {
+  if (!context || !allowedRoles.includes(context.role)) {
+    throw new AuthenticationError(
+      `Insufficient permissions for ${serviceName} service`,
+      403
+    );
+  }
 }
 
 /**
