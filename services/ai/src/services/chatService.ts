@@ -45,10 +45,11 @@ export class ChatService {
     conversationId: string,
     limit: number = 50
   ): Promise<AIMessage[]> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversation = await prisma.conversation.findFirst({
       where: {
         id: conversationId,
-        userId,
+        userId: dbUserId,
         status: 'active',
       },
       select: { id: true },
@@ -496,11 +497,12 @@ export class ChatService {
    * Delete conversation
    */
   async deleteConversation(conversationId: string, userId: string): Promise<void> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
     })
 
-    if (!conversation || conversation.userId !== userId) {
+    if (!conversation || conversation.userId !== dbUserId) {
       throw new Error('Conversation not found or access denied')
     }
 
@@ -524,9 +526,10 @@ export class ChatService {
       messageCount: number
     }>
   > {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversations = await prisma.conversation.findMany({
       where: {
-        userId,
+        userId: dbUserId,
         status: 'active',
       },
       orderBy: { createdAt: 'desc' },

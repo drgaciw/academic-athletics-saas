@@ -173,8 +173,9 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
       },
     ])
 
-    await service.getConversationHistory('db-student-1', 'conv-1')
+    await service.getConversationHistory('clerk-student-1', 'conv-1')
 
+    expect(mockResolveDbUserId).toHaveBeenCalledWith('clerk-student-1')
     expect(prisma.conversation.findFirst).toHaveBeenCalledWith({
       where: {
         id: 'conv-1',
