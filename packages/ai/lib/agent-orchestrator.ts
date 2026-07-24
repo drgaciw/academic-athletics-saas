@@ -76,7 +76,8 @@ export class AgentOrchestrator {
     this.config = {
       autoRoute: true,
       enableMultiAgent: true,
-      maxAgentsPerWorkflow: 3,
+      // Transfer-credit pipeline uses 4 agents; keep headroom for similar workflows.
+      maxAgentsPerWorkflow: 5,
       executionTimeout: 60000, // 60 seconds
       enableFallback: true,
       ...config,
@@ -258,7 +259,10 @@ export class AgentOrchestrator {
         }
       }
 
-      workflow.status = 'completed'
+      // Only mark completed when every agent succeeded; failed status must stick.
+      if (workflow.status === 'running') {
+        workflow.status = 'completed'
+      }
 
       // Return final agent's response as primary
       const finalResponse = responses[responses.length - 1]
