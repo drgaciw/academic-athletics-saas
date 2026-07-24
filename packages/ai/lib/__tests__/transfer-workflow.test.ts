@@ -1,3 +1,8 @@
+jest.mock('../../agents', () => ({
+  createAgent: jest.fn(),
+  createGeneralAssistant: jest.fn(),
+}))
+
 import { AgentOrchestrator } from '../agent-orchestrator'
 import {
   TRANSFER_CREDIT_AGENT_SEQUENCE,
