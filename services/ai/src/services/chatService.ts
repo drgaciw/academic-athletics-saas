@@ -41,9 +41,24 @@ export class ChatService {
    * Get conversation history
    */
   async getConversationHistory(
+    userId: string,
     conversationId: string,
     limit: number = 50
   ): Promise<AIMessage[]> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        userId: dbUserId,
+        status: 'active',
+      },
+      select: { id: true },
+    })
+
+    if (!conversation) {
+      throw new Error('Conversation not found or access denied')
+    }
+
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { timestamp: 'desc' },
@@ -228,7 +243,7 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
     if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
@@ -393,7 +408,7 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
     if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
@@ -482,11 +497,12 @@ export class ChatService {
    * Delete conversation
    */
   async deleteConversation(conversationId: string, userId: string): Promise<void> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
     })
 
-    if (!conversation || conversation.userId !== userId) {
+    if (!conversation || conversation.userId !== dbUserId) {
       throw new Error('Conversation not found or access denied')
     }
 
@@ -510,9 +526,10 @@ export class ChatService {
       messageCount: number
     }>
   > {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversations = await prisma.conversation.findMany({
       where: {
-        userId,
+        userId: dbUserId,
         status: 'active',
       },
       orderBy: { createdAt: 'desc' },
