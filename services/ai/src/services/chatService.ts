@@ -5,7 +5,12 @@ import { prisma } from '@aah/database'
 import { AIMessage, AIModel } from '../types'
 import { AI_CONFIG, calculateCost } from '../config'
 import { countMessageTokens, optimizeMessages } from '../utils/tokens'
-import { sanitizeInput, sanitizeOutput, encryptConversation } from '../utils/security'
+import {
+  sanitizeInput,
+  sanitizeOutput,
+  encryptConversation,
+  decryptConversation,
+} from '../utils/security'
 import { ragPipeline } from './ragPipeline'
 import { isEligibilityIntent } from './eligibilityIntent'
 import { eligibilityResponseGuard } from './eligibilityResponseGuard'
@@ -67,10 +72,29 @@ export class ChatService {
 
     return messages.reverse().map((msg) => ({
       role: msg.role as AIMessage['role'],
-      content: AI_CONFIG.security.encryptConversations
-        ? sanitizeOutput(msg.content)
-        : msg.content,
+      content: this.decodeStoredMessageContent(msg.content),
     }))
+  }
+
+  /**
+   * Decrypt stored message content when encryption is enabled.
+   * Falls back to plaintext for legacy rows that were never encrypted.
+   */
+  private decodeStoredMessageContent(content: string): string {
+    if (!AI_CONFIG.security.encryptConversations) {
+      return content
+    }
+
+    try {
+      const decrypted = decryptConversation(content)
+      if (decrypted.length > 0) {
+        return sanitizeOutput(decrypted)
+      }
+    } catch {
+      // Treat as legacy plaintext below.
+    }
+
+    return sanitizeOutput(content)
   }
 
   /**

@@ -10,6 +10,7 @@ import { generateText } from 'ai'
 import { ChatService } from '../chatService'
 import { loadStudentEligibilityGate, resolveDbUserId } from '../studentEligibilityContext'
 import { ragPipeline } from '../ragPipeline'
+import { encryptConversation } from '../../utils/security'
 
 jest.mock('ai', () => ({
   generateText: jest.fn(),
@@ -220,5 +221,23 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
       orderBy: { timestamp: 'desc' },
       take: 50,
     })
+  })
+
+  it('decrypts encrypted history content before returning it', async () => {
+    const plaintext = 'Can I play this season?'
+    const encrypted = encryptConversation(plaintext)
+
+    prisma.message.findMany.mockResolvedValue([
+      {
+        role: 'user',
+        content: encrypted,
+      },
+    ])
+
+    const history = await service.getConversationHistory('clerk-student-1', 'conv-1')
+
+    expect(history).toHaveLength(1)
+    expect(history[0]?.content).toBe(plaintext)
+    expect(history[0]?.content).not.toBe(encrypted)
   })
 })
