@@ -4,12 +4,14 @@ import { validateRequest } from '../middleware/validation'
 import { studyHallCheckInSchema } from '../types'
 import { studyHallService } from '../services/studyHallService'
 import { AppError } from '../middleware/errorHandler'
+import { assertStudentProfileAccess } from '../middleware/studentAccess'
 
 const studyHall = new Hono()
 
 // POST /api/support/study-hall/checkin - Check in to study hall
 studyHall.post('/checkin', validateRequest(studyHallCheckInSchema), async (c) => {
   const validatedData = c.get('validatedData') as z.infer<typeof studyHallCheckInSchema>
+  await assertStudentProfileAccess(c, validatedData.studentId)
 
   const attendance = await studyHallService.checkIn(validatedData)
 
@@ -31,6 +33,7 @@ studyHall.post('/checkout', async (c) => {
     )
   }
 
+  await assertStudentProfileAccess(c, studentId)
   const attendance = await studyHallService.checkOut(attendanceId, studentId)
 
   return c.json({
@@ -43,6 +46,7 @@ studyHall.post('/checkout', async (c) => {
 // GET /api/support/study-hall/attendance/:studentId - Get attendance records
 studyHall.get('/attendance/:studentId', async (c) => {
   const studentId = c.req.param('studentId')
+  await assertStudentProfileAccess(c, studentId)
   const limit = c.req.query('limit') ? parseInt(c.req.query('limit')!) : 10
 
   const records = await studyHallService.getAttendanceRecords(studentId, limit)
@@ -56,6 +60,7 @@ studyHall.get('/attendance/:studentId', async (c) => {
 // GET /api/support/study-hall/stats/:studentId - Get student stats
 studyHall.get('/stats/:studentId', async (c) => {
   const studentId = c.req.param('studentId')
+  await assertStudentProfileAccess(c, studentId)
 
   const stats = await studyHallService.getStudentStats(studentId)
 

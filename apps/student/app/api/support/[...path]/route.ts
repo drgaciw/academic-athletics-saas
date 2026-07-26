@@ -1,10 +1,49 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupportServiceUrl, toAiUserRole } from '@/lib/services';
+import { getStudentByClerkId } from '@/lib/student-data';
 
 export const runtime = 'nodejs';
 
 type RouteParams = { params: Promise<{ path: string[] }> };
+
+/** Path patterns where the final segment is a studentProfile id. */
+const STUDENT_SCOPED_PATH =
+  /^(tutoring\/sessions|study-hall\/attendance|study-hall\/stats|workshop\/registrations|mentoring\/matches)\/([^/]+)$/;
+
+function collectRequestedStudentIds(
+  subPath: string,
+  searchParams: URLSearchParams,
+  bodyText: string | null
+): string[] {
+  const ids = new Set<string>();
+
+  const pathMatch = subPath.match(STUDENT_SCOPED_PATH);
+  if (pathMatch?.[2]) {
+    ids.add(pathMatch[2]);
+  }
+
+  const queryStudentId = searchParams.get('studentId');
+  if (queryStudentId) {
+    ids.add(queryStudentId);
+  }
+
+  if (bodyText) {
+    try {
+      const parsed = JSON.parse(bodyText) as { studentId?: unknown; menteeId?: unknown };
+      if (typeof parsed.studentId === 'string' && parsed.studentId.length > 0) {
+        ids.add(parsed.studentId);
+      }
+      if (typeof parsed.menteeId === 'string' && parsed.menteeId.length > 0) {
+        ids.add(parsed.menteeId);
+      }
+    } catch {
+      // Non-JSON bodies are forwarded unchanged; upstream validation handles them.
+    }
+  }
+
+  return [...ids];
+}
 
 async function proxySupportRequest(req: NextRequest, params: RouteParams['params']) {
   const clerkAuth = await auth();
@@ -16,6 +55,15 @@ async function proxySupportRequest(req: NextRequest, params: RouteParams['params
     );
   }
 
+  const student = await getStudentByClerkId(userId);
+  const ownProfileId = student?.studentProfile?.id;
+  if (!ownProfileId) {
+    return NextResponse.json(
+      { error: { code: 'FORBIDDEN', message: 'Student profile required' } },
+      { status: 403 }
+    );
+  }
+
   const user = await currentUser();
   const role = toAiUserRole(user?.publicMetadata?.role as string | undefined);
   const { path } = await params;
@@ -23,6 +71,19 @@ async function proxySupportRequest(req: NextRequest, params: RouteParams['params
   const url = new URL(req.url);
   const serviceUrl = getSupportServiceUrl();
   const targetUrl = `${serviceUrl}/api/support/${subPath}${url.search}`;
+
+  let bodyText: string | null = null;
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    bodyText = await req.text();
+  }
+
+  const requestedIds = collectRequestedStudentIds(subPath, url.searchParams, bodyText);
+  if (requestedIds.some((id) => id !== ownProfileId)) {
+    return NextResponse.json(
+      { error: { code: 'FORBIDDEN', message: 'You can only access your own student support records' } },
+      { status: 403 }
+    );
+  }
 
   const correlationId = crypto.randomUUID();
   const headers: Record<string, string> = {
@@ -46,8 +107,8 @@ async function proxySupportRequest(req: NextRequest, params: RouteParams['params
     headers,
   };
 
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    init.body = await req.text();
+  if (bodyText !== null) {
+    init.body = bodyText;
   }
 
   const response = await fetch(targetUrl, init);

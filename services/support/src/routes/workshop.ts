@@ -4,12 +4,14 @@ import { validateRequest } from '../middleware/validation'
 import { workshopRegistrationSchema } from '../types'
 import { workshopService } from '../services/workshopService'
 import { AppError } from '../middleware/errorHandler'
+import { assertStudentProfileAccess } from '../middleware/studentAccess'
 
 const workshop = new Hono()
 
 // POST /api/support/workshop/register - Register for a workshop
 workshop.post('/register', validateRequest(workshopRegistrationSchema), async (c) => {
   const validatedData = c.get('validatedData') as z.infer<typeof workshopRegistrationSchema>
+  await assertStudentProfileAccess(c, validatedData.studentId)
 
   const registration = await workshopService.registerForWorkshop(validatedData)
 
@@ -28,6 +30,7 @@ workshop.delete('/:registrationId', async (c) => {
     throw new AppError(400, 'MISSING_STUDENT_ID', 'studentId is required')
   }
 
+  await assertStudentProfileAccess(c, studentId)
   const registration = await workshopService.cancelRegistration(registrationId, studentId)
 
   return c.json({
@@ -49,6 +52,7 @@ workshop.get('/available', async (c) => {
 // GET /api/support/workshop/registrations/:studentId - Get student registrations
 workshop.get('/registrations/:studentId', async (c) => {
   const studentId = c.req.param('studentId')
+  await assertStudentProfileAccess(c, studentId)
 
   const registrations = await workshopService.getStudentRegistrations(studentId)
 
