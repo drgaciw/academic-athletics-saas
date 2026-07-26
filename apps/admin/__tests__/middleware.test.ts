@@ -1,17 +1,22 @@
-const mockAuthMiddleware = jest.fn((config) => {
-  mockAuthMiddleware.lastConfig = config
+type AuthMiddlewareConfig = {
+  basePath: string
+  publicRoutes: string[]
+  afterAuth: (auth: unknown, req: unknown) => unknown
+}
+
+let lastConfig: AuthMiddlewareConfig | undefined
+
+const mockAuthMiddleware = jest.fn((config: AuthMiddlewareConfig) => {
+  lastConfig = config
   return jest.fn()
 })
 const mockRedirectToSignIn = jest.fn()
-const mockRequireRole = jest.fn(() => () => true)
+const mockRequireRole = jest.fn((_roles: string[]) => () => true)
 
 jest.mock('@aah/auth/middleware/nextjs', () => ({
-  authMiddleware: (config: unknown) => mockAuthMiddleware(config),
+  authMiddleware: (config: AuthMiddlewareConfig) => mockAuthMiddleware(config),
   redirectToSignIn: (...args: unknown[]) => mockRedirectToSignIn(...args),
-  requireRole: (roles: string[]) => {
-    mockRequireRole(roles)
-    return () => true
-  },
+  requireRole: (roles: string[]) => mockRequireRole(roles),
 }))
 
 import middleware, { config } from '../middleware'
@@ -19,11 +24,8 @@ import middleware, { config } from '../middleware'
 describe('Admin middleware', () => {
   it('configures auth with admin base path and public routes', () => {
     expect(mockAuthMiddleware).toHaveBeenCalled()
-    const passed = mockAuthMiddleware.lastConfig as {
-      basePath: string
-      publicRoutes: string[]
-      afterAuth: (auth: unknown, req: unknown) => unknown
-    }
+    expect(lastConfig).toBeDefined()
+    const passed = lastConfig as AuthMiddlewareConfig
     expect(passed.basePath).toBe('/admin')
     expect(passed.publicRoutes).toEqual(
       expect.arrayContaining(['/sign-in(.*)', '/sign-up(.*)', '/api/health'])

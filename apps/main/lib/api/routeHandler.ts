@@ -5,12 +5,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { validateAuth, validateOptionalAuth } from '../middleware/authentication';
+import {
+  AuthenticationError,
+  validateAuth,
+  validateOptionalAuth,
+} from '../middleware/authentication';
 import { logRequest, logResponse, createTimer } from '../middleware/logging';
 import { checkRateLimit, addRateLimitHeaders } from '../middleware/rateLimit';
 import { handleError } from '../middleware/errorHandler';
 import { addCorsHeaders, handleCorsPreFlight } from '../middleware/cors';
-import { RequestContext } from '../types/services';
+import { RequestContext, UserRole } from '../types/services';
 
 export interface RouteHandlerConfig {
   requireAuth?: boolean;
@@ -106,6 +110,48 @@ export function extractPath(params: any): string {
 }
 
 /**
+ * Builds the mounted microservice API path for a BFF catch-all route.
+ */
+export function buildServicePath(serviceName: string, path: string): string {
+  const basePath = `/api/${serviceName}`;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (normalizedPath === '/') {
+    return basePath;
+  }
+
+  if (normalizedPath === basePath || normalizedPath.startsWith(`${basePath}/`)) {
+    return normalizedPath;
+  }
+
+  return `${basePath}${normalizedPath}`;
+}
+
+/**
+ * Builds an upstream URL while preserving the browser request query string.
+ */
+export function buildForwardUrl(serviceUrl: string, path: string, request: NextRequest): string {
+  const normalizedServiceUrl = serviceUrl.endsWith('/') ? serviceUrl.slice(0, -1) : serviceUrl;
+  return `${normalizedServiceUrl}${path}${request.nextUrl.search}`;
+}
+
+/**
+ * Guards BFF proxies when the downstream service lacks route-level RBAC.
+ */
+export function requireServiceRole(
+  context: RequestContext | null,
+  allowedRoles: readonly UserRole[],
+  serviceName: string
+): void {
+  if (!context || !allowedRoles.includes(context.role)) {
+    throw new AuthenticationError(
+      `Insufficient permissions for ${serviceName} service`,
+      403
+    );
+  }
+}
+
+/**
  * Forwards request to service with proper headers
  */
 export async function forwardRequest(
@@ -114,7 +160,7 @@ export async function forwardRequest(
   request: NextRequest,
   context: RequestContext | null
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = buildForwardUrl(serviceUrl, path, request);
 
   // Get request body if present
   let body: any = undefined;

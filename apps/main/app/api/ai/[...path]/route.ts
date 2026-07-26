@@ -4,9 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandler, extractPath } from '@/lib/api/routeHandler';
+import { buildForwardUrl, buildServicePath, createRouteHandler, extractPath } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
-import { validateAuth } from '@/lib/middleware/authentication';
 import { logServiceCall } from '@/lib/middleware/logging';
 
 const serviceUrl = getServiceUrl('ai');
@@ -19,17 +18,16 @@ async function forwardWithStreaming(
   request: NextRequest,
   context: any
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = buildForwardUrl(serviceUrl, path, request);
 
-  // Check if this is a streaming request
-  let body: any;
-  try {
-    body = await request.json();
-  } catch {
-    body = {};
+  let body: any = undefined;
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    try {
+      body = await request.json();
+    } catch {
+      body = undefined;
+    }
   }
-
-  const isStreaming = body.stream === true || path.includes('/chat');
 
   logServiceCall('ai', path, request.method, context);
 
@@ -41,7 +39,9 @@ async function forwardWithStreaming(
   if (context) {
     headers['X-Correlation-Id'] = context.correlationId;
     headers['X-User-Id'] = context.userId;
-    headers['X-User-Role'] = context.role;
+    // Normalize Clerk/Prisma student aliases to the AI service STUDENT contract.
+    const role = context.role === 'STUDENT_ATHLETE' ? 'STUDENT' : context.role;
+    headers['X-User-Role'] = role;
   }
 
   // Forward auth token
@@ -54,15 +54,16 @@ async function forwardWithStreaming(
   const response = await fetch(url, {
     method: request.method,
     headers,
-    body: JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
+  const contentType = response.headers.get('content-type') || '';
 
   // Handle streaming responses
-  if (isStreaming && response.ok && response.body) {
+  if (contentType.includes('text/event-stream') && response.ok && response.body) {
     return new NextResponse(response.body, {
       status: response.status,
       headers: {
-        'Content-Type': 'text/event-stream',
+        'Content-Type': contentType,
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'X-Request-Id': context?.correlationId || 'unknown',
@@ -83,7 +84,7 @@ async function forwardWithStreaming(
 // GET /api/ai/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('ai', extractPath(params));
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -92,7 +93,7 @@ export const GET = createRouteHandler(
 // POST /api/ai/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('ai', extractPath(params));
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -101,7 +102,7 @@ export const POST = createRouteHandler(
 // PUT /api/ai/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('ai', extractPath(params));
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -110,7 +111,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/ai/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('ai', extractPath(params));
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }
@@ -119,7 +120,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/ai/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = buildServicePath('ai', extractPath(params));
     return forwardWithStreaming(path, request, context);
   },
   { serviceName: 'ai' }

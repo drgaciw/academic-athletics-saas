@@ -4,12 +4,14 @@ import { validateRequest } from '../middleware/validation'
 import { scheduleMentoringSessionSchema } from '../types'
 import { mentoringService } from '../services/mentoringService'
 import { AppError } from '../middleware/errorHandler'
+import { assertStudentProfileAccess } from '../middleware/studentAccess'
 
 const mentoring = new Hono()
 
 // GET /api/support/mentoring/matches/:studentId - Get mentor matches for a student
 mentoring.get('/matches/:studentId', async (c) => {
   const studentId = c.req.param('studentId')
+  await assertStudentProfileAccess(c, studentId)
 
   const matches = await mentoringService.getMentorMatches(studentId)
 
@@ -27,6 +29,7 @@ mentoring.get('/matches', async (c) => {
     throw new AppError(400, 'MISSING_STUDENT_ID', 'studentId query parameter is required')
   }
 
+  await assertStudentProfileAccess(c, studentId)
   const matches = await mentoringService.getMentorMatches(studentId)
 
   return c.json({
@@ -38,6 +41,7 @@ mentoring.get('/matches', async (c) => {
 // POST /api/support/mentoring/session - Schedule a mentoring session
 mentoring.post('/session', validateRequest(scheduleMentoringSessionSchema), async (c) => {
   const validatedData = c.get('validatedData') as z.infer<typeof scheduleMentoringSessionSchema>
+  await assertStudentProfileAccess(c, validatedData.menteeId)
 
   const session = await mentoringService.scheduleSession(validatedData)
 
@@ -56,6 +60,8 @@ mentoring.delete('/session/:sessionId', async (c) => {
     throw new AppError(400, 'MISSING_USER_ID', 'userId is required')
   }
 
+  // API historically names this userId; values are studentProfile ids (see menteeId).
+  await assertStudentProfileAccess(c, userId)
   const session = await mentoringService.cancelSession(sessionId, userId)
 
   return c.json({
@@ -67,6 +73,7 @@ mentoring.delete('/session/:sessionId', async (c) => {
 // GET /api/support/mentoring/sessions/:userId - Get mentoring sessions for a user
 mentoring.get('/sessions/:userId', async (c) => {
   const userId = c.req.param('userId')
+  await assertStudentProfileAccess(c, userId)
 
   const sessions = await mentoringService.getSessions(userId)
 

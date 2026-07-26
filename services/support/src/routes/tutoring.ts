@@ -4,12 +4,14 @@ import { validateRequest, validateQuery } from '../middleware/validation'
 import { bookTutoringSchema, tutoringAvailabilitySchema } from '../types'
 import { tutoringService } from '../services/tutoringService'
 import { AppError } from '../middleware/errorHandler'
+import { assertStudentProfileAccess } from '../middleware/studentAccess'
 
 const tutoring = new Hono()
 
 // POST /api/support/tutoring/book - Book a tutoring session
 tutoring.post('/book', validateRequest(bookTutoringSchema), async (c) => {
   const validatedData = c.get('validatedData') as z.infer<typeof bookTutoringSchema>
+  await assertStudentProfileAccess(c, validatedData.studentId)
 
   const session = await tutoringService.bookSession(validatedData)
 
@@ -50,6 +52,7 @@ tutoring.get('/availability', async (c) => {
 // GET /api/support/tutoring/sessions/:studentId - Get student's tutoring sessions
 tutoring.get('/sessions/:studentId', async (c) => {
   const studentId = c.req.param('studentId')
+  await assertStudentProfileAccess(c, studentId)
 
   const sessions = await tutoringService.getStudentSessions(studentId)
 
@@ -68,6 +71,7 @@ tutoring.delete('/:sessionId', async (c) => {
     throw new AppError(400, 'MISSING_STUDENT_ID', 'studentId is required')
   }
 
+  await assertStudentProfileAccess(c, studentId)
   const session = await tutoringService.cancelSession(sessionId, studentId)
 
   return c.json({

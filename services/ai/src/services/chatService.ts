@@ -5,9 +5,14 @@ import { prisma } from '@aah/database'
 import { AIMessage, AIModel } from '../types'
 import { AI_CONFIG, calculateCost } from '../config'
 import { countMessageTokens, optimizeMessages } from '../utils/tokens'
-import { sanitizeInput, sanitizeOutput, encryptConversation } from '../utils/security'
+import {
+  sanitizeInput,
+  sanitizeOutput,
+  encryptConversation,
+  decryptConversation,
+} from '../utils/security'
 import { ragPipeline } from './ragPipeline'
-import { isEligibilityIntent } from './eligibilityIntent'
+import { isEligibilityIntent, isStudentFacingRole } from './eligibilityIntent'
 import { eligibilityResponseGuard } from './eligibilityResponseGuard'
 import { loadStudentEligibilityGate, resolveDbUserId } from './studentEligibilityContext'
 
@@ -41,9 +46,24 @@ export class ChatService {
    * Get conversation history
    */
   async getConversationHistory(
+    userId: string,
     conversationId: string,
     limit: number = 50
   ): Promise<AIMessage[]> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        userId: dbUserId,
+        status: 'active',
+      },
+      select: { id: true },
+    })
+
+    if (!conversation) {
+      throw new Error('Conversation not found or access denied')
+    }
+
     const messages = await prisma.message.findMany({
       where: { conversationId },
       orderBy: { timestamp: 'desc' },
@@ -52,10 +72,29 @@ export class ChatService {
 
     return messages.reverse().map((msg) => ({
       role: msg.role as AIMessage['role'],
-      content: AI_CONFIG.security.encryptConversations
-        ? sanitizeOutput(msg.content)
-        : msg.content,
+      content: this.decodeStoredMessageContent(msg.content),
     }))
+  }
+
+  /**
+   * Decrypt stored message content when encryption is enabled.
+   * Falls back to plaintext for legacy rows that were never encrypted.
+   */
+  private decodeStoredMessageContent(content: string): string {
+    if (!AI_CONFIG.security.encryptConversations) {
+      return content
+    }
+
+    try {
+      const decrypted = decryptConversation(content)
+      if (decrypted.length > 0) {
+        return sanitizeOutput(decrypted)
+      }
+    } catch {
+      // Treat as legacy plaintext below.
+    }
+
+    return sanitizeOutput(content)
   }
 
   /**
@@ -220,7 +259,7 @@ export class ChatService {
     const effectiveUserId = dbUserId ?? userId
 
     const gate =
-      dbUserId && options.userRole === 'STUDENT'
+      dbUserId && isStudentFacingRole(options.userRole)
         ? await loadStudentEligibilityGate(dbUserId)
         : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
 
@@ -228,10 +267,10 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
-    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+    if (isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)) {
       systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
     }
 
@@ -261,7 +300,7 @@ export class ChatService {
     }
 
     const studentEligibilityRagHint =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
     await this.attachRagContext(
       optimizedMessages,
       sanitizedMessage,
@@ -274,7 +313,7 @@ export class ChatService {
     const modelProvider = this.getModelProvider(model)
 
     // All STUDENT traffic: full response + guard before any bytes hit the client (PRD v2.2 / no live token leak).
-    const bufferStudentResponse = options.userRole === 'STUDENT'
+    const bufferStudentResponse = isStudentFacingRole(options.userRole)
 
     if (bufferStudentResponse) {
       const temperature =
@@ -385,7 +424,7 @@ export class ChatService {
     const effectiveUserId = dbUserId ?? userId
 
     const gate =
-      dbUserId && options.userRole === 'STUDENT'
+      dbUserId && isStudentFacingRole(options.userRole)
         ? await loadStudentEligibilityGate(dbUserId)
         : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
 
@@ -393,10 +432,10 @@ export class ChatService {
     const conversationId = await this.getOrCreateConversation(effectiveUserId, options.conversationId)
 
     // Get conversation history
-    const history = await this.getConversationHistory(conversationId, 20)
+    const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
-    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+    if (isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)) {
       systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
     }
 
@@ -419,7 +458,7 @@ export class ChatService {
     await this.saveMessage(conversationId, 'user', sanitizedMessage)
 
     const studentEligibilityRagHint =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
     await this.attachRagContext(
       optimizedMessages,
       sanitizedMessage,
@@ -432,7 +471,7 @@ export class ChatService {
     const modelProvider = this.getModelProvider(model)
 
     const temperature =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
         ? options.temperature ?? 0.45
         : options.temperature || 0.7
 
@@ -445,7 +484,7 @@ export class ChatService {
     })
 
     let response = result.text
-    if (options.userRole === 'STUDENT') {
+    if (isStudentFacingRole(options.userRole)) {
       const guarded = eligibilityResponseGuard(response, {
         userRole: 'STUDENT',
         hasRecordedComplianceReview: gate.hasRecordedComplianceReview,
@@ -482,11 +521,12 @@ export class ChatService {
    * Delete conversation
    */
   async deleteConversation(conversationId: string, userId: string): Promise<void> {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
     })
 
-    if (!conversation || conversation.userId !== userId) {
+    if (!conversation || conversation.userId !== dbUserId) {
       throw new Error('Conversation not found or access denied')
     }
 
@@ -510,9 +550,10 @@ export class ChatService {
       messageCount: number
     }>
   > {
+    const dbUserId = (await resolveDbUserId(userId)) ?? userId
     const conversations = await prisma.conversation.findMany({
       where: {
-        userId,
+        userId: dbUserId,
         status: 'active',
       },
       orderBy: { createdAt: 'desc' },

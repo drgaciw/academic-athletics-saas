@@ -4,55 +4,45 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import {
+  buildServicePath,
+  createRouteHandler,
+  extractPath,
+  forwardRequest,
+  requireServiceRole,
+} from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
+import { RequestContext, UserRole } from '@/lib/types/services';
 
 const serviceUrl = getServiceUrl('integration');
+const allowedRoles = [UserRole.ADMIN, UserRole.COMPLIANCE, UserRole.STAFF] as const;
+
+async function forwardIntegrationRequest(
+  request: NextRequest,
+  context: RequestContext | null,
+  params: any
+) {
+  requireServiceRole(context, allowedRoles, 'integration');
+  const path = buildServicePath('integration', extractPath(params));
+  return forwardRequest(serviceUrl, path, request, context);
+}
 
 // GET /api/integration/*
-export const GET = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
-  { serviceName: 'integration' }
-);
+export const GET = createRouteHandler(forwardIntegrationRequest, { serviceName: 'integration' });
 
 // POST /api/integration/*
-export const POST = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
-  { serviceName: 'integration' }
-);
+export const POST = createRouteHandler(forwardIntegrationRequest, { serviceName: 'integration' });
 
 // PUT /api/integration/*
-export const PUT = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
-  { serviceName: 'integration' }
-);
+export const PUT = createRouteHandler(forwardIntegrationRequest, { serviceName: 'integration' });
 
 // PATCH /api/integration/*
-export const PATCH = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
-  { serviceName: 'integration' }
-);
+export const PATCH = createRouteHandler(forwardIntegrationRequest, { serviceName: 'integration' });
 
 // DELETE /api/integration/*
-export const DELETE = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
-  { serviceName: 'integration' }
-);
+export const DELETE = createRouteHandler(forwardIntegrationRequest, {
+  serviceName: 'integration',
+});
 
 // OPTIONS (CORS preflight)
 export async function OPTIONS(request: NextRequest) {

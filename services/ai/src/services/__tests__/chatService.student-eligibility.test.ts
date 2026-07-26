@@ -10,6 +10,7 @@ import { generateText } from 'ai'
 import { ChatService } from '../chatService'
 import { loadStudentEligibilityGate, resolveDbUserId } from '../studentEligibilityContext'
 import { ragPipeline } from '../ragPipeline'
+import { encryptConversation } from '../../utils/security'
 
 jest.mock('ai', () => ({
   generateText: jest.fn(),
@@ -31,6 +32,7 @@ jest.mock('@aah/database', () => ({
   prisma: {
     conversation: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -45,6 +47,7 @@ const { prisma } = jest.requireMock('@aah/database') as {
   prisma: {
     conversation: {
       findUnique: jest.Mock
+      findFirst: jest.Mock
       create: jest.Mock
       update: jest.Mock
     }
@@ -67,6 +70,7 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
     jest.clearAllMocks()
     mockResolveDbUserId.mockResolvedValue('db-student-1')
     prisma.conversation.findUnique.mockResolvedValue(null)
+    prisma.conversation.findFirst.mockResolvedValue({ id: 'conv-1' })
     prisma.conversation.create.mockResolvedValue({ id: 'conv-1', userId: 'db-student-1' })
     prisma.conversation.update.mockResolvedValue({})
     prisma.message.findMany.mockResolvedValue([])
@@ -135,12 +139,62 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
       usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
     } as Awaited<ReturnType<typeof generateText>>)
 
-    const result = await service.chatSync('clerk-student', 'Can I play this season?', {
+    const result = await service.chatSync('clerk-student', 'Can I still play after changing my schedule?', {
       userRole: 'STUDENT',
     })
 
     expect(result.response.toLowerCase()).not.toContain('cleared to compete')
     expect(result.response).toContain('preliminary decision support')
+  })
+
+  it('STUDENT: natural play-status questions get preliminary guidance and guarded output', async () => {
+    mockLoadGate.mockResolvedValue({
+      hasRecordedComplianceReview: false,
+      snapshotLines: ['No compliance-reviewed eligibility record found yet for recent terms.'],
+    })
+    mockGenerateText.mockImplementation(async (opts) => {
+      const system = opts.messages?.find((m) => m.role === 'system')
+      const systemText =
+        typeof system?.content === 'string' ? system.content : String(system?.content ?? '')
+      expect(systemText).toMatch(/preliminary/i)
+      expect(systemText).toMatch(/compliance staff|athletics compliance/i)
+      return {
+        text: 'Yes, you are approved to compete this season and you can play right away.',
+        usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+      } as Awaited<ReturnType<typeof generateText>>
+    })
+
+    const result = await service.chatSync(
+      'clerk-student',
+      'Am I still authorized to compete after changing my schedule?',
+      {
+        userRole: 'STUDENT',
+      }
+    )
+
+    expect(result.response.toLowerCase()).not.toContain('you are approved to compete')
+    expect(result.response.toLowerCase()).not.toContain('you can play')
+    expect(result.response).toContain('preliminary decision support')
+    expect(mockLoadGate).toHaveBeenCalledWith('db-student-1')
+  })
+
+  it('STUDENT_ATHLETE: buffers and applies the same eligibility guard as STUDENT', async () => {
+    mockLoadGate.mockResolvedValue({
+      hasRecordedComplianceReview: false,
+      snapshotLines: [],
+    })
+    mockGenerateText.mockResolvedValue({
+      text: 'You can compete this season.',
+      usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+    } as Awaited<ReturnType<typeof generateText>>)
+
+    const result = await service.chatSync('clerk-student-1', 'Can I play this season?', {
+      userRole: 'STUDENT_ATHLETE',
+    })
+
+    expect(mockLoadGate).toHaveBeenCalled()
+    expect(result.response).not.toMatch(/you can compete/i)
+    expect(result.response.toLowerCase()).toContain('preliminary')
   })
 
   it('COACH: does not apply student forbidden-phrase guard', async () => {
@@ -160,5 +214,49 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
 
     expect(result.response).toBe(coachText)
     expect(mockLoadGate).not.toHaveBeenCalled()
+  })
+
+  it('scopes history reads to the authenticated conversation owner', async () => {
+    prisma.message.findMany.mockResolvedValue([
+      {
+        role: 'user',
+        content: 'Can I play?',
+      },
+    ])
+
+    await service.getConversationHistory('clerk-student-1', 'conv-1')
+
+    expect(mockResolveDbUserId).toHaveBeenCalledWith('clerk-student-1')
+    expect(prisma.conversation.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'conv-1',
+        userId: 'db-student-1',
+        status: 'active',
+      },
+      select: { id: true },
+    })
+    expect(prisma.message.findMany).toHaveBeenCalledWith({
+      where: { conversationId: 'conv-1' },
+      orderBy: { timestamp: 'desc' },
+      take: 50,
+    })
+  })
+
+  it('decrypts encrypted history content before returning it', async () => {
+    const plaintext = 'Can I play this season?'
+    const encrypted = encryptConversation(plaintext)
+
+    prisma.message.findMany.mockResolvedValue([
+      {
+        role: 'user',
+        content: encrypted,
+      },
+    ])
+
+    const history = await service.getConversationHistory('clerk-student-1', 'conv-1')
+
+    expect(history).toHaveLength(1)
+    expect(history[0]?.content).toBe(plaintext)
+    expect(history[0]?.content).not.toBe(encrypted)
   })
 })
