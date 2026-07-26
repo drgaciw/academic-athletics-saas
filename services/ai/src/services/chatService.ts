@@ -12,7 +12,7 @@ import {
   decryptConversation,
 } from '../utils/security'
 import { ragPipeline } from './ragPipeline'
-import { isEligibilityIntent } from './eligibilityIntent'
+import { isEligibilityIntent, isStudentFacingRole } from './eligibilityIntent'
 import { eligibilityResponseGuard } from './eligibilityResponseGuard'
 import { loadStudentEligibilityGate, resolveDbUserId } from './studentEligibilityContext'
 
@@ -259,7 +259,7 @@ export class ChatService {
     const effectiveUserId = dbUserId ?? userId
 
     const gate =
-      dbUserId && options.userRole === 'STUDENT'
+      dbUserId && isStudentFacingRole(options.userRole)
         ? await loadStudentEligibilityGate(dbUserId)
         : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
 
@@ -270,7 +270,7 @@ export class ChatService {
     const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
-    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+    if (isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)) {
       systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
     }
 
@@ -300,7 +300,7 @@ export class ChatService {
     }
 
     const studentEligibilityRagHint =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
     await this.attachRagContext(
       optimizedMessages,
       sanitizedMessage,
@@ -313,7 +313,7 @@ export class ChatService {
     const modelProvider = this.getModelProvider(model)
 
     // All STUDENT traffic: full response + guard before any bytes hit the client (PRD v2.2 / no live token leak).
-    const bufferStudentResponse = options.userRole === 'STUDENT'
+    const bufferStudentResponse = isStudentFacingRole(options.userRole)
 
     if (bufferStudentResponse) {
       const temperature =
@@ -424,7 +424,7 @@ export class ChatService {
     const effectiveUserId = dbUserId ?? userId
 
     const gate =
-      dbUserId && options.userRole === 'STUDENT'
+      dbUserId && isStudentFacingRole(options.userRole)
         ? await loadStudentEligibilityGate(dbUserId)
         : { hasRecordedComplianceReview: false, snapshotLines: [] as string[] }
 
@@ -435,7 +435,7 @@ export class ChatService {
     const history = await this.getConversationHistory(effectiveUserId, conversationId, 20)
 
     let systemContent = options.systemPrompt || AI_CONFIG.systemPrompts.default
-    if (options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)) {
+    if (isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)) {
       systemContent = `${systemContent}\n\n${AI_CONFIG.systemPrompts.studentEligibilityPreliminary}\n\nStudent snapshot (non-authoritative):\n${gate.snapshotLines.join('\n')}`
     }
 
@@ -458,7 +458,7 @@ export class ChatService {
     await this.saveMessage(conversationId, 'user', sanitizedMessage)
 
     const studentEligibilityRagHint =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
     await this.attachRagContext(
       optimizedMessages,
       sanitizedMessage,
@@ -471,7 +471,7 @@ export class ChatService {
     const modelProvider = this.getModelProvider(model)
 
     const temperature =
-      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+      isStudentFacingRole(options.userRole) && isEligibilityIntent(sanitizedMessage)
         ? options.temperature ?? 0.45
         : options.temperature || 0.7
 
@@ -484,7 +484,7 @@ export class ChatService {
     })
 
     let response = result.text
-    if (options.userRole === 'STUDENT') {
+    if (isStudentFacingRole(options.userRole)) {
       const guarded = eligibilityResponseGuard(response, {
         userRole: 'STUDENT',
         hasRecordedComplianceReview: gate.hasRecordedComplianceReview,

@@ -60,6 +60,8 @@ mentoring.delete('/session/:sessionId', async (c) => {
     throw new AppError(400, 'MISSING_USER_ID', 'userId is required')
   }
 
+  // API historically names this userId; values are studentProfile ids (see menteeId).
+  await assertStudentProfileAccess(c, userId)
   const session = await mentoringService.cancelSession(sessionId, userId)
 
   return c.json({
@@ -71,6 +73,7 @@ mentoring.delete('/session/:sessionId', async (c) => {
 // GET /api/support/mentoring/sessions/:userId - Get mentoring sessions for a user
 mentoring.get('/sessions/:userId', async (c) => {
   const userId = c.req.param('userId')
+  await assertStudentProfileAccess(c, userId)
 
   const sessions = await mentoringService.getSessions(userId)
 

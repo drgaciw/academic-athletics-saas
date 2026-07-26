@@ -14,3 +14,12 @@ export function isEligibilityIntent(message: string): boolean {
   if (t.length < 2) return false
   return ELIGIBILITY_TOPIC_PATTERN.test(t) || COMPETITION_STATUS_PATTERN.test(t)
 }
+
+/**
+ * Roles that must receive PRD v2.2 student eligibility buffering/guards.
+ * Clerk/Prisma may send STUDENT_ATHLETE; BFFs should normalize to STUDENT,
+ * but the AI service must treat both as student-facing.
+ */
+export function isStudentFacingRole(role: string | undefined): boolean {
+  return role === 'STUDENT' || role === 'STUDENT_ATHLETE'
+}

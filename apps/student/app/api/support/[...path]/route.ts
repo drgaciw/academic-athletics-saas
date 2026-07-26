@@ -9,7 +9,7 @@ type RouteParams = { params: Promise<{ path: string[] }> };
 
 /** Path patterns where the final segment is a studentProfile id. */
 const STUDENT_SCOPED_PATH =
-  /^(tutoring\/sessions|study-hall\/attendance|study-hall\/stats|workshop\/registrations|mentoring\/matches)\/([^/]+)$/;
+  /^(tutoring\/sessions|study-hall\/attendance|study-hall\/stats|workshop\/registrations|mentoring\/matches|mentoring\/sessions)\/([^/]+)$/;
 
 function collectRequestedStudentIds(
   subPath: string,
@@ -30,12 +30,20 @@ function collectRequestedStudentIds(
 
   if (bodyText) {
     try {
-      const parsed = JSON.parse(bodyText) as { studentId?: unknown; menteeId?: unknown };
+      const parsed = JSON.parse(bodyText) as {
+        studentId?: unknown;
+        menteeId?: unknown;
+        userId?: unknown;
+      };
       if (typeof parsed.studentId === 'string' && parsed.studentId.length > 0) {
         ids.add(parsed.studentId);
       }
       if (typeof parsed.menteeId === 'string' && parsed.menteeId.length > 0) {
         ids.add(parsed.menteeId);
+      }
+      // Mentoring cancel historically sends studentProfile id as userId.
+      if (typeof parsed.userId === 'string' && parsed.userId.length > 0) {
+        ids.add(parsed.userId);
       }
     } catch {
       // Non-JSON bodies are forwarded unchanged; upstream validation handles them.

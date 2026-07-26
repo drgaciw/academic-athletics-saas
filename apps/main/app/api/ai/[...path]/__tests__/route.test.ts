@@ -80,4 +80,28 @@ describe('AI service gateway', () => {
       })
     );
   });
+
+  it('normalizes STUDENT_ATHLETE roles to STUDENT for the AI service contract', async () => {
+    mockValidateAuth.mockResolvedValue({
+      userId: 'db-user-1',
+      clerkId: 'clerk-user-1',
+      role: 'STUDENT_ATHLETE',
+      correlationId: 'corr-1',
+      timestamp: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    const req = new NextRequest('http://localhost/api/ai/chat/conversations');
+    await GET(req, {
+      params: Promise.resolve({ path: ['chat', 'conversations'] }),
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://ai.test/api/ai/chat/conversations',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'X-User-Role': 'STUDENT',
+        }),
+      })
+    );
+  });
 });

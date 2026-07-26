@@ -105,4 +105,17 @@ describe('GET /api/support/* (student BFF)', () => {
     expect(res.status).toBe(200)
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
+
+  it('rejects mentoring sessions path userId IDOR attempts', async () => {
+    const req = new NextRequest(
+      'http://localhost/api/support/mentoring/sessions/profile-other'
+    )
+
+    const res = await GET(req, {
+      params: Promise.resolve({ path: ['mentoring', 'sessions', 'profile-other'] }),
+    })
+
+    expect(res.status).toBe(403)
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
 })

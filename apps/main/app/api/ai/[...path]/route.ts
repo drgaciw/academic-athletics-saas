@@ -39,7 +39,9 @@ async function forwardWithStreaming(
   if (context) {
     headers['X-Correlation-Id'] = context.correlationId;
     headers['X-User-Id'] = context.userId;
-    headers['X-User-Role'] = context.role;
+    // Normalize Clerk/Prisma student aliases to the AI service STUDENT contract.
+    const role = context.role === 'STUDENT_ATHLETE' ? 'STUDENT' : context.role;
+    headers['X-User-Role'] = role;
   }
 
   // Forward auth token

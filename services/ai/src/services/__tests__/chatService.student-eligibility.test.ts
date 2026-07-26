@@ -178,6 +178,25 @@ describe('ChatService student eligibility (PRD v2.2)', () => {
     expect(mockLoadGate).toHaveBeenCalledWith('db-student-1')
   })
 
+  it('STUDENT_ATHLETE: buffers and applies the same eligibility guard as STUDENT', async () => {
+    mockLoadGate.mockResolvedValue({
+      hasRecordedComplianceReview: false,
+      snapshotLines: [],
+    })
+    mockGenerateText.mockResolvedValue({
+      text: 'You can compete this season.',
+      usage: { inputTokens: 10, outputTokens: 20, totalTokens: 30 },
+    } as Awaited<ReturnType<typeof generateText>>)
+
+    const result = await service.chatSync('clerk-student-1', 'Can I play this season?', {
+      userRole: 'STUDENT_ATHLETE',
+    })
+
+    expect(mockLoadGate).toHaveBeenCalled()
+    expect(result.response).not.toMatch(/you can compete/i)
+    expect(result.response.toLowerCase()).toContain('preliminary')
+  })
+
   it('COACH: does not apply student forbidden-phrase guard', async () => {
     mockLoadGate.mockResolvedValue({
       hasRecordedComplianceReview: false,
