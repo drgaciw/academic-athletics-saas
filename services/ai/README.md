@@ -305,7 +305,7 @@ Required:
 
 Recommended:
 - `ANTHROPIC_API_KEY` - Anthropic Claude API key
-- `AI_ENCRYPTION_KEY` - Encryption key for conversations
+- `ENCRYPTION_KEY` - 32-character key for conversation encryption (required by env schema)
 
 ## Configuration
 
