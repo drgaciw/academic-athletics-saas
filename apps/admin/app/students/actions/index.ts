@@ -216,13 +216,15 @@ export async function deleteStudent(id: string) {
     await prisma.user.delete({
       where: { id },
     })
-
-    revalidatePath('/students')
-    redirect('/students')
   } catch (error) {
     console.error('Error deleting student:', error)
     return { success: false, error: 'Failed to delete student' }
   }
+
+  // redirect() throws a special control-flow error; keep it outside try/catch
+  // so a successful delete is not swallowed as a false failure response.
+  revalidatePath('/students')
+  redirect('/students')
 }
 
 export async function bulkUpdateEligibility(studentIds: string[], eligibilityStatus: string) {
