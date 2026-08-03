@@ -1,7 +1,7 @@
 import { auth as clerkAuth } from '@clerk/nextjs/server';
 import { redirect, notFound } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
-import { getStudent, updateStudent, type StudentFormData } from '../../actions';
+import { getStudent, updateStudent } from '../../actions';
 import { StudentForm } from '../../../../components/students/StudentForm';
 
 type Props = {
@@ -44,10 +44,6 @@ export default async function EditStudentPage({ params }: Props) {
         : undefined,
     };
 
-    const handleUpdate = async (id: string, data: Partial<StudentFormData>) => {
-      return await updateStudent(id, data);
-    };
-
     return (
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-between mb-6">
@@ -67,7 +63,7 @@ export default async function EditStudentPage({ params }: Props) {
             <StudentForm
               studentId={student.id}
               initialData={initialData}
-              onUpdate={handleUpdate}
+              onUpdate={updateStudent}
             />
           </CardContent>
         </Card>
