@@ -15,6 +15,7 @@ import {
 } from '@aah/api-utils'
 import { prisma } from '@aah/database'
 import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
+import { createOrLinkUserFromClerk } from './clerkUserSync'
 
 const loadEnvFile = (filePath: string) => {
   if (!existsSync(filePath)) return
@@ -48,40 +49,10 @@ const env = validateEnv(userServiceEnvSchema)
 
 /**
  * Handle user.created webhook event
+ * Links admin-precreated temp_* users by email instead of failing on unique email.
  */
 async function handleUserCreated(data: any) {
-  const { id, email_addresses, first_name, last_name, public_metadata } = data
-
-  // Get primary email
-  const primaryEmail = email_addresses.find((e: any) => e.id === data.primary_email_address_id)
-  const email = primaryEmail?.email_address || email_addresses[0]?.email_address
-
-  // Create user in database
-  const user = await prisma.user.create({
-    data: {
-      clerkId: id,
-      email,
-      firstName: first_name || null,
-      lastName: last_name || null,
-      role: public_metadata?.role || 'STUDENT',
-    },
-  })
-
-  // If user is a student athlete, create student profile
-  if (user.role === 'STUDENT' && public_metadata?.studentId) {
-    await prisma.studentProfile.create({
-      data: {
-        userId: user.id,
-        studentId: public_metadata.studentId,
-        sport: public_metadata.sport || '',
-        gpa: public_metadata.gpa || null,
-        creditHours: public_metadata.creditHours || 0,
-        eligibilityStatus: 'PENDING',
-      },
-    })
-  }
-
-  return user
+  return createOrLinkUserFromClerk(data)
 }
 
 /**
