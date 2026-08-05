@@ -1,6 +1,7 @@
 import { ClerkSyncService } from '../../services/clerkSyncService'
 import { prisma, UserRole } from '@aah/database'
 import { AppError } from '../../middleware/errorHandler'
+import { deleteLocalUserByClerkId } from '../../services/deleteLocalUser'
 
 // Mock prisma
 jest.mock('@aah/database', () => ({
@@ -21,6 +22,10 @@ jest.mock('@aah/database', () => ({
     FACULTY: 'FACULTY',
     MENTOR: 'MENTOR',
   },
+}))
+
+jest.mock('../../services/deleteLocalUser', () => ({
+  deleteLocalUserByClerkId: jest.fn(),
 }))
 
 describe('ClerkSyncService', () => {
@@ -165,18 +170,15 @@ describe('ClerkSyncService', () => {
     })
 
     it('should handle user.deleted event', async () => {
-      const mockUser = { id: 'user_123', studentProfile: { id: 'profile_123' } }
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser)
-      ;(prisma.studentProfile.delete as jest.Mock).mockResolvedValue({})
-      ;(prisma.user.delete as jest.Mock).mockResolvedValue({})
+      const mockUser = { id: 'user_123', clerkId: 'clerk_123' }
+      ;(deleteLocalUserByClerkId as jest.Mock).mockResolvedValue(mockUser)
 
       const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
 
       await service.handleWebhook(webhookData)
 
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { clerkId: 'clerk_123' }, include: { studentProfile: true } })
-      expect(prisma.studentProfile.delete).toHaveBeenCalledWith({ where: { id: 'profile_123' } })
-      expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user_123' } })
+      expect(deleteLocalUserByClerkId).toHaveBeenCalledWith('clerk_123')
+      expect(prisma.studentProfile.delete).not.toHaveBeenCalled()
     })
 
     it('should ignore unknown events', async () => {
@@ -200,23 +202,23 @@ describe('ClerkSyncService', () => {
 
   describe('deleteUser (private)', () => {
     it('should handle user not found during deletion', async () => {
-      ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
-      
+      ;(deleteLocalUserByClerkId as jest.Mock).mockResolvedValue(null)
+
       const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
       await service.handleWebhook(webhookData)
-      
-      expect(prisma.user.findUnique).toHaveBeenCalled()
+
+      expect(deleteLocalUserByClerkId).toHaveBeenCalledWith('clerk_123')
       expect(prisma.user.delete).not.toHaveBeenCalled()
     })
 
     it('should handle deletion errors', async () => {
-       ;(prisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB Error'))
-       
-       const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
-       
-       await expect(service.handleWebhook(webhookData)).rejects.toThrow(
-         new AppError(500, 'WEBHOOK_ERROR', 'Failed to process webhook')
-       )
+      ;(deleteLocalUserByClerkId as jest.Mock).mockRejectedValue(new Error('DB Error'))
+
+      const webhookData = { type: 'user.deleted', data: { id: 'clerk_123' } }
+
+      await expect(service.handleWebhook(webhookData)).rejects.toThrow(
+        new AppError(500, 'WEBHOOK_ERROR', 'Failed to process webhook')
+      )
     })
   })
 })
