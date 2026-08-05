@@ -1,6 +1,7 @@
 import { prisma, UserRole } from '@aah/database'
 import { IClerkSyncService, UserProfileResponse, SyncClerkUserInput } from '../types'
 import { AppError } from '../middleware/errorHandler'
+import { deleteLocalUserByClerkId } from './deleteLocalUser'
 
 export class ClerkSyncService implements IClerkSyncService {
   async syncUser(clerkData: SyncClerkUserInput): Promise<UserProfileResponse> {
@@ -91,30 +92,12 @@ export class ClerkSyncService implements IClerkSyncService {
 
   private async deleteUser(clerkId: string): Promise<void> {
     try {
-      // Find user by clerk ID
-      const user = await prisma.user.findUnique({
-        where: { clerkId },
-        include: {
-          studentProfile: true,
-        },
-      })
+      const user = await deleteLocalUserByClerkId(clerkId)
 
       if (!user) {
         console.log(`User not found for Clerk ID: ${clerkId}`)
         return
       }
-
-      // Delete student profile if exists
-      if (user.studentProfile) {
-        await prisma.studentProfile.delete({
-          where: { id: user.studentProfile.id },
-        })
-      }
-
-      // Delete user
-      await prisma.user.delete({
-        where: { id: user.id },
-      })
 
       console.log(`User deleted: ${user.id}`)
     } catch (error) {
