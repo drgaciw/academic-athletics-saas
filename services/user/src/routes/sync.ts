@@ -15,6 +15,7 @@ import {
 } from '@aah/api-utils'
 import { prisma } from '@aah/database'
 import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
+import { ensureStudentProfileIfMissing } from './clerkStudentProfile'
 
 const loadEnvFile = (filePath: string) => {
   if (!existsSync(filePath)) return
@@ -115,35 +116,9 @@ async function handleUserUpdated(data: any) {
     },
   })
 
-  // Update student profile if exists
-  if (user.role === 'STUDENT' && public_metadata?.studentId) {
-    const existingProfile = await prisma.studentProfile.findUnique({
-      where: { userId: user.id },
-    })
-
-    if (existingProfile) {
-      await prisma.studentProfile.update({
-        where: { userId: user.id },
-        data: {
-          studentId: public_metadata.studentId,
-          sport: public_metadata.sport || existingProfile.sport,
-          gpa: public_metadata.gpa || existingProfile.gpa,
-          creditHours: public_metadata.creditHours || existingProfile.creditHours,
-        },
-      })
-    } else {
-      await prisma.studentProfile.create({
-        data: {
-          userId: user.id,
-          studentId: public_metadata.studentId,
-          sport: public_metadata.sport || '',
-          gpa: public_metadata.gpa || null,
-          creditHours: public_metadata.creditHours || 0,
-          eligibilityStatus: 'PENDING',
-        },
-      })
-    }
-  }
+  // Athletic fields are admin/DB-owned after create. Never clobber them from
+  // stale Clerk public_metadata on routine user.updated (name/email changes).
+  await ensureStudentProfileIfMissing(user.id, user.role, public_metadata)
 
   return user
 }
