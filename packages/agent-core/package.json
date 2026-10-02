@@ -1,0 +1,34 @@
+{
+  "name": "@aah/agent-core",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared, framework-agnostic AI agent core, tool contracts, Zod schemas, and HITL compliance engine for Athletic Academics Hub",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "test": "node --test dist/**/*.spec.js"
+  },
+  "keywords": [
+    "ncaa",
+    "compliance",
+    "agentic",
+    "ai",
+    "athletics",
+    "advising",
+    "ferpa"
+  ],
+  "author": "Athletic Academics Hub Engineering",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

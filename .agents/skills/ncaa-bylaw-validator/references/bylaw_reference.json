@@ -1,0 +1,105 @@
+{
+  "division": "Division I",
+  "bylaws": {
+    "14.1.2": {
+      "title": "Full-Time Enrollment Requirement",
+      "minimumCreditHours": 12,
+      "exceptions": [
+        "Final semester before graduation (fewer credits allowed if certified by registrar)",
+        "Postgraduate / graduate student enrolled in full-time equivalent"
+      ],
+      "violationSeverity": "CRITICAL_INELIGIBILITY"
+    },
+    "14.2": {
+      "title": "Ten-Semester / Five-Year Rule",
+      "calendarYearsAllowed": 5,
+      "fullTimeTermsAllowed": 10,
+      "waivers": [
+        "Medical hardship waiver (season-ending injury in first half of season, under 30% of scheduled contests)",
+        "Military service waiver",
+        "Church mission waiver"
+      ]
+    },
+    "14.4.3.1": {
+      "title": "Six-Hour Term Requirement",
+      "minimumCreditsPerRegularTerm": 6,
+      "applicability": "Every regular academic semester/quarter preceding competition",
+      "degreeApplicability": "Must be degree-applicable toward designated major once declared",
+      "violationSeverity": "IMMEDIATE_COMPETITION_INELIGIBILITY"
+    },
+    "14.4.3.2": {
+      "title": "Eighteen-Hour Academic Year Requirement",
+      "minimumCreditsPerAcademicYear": 18,
+      "window": "Fall and Spring semesters (excludes summer credits)",
+      "degreeApplicability": "Must be degree-applicable once major is declared",
+      "violationSeverity": "NEXT_ACADEMIC_YEAR_INELIGIBILITY"
+    },
+    "14.4.3.3": {
+      "title": "Twenty-Four Hour Freshman Requirement",
+      "minimumCreditsBeforeSecondYear": 24,
+      "window": "First academic year including up to 6 summer credits",
+      "violationSeverity": "SECOND_YEAR_INELIGIBILITY"
+    },
+    "14.4.3.2.1": {
+      "title": "Progress-Toward-Degree (PTD) Percentage Requirements",
+      "benchmarks": [
+        {
+          "termEntering": 5,
+          "academicYearEntering": 3,
+          "requiredPercentage": 40.0,
+          "majorRequired": true,
+          "bylaw": "Bylaw 14.4.3.2.1 (40% Rule)"
+        },
+        {
+          "termEntering": 7,
+          "academicYearEntering": 4,
+          "requiredPercentage": 60.0,
+          "majorRequired": true,
+          "bylaw": "Bylaw 14.4.3.2.1 (60% Rule)"
+        },
+        {
+          "termEntering": 9,
+          "academicYearEntering": 5,
+          "requiredPercentage": 80.0,
+          "majorRequired": true,
+          "bylaw": "Bylaw 14.4.3.2.1 (80% Rule)"
+        }
+      ]
+    },
+    "14.4.3.3.1": {
+      "title": "Fulfillment of Minimum Grade-Point Average Requirements",
+      "benchmarks": [
+        {
+          "termEntering": 3,
+          "academicYearEntering": 2,
+          "minimumGpaPercentage": 90.0,
+          "standardMinGpa": 1.8,
+          "bylaw": "Bylaw 14.4.3.3.1 (90% GPA Rule)"
+        },
+        {
+          "termEntering": 5,
+          "academicYearEntering": 3,
+          "minimumGpaPercentage": 95.0,
+          "standardMinGpa": 1.9,
+          "bylaw": "Bylaw 14.4.3.3.1 (95% GPA Rule)"
+        },
+        {
+          "termEntering": 7,
+          "academicYearEntering": 4,
+          "minimumGpaPercentage": 100.0,
+          "standardMinGpa": 2.0,
+          "bylaw": "Bylaw 14.4.3.3.1 (100% GPA Rule)"
+        }
+      ]
+    },
+    "14.5.5.2.10": {
+      "title": "One-Time Transfer Exception (NCAA Division I)",
+      "conditions": [
+        "Student is transferring to Division I for the first time",
+        "Student was in good academic standing and meeting PTD at previous institution",
+        "Previous institution did not object in writing (notification of transfer entered into NCAA Portal)",
+        "Student has not previously transferred from another four-year institution"
+      ]
+    }
+  }
+}

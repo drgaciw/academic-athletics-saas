@@ -1,0 +1,457 @@
+{
+  "institution": "State University Athletic Department (NCAA Division I)",
+  "generatedAt": "2026-10-02T00:00:00Z",
+  "totalAthletes": 10,
+  "summary": {
+    "eligibleCount": 6,
+    "atRiskCount": 1,
+    "ineligibleCount": 3
+  },
+  "studentAthletes": [
+    {
+      "id": "ATH-2026-1001",
+      "name": "Marcus Diallo",
+      "email": "marcus.diallo@athletics.edu",
+      "sport": "Men's Basketball",
+      "season": "WINTER",
+      "currentTermNumber": 2,
+      "classStanding": "Freshman",
+      "major": "Exploratory / Undeclared",
+      "majorDeclared": false,
+      "enrolledCredits": 13,
+      "lastTermPassedCredits": 19,
+      "academicYearCredits": 19,
+      "cumulativeDegreeCredits": 19,
+      "totalDegreeCreditsRequired": 120,
+      "ptdPercentage": 15.8,
+      "cumulativeGpa": 2.48,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 2,
+      "studyHallHoursRequired": 8,
+      "enrolledCourses": [
+        {
+          "code": "PSYC 101",
+          "title": "General Psychology",
+          "credits": 3
+        },
+        {
+          "code": "KIN 240",
+          "title": "Human Anatomy for Athletes",
+          "credits": 4
+        },
+        {
+          "code": "MATH 115",
+          "title": "College Algebra",
+          "credits": 3
+        },
+        {
+          "code": "BIOL 110",
+          "title": "General Biology I",
+          "credits": 4
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1002",
+      "name": "Jordan O'Connor",
+      "email": "jordan.o'connor@athletics.edu",
+      "sport": "Women's Soccer",
+      "season": "FALL",
+      "currentTermNumber": 1,
+      "classStanding": "Freshman",
+      "major": "Exploratory / Undeclared",
+      "majorDeclared": false,
+      "enrolledCredits": 14,
+      "lastTermPassedCredits": 28,
+      "academicYearCredits": 28,
+      "cumulativeDegreeCredits": 28,
+      "totalDegreeCreditsRequired": 120,
+      "ptdPercentage": 23.3,
+      "cumulativeGpa": 3.12,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 9,
+      "studyHallHoursRequired": 8,
+      "enrolledCourses": [
+        {
+          "code": "HIST 130",
+          "title": "American History",
+          "credits": 3
+        },
+        {
+          "code": "PSYC 101",
+          "title": "General Psychology",
+          "credits": 3
+        },
+        {
+          "code": "BIOL 110",
+          "title": "General Biology I",
+          "credits": 4
+        },
+        {
+          "code": "BUS 210",
+          "title": "Financial Accounting",
+          "credits": 3
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1003",
+      "name": "Marcus Chen",
+      "email": "marcus.chen@athletics.edu",
+      "sport": "Men's Track & Field",
+      "season": "SPRING",
+      "currentTermNumber": 5,
+      "classStanding": "Junior",
+      "major": "Psychology",
+      "majorDeclared": true,
+      "enrolledCredits": 13,
+      "lastTermPassedCredits": 13,
+      "academicYearCredits": 29,
+      "cumulativeDegreeCredits": 71,
+      "totalDegreeCreditsRequired": 120,
+      "ptdPercentage": 59.2,
+      "cumulativeGpa": 1.78,
+      "eligibilityStatus": "INELIGIBLE",
+      "academicRiskLevel": "HIGH",
+      "studyHallHoursCompleted": 2,
+      "studyHallHoursRequired": 8,
+      "enrolledCourses": [
+        {
+          "code": "COMM 220",
+          "title": "Sports Media & Public Relations",
+          "credits": 3
+        },
+        {
+          "code": "HIST 130",
+          "title": "American History",
+          "credits": 3
+        },
+        {
+          "code": "MATH 115",
+          "title": "College Algebra",
+          "credits": 3
+        },
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1004",
+      "name": "Andre Brooks",
+      "email": "andre.brooks@athletics.edu",
+      "sport": "Women's Volleyball",
+      "season": "FALL",
+      "currentTermNumber": 8,
+      "classStanding": "Senior",
+      "major": "Biological Sciences",
+      "majorDeclared": true,
+      "enrolledCredits": 14,
+      "lastTermPassedCredits": 13,
+      "academicYearCredits": 29,
+      "cumulativeDegreeCredits": 47,
+      "totalDegreeCreditsRequired": 124,
+      "ptdPercentage": 37.9,
+      "cumulativeGpa": 3.19,
+      "eligibilityStatus": "INELIGIBLE",
+      "academicRiskLevel": "CRITICAL",
+      "studyHallHoursCompleted": 5,
+      "studyHallHoursRequired": 4,
+      "enrolledCourses": [
+        {
+          "code": "ENG 101",
+          "title": "College Writing & Rhetoric",
+          "credits": 3
+        },
+        {
+          "code": "BUS 210",
+          "title": "Financial Accounting",
+          "credits": 3
+        },
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "KIN 240",
+          "title": "Human Anatomy for Athletes",
+          "credits": 4
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1005",
+      "name": "Kayla Johnson",
+      "email": "kayla.johnson@athletics.edu",
+      "sport": "Men's Basketball",
+      "season": "WINTER",
+      "currentTermNumber": 2,
+      "classStanding": "Freshman",
+      "major": "Exploratory / Undeclared",
+      "majorDeclared": false,
+      "enrolledCredits": 15,
+      "lastTermPassedCredits": 23,
+      "academicYearCredits": 23,
+      "cumulativeDegreeCredits": 23,
+      "totalDegreeCreditsRequired": 124,
+      "ptdPercentage": 18.5,
+      "cumulativeGpa": 2.38,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 4,
+      "studyHallHoursRequired": 8,
+      "enrolledCourses": [
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "ENG 101",
+          "title": "College Writing & Rhetoric",
+          "credits": 3
+        },
+        {
+          "code": "KIN 240",
+          "title": "Human Anatomy for Athletes",
+          "credits": 4
+        },
+        {
+          "code": "BUS 100",
+          "title": "Principles of Management",
+          "credits": 3
+        },
+        {
+          "code": "BUS 210",
+          "title": "Financial Accounting",
+          "credits": 3
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1006",
+      "name": "Kayla Johnson",
+      "email": "kayla.johnson@athletics.edu",
+      "sport": "Women's Soccer",
+      "season": "FALL",
+      "currentTermNumber": 8,
+      "classStanding": "Senior",
+      "major": "Psychology",
+      "majorDeclared": true,
+      "enrolledCredits": 14,
+      "lastTermPassedCredits": 12,
+      "academicYearCredits": 25,
+      "cumulativeDegreeCredits": 110,
+      "totalDegreeCreditsRequired": 120,
+      "ptdPercentage": 91.7,
+      "cumulativeGpa": 3.2,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 5,
+      "studyHallHoursRequired": 4,
+      "enrolledCourses": [
+        {
+          "code": "COMM 220",
+          "title": "Sports Media & Public Relations",
+          "credits": 3
+        },
+        {
+          "code": "BIOL 110",
+          "title": "General Biology I",
+          "credits": 4
+        },
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "KIN 240",
+          "title": "Human Anatomy for Athletes",
+          "credits": 4
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1007",
+      "name": "Chloe Nakamura",
+      "email": "chloe.nakamura@athletics.edu",
+      "sport": "Men's Track & Field",
+      "season": "SPRING",
+      "currentTermNumber": 6,
+      "classStanding": "Junior",
+      "major": "Biological Sciences",
+      "majorDeclared": true,
+      "enrolledCredits": 15,
+      "lastTermPassedCredits": 13,
+      "academicYearCredits": 28,
+      "cumulativeDegreeCredits": 70,
+      "totalDegreeCreditsRequired": 124,
+      "ptdPercentage": 56.5,
+      "cumulativeGpa": 1.84,
+      "eligibilityStatus": "AT_RISK",
+      "academicRiskLevel": "HIGH",
+      "studyHallHoursCompleted": 7,
+      "studyHallHoursRequired": 8,
+      "enrolledCourses": [
+        {
+          "code": "PSYC 101",
+          "title": "General Psychology",
+          "credits": 3
+        },
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "MATH 115",
+          "title": "College Algebra",
+          "credits": 3
+        },
+        {
+          "code": "BIOL 110",
+          "title": "General Biology I",
+          "credits": 4
+        },
+        {
+          "code": "HIST 130",
+          "title": "American History",
+          "credits": 3
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1008",
+      "name": "Brianna Taylor",
+      "email": "brianna.taylor@athletics.edu",
+      "sport": "Women's Volleyball",
+      "season": "FALL",
+      "currentTermNumber": 4,
+      "classStanding": "Sophomore",
+      "major": "Exploratory / Undeclared",
+      "majorDeclared": false,
+      "enrolledCredits": 11,
+      "lastTermPassedCredits": 13,
+      "academicYearCredits": 29,
+      "cumulativeDegreeCredits": 30,
+      "totalDegreeCreditsRequired": 124,
+      "ptdPercentage": 24.2,
+      "cumulativeGpa": 3.41,
+      "eligibilityStatus": "INELIGIBLE",
+      "academicRiskLevel": "CRITICAL",
+      "studyHallHoursCompleted": 3,
+      "studyHallHoursRequired": 4,
+      "enrolledCourses": [
+        {
+          "code": "ENG 101",
+          "title": "College Writing & Rhetoric",
+          "credits": 3
+        },
+        {
+          "code": "BIOL 110",
+          "title": "General Biology I",
+          "credits": 4
+        },
+        {
+          "code": "MATH 115",
+          "title": "College Algebra",
+          "credits": 3
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1009",
+      "name": "Kayla Wright",
+      "email": "kayla.wright@athletics.edu",
+      "sport": "Men's Basketball",
+      "season": "WINTER",
+      "currentTermNumber": 7,
+      "classStanding": "Senior",
+      "major": "Biological Sciences",
+      "majorDeclared": true,
+      "enrolledCredits": 12,
+      "lastTermPassedCredits": 12,
+      "academicYearCredits": 29,
+      "cumulativeDegreeCredits": 104,
+      "totalDegreeCreditsRequired": 124,
+      "ptdPercentage": 83.9,
+      "cumulativeGpa": 2.65,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 6,
+      "studyHallHoursRequired": 4,
+      "enrolledCourses": [
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "ENG 101",
+          "title": "College Writing & Rhetoric",
+          "credits": 3
+        },
+        {
+          "code": "COMM 220",
+          "title": "Sports Media & Public Relations",
+          "credits": 3
+        },
+        {
+          "code": "KIN 240",
+          "title": "Human Anatomy for Athletes",
+          "credits": 4
+        }
+      ]
+    },
+    {
+      "id": "ATH-2026-1010",
+      "name": "Devon Larson",
+      "email": "devon.larson@athletics.edu",
+      "sport": "Women's Soccer",
+      "season": "FALL",
+      "currentTermNumber": 7,
+      "classStanding": "Senior",
+      "major": "Kinesiology & Exercise Science",
+      "majorDeclared": true,
+      "enrolledCredits": 14,
+      "lastTermPassedCredits": 13,
+      "academicYearCredits": 28,
+      "cumulativeDegreeCredits": 118,
+      "totalDegreeCreditsRequired": 120,
+      "ptdPercentage": 98.3,
+      "cumulativeGpa": 3.5,
+      "eligibilityStatus": "ELIGIBLE",
+      "academicRiskLevel": "LOW",
+      "studyHallHoursCompleted": 4,
+      "studyHallHoursRequired": 4,
+      "enrolledCourses": [
+        {
+          "code": "ENG 101",
+          "title": "College Writing & Rhetoric",
+          "credits": 3
+        },
+        {
+          "code": "COMM 105",
+          "title": "Public Speaking",
+          "credits": 3
+        },
+        {
+          "code": "PSYC 101",
+          "title": "General Psychology",
+          "credits": 3
+        },
+        {
+          "code": "BUS 210",
+          "title": "Financial Accounting",
+          "credits": 3
+        }
+      ]
+    }
+  ]
+}

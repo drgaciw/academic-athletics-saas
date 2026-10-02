@@ -1,0 +1,105 @@
+{
+  "description": "Authoritative canonical models for the Athletic Academics Hub platform",
+  "version": "1.0.0",
+  "coreModels": [
+    {
+      "name": "User",
+      "purpose": "Platform user account supporting Clerk/auth with role-based access",
+      "requiredFields": [
+        "id",
+        "email",
+        "role",
+        "firstName",
+        "lastName",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    {
+      "name": "StudentAthlete",
+      "purpose": "Profile for student-athlete including eligibility clocks and academic standing",
+      "requiredFields": [
+        "id",
+        "userId",
+        "sport",
+        "ncaaId",
+        "termLevel",
+        "cumulativeGpa",
+        "majorId",
+        "eligibilityStatus"
+      ]
+    },
+    {
+      "name": "Course",
+      "purpose": "Course catalog entry with academic credit units and NCAA core applicability",
+      "requiredFields": [
+        "id",
+        "code",
+        "title",
+        "credits",
+        "department",
+        "degreeApplicable"
+      ]
+    },
+    {
+      "name": "Enrollment",
+      "purpose": "Term-specific course enrollment, grade, and attendance record",
+      "requiredFields": [
+        "id",
+        "studentAthleteId",
+        "courseId",
+        "term",
+        "academicYear",
+        "status",
+        "grade",
+        "creditsEarned"
+      ]
+    },
+    {
+      "name": "ComplianceAudit",
+      "purpose": "Evaluation of NCAA Bylaw 14 Progress-Toward-Degree (40/60/80%) and credit rules",
+      "requiredFields": [
+        "id",
+        "studentAthleteId",
+        "term",
+        "ptdPercentage",
+        "sixHourPassed",
+        "eighteenHourPassed",
+        "twentyFourHourPassed",
+        "overallStatus",
+        "certifiedBy",
+        "certifiedAt"
+      ]
+    },
+    {
+      "name": "AgentMemory",
+      "purpose": "Tiered long-term semantic memory storage for AI advising and compliance agents",
+      "requiredFields": [
+        "id",
+        "userId",
+        "memoryType",
+        "content",
+        "embedding",
+        "importance",
+        "confidence",
+        "createdAt",
+        "expiresAt"
+      ]
+    },
+    {
+      "name": "AIAuditLog",
+      "purpose": "Immutable audit record for AI agent tool invocations and HITL proposal actions",
+      "requiredFields": [
+        "id",
+        "agentType",
+        "actionType",
+        "studentAthleteId",
+        "proposedChanges",
+        "approvalStatus",
+        "reviewedBy",
+        "reviewedAt",
+        "createdAt"
+      ]
+    }
+  ]
+}
