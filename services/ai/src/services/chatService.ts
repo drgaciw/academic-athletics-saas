@@ -131,7 +131,8 @@ export class ChatService {
     optimizedMessages: AIMessage[],
     sanitizedMessage: string,
     model: AIModel,
-    useRag: boolean
+    useRag: boolean,
+    eligibilityNoSourcesHint = false
   ): Promise<void> {
     if (useRag === false) return
     try {
@@ -145,9 +146,16 @@ export class ChatService {
           .map((s, i) => `[${i + 1}] ${s.title}: ${s.excerpt}`)
           .join('\n')}\n`
         optimizedMessages[0].content += ragContext
+      } else if (eligibilityNoSourcesHint) {
+        optimizedMessages[0].content +=
+          '\n\nNo relevant policy sources were retrieved for this question. State uncertainty clearly, highlight any data gaps from the student snapshot, and direct the student to athletics compliance staff—do not give a final eligibility determination.'
       }
     } catch (error) {
       console.warn('RAG retrieval failed, continuing without context:', error)
+      if (eligibilityNoSourcesHint) {
+        optimizedMessages[0].content +=
+          '\n\nPolicy retrieval is unavailable. State uncertainty and direct the student to athletics compliance staff.'
+      }
     }
   }
 
@@ -252,7 +260,15 @@ export class ChatService {
       await this.updateConversationTitle(conversationId, sanitizedMessage)
     }
 
-    await this.attachRagContext(optimizedMessages, sanitizedMessage, model, options.useRAG !== false)
+    const studentEligibilityRagHint =
+      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+    await this.attachRagContext(
+      optimizedMessages,
+      sanitizedMessage,
+      model,
+      options.useRAG !== false,
+      studentEligibilityRagHint
+    )
 
     // Get model provider
     const modelProvider = this.getModelProvider(model)
@@ -402,7 +418,15 @@ export class ChatService {
     // Save user message
     await this.saveMessage(conversationId, 'user', sanitizedMessage)
 
-    await this.attachRagContext(optimizedMessages, sanitizedMessage, model, options.useRAG !== false)
+    const studentEligibilityRagHint =
+      options.userRole === 'STUDENT' && isEligibilityIntent(sanitizedMessage)
+    await this.attachRagContext(
+      optimizedMessages,
+      sanitizedMessage,
+      model,
+      options.useRAG !== false,
+      studentEligibilityRagHint
+    )
 
     // Get model provider
     const modelProvider = this.getModelProvider(model)

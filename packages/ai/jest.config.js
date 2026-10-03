@@ -14,7 +14,15 @@ module.exports = {
       {
         tsconfig: 'tsconfig.json',
         diagnostics: false,
+        useESM: true,
       },
     ],
+  },
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(.*\\.mjs$|@ai-sdk|@anthropic-ai|ai))',
+  ],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 }

@@ -64,7 +64,8 @@
   "packageManager": "pnpm@10.11.0",
   "pnpm": {
     "overrides": {
-      "ai": "^6.0.191"
+      "ai": "^6.0.191",
+      "@clerk/shared": "^4.15.0"
     }
   },
   "repository": {
