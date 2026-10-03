@@ -1,7 +1,32 @@
 import { ValidationResult } from '../types'
 import CryptoJS from 'crypto-js'
 
-const ENCRYPTION_KEY = process.env.AI_ENCRYPTION_KEY || 'default-key-change-in-production'
+/**
+ * Legacy insecure passphrase previously hard-coded when AI_ENCRYPTION_KEY was unset.
+ * Kept only so decryptConversation can migrate rows written before the ENCRYPTION_KEY fix.
+ */
+const LEGACY_INSECURE_ENCRYPTION_KEY = 'default-key-change-in-production'
+
+/**
+ * Resolve the conversation encryption key.
+ * Prefer the validated service env `ENCRYPTION_KEY` (required by aiServiceEnvSchema).
+ * Accept legacy `AI_ENCRYPTION_KEY` only when it is set and is not the known insecure default.
+ */
+function resolveConversationEncryptionKey(): string {
+  const primary = process.env.ENCRYPTION_KEY?.trim()
+  if (primary) {
+    return primary
+  }
+
+  const legacyAlias = process.env.AI_ENCRYPTION_KEY?.trim()
+  if (legacyAlias && legacyAlias !== LEGACY_INSECURE_ENCRYPTION_KEY) {
+    return legacyAlias
+  }
+
+  throw new Error(
+    'ENCRYPTION_KEY is required for conversation encryption. Set a 32-character secret (see aiServiceEnvSchema).'
+  )
+}
 
 // ============================================================================
 // PII DETECTION
@@ -294,18 +319,50 @@ export function validateResponse(
 // ============================================================================
 
 /**
- * Encrypt sensitive conversation data
+ * Prefix recorded on every ciphertext written with the validated ENCRYPTION_KEY.
+ * CryptoJS AES is unauthenticated, so the key used cannot be detected after the
+ * fact; we record it instead. Base64 output never contains ':', so legacy rows
+ * can't be mistaken for v2.
+ */
+const CIPHERTEXT_V2_PREFIX = 'v2:'
+
+/**
+ * Encrypt sensitive conversation data with the validated ENCRYPTION_KEY.
+ * Never falls back to a public default passphrase.
  */
 export function encryptConversation(content: string): string {
-  return CryptoJS.AES.encrypt(content, ENCRYPTION_KEY).toString()
+  return (
+    CIPHERTEXT_V2_PREFIX +
+    CryptoJS.AES.encrypt(content, resolveConversationEncryptionKey()).toString()
+  )
 }
 
 /**
- * Decrypt conversation data
+ * Decrypt conversation data.
+ * "v2:"-prefixed rows use the validated ENCRYPTION_KEY only. Unprefixed rows
+ * predate the fix and were all sealed with the legacy default key, so they use
+ * that key only. There is no key guessing or fallback.
  */
 export function decryptConversation(encrypted: string): string {
-  const bytes = CryptoJS.AES.decrypt(encrypted, ENCRYPTION_KEY)
-  return bytes.toString(CryptoJS.enc.Utf8)
+  if (encrypted.startsWith(CIPHERTEXT_V2_PREFIX)) {
+    return tryDecrypt(
+      encrypted.slice(CIPHERTEXT_V2_PREFIX.length),
+      resolveConversationEncryptionKey()
+    )
+  }
+  return tryDecrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY)
+}
+
+/**
+ * Decrypt with a single key; corrupt or mismatched data that makes CryptoJS
+ * throw (malformed UTF-8) yields ''.
+ */
+function tryDecrypt(encrypted: string, key: string): string {
+  try {
+    return CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8)
+  } catch {
+    return ''
+  }
 }
 
 /**
