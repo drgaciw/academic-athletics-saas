@@ -63,15 +63,28 @@ async function claimRegulationRun(
   })
 }
 
+/**
+ * Seed the built-in regulation sources.
+ *
+ * Operators may override `feedUrl` / `pollCronMinutes` directly on the DB row
+ * (see default-sources.ts). This seed therefore never overwrites an existing
+ * value: it creates missing rows, and only fills a field on an existing row
+ * when that field is null/empty. `parserVersion` is code-owned and is kept
+ * in sync with PARSER_VERSION.
+ */
 export async function ensureDefaultRegulationSources(): Promise<void> {
   for (const def of DEFAULT_REGULATION_SOURCES) {
-    await prisma.regulationSource.upsert({
-      where: {
-        sourceType_name: {
-          sourceType: def.sourceType,
-          name: def.name,
-        },
+    const where = {
+      sourceType_name: {
+        sourceType: def.sourceType,
+        name: def.name,
       },
+    }
+
+    // upsert with an empty update is a race-safe "create if missing" that
+    // leaves operator-managed fields untouched.
+    const existing = await prisma.regulationSource.upsert({
+      where,
       create: {
         sourceType: def.sourceType,
         name: def.name,
@@ -80,12 +93,29 @@ export async function ensureDefaultRegulationSources(): Promise<void> {
         isActive: true,
         parserVersion: PARSER_VERSION,
       },
-      update: {
-        feedUrl: def.feedUrl,
-        pollCronMinutes: def.pollCronMinutes,
-        parserVersion: PARSER_VERSION,
-      },
+      update: {},
     })
+
+    const fill: Partial<
+      Pick<RegulationSource, 'feedUrl' | 'pollCronMinutes' | 'parserVersion'>
+    > = {}
+
+    if (!existing.feedUrl || existing.feedUrl.trim() === '') {
+      fill.feedUrl = def.feedUrl
+    }
+    if (existing.pollCronMinutes === null || existing.pollCronMinutes === undefined) {
+      fill.pollCronMinutes = def.pollCronMinutes
+    }
+    if (existing.parserVersion !== PARSER_VERSION) {
+      fill.parserVersion = PARSER_VERSION
+    }
+
+    if (Object.keys(fill).length > 0) {
+      await prisma.regulationSource.update({
+        where: { id: existing.id },
+        data: fill,
+      })
+    }
   }
 }
 
