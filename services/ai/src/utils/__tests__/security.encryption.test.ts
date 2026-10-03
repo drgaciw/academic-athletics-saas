@@ -30,13 +30,8 @@ describe('conversation encryption key binding', () => {
     const encrypted = encryptConversation(plaintext)
 
     expect(encrypted).not.toEqual(plaintext)
+    expect(encrypted.startsWith('v2:')).toBe(true)
     expect(decryptConversation(encrypted)).toBe(plaintext)
-
-    // Ciphertext must not be readable with the public default passphrase.
-    const withDefault = CryptoJS.AES.decrypt(encrypted, LEGACY_INSECURE_KEY).toString(
-      CryptoJS.enc.Utf8
-    )
-    expect(withDefault).toBe('')
   })
 
   it('throws when ENCRYPTION_KEY is missing and AI_ENCRYPTION_KEY is unset', () => {
@@ -61,7 +56,17 @@ describe('conversation encryption key binding', () => {
     expect(decryptConversation(encrypted)).toBe('alias-ok')
   })
 
-  it('decrypts rows previously sealed with the hard-coded default key', () => {
+  it('round-trips in the v2 format with the primary key', () => {
+    process.env.ENCRYPTION_KEY = VALID_KEY
+    delete process.env.AI_ENCRYPTION_KEY
+
+    const encrypted = encryptConversation('v2 content')
+
+    expect(encrypted.startsWith('v2:')).toBe(true)
+    expect(decryptConversation(encrypted)).toBe('v2 content')
+  })
+
+  it('decrypts unprefixed rows with the legacy default key only', () => {
     process.env.ENCRYPTION_KEY = VALID_KEY
     delete process.env.AI_ENCRYPTION_KEY
 
@@ -70,6 +75,7 @@ describe('conversation encryption key binding', () => {
       LEGACY_INSECURE_KEY
     ).toString()
 
+    expect(legacyCiphertext.startsWith('v2:')).toBe(false)
     expect(decryptConversation(legacyCiphertext)).toBe('legacy chat content')
   })
 })

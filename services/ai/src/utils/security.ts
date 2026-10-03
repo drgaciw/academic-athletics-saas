@@ -319,38 +319,43 @@ export function validateResponse(
 // ============================================================================
 
 /**
+ * Prefix recorded on every ciphertext written with the validated ENCRYPTION_KEY.
+ * CryptoJS AES is unauthenticated, so the key used cannot be detected after the
+ * fact; we record it instead. Base64 output never contains ':', so legacy rows
+ * can't be mistaken for v2.
+ */
+const CIPHERTEXT_V2_PREFIX = 'v2:'
+
+/**
  * Encrypt sensitive conversation data with the validated ENCRYPTION_KEY.
  * Never falls back to a public default passphrase.
  */
 export function encryptConversation(content: string): string {
-  return CryptoJS.AES.encrypt(content, resolveConversationEncryptionKey()).toString()
+  return (
+    CIPHERTEXT_V2_PREFIX +
+    CryptoJS.AES.encrypt(content, resolveConversationEncryptionKey()).toString()
+  )
 }
 
 /**
  * Decrypt conversation data.
- * Tries ENCRYPTION_KEY first, then the legacy insecure default for pre-fix rows.
+ * "v2:"-prefixed rows use the validated ENCRYPTION_KEY only. Unprefixed rows
+ * predate the fix and were all sealed with the legacy default key, so they use
+ * that key only. There is no key guessing or fallback.
  */
 export function decryptConversation(encrypted: string): string {
-  const primaryKey = resolveConversationEncryptionKey()
-  const primary = tryDecrypt(encrypted, primaryKey)
-  if (primary.length > 0) {
-    return primary
+  if (encrypted.startsWith(CIPHERTEXT_V2_PREFIX)) {
+    return tryDecrypt(
+      encrypted.slice(CIPHERTEXT_V2_PREFIX.length),
+      resolveConversationEncryptionKey()
+    )
   }
-
-  // Migrate reads of ciphertext produced under the old hard-coded default.
-  if (primaryKey !== LEGACY_INSECURE_ENCRYPTION_KEY) {
-    const legacy = tryDecrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY)
-    if (legacy.length > 0) {
-      return legacy
-    }
-  }
-
-  return ''
+  return tryDecrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY)
 }
 
 /**
- * Decrypt with a single key. A wrong key can yield bytes that are not valid
- * UTF-8, which makes CryptoJS throw; treat that as "not decryptable with this key".
+ * Decrypt with a single key; corrupt or mismatched data that makes CryptoJS
+ * throw (malformed UTF-8) yields ''.
  */
 function tryDecrypt(encrypted: string, key: string): string {
   try {
