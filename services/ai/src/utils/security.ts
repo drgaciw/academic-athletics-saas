@@ -332,22 +332,32 @@ export function encryptConversation(content: string): string {
  */
 export function decryptConversation(encrypted: string): string {
   const primaryKey = resolveConversationEncryptionKey()
-  const primary = CryptoJS.AES.decrypt(encrypted, primaryKey).toString(CryptoJS.enc.Utf8)
+  const primary = tryDecrypt(encrypted, primaryKey)
   if (primary.length > 0) {
     return primary
   }
 
   // Migrate reads of ciphertext produced under the old hard-coded default.
   if (primaryKey !== LEGACY_INSECURE_ENCRYPTION_KEY) {
-    const legacy = CryptoJS.AES.decrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY).toString(
-      CryptoJS.enc.Utf8
-    )
+    const legacy = tryDecrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY)
     if (legacy.length > 0) {
       return legacy
     }
   }
 
   return ''
+}
+
+/**
+ * Decrypt with a single key. A wrong key can yield bytes that are not valid
+ * UTF-8, which makes CryptoJS throw; treat that as "not decryptable with this key".
+ */
+function tryDecrypt(encrypted: string, key: string): string {
+  try {
+    return CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8)
+  } catch {
+    return ''
+  }
 }
 
 /**
