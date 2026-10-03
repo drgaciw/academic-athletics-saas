@@ -92,7 +92,7 @@ export class ChatService {
       return null
     }
 
-    return this.getConversationHistory(conversationId, limit)
+    return this.getConversationHistory(effectiveUserId, conversationId, limit)
   }
 
   /**

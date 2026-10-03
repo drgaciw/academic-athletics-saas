@@ -6,12 +6,12 @@ jest.mock('../chatService', () => ({
   chatService: {
     chat: jest.fn(),
     chatSync: jest.fn(),
-    getConversationHistory: jest.fn(),
+    getConversationHistoryForUser: jest.fn(),
   },
 }))
 
 const mockChatSync = chatService.chatSync as jest.Mock
-const mockGetConversationHistory = chatService.getConversationHistory as jest.Mock
+const mockGetConversationHistory = chatService.getConversationHistoryForUser as jest.Mock
 
 describe('POST /api/ai/chat student eligibility (G3)', () => {
   const app = new Hono().route('/', chatRouter)
@@ -94,6 +94,6 @@ describe('POST /api/ai/chat student eligibility (G3)', () => {
     })
 
     expect(res.status).toBe(200)
-    expect(mockGetConversationHistory).toHaveBeenCalledWith('student-clerk-id', 'conv-1')
+    expect(mockGetConversationHistory).toHaveBeenCalledWith('conv-1', 'student-clerk-id')
   })
 })
