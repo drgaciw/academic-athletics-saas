@@ -5,12 +5,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { validateAuth, validateOptionalAuth } from '../middleware/authentication';
+import {
+  AuthenticationError,
+  validateAuth,
+  validateOptionalAuth,
+} from '../middleware/authentication';
 import { logRequest, logResponse, createTimer } from '../middleware/logging';
 import { checkRateLimit, addRateLimitHeaders } from '../middleware/rateLimit';
 import { handleError } from '../middleware/errorHandler';
 import { addCorsHeaders, handleCorsPreFlight } from '../middleware/cors';
-import { RequestContext } from '../types/services';
+import { RequestContext, UserRole } from '../types/services';
 
 export interface RouteHandlerConfig {
   requireAuth?: boolean;
@@ -106,6 +110,29 @@ export function extractPath(params: any): string {
 }
 
 /**
+ * Extracts a path using the service's Hono mount prefix.
+ */
+export function extractServicePath(serviceName: string, params: any): string {
+  return `/api/${serviceName}${extractPath(params)}`;
+}
+
+/**
+ * Guards BFF proxies when the downstream service lacks route-level RBAC.
+ */
+export function requireServiceRole(
+  context: RequestContext | null,
+  allowedRoles: readonly UserRole[],
+  serviceName: string
+): void {
+  if (!context || !allowedRoles.includes(context.role)) {
+    throw new AuthenticationError(
+      `Insufficient permissions for ${serviceName} service`,
+      403
+    );
+  }
+}
+
+/**
  * Forwards request to service with proper headers
  */
 export async function forwardRequest(
@@ -114,7 +141,7 @@ export async function forwardRequest(
   request: NextRequest,
   context: RequestContext | null
 ): Promise<NextResponse> {
-  const url = `${serviceUrl}${path}`;
+  const url = `${serviceUrl}${path}${request.nextUrl.search}`;
 
   // Get request body if present
   let body: any = undefined;

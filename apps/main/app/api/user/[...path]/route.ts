@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import { createRouteHandler, extractServicePath, forwardRequest } from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
 
 const serviceUrl = getServiceUrl('user');
@@ -12,7 +12,7 @@ const serviceUrl = getServiceUrl('user');
 // GET /api/user/*
 export const GET = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('user', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'user' }
@@ -21,7 +21,7 @@ export const GET = createRouteHandler(
 // POST /api/user/*
 export const POST = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('user', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'user' }
@@ -30,7 +30,7 @@ export const POST = createRouteHandler(
 // PUT /api/user/*
 export const PUT = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('user', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'user' }
@@ -39,7 +39,7 @@ export const PUT = createRouteHandler(
 // PATCH /api/user/*
 export const PATCH = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('user', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'user' }
@@ -48,7 +48,7 @@ export const PATCH = createRouteHandler(
 // DELETE /api/user/*
 export const DELETE = createRouteHandler(
   async (request, context, params) => {
-    const path = extractPath(params);
+    const path = extractServicePath('user', params);
     return forwardRequest(serviceUrl, path, request, context);
   },
   { serviceName: 'user' }

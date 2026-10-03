@@ -4,53 +4,55 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createRouteHandler, extractPath, forwardRequest } from '@/lib/api/routeHandler';
+import {
+  createRouteHandler,
+  extractServicePath,
+  forwardRequest,
+  requireServiceRole,
+} from '@/lib/api/routeHandler';
 import { getServiceUrl } from '@/lib/services';
+import { RequestContext, UserRole } from '@/lib/types/services';
 
 const serviceUrl = getServiceUrl('monitoring');
+const allowedRoles = [UserRole.ADMIN, UserRole.COMPLIANCE] as const;
+
+async function forwardMonitoringRequest(
+  request: NextRequest,
+  context: RequestContext | null,
+  params: any
+) {
+  requireServiceRole(context, allowedRoles, 'monitoring');
+  const path = extractServicePath('monitoring', params);
+  return forwardRequest(serviceUrl, path, request, context);
+}
 
 // GET /api/monitoring/*
 export const GET = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardMonitoringRequest,
   { serviceName: 'monitoring' }
 );
 
 // POST /api/monitoring/*
 export const POST = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardMonitoringRequest,
   { serviceName: 'monitoring' }
 );
 
 // PUT /api/monitoring/*
 export const PUT = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardMonitoringRequest,
   { serviceName: 'monitoring' }
 );
 
 // PATCH /api/monitoring/*
 export const PATCH = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardMonitoringRequest,
   { serviceName: 'monitoring' }
 );
 
 // DELETE /api/monitoring/*
 export const DELETE = createRouteHandler(
-  async (request, context, params) => {
-    const path = extractPath(params);
-    return forwardRequest(serviceUrl, path, request, context);
-  },
+  forwardMonitoringRequest,
   { serviceName: 'monitoring' }
 );
 
