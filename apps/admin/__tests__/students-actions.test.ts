@@ -1,7 +1,7 @@
 const mockAuth = jest.fn()
 const mockUserDelete = jest.fn()
 const mockRevalidatePath = jest.fn()
-const mockRedirect = jest.fn(() => {
+const mockRedirect = jest.fn((_url?: string): never => {
   const error = new Error('NEXT_REDIRECT')
   ;(error as Error & { digest?: string }).digest = 'NEXT_REDIRECT;replace;/students;303'
   throw error
@@ -32,7 +32,7 @@ jest.mock('next/cache', () => ({
 }))
 
 jest.mock('next/navigation', () => ({
-  redirect: (...args: unknown[]) => mockRedirect(...args),
+  redirect: (url: string) => mockRedirect(url),
 }))
 
 import { deleteStudent } from '../app/students/actions'
