@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { validateAuth, validateOptionalAuth } from '../middleware/authentication';
 import { logRequest, logResponse, createTimer } from '../middleware/logging';
 import { checkRateLimit, addRateLimitHeaders } from '../middleware/rateLimit';
@@ -32,7 +33,6 @@ export function createRouteHandler(
     request: NextRequest,
     { params }: { params: any }
   ): Promise<NextResponse> => {
-    const resolvedParams = await Promise.resolve(params);
     const timer = createTimer();
     const origin = request.headers.get('origin') || undefined;
     let context: RequestContext | null = null;
@@ -57,6 +57,9 @@ export function createRouteHandler(
       if (!config.skipRateLimit && context) {
         await checkRateLimit(config.serviceName, context);
       }
+
+      // Next 16 provides dynamic route params asynchronously.
+      const resolvedParams = await Promise.resolve(params);
 
       // Call handler
       const response = await handler(request, context, resolvedParams);
@@ -128,12 +131,18 @@ export async function forwardRequest(
     'Content-Type': 'application/json',
   };
 
-  // Forward authorization token
+  // Forward authorization token (prefer request header, then context, then mint)
   const authHeader = request.headers.get('authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
   } else if (context?.authToken) {
     headers['Authorization'] = `Bearer ${context.authToken}`;
+  } else if (context) {
+    const clerkAuth = await auth();
+    const token = await clerkAuth.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   // Add context headers

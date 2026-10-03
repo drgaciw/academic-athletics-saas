@@ -28,9 +28,19 @@
     "tailwind-merge": "^3.6.0",
     "zustand": "^4.5.7"
   },
+  "scripts": {
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch"
+  },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "^19.2.0",
     "@types/react-big-calendar": "^1.16.3",
+    "jest": "^30.4.1",
+    "jest-environment-jsdom": "^30.4.1",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.9.3"
   }
 }

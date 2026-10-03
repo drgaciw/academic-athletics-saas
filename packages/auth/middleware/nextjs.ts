@@ -74,22 +74,24 @@ export function authMiddleware(options: AuthMiddlewareOptions = {}) {
   const isPublicRoute = createRouteMatcher(publicRoutes);
 
   return clerkMiddleware(async (auth, req) => {
-    if (!isPublicRoute(req)) {
-      await auth.protect();
-    }
+    const publicRoute = isPublicRoute(req);
 
-    if (afterAuth) {
-      const authContext = await authState(() => auth());
-      const result = await afterAuth(
-        {
-          ...authContext,
-          redirectToSignIn: (signInOptions: { returnBackUrl?: string } = {}) =>
-            redirectToSignIn({ ...signInOptions, basePath }),
-        },
-        req
-      );
-      if (result) {
-        return result;
+    if (!publicRoute) {
+      await auth.protect();
+
+      if (afterAuth) {
+        const authContext = await authState(() => auth());
+        const result = await afterAuth(
+          {
+            ...authContext,
+            redirectToSignIn: (signInOptions: { returnBackUrl?: string } = {}) =>
+              redirectToSignIn({ ...signInOptions, basePath }),
+          },
+          req
+        );
+        if (result) {
+          return result;
+        }
       }
     }
   });

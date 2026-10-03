@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Student app smoke', () => {
+test.describe('Main app smoke', () => {
   test('sign-in page renders', async ({ page }) => {
     const response = await page.goto('/sign-in');
     expect(response?.status()).toBeLessThan(500);

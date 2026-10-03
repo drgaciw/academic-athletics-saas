@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@aah/database';
 import type { EvalRunListItem } from '@/lib/types/evals';
-
-// Revalidate every 30 seconds
-export const revalidate = 30;
+import { auth } from '@clerk/nextjs/server';
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { role: true },
+    });
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'COMPLIANCE')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const runs = await prisma.evalRun.findMany({
       orderBy: { createdAt: 'desc' },
       include: {

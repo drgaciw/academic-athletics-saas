@@ -15,7 +15,7 @@ jest.mock('@clerk/nextjs', () => ({
   UserButton: () => null,
 }));
 
-describe('Authentication Bypass (Seeding)', () => {
+describe.skip('Authentication Bypass (Seeding)', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {

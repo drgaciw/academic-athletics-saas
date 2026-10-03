@@ -1,25 +1,30 @@
 
 import { GET } from '../route';
 import { prisma } from '@aah/database';
-import { NextResponse } from 'next/server';
+
+const mockAuth = jest.fn();
 
 // Mock the prisma client
 jest.mock('@aah/database', () => ({
   prisma: {
+    user: {
+      findUnique: jest.fn(),
+    },
     evalRun: {
       findMany: jest.fn(),
     },
   },
 }));
 
-// Mock NextResponse to make it easier to test if needed,
-// but standard Response object methods like .json() should work if environment is correct.
-// However, in Jest environment node, Request/Response are available via global or setup.
-// If not, we might need polyfills or just inspect the result.
+jest.mock('@clerk/nextjs/server', () => ({
+  auth: () => mockAuth(),
+}));
 
 describe('GET /api/evals/runs', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuth.mockResolvedValue({ userId: 'clerk-admin' });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'ADMIN' });
   });
 
   it('returns formatted eval runs from database', async () => {
@@ -96,6 +101,28 @@ describe('GET /api/evals/runs', () => {
       include: { metrics: true },
       take: 100,
     });
+  });
+
+  it('rejects unauthenticated requests before reading eval runs', async () => {
+    mockAuth.mockResolvedValue({ userId: null });
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data.error).toBe('Authentication required');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-admin and non-compliance users before reading eval runs', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'STUDENT' });
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(data.error).toBe('Forbidden');
+    expect(prisma.evalRun.findMany).not.toHaveBeenCalled();
   });
 
   it('handles database errors', async () => {
