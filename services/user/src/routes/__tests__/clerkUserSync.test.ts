@@ -5,6 +5,14 @@ import {
 } from '../clerkUserSync'
 
 jest.mock('@aah/database', () => ({
+  UserRole: {
+    STUDENT: 'STUDENT',
+    ADMIN: 'ADMIN',
+    COACH: 'COACH',
+    FACULTY: 'FACULTY',
+    STAFF: 'STAFF',
+    COMPLIANCE: 'COMPLIANCE',
+  },
   prisma: {
     user: {
       findUnique: jest.fn(),
@@ -107,6 +115,41 @@ describe('createOrLinkUserFromClerk', () => {
       },
     })
     expect(result).toEqual(created)
+  })
+
+  it('creates STUDENT when Clerk metadata carries an unknown or missing role', async () => {
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(prisma.user.create as jest.Mock).mockImplementation(async ({ data }) => data)
+
+    await createOrLinkUserFromClerk({ ...clerkPayload, public_metadata: { role: 'STUDENT_ATHLETE' } })
+    await createOrLinkUserFromClerk({ ...clerkPayload, public_metadata: {} })
+
+    expect((prisma.user.create as jest.Mock).mock.calls.map(([arg]) => arg.data.role)).toEqual([
+      'STUDENT',
+      'STUDENT',
+    ])
+  })
+
+  it('keeps the admin-assigned role when linking with an unknown Clerk role', async () => {
+    const existing = {
+      id: 'db_user_9',
+      email: 'athlete@example.edu',
+      clerkId: 'temp_1710000000000',
+      firstName: 'Alex',
+      lastName: 'Runner',
+      role: 'COACH',
+    }
+    ;(prisma.user.findUnique as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(existing)
+    ;(prisma.user.update as jest.Mock).mockImplementation(async ({ data }) => ({ ...existing, ...data }))
+
+    await createOrLinkUserFromClerk({ ...clerkPayload, public_metadata: { role: 'superuser' } })
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 'db_user_9' },
+      data: expect.objectContaining({ role: 'COACH' }),
+    })
   })
 
   it('is idempotent when the Clerk id is already linked', async () => {
