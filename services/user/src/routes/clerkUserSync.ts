@@ -3,7 +3,7 @@
  * Admin pre-create uses temp_* clerkIds that must be rekeyed on first real signup.
  */
 
-import { prisma } from '@aah/database'
+import { prisma, UserRole } from '@aah/database'
 import { ConflictError, ServerError } from '@aah/api-utils'
 
 export function isTemporaryClerkId(clerkId: string): boolean {
@@ -22,12 +22,32 @@ export type ClerkUserWebhookData = {
   first_name?: string | null
   last_name?: string | null
   public_metadata?: {
-    role?: string
+    /** Role string as set in Clerk public metadata; validated via resolveClerkRole(). */
+    role?: UserRole | string | null
     studentId?: string
     sport?: string
     gpa?: number
     creditHours?: number
   } | null
+}
+
+const VALID_USER_ROLES = new Set<string>(Object.values(UserRole))
+
+/**
+ * Narrow an untrusted Clerk metadata role string to a UserRole.
+ * Unknown/missing values fall back to `fallback` (STUDENT by default).
+ */
+export function resolveClerkRole(
+  role: unknown,
+  fallback: UserRole = UserRole.STUDENT
+): UserRole {
+  if (typeof role === 'string') {
+    const normalized = role.trim().toUpperCase()
+    if (VALID_USER_ROLES.has(normalized)) {
+      return normalized as UserRole
+    }
+  }
+  return fallback
 }
 
 function resolvePrimaryEmail(data: ClerkUserWebhookData): string | undefined {
@@ -38,10 +58,10 @@ function resolvePrimaryEmail(data: ClerkUserWebhookData): string | undefined {
 
 async function ensureStudentProfileFromMetadata(
   userId: string,
-  role: string,
+  role: UserRole,
   publicMetadata: ClerkUserWebhookData['public_metadata']
 ) {
-  if (role !== 'STUDENT' || !publicMetadata?.studentId) {
+  if (role !== UserRole.STUDENT || !publicMetadata?.studentId) {
     return
   }
 
@@ -101,8 +121,8 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
         clerkId: id,
         firstName: first_name || existingByEmail.firstName,
         lastName: last_name || existingByEmail.lastName,
-        // Preserve admin-assigned role unless Clerk metadata explicitly sets one
-        role: public_metadata?.role || existingByEmail.role,
+        // Preserve admin-assigned role unless Clerk metadata explicitly sets a valid one
+        role: resolveClerkRole(public_metadata?.role, existingByEmail.role),
       },
     })
 
@@ -121,7 +141,7 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || 'STUDENT',
+      role: resolveClerkRole(public_metadata?.role),
     },
   })
 

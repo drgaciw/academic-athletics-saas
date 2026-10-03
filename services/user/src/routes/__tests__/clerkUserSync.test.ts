@@ -2,9 +2,18 @@ import { prisma } from '@aah/database'
 import {
   createOrLinkUserFromClerk,
   isTemporaryClerkId,
+  resolveClerkRole,
 } from '../clerkUserSync'
 
 jest.mock('@aah/database', () => ({
+  UserRole: {
+    STUDENT: 'STUDENT',
+    ADMIN: 'ADMIN',
+    COACH: 'COACH',
+    FACULTY: 'FACULTY',
+    STAFF: 'STAFF',
+    COMPLIANCE: 'COMPLIANCE',
+  },
   prisma: {
     user: {
       findUnique: jest.fn(),
@@ -22,6 +31,21 @@ describe('isTemporaryClerkId', () => {
   it('detects admin temp placeholders', () => {
     expect(isTemporaryClerkId('temp_1710000000000')).toBe(true)
     expect(isTemporaryClerkId('user_2abcRealClerk')).toBe(false)
+  })
+})
+
+describe('resolveClerkRole', () => {
+  it('accepts known roles (case-insensitive) and defaults unknown ones to STUDENT', () => {
+    expect(resolveClerkRole('ADMIN')).toBe('ADMIN')
+    expect(resolveClerkRole('coach')).toBe('COACH')
+    expect(resolveClerkRole('superuser')).toBe('STUDENT')
+    expect(resolveClerkRole(undefined)).toBe('STUDENT')
+    expect(resolveClerkRole(null)).toBe('STUDENT')
+    expect(resolveClerkRole(42)).toBe('STUDENT')
+  })
+
+  it('uses the provided fallback for invalid roles', () => {
+    expect(resolveClerkRole('bogus', 'ADMIN' as never)).toBe('ADMIN')
   })
 })
 
