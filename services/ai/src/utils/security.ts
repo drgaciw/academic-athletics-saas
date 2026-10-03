@@ -332,22 +332,36 @@ export function encryptConversation(content: string): string {
  */
 export function decryptConversation(encrypted: string): string {
   const primaryKey = resolveConversationEncryptionKey()
-  const primary = CryptoJS.AES.decrypt(encrypted, primaryKey).toString(CryptoJS.enc.Utf8)
+  const primary = tryDecryptWithKey(encrypted, primaryKey)
   if (primary.length > 0) {
     return primary
   }
 
   // Migrate reads of ciphertext produced under the old hard-coded default.
   if (primaryKey !== LEGACY_INSECURE_ENCRYPTION_KEY) {
-    const legacy = CryptoJS.AES.decrypt(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY).toString(
-      CryptoJS.enc.Utf8
-    )
+    const legacy = tryDecryptWithKey(encrypted, LEGACY_INSECURE_ENCRYPTION_KEY)
     if (legacy.length > 0) {
       return legacy
     }
   }
 
   return ''
+}
+
+/**
+ * Decrypt with a single key, returning '' on failure.
+ * CryptoJS does not authenticate ciphertext: decrypting with the wrong key
+ * usually yields an empty string but, depending on the padding bytes, can
+ * throw "Malformed UTF-8 data" (or, rarely, return a few garbage bytes).
+ * A throw means "this key does not fit" and must be a controlled miss so
+ * the caller can fall through to the next key instead of failing the read.
+ */
+function tryDecryptWithKey(encrypted: string, key: string): string {
+  try {
+    return CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8)
+  } catch {
+    return ''
+  }
 }
 
 /**
