@@ -3,7 +3,7 @@
  * Admin pre-create uses temp_* clerkIds that must be rekeyed on first real signup.
  */
 
-import { prisma } from '@aah/database'
+import { prisma, UserRole } from '@aah/database'
 import { ConflictError, ServerError } from '@aah/api-utils'
 
 export function isTemporaryClerkId(clerkId: string): boolean {
@@ -102,7 +102,7 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
         firstName: first_name || existingByEmail.firstName,
         lastName: last_name || existingByEmail.lastName,
         // Preserve admin-assigned role unless Clerk metadata explicitly sets one
-        role: public_metadata?.role || existingByEmail.role,
+        role: (public_metadata?.role as UserRole | undefined) || existingByEmail.role,
       },
     })
 
@@ -121,7 +121,7 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || 'STUDENT',
+      role: (public_metadata?.role as UserRole | undefined) || UserRole.STUDENT,
     },
   })
 
