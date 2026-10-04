@@ -147,22 +147,41 @@ export class AgentMemoryStore {
       const minImportance = options.minImportance ?? 0.0
       const minConfidence = options.minConfidence ?? 0.0
 
-      // Build memory type filter
+      // Embedding values come from the model API; reject non-numeric payloads before
+      // interpolating the pgvector literal. All user/filter inputs stay parameterized.
+      if (!queryEmbedding.every((value) => Number.isFinite(value))) {
+        throw new Error('Invalid embedding vector for memory search')
+      }
+      const embeddingLiteral = `[${queryEmbedding.join(',')}]`
+
+      const params: unknown[] = [userId, minImportance, minConfidence, limit]
+
       let memoryTypeFilter = ''
       if (options.memoryType) {
-        const types = Array.isArray(options.memoryType)
-          ? options.memoryType
-          : [options.memoryType]
-        memoryTypeFilter = `AND memory_type IN (${types.map((t) => `'${t}'`).join(',')})`
+        const allowedMemoryTypes = new Set<MemoryType>([
+          'short_term',
+          'long_term',
+          'working',
+        ])
+        const types = (
+          Array.isArray(options.memoryType) ? options.memoryType : [options.memoryType]
+        ).filter((type): type is MemoryType => allowedMemoryTypes.has(type as MemoryType))
+
+        if (types.length > 0) {
+          const placeholders = types.map((type) => {
+            params.push(type)
+            return `$${params.length}`
+          })
+          memoryTypeFilter = `AND memory_type IN (${placeholders.join(',')})`
+        }
       }
 
-      // Build expiration filter
       const expirationFilter = options.includeExpired
         ? ''
         : `AND (expires_at IS NULL OR expires_at > NOW())`
 
-      // Vector similarity search using pgvector
-      const results = await prisma.$queryRawUnsafe<any[]>(`
+      const results = await prisma.$queryRawUnsafe<any[]>(
+        `
         SELECT 
           id,
           user_id,
@@ -176,16 +195,18 @@ export class AgentMemoryStore {
           expires_at,
           created_at,
           updated_at,
-          1 - (embedding <=> '[${queryEmbedding.join(',')}]'::vector) as similarity
+          1 - (embedding <=> '${embeddingLiteral}'::vector) as similarity
         FROM agent_memory
-        WHERE user_id = '${userId}'
+        WHERE user_id = $1
           ${memoryTypeFilter}
           ${expirationFilter}
-          AND importance >= ${minImportance}
-          AND confidence >= ${minConfidence}
-        ORDER BY embedding <=> '[${queryEmbedding.join(',')}]'::vector
-        LIMIT ${limit}
-      `)
+          AND importance >= $2
+          AND confidence >= $3
+        ORDER BY embedding <=> '${embeddingLiteral}'::vector
+        LIMIT $4
+      `,
+        ...params
+      )
 
       // Update access count
       const memoryIds = results.map((r) => r.id)
