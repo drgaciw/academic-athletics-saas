@@ -15,6 +15,7 @@ import {
 } from '@aah/api-utils'
 import { prisma } from '@aah/database'
 import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
+import { deleteLocalUserByClerkId } from '../services/deleteLocalUser'
 
 const loadEnvFile = (filePath: string) => {
   if (!existsSync(filePath)) return
@@ -153,28 +154,8 @@ async function handleUserUpdated(data: any) {
  */
 async function handleUserDeleted(data: any) {
   const { id } = data
-
-  // Find user by Clerk ID
-  const user = await prisma.user.findUnique({
-    where: { clerkId: id },
-  })
-
-  if (!user) {
-    // User doesn't exist, nothing to delete
-    return null
-  }
-
-  // Delete student profile if exists
-  await prisma.studentProfile.deleteMany({
-    where: { userId: user.id },
-  })
-
-  // Delete user
-  await prisma.user.delete({
-    where: { id: user.id },
-  })
-
-  return user
+  // Atomic delete — never wipe StudentProfile before User (see deleteLocalUser).
+  return deleteLocalUserByClerkId(id)
 }
 
 // =============================================================================
