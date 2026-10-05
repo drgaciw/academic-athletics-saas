@@ -189,6 +189,40 @@ Dynamic catch-all routes for each service:
 - Adds correlation and rate limit headers
 - Special streaming support for AI service
 
+#### Upstream path contract
+
+Every backend service mounts its Hono router under `/api/{service}` (for
+example the user service serves `/api/user/profile`, not `/profile`). The BFF
+therefore forwards to the **same prefixed path** on the upstream, and preserves
+the original query string:
+
+```
+BFF request:   {METHOD} /api/{service}/{rest}?{query}
+Upstream call: {METHOD} ${<SERVICE>_SERVICE_URL}/api/{service}/{rest}?{query}
+```
+
+- `extractServicePath(serviceName, params)` in `lib/api/routeHandler.ts` builds
+  `/api/{service}{/rest}`; `forwardRequest()` appends `request.nextUrl.search`.
+- The hand-rolled streaming proxy in `app/api/ai/[...path]/route.ts` follows the
+  same contract (`${AI_SERVICE_URL}/api/ai/{rest}?{query}`).
+- New catch-all routes must use `extractServicePath`, never the bare
+  `extractPath` (which drops the `/api/{service}` prefix and 404s upstream).
+
+#### Role gates on the BFF
+
+All catch-all routes require an authenticated Clerk session (`requireAuth`).
+The monitoring and integration services do not enforce route-level RBAC
+themselves, so the BFF gates them before forwarding:
+
+| Route | Allowed roles | Enforced by |
+|-------|---------------|-------------|
+| `/api/monitoring/*` | `ADMIN`, `COMPLIANCE` | `requireServiceRole()` in `app/api/monitoring/[...path]/route.ts` |
+| `/api/integration/*` | `ADMIN`, `COMPLIANCE` | `requireServiceRole()` in `app/api/integration/[...path]/route.ts` |
+
+Any other role (STUDENT, COACH, FACULTY, STAFF) receives `403 FORBIDDEN`
+**before** the request reaches the upstream service. The gate applies to every
+verb (GET, POST, PUT, PATCH, DELETE).
+
 ### 4. TypeScript Types
 
 Complete type definitions for:
@@ -288,9 +322,9 @@ while (true) {
 | `/api/user/*` | User Service endpoints | Yes |
 | `/api/compliance/*` | Compliance Service endpoints | Yes |
 | `/api/advising/*` | Advising Service endpoints | Yes |
-| `/api/monitoring/*` | Monitoring Service endpoints | Yes |
+| `/api/monitoring/*` | Monitoring Service endpoints | Yes (ADMIN / COMPLIANCE only) |
 | `/api/support/*` | Support Service endpoints | Yes |
-| `/api/integration/*` | Integration Service endpoints | Yes |
+| `/api/integration/*` | Integration Service endpoints | Yes (ADMIN / COMPLIANCE only) |
 | `/api/ai/*` | AI Service endpoints (streaming) | Yes |
 
 ### Response Format
