@@ -1,3 +1,4 @@
+import { requireAdminPageAccess } from '../../lib/admin-auth';
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@aah/database";
 import { Card, CardHeader, CardTitle, CardContent } from "@aah/ui";
@@ -23,6 +24,8 @@ async function getStudents() {
 }
 
 export default async function StudentsPage() {
+  await requireAdminPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {

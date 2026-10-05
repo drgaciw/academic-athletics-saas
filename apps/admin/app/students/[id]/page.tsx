@@ -1,3 +1,4 @@
+import { requireAdminPageAccess } from '../../../lib/admin-auth';
 import { auth as clerkAuth } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
@@ -11,6 +12,8 @@ type Props = {
 };
 
 export default async function StudentDetailPage({ params }: Props) {
+  await requireAdminPageAccess();
+
   const { userId } = await clerkAuth();
 
   if (!userId) {

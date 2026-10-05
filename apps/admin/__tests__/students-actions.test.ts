@@ -1,5 +1,6 @@
 const mockAuth = jest.fn()
 const mockUserDelete = jest.fn()
+const mockFindUnique = jest.fn()
 const mockRevalidatePath = jest.fn()
 const mockRedirect = jest.fn((_url?: string): never => {
   const error = new Error('NEXT_REDIRECT')
@@ -16,7 +17,7 @@ jest.mock('@aah/database', () => ({
     user: {
       delete: (...args: unknown[]) => mockUserDelete(...args),
       findMany: jest.fn(),
-      findUnique: jest.fn(),
+      findUnique: (...args: unknown[]) => mockFindUnique(...args),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -43,6 +44,7 @@ describe('admin student actions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockAuth.mockResolvedValue({ userId: 'clerk_admin_1' })
+    mockFindUnique.mockResolvedValue({ role: 'ADMIN' })
     mockUserDelete.mockResolvedValue({ id: 'student_1' })
   })
 
