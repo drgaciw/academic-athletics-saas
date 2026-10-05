@@ -124,23 +124,15 @@ vercel --prod
 
 ## 🔧 Multi-Zone Configuration
 
-The `vercel.json` file configures routing for microservices:
+Backend services are reached through Next.js route handlers in the main app
+(`apps/main/app/api/<service>/[...path]/route.ts`), which authenticate the
+caller and forward the request to the service's `*_SERVICE_URL`. See
+`apps/main/API_GATEWAY.md` for the path contract.
 
-```json
-{
-  "rewrites": [
-    {
-      "source": "/api/user/:path*",
-      "destination": "/api/services/user/:path*"
-    },
-    {
-      "source": "/api/advising/:path*",
-      "destination": "/api/services/advising/:path*"
-    }
-    // ... other services
-  ]
-}
-```
+`apps/main/vercel.json` no longer declares `/api/<service>/* ->
+/api/services/<service>/*` rewrites: those destinations never existed, so the
+rewrites were dead configuration. Zone rewrites for the student, admin and
+docs apps live in `apps/main/next.config.js`.
 
 ### Service Endpoints
 

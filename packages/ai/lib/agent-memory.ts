@@ -13,6 +13,16 @@ import type { AgentMemory, MemoryType } from '../types/agent.types'
 import { prisma } from '@aah/database'
 
 /**
+ * Memory types accepted in SQL filters. Anything else is dropped before it can
+ * reach the query (values are still bound as parameters, never interpolated).
+ */
+const ALLOWED_MEMORY_TYPES: ReadonlySet<MemoryType> = new Set<MemoryType>([
+  'short_term',
+  'long_term',
+  'working',
+])
+
+/**
  * Memory entry for storage
  */
 export interface MemoryEntry {
@@ -157,23 +167,26 @@ export class AgentMemoryStore {
       const params: unknown[] = [userId, minImportance, minConfidence, limit]
 
       let memoryTypeFilter = ''
-      if (options.memoryType) {
-        const allowedMemoryTypes = new Set<MemoryType>([
-          'short_term',
-          'long_term',
-          'working',
-        ])
-        const types = (
-          Array.isArray(options.memoryType) ? options.memoryType : [options.memoryType]
-        ).filter((type): type is MemoryType => allowedMemoryTypes.has(type as MemoryType))
+      if (options.memoryType !== undefined) {
+        const requested = Array.isArray(options.memoryType)
+          ? options.memoryType
+          : [options.memoryType]
+        const types = requested.filter((type): type is MemoryType =>
+          ALLOWED_MEMORY_TYPES.has(type as MemoryType)
+        )
 
-        if (types.length > 0) {
-          const placeholders = types.map((type) => {
-            params.push(type)
-            return `$${params.length}`
-          })
-          memoryTypeFilter = `AND memory_type IN (${placeholders.join(',')})`
+        // Fail closed: a memoryType filter was requested, but nothing survived the
+        // allow-list. Returning every type here would silently widen the query, so
+        // return no rows instead.
+        if (types.length === 0) {
+          return []
         }
+
+        const placeholders = types.map((type) => {
+          params.push(type)
+          return `$${params.length}`
+        })
+        memoryTypeFilter = `AND memory_type IN (${placeholders.join(',')})`
       }
 
       const expirationFilter = options.includeExpired
