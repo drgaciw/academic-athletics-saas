@@ -25,6 +25,6 @@ export async function requireStudentPageAccess(): Promise<void> {
   }
 
   if (status === 'forbidden') {
-    redirect('/');
+    redirect('/forbidden');
   }
 }

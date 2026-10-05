@@ -34,7 +34,7 @@ describe('requireStudentPageAccess', () => {
     async (role) => {
       mockAuth.mockResolvedValue({ userId: 'u1', sessionClaims: { metadata: { role: 'STUDENT' } } })
       mockFindUnique.mockResolvedValue({ role })
-      await expect(requireStudentPageAccess()).rejects.toThrow('NEXT_REDIRECT:/')
+      await expect(requireStudentPageAccess()).rejects.toThrow('NEXT_REDIRECT:/forbidden')
       expect(mockFindUnique).toHaveBeenCalledWith({ where: { clerkId: 'u1' }, select: { role: true } })
     }
   )
@@ -42,7 +42,7 @@ describe('requireStudentPageAccess', () => {
   it('redirects to / when the user has no DB record', async () => {
     mockAuth.mockResolvedValue({ userId: 'u1' })
     mockFindUnique.mockResolvedValue(null)
-    await expect(requireStudentPageAccess()).rejects.toThrow('NEXT_REDIRECT:/')
+    await expect(requireStudentPageAccess()).rejects.toThrow('NEXT_REDIRECT:/forbidden')
   })
 
   it('allows DB role STUDENT', async () => {

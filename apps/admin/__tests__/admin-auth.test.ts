@@ -33,14 +33,14 @@ describe('admin DB-backed role guards', () => {
     it('redirects to / when DB role is STUDENT even if Clerk claims say ADMIN', async () => {
       mockAuth.mockResolvedValue({ userId: 'u1', sessionClaims: { metadata: { role: 'ADMIN' } } })
       mockFindUnique.mockResolvedValue({ role: 'STUDENT' })
-      await expect(requireAdminPageAccess()).rejects.toThrow('NEXT_REDIRECT:/')
+      await expect(requireAdminPageAccess()).rejects.toThrow('NEXT_REDIRECT:/forbidden')
       expect(mockFindUnique).toHaveBeenCalledWith({ where: { clerkId: 'u1' }, select: { role: true } })
     })
 
     it('redirects to / when the user has no DB record', async () => {
       mockAuth.mockResolvedValue({ userId: 'u1' })
       mockFindUnique.mockResolvedValue(null)
-      await expect(requireAdminPageAccess()).rejects.toThrow('NEXT_REDIRECT:/')
+      await expect(requireAdminPageAccess()).rejects.toThrow('NEXT_REDIRECT:/forbidden')
     })
 
     it.each(['ADMIN', 'STAFF'])('allows DB role %s', async (role) => {

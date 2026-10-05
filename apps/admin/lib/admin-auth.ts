@@ -27,7 +27,7 @@ export async function requireAdminPageAccess(): Promise<void> {
   }
 
   if (status === 'forbidden') {
-    redirect('/');
+    redirect('/forbidden');
   }
 }
 
