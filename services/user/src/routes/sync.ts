@@ -16,7 +16,7 @@ import {
 import { prisma } from '@aah/database'
 import { validateEnv, userServiceEnvSchema } from '@aah/config/env'
 import { deleteLocalUserByClerkId } from '../services/deleteLocalUser'
-import { createOrLinkUserFromClerk } from './clerkUserSync'
+import { createOrLinkUserFromClerk, parseUserRole } from './clerkUserSync'
 import { ensureStudentProfileIfMissing } from './clerkStudentProfile'
 
 const loadEnvFile = (filePath: string) => {
@@ -84,7 +84,8 @@ async function handleUserUpdated(data: any) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: public_metadata?.role || existingUser.role,
+      // An unknown/typo'd Clerk role keeps the stored role (never demote on bad metadata)
+      role: parseUserRole(public_metadata?.role) ?? existingUser.role,
     },
   })
 

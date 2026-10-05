@@ -6,6 +6,25 @@
 import { prisma, UserRole } from '@aah/database'
 import { ConflictError, ServerError } from '@aah/api-utils'
 
+/**
+ * Narrow Clerk `public_metadata.role` (untyped, operator-editable) to the Prisma
+ * `UserRole` enum. Returns undefined when it is missing or not a known role.
+ */
+export function parseUserRole(raw: unknown): UserRole | undefined {
+  if (typeof raw === 'string' && (Object.values(UserRole) as string[]).includes(raw)) {
+    return raw as UserRole
+  }
+  return undefined
+}
+
+/**
+ * Role for a brand-new user: a valid Clerk role, otherwise STUDENT.
+ * (On updates, callers keep the stored role instead; see parseUserRole.)
+ */
+export function resolveUserRole(raw: unknown): UserRole {
+  return parseUserRole(raw) ?? UserRole.STUDENT
+}
+
 export function isTemporaryClerkId(clerkId: string): boolean {
   return clerkId.startsWith('temp_')
 }
@@ -101,8 +120,8 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
         clerkId: id,
         firstName: first_name || existingByEmail.firstName,
         lastName: last_name || existingByEmail.lastName,
-        // Preserve admin-assigned role unless Clerk metadata explicitly sets one
-        role: (public_metadata?.role as UserRole | undefined) || existingByEmail.role,
+        // Preserve admin-assigned role unless Clerk metadata sets a valid one
+        role: parseUserRole(public_metadata?.role) ?? existingByEmail.role,
       },
     })
 
@@ -121,7 +140,7 @@ export async function createOrLinkUserFromClerk(data: ClerkUserWebhookData) {
       email,
       firstName: first_name || null,
       lastName: last_name || null,
-      role: (public_metadata?.role as UserRole | undefined) || UserRole.STUDENT,
+      role: resolveUserRole(public_metadata?.role),
     },
   })
 

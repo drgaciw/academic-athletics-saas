@@ -30,9 +30,43 @@ describe('Middleware', () => {
       '/sso-callback',
       '/api/health',
       '/api/webhooks/(.*)',
+      '/api/user/sync-clerk',
       '/api/cron/regulation-check',
     ])
     expect(typeof middleware).toBe('function')
+  })
+
+  it('treats the Clerk webhook relay as public (no auth.protect)', async () => {
+    const auth = jest.fn()
+    auth.protect = jest.fn()
+    const request = {
+      url: 'http://localhost/api/user/sync-clerk',
+      nextUrl: { pathname: '/api/user/sync-clerk' },
+    }
+
+    await middleware(auth, request)
+
+    expect(auth.protect).not.toHaveBeenCalled()
+  })
+
+  it('still protects other user-service API routes', async () => {
+    const auth = jest.fn()
+    auth.protect = jest.fn()
+    const request = {
+      url: 'http://localhost/api/user/profile',
+      nextUrl: { pathname: '/api/user/profile' },
+    }
+
+    await middleware(auth, request)
+
+    expect(auth.protect).toHaveBeenCalledTimes(1)
+  })
+
+  it('lets /api/user/sync-clerk reach the middleware via config.matcher', () => {
+    const apiMatcher = config.matcher.find((m) => m.startsWith('/(api|trpc)'))
+    expect(apiMatcher).toBeDefined()
+    const pattern = new RegExp(`^${apiMatcher!.replace(/\(\.\*\)/g, '.*')}$`)
+    expect(pattern.test('/api/user/sync-clerk')).toBe(true)
   })
 
   it('should define matcher config', () => {
