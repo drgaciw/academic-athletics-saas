@@ -4,6 +4,7 @@ import { auth as clerkAuth } from '@clerk/nextjs/server'
 import { prisma, Prisma } from '@aah/database'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { requireAdminActionAccess } from '../../../lib/admin-auth'
 
 export type StudentFormData = {
   email: string
@@ -28,6 +29,7 @@ export async function getStudents(filters?: {
   eligibilityStatus?: string
   search?: string
 }) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -82,6 +84,7 @@ export async function getStudents(filters?: {
 }
 
 export async function getStudent(id: string) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -118,6 +121,7 @@ export async function getStudent(id: string) {
 }
 
 export async function createStudent(data: StudentFormData) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -160,6 +164,7 @@ export async function createStudent(data: StudentFormData) {
 }
 
 export async function updateStudent(id: string, data: Partial<StudentFormData>) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -206,6 +211,7 @@ export async function updateStudent(id: string, data: Partial<StudentFormData>) 
 }
 
 export async function deleteStudent(id: string) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -228,6 +234,7 @@ export async function deleteStudent(id: string) {
 }
 
 export async function bulkUpdateEligibility(studentIds: string[], eligibilityStatus: string) {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {
@@ -253,6 +260,7 @@ export async function bulkUpdateEligibility(studentIds: string[], eligibilitySta
 }
 
 export async function exportStudents(format: 'csv' | 'json') {
+  await requireAdminActionAccess()
   const { userId } = await clerkAuth()
 
   if (!userId) {

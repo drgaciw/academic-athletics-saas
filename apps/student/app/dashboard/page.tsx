@@ -1,3 +1,4 @@
+import { requireStudentPageAccess } from '@/lib/student-auth';
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { AcademicOverviewCard } from "@/components/academic-overview-card";
@@ -11,6 +12,8 @@ import {
 } from "@/lib/student-data";
 
 export default async function DashboardPage() {
+  await requireStudentPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {

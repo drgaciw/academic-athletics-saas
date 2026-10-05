@@ -1,3 +1,4 @@
+import { requireAdminPageAccess } from '../../lib/admin-auth';
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from '@aah/database';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
@@ -48,6 +49,8 @@ async function getProgramData() {
 }
 
 export default async function ProgramsPage() {
+  await requireAdminPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {

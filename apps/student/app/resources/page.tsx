@@ -1,3 +1,4 @@
+import { requireStudentPageAccess } from '@/lib/student-auth';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@aah/ui';
@@ -8,6 +9,8 @@ import { MentorCard } from '@/components/mentor-card';
 import { getStudentByClerkId } from '@/lib/student-data';
 
 export default async function ResourcesPage() {
+  await requireStudentPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {

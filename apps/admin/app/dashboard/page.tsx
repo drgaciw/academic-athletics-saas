@@ -1,3 +1,4 @@
+import { requireAdminPageAccess } from '../../lib/admin-auth';
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@aah/database";
 import {
@@ -62,6 +63,8 @@ async function getAdminAnalytics() {
 }
 
 export default async function AdminDashboardPage() {
+  await requireAdminPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {

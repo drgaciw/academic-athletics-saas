@@ -1,3 +1,4 @@
+import { requireAdminPageAccess } from '../../../lib/admin-auth';
 import { auth as clerkAuth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@aah/ui';
@@ -5,6 +6,8 @@ import { createStudent } from '../actions';
 import { StudentForm } from '../../../components/students/StudentForm';
 
 export default async function NewStudentPage() {
+  await requireAdminPageAccess();
+
   const { userId } = await clerkAuth();
 
   if (!userId) {

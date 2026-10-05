@@ -1,3 +1,4 @@
+import { requireStudentPageAccess } from '@/lib/student-auth';
 import { auth } from '@clerk/nextjs/server'
 import { Card, CardHeader, CardTitle, CardContent } from '@aah/ui';
 import { redirect } from 'next/navigation';
@@ -5,6 +6,8 @@ import { ScheduleCalendarView } from '@/components/schedule-calendar-view';
 import { getEnrolledCourseSections, getStudentByClerkId } from '@/lib/student-data';
 
 export default async function SchedulePage() {
+  await requireStudentPageAccess();
+
   const { userId } = await auth();
 
   if (!userId) {
